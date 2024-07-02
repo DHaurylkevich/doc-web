@@ -23,5 +23,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(port, ( ) => console.log(
-    'Express запущен на http://localhost:${port); ' +
-    'нажмите Ctrl+C для завершения.'))
+    `Express запущен на http://localhost: ${ port }) ; ` +
+    `нажмите Ctrl+C для завершения.`))
