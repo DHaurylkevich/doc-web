@@ -52,10 +52,6 @@ router.put("/appointments/:id", async (req, res) => {
     try {
         const { doctorId, patientId, date, description } = req.body;
 
-        if (!doctorId || !patientId || !date) {
-            return res.status(400).json({message: "Не хватает обязательных полей: doctorId, patientId, date" });
-        }
-
         const updatedAppointment = await Appointment.findByIdAndUpdate(
             req.params.id,
             { doctor: doctorId, patient: patientId, date, description },
@@ -63,7 +59,7 @@ router.put("/appointments/:id", async (req, res) => {
         ).lean().exec();
 
         if (!updatedAppointment) {
-            return res.status(404).json({ message: 'Запись не найдена' });
+            return res.status(404).json({ message: "Запись не найдена" });
         }
         res.status(200).json(updatedAppointment);
     } catch(err){
@@ -74,7 +70,7 @@ router.put("/appointments/:id", async (req, res) => {
 
 router.delete("/appointments/:id", async (req, res) => {
     try {
-        const appointment = await Appointment.findById(req.params.id).lean().exec();;
+        const appointment = await Appointment.findById(req.params.id).lean().exec();
         if (!appointment) {
             return res.status(404).json({ message: 'Запись не найдена' });
         }
