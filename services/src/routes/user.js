@@ -11,7 +11,7 @@ router.post("/users", async (req, res) => {
             return res.status(400).json({message: "Не хватает обязательных полей: name, email, password" })
         }
 
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email }).lean().exec();;
         if (user) {
             return res.status(400).json({ message: " Пользователь с таким email уже существует"});
         }

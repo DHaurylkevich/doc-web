@@ -1,13 +1,14 @@
 const express = require("express");
 const connectDB = require("./src/config/connectDB");
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 connectDB();
 
 app.use(express.json());
 
 app.use("/api/appointments", require("./src/routes/appointments"));
+app.use("/api/users", require("./src/routes/users"));
 
 app.get("/", (req, res) => {
     res.send("Hello");
