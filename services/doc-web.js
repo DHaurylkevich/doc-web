@@ -9,6 +9,9 @@ app.use(express.json());
 
 app.use("/api/appointments", require("./src/routes/appointments"));
 app.use("/api/users", require("./src/routes/users"));
+app.use("/api/patients", require("./src/routes/patient"));
+app.use("/api/doctors", require("./src/routes/doctors"));
+
 
 app.get("/", (req, res) => {
     res.send("Hello");

@@ -5,16 +5,17 @@ const Patient = require("../models/patient");
 router.post("/patients", async (req, res) => {
     try {
         const { name, age, contact, medicalHistory  } = req.body;
-        if (!name || !specialization || !contact) {
+        if (!name || !age || !contact) {
             return res.status(400).json({ message: "Не хватает обязательных полей: name, specialization, contact" });
         }
-        const doctor = new Doctor({ 
+        const patient = new Patient({ 
             name, 
-            specialization, 
-            contact 
+            age, 
+            contact,
+            medicalHistory
         });
-        const saveDoctor = await doctor.save();
-        res.status(201).send(saveDoctor);
+        const savePatient = await patient.save();
+        res.status(201).send(savePatient);
     } catch (err){
         console.error(err);
         res.status(500).json({ message: err.message });
@@ -23,11 +24,11 @@ router.post("/patients", async (req, res) => {
 
 router.get("/patients", async (req, res) => {
     try {
-        const doctors = await Doctor.find().lean().exec();
-        if (!doctors) {
-            return res.status(200).json({ message: "Врачей нету" });
+        const patients = await Patient.find().lean().exec();
+        if (!patients) {
+            return res.status(200).json({ message: "Пациенты не ныйдены" });
         }
-        res.status(200).json(doctors);
+        res.status(200).json(patients);
     } catch (err){
         console.error(err);
         res.status(500).json({ message: err.message });
@@ -36,11 +37,11 @@ router.get("/patients", async (req, res) => {
 
 router.get("/patients/:id", async (req, res) => {
     try {
-        const doctor = await Doctor.findById(req.params.id).lean().exec();
-        if (!doctor) {
-            return res.status(200).json({ message: "Врач не найден" });
+        const patient = await Patient.findById(req.params.id).lean().exec();
+        if (!patient) {
+            return res.status(200).json({ message: "Пациенты не найдены" });
         }
-        res.status(200).json(doctor);
+        res.status(200).json(patient);
     } catch (err){
         console.error(err);
         res.status(500).json({ message: err.message });
@@ -50,15 +51,15 @@ router.get("/patients/:id", async (req, res) => {
 router.put("/patients/:id", async (req, res) => {
     try {
         const { name, specialization, contact } = req.body;
-        const doctor = await Doctor.findByIdAndUpdate(
+        const patient = await Patient.findByIdAndUpdate(
             req.params.id,
-            { name, specialization, contact },
-            {new: true, runValidation: true }
+            { name, age, contact, medicalHistory },
+            { new: true, runValidation: true }
         );
-        if (!doctor) {
-            return res.status(404).json({ message: "Врач не найден" });
+        if (!patient) {
+            return res.status(404).json({ message: "Пациент не найден" });
         }
-        res.status(200).json(doctor);
+        res.status(200).json(patient);
     } catch (err){
         console.error(err);
         res.status(500).json({ message: err.message });
@@ -67,13 +68,15 @@ router.put("/patients/:id", async (req, res) => {
 
 router.delete("/patients/:id", async (req, res) => {
     try {
-        const doctor = await Doctor.findByIdAndDelete(req.params.id);
-        if (!doctor) {
-            return res.status(404).json({ message: "Врач не найден" });
+        const patient = await Patient.findByIdAndDelete(req.params.id);
+        if (!patient) {
+            return res.status(404).json({ message: "Пациент не найден" });
         }
-        res.status(200).json({ message: "Врач удален" });
+        res.status(200).json({ message: "Пациент удален" });
     } catch (err){
         console.error(err);
         res.status(500).json({ message: err.message });
     }
 });
+
+module.exports = router;
