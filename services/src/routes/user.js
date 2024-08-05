@@ -1,47 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcryptjs");
-const User = mongoose.model("../model/User");
+// import { v4 as uuidv4 } from 'uuid';
+const userController = require("../controllers/userController");
 
-router.post("/users", async (req, res) => {
-    try{
-        const { name, email, password, role } = req.body;
+router.post("/register", userController.registerUser);
 
-        if (!name || !email || !password) {
-            return res.status(400).json({message: "Не хватает обязательных полей: name, email, password" })
-        }
+router.post("/login", async (req, res) => {
 
-        let user = await User.findOne({ email }).lean().exec();;
-        if (user) {
-            return res.status(400).json({ message: " Пользователь с таким email уже существует"});
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        user = new User({
-            name,
-            email,
-            password: hashedPassword,
-            role
-        });
-
-        const saveUser = await user.save();
-        res.status(201).send(saveUser);
-    }catch (err){
-        console.error(err);
-        res.status(500).json( {message: err.message});
-    }
-});
-
-router.get("/users", async (req, res) => {
-    try{
-        const users = await User.find().lean().exec();
-        res.status(200).json(users);
-    }catch (err){
-        console.error(err);
-        res.status(500).json({message: err.message});
-    }
 });
 
 router.get("/users/:id", async (req, res) => {

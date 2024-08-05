@@ -1,16 +1,18 @@
 const express = require("express");
 const connectDB = require("./src/config/connectDB");
-const app = express();
+const userRoutes = require("./src/routes/user");
+const bodyParser = require("body-parser");
 const port = process.env.PORT || 5000;
 
+const app = express();
 connectDB();
 
-app.use(express.json());
+app.use(bodyParser.json());
 
+app.use("/api/user", userRoutes);
 app.use("/api/appointments", require("./src/routes/appointments"));
-app.use("/api/users", require("./src/routes/users"));
 app.use("/api/patients", require("./src/routes/patient"));
-app.use("/api/doctors", require("./src/routes/doctors"));
+app.use("/api/doctors", require("./src/routes/doctor"));
 
 
 app.get("/", (req, res) => {
