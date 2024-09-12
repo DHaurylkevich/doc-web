@@ -1,19 +1,13 @@
 const express = require("express");
-const connectDB = require("./src/config/connectDB");
-const userRoutes = require("./src/routes/user");
-const bodyParser = require("body-parser");
+const app = express();
+require("./src/config/db");
+require("dotenv").config();
+
 const port = process.env.PORT || 5000;
 
-const app = express();
-connectDB();
+app.use(express.json());
 
-app.use(bodyParser.json());
-
-app.use("/api/user", userRoutes);
-app.use("/api/appointments", require("./src/routes/appointments"));
-app.use("/api/patients", require("./src/routes/patient"));
-app.use("/api/doctors", require("./src/routes/doctor"));
-
+app.use("/api", require("./src/routes/"));
 
 app.get("/", (req, res) => {
     res.send("Hello");
@@ -29,5 +23,4 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(port, ( ) => console.log(
-    `Express запущен на http://localhost: ${ port }) ; ` +
-    `нажмите Ctrl+C для завершения.`))
+    `http://localhost: ${ port }`))

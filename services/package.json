@@ -1,0 +1,29 @@
+{
+  "name": "mylekarz",
+  "version": "1.0.0",
+  "main": "doc-web.js",
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon doc-web.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DHaurylkevich/doc-web.git"
+  },
+  "author": "Dzmitry Haurylkevich",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DHaurylkevich/doc-web/issues"
+  },
+  "homepage": "https://github.com/DHaurylkevich/doc-web#readme",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "mysql2": "^3.11.2",
+    "sequelize": "^6.37.3"
+  }
+}
