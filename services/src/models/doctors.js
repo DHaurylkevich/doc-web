@@ -1,68 +1,72 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('appointments', {
-    appointment_id: {
+  return sequelize.define('doctors', {
+    doctor_id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    patient_id: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'patients',
-        key: 'patient_id'
+        model: 'users',
+        key: 'user_id'
       }
     },
-    doctor_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'doctors',
-        key: 'doctor_id'
-      }
+    specialty: {
+      type: DataTypes.STRING(255),
+      allowNull: true
     },
-    appointment_date: {
-      type: DataTypes.DATE,
-      allowNull: false
-    },
-    status: {
-      type: DataTypes.ENUM('scheduled','completed','canceled'),
-      allowNull: false,
-      defaultValue: "scheduled"
-    },
-    visit_type: {
-      type: DataTypes.ENUM('prywatna','NFZ'),
-      allowNull: false
+    experience: {
+      type: DataTypes.TEXT,
+      allowNull: true
     },
     center_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'medical_centers',
         key: 'center_id'
       }
     },
-    visit_purpose: {
+    street: {
       type: DataTypes.STRING(255),
       allowNull: true
     },
-    first_visit: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
+    building_number: {
+      type: DataTypes.STRING(10),
+      allowNull: true
     },
-    comment: {
+    apartment_number: {
+      type: DataTypes.STRING(10),
+      allowNull: true
+    },
+    city: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
+    postal_code: {
+      type: DataTypes.CHAR(6),
+      allowNull: true
+    },
+    pesel: {
+      type: DataTypes.CHAR(11),
+      allowNull: true,
+      unique: "pesel"
+    },
+    bio: {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    documents: {
-      type: DataTypes.TEXT,
+    rating: {
+      type: DataTypes.DECIMAL(3,2),
       allowNull: true
     }
   }, {
     sequelize,
-    tableName: 'appointments',
+    tableName: 'doctors',
     timestamps: true,
     indexes: [
       {
@@ -70,25 +74,26 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "appointment_id" },
-        ]
-      },
-      {
-        name: "patient_id",
-        using: "BTREE",
-        fields: [
-          { name: "patient_id" },
-        ]
-      },
-      {
-        name: "doctor_id",
-        using: "BTREE",
-        fields: [
           { name: "doctor_id" },
         ]
       },
       {
-        name: "center_id",
+        name: "pesel",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "pesel" },
+        ]
+      },
+      {
+        name: "user_id",
+        using: "BTREE",
+        fields: [
+          { name: "user_id" },
+        ]
+      },
+      {
+        name: "fk_doctor_center_id",
         using: "BTREE",
         fields: [
           { name: "center_id" },

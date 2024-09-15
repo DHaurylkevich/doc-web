@@ -1,16 +1,13 @@
 const express = require("express");
-const dotenv = require("dotenv");
-const cors = require("cors");
-
-dotenv.config();
+const app = express();
+require("./src/config/db");
+require("dotenv").config();
 
 const port = process.env.PORT || 5000;
-const app = express();
 
-app.use(cors());
 app.use(express.json());
 
-app.use("/api/", require("./src/routes"));
+app.use("/api", require("./src/routes/"));
 
 app.get("/", (req, res) => {
     res.send("Hello");
@@ -25,7 +22,5 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: "Server Error"});
 });
 
-
-app.listen(port, ( ) => {
-    console.log(`http://localhost:${ port }`);
-})
+app.listen(port, ( ) => console.log(
+    `http://localhost: ${ port }`))

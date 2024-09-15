@@ -1,8 +1,8 @@
 const express = require("express");
-const router = express.Router();
+const routes = express.Router();
 
-router.get("/hello", (req, res) => {
-    res.status(200).json({ message: "Hello" });
-});
+routes.get("/", async (req,res) => {
+    res.send("API");
+})
 
-module.exports = router;
+module.exports = routes;
