@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 });   
 
 app.use((err, req, res, next) => {
-    console.log(err.stack);
+    console.error(err.stack);
     res.status(500).json({ message: "Server Error"});
 });
 
