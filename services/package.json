@@ -16,7 +16,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon doc-web.js"
+    "start": "nodemon doc-web.js",
+    "build": "node doc-web.js"
   },
   "repository": {
     "type": "git",
