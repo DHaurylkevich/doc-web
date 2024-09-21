@@ -42,7 +42,7 @@ function initModels(sequelize) {
   users.hasMany(doctors, { as: "doctors", foreignKey: "user_id"});
   patients.belongsTo(users, { as: "user", foreignKey: "user_id"});
   users.hasMany(patients, { as: "patients", foreignKey: "user_id"});
-
+  
   return {
     admin_logs,
     appointments,

@@ -2,8 +2,10 @@
   "name": "mylekarz",
   "version": "1.0.0",
   "main": "doc-web.js",
+  "type": "module",
   "devDependencies": {
-    "chai": "^5.1.1",
+    "chai": "^5.0.0",
+    "chai-http": "^5.0.0",
     "dotenv": "^16.4.5",
     "mocha": "^10.7.3",
     "mysql2": "^3.11.2",
@@ -15,8 +17,8 @@
     "supertest": "^7.0.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon doc-web.js",
+    "test": "mocha tests/*/**.test.js",
+    "dev": "nodemon doc-web.js",
     "build": "node doc-web.js"
   },
   "repository": {
