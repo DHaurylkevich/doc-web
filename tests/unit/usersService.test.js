@@ -1,4 +1,4 @@
-import { expect } from "chai";
+const expect = require("chai");
 
 describe("Users Service", function () {
     describe("Create new user", function () {

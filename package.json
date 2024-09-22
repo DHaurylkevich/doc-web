@@ -2,9 +2,8 @@
   "name": "mylekarz",
   "version": "1.0.0",
   "main": "doc-web.js",
-  "type": "module",
   "devDependencies": {
-    "chai": "^5.0.0",
+    "chai": "^4.2.0",
     "chai-http": "^5.0.0",
     "dotenv": "^16.4.5",
     "mocha": "^10.7.3",
