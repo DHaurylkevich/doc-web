@@ -3,7 +3,7 @@
 Этот проект представляет собой backend для веб-приложения MyLekarz, позволяющего клиентам записываться на прием к врачу.
 
 ## Технологии:
-(morgan, swagger)
+(morgan, swagger, testcheck)
 
 - Node.js
 - Express
@@ -16,15 +16,16 @@
 - chai@4.2.0
 - supertest
 - sinon
+- faker
 
-## Установка и начтройка 
+## Установка и настройка 
 
 ### Шаг 1: Клонируем репозиторий
     git clone ...
-    sequelize-auto -o "./models" -d my_database -h localhost -u root -p 3306 -x my_password --dialect mysql
 ### Шаг 2: Установка зависимости
 
 ### Шаг 4: Запуск миграций базы данных
+    sequelize-auto -o "./models" -d my_database -h localhost -u root -p 3306 -x my_password --dialect mysql
 
 ## Использование 
 
@@ -48,6 +49,7 @@
 ## Структура проекта
 
 - `modules/` - модели базы данных
+    -`users` - структура модели Users
 
 ## Тесты
 

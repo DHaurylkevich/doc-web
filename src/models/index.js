@@ -1,3 +1,5 @@
+const sequelize = require("../config/db");
+
 var DataTypes = require("sequelize").DataTypes;
 var _admin_logs = require("./admin_logs");
 var _appointments = require("./appointments");
@@ -54,6 +56,10 @@ function initModels(sequelize) {
     users,
   };
 }
+
+const models = initModels(sequelize);
+
 module.exports = initModels;
 module.exports.initModels = initModels;
 module.exports.default = initModels;
+module.exports.models = models;

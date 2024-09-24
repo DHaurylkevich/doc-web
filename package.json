@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "doc-web.js",
   "devDependencies": {
+    "@faker-js/faker": "^9.0.2",
     "chai": "^4.2.0",
     "chai-http": "^5.0.0",
     "dotenv": "^16.4.5",
@@ -16,7 +17,7 @@
     "supertest": "^7.0.0"
   },
   "scripts": {
-    "test": "mocha tests/*/**.test.js",
+    "test": "NODE_ENV=test mocha tests/*/**.test.js",
     "dev": "nodemon doc-web.js",
     "build": "node doc-web.js"
   },
