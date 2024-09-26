@@ -1,5 +1,7 @@
 node_modules
-app
+package-lock.json
 .DS_Store
 *.bak
 .env
+.vercel
+.mocharc.json

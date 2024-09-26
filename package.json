@@ -1,0 +1,39 @@
+{
+  "name": "mylekarz",
+  "version": "1.0.0",
+  "main": "doc-web.js",
+  "devDependencies": {
+    "@faker-js/faker": "^9.0.2",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-http": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "mocha": "^10.7.3",
+    "mysql2": "^3.11.2",
+    "nodemon": "^3.1.4",
+    "sequelize": "^6.37.3",
+    "sequelize-auto": "^0.8.8",
+    "sequelize-cli": "^6.6.2",
+    "sinon": "^19.0.2",
+    "supertest": "^7.0.0"
+  },
+  "scripts": {
+    "test": "NODE_ENV=test mocha tests/*/**.test.js",
+    "dev": "nodemon doc-web.js",
+    "build": "node doc-web.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DHaurylkevich/doc-web.git"
+  },
+  "author": "Dzmitry Haurylkevich",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DHaurylkevich/doc-web/issues"
+  },
+  "homepage": "https://github.com/DHaurylkevich/doc-web#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
