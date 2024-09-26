@@ -12,20 +12,26 @@ const { hashingPassword } = require("../utils/passwordCrypt");
  * @returns {Object} createdUser
  * @throws {Error} "Medical center not found", "Error occurred"
  */
-exports.createUser = async (user) => {
-    try {
-        if (user.role === "doctor") {
-            const center = await medical_centers.findOne({ where: { center_id: user.center_id } });
-            if (!center) {
-                throw new Error("Medical center not found");
+const UserService = {
+    createUser: async (userData) => {
+        try {
+            const userFound = await User.findOne({ where: { email: userData.email } });
+            if (userFound) {
+                throw new Error("User already exist");
             }
+
+            if (userData.role === "doctor") {
+                const center = await medical_centers.findOne({ where: { center_id: userData.center_id } });
+                if (!center) {
+                    throw new Error("Medical center not found");
+                }
+            }
+
+            return await User.create(userData)
+        } catch (e) {
+            console.error("Error occurred", e);
+            throw new Error(e.message);
         }
-
-
-        return await User.create(user)
-    } catch (e) {
-        console.error("Error occurred", e);
-        throw new Error(e.message);
     }
 }
 
