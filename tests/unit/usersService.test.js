@@ -32,6 +32,7 @@ describe("Users Service", () => {
 
                 const user = await userService.createUser(newUser);
                 expect(user).to.be.a("object").that.deep.include(newUser);
+                expect(user.password).to.not.equal(newUser.password);
             });
             
             it("when user has valid data and role 'doctor', expect user to be create", async () => {
@@ -58,6 +59,8 @@ describe("Users Service", () => {
                 expect(createUserStub.calledWith(newUser)).to.be.true;
 
                 expect(user).to.be.a("object").that.deep.include(newUser);
+                expect(user.password).to.not.equal(newUser.password);
+
             });
         });
     });

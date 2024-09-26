@@ -7,11 +7,12 @@ require("dotenv").config();
 
 app.use(express.json());
 app.use(morgan("dev"));
-app.use("/api", require("./src/routes"));
 
 app.get("/", (req, res) => {
     res.send("Hello");
 })
+
+app.use("/api", require("./src/routes"));
 
 app.use((req, res, next) => {
     res.status(404).json({ message: "Not Found" });
