@@ -9,6 +9,7 @@
 - Express
 - MySQL
 - Sequelize
+- bcrypt
 - JWT
 
 - dotenv

@@ -23,30 +23,33 @@ describe("Users Service", () => {
             });
 
             it("when user has valid data and role 'patient', expect user to be create", async () => {
+                const passwordTrue = faker.internet.password();
                 const newUser = {
                     first_name: faker.person.firstName(),
                     last_name: faker.person.lastName(),
                     email: faker.internet.email(),
-                    password: faker.internet.password(),
+                    password: passwordTrue,
                     phone: faker.phone.number(),
                     role: "patient",
                     center_id: null,
                 };
                 createUserStub.resolves(newUser);
+                findOneUserStub = sinon.stub(users, "findOne").resolves(false);
 
                 const user = await UserService.createUser(newUser);
 
                 expect(createUserStub.calledWith(newUser)).to.be.true;
+                expect(user.password).to.not.equal(passwordTrue);
                 expect(user).to.be.a("object").that.deep.include(newUser);
-                expect(user.password).to.not.equal(newUser.password);
             });
 
             it("when user has valid data and role 'doctor', expect user to be create", async () => {
+                const passwordTrue = faker.internet.password();
                 const newUser = {
                     first_name: faker.person.firstName(),
                     last_name: faker.person.lastName(),
                     email: faker.internet.email(),
-                    password: faker.internet.password(),
+                    password: passwordTrue,
                     phone: faker.phone.number(),
                     role: "doctor",
                     center_id: 1,
@@ -55,17 +58,16 @@ describe("Users Service", () => {
                     center_id: 1,
                     name: faker.person.firstName(),
                 };
-                findCenterStub = sinon.stub(medical_centers, "findOne");
-                findCenterStub.resolves(fakeCenter);
+                findCenterStub = sinon.stub(medical_centers, "findOne").resolves(fakeCenter);
+                findOneUserStub = sinon.stub(users, "findOne").resolves(false);
                 createUserStub.resolves(newUser);
 
                 const user = await UserService.createUser(newUser);
 
                 expect(findCenterStub.calledWith({ where: { center_id: 1 } })).to.be.true;
                 expect(createUserStub.calledWith(newUser)).to.be.true;
-
                 expect(user).to.be.a("object").that.deep.include(newUser);
-                expect(user.password).to.not.equal(newUser.password);
+                expect(user.password).to.not.equal(passwordTrue);
 
             });
         });
