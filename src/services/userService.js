@@ -2,8 +2,6 @@ const { models } = require("../models");
 const User = models.users;
 const medical_centers = models.medical_centers;
 
-
-
 exports.createUser = async (user) => {
     try {
         if (user.role === "doctor") {
