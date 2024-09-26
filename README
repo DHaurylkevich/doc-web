@@ -12,6 +12,7 @@
 - JWT
 
 - dotenv
+- morgan
 - mocha
 - chai@4.2.0
 - supertest
