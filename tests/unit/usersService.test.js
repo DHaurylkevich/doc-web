@@ -71,6 +71,77 @@ describe("Users Service", () => {
 
             });
         });
+        describe("Get user/users", () => {
+            beforeEach(async () => {
+                findUsersStub = sinon.stub(users, "findAll");
+            })
+
+            afterEach(async () => {
+                sinon.restore();
+            });
+            it("Expect get users from DB successful", async () => {
+                const userData = {
+                    first_name: faker.person.firstName(),
+                    last_name: faker.person.lastName(),
+                    email: faker.internet.email(),
+                    password: faker.internet.password(),
+                    phone: faker.phone.number(),
+                    role: "doctor",
+                    center_id: 1,
+                };
+                findUsersStub.resolves([userData]);
+
+                const user = await UserService.findUsers();
+
+                expect(findUsersStub.calledOnce).to.be.true;
+                expect(user).to.be.a("array").that.deep.include(userData);
+            });
+            it("When user has in DB, expect get user from DB successful", async () => {
+                const userData = {
+                    first_name: faker.person.firstName(),
+                    last_name: faker.person.lastName(),
+                    email: faker.internet.email(),
+                    password: faker.internet.password(),
+                    phone: faker.phone.number(),
+                    role: "doctor",
+                    center_id: 1,
+                };
+                findOneUserStub = sinon.stub(users, "findOne").resolves(userData);
+
+                const user = await UserService.findUserByEmail(userData.email);
+
+                expect(findOneUserStub.calledOnce).to.be.true;
+                expect(user).to.be.a("object").to.deep.include(userData);
+            });
+        });
+        describe("Update user", () => {
+            beforeEach(async () => {
+                updateUserStub = sinon.stub(users, "update");
+            })
+
+            afterEach(async () => {
+                sinon.restore();
+            });
+            it("when user has in DB and has valid data, expect update user and get updated user successful", async () => {
+                const user = {
+                    id: 1,
+                    email: faker.internet.email(),
+                    password: faker.internet.password(),
+                };
+                const updatedData = { email: faker.internet.email(), password: faker.internet.password() }
+                findByPkUserStub = sinon.stub(users, "findByPk").resolves(user);
+                updateUserStub.resolves({ ...user, ...updatedData });
+
+                const updatedUser = await UserService.updateUser(1, updatedData);
+
+                expect(findByPkUserStub.calledOnce).to.be.true;
+                expect(findByPkUserStub.calledWith(1)).to.be.true;
+                expect(updateUserStub.calledOnce).to.be.true;
+                expect(updateUserStub.calledWith(updatedData)).to.be.true;
+                expect(updatedUser.email).to.equal(updatedData.email);
+                expect(updatedUser.password).to.equal(updatedData.password);
+            });
+        })
     });
     describe("Error test", () => {
         describe("Create user", () => {
@@ -82,7 +153,7 @@ describe("Users Service", () => {
                 sinon.restore();
             });
 
-            it("when email already is in DB, expect Error with User already exist", async () => {
+            it("when email already is in DB, expect Error with 'User already exist'", async () => {
                 const newUser = {
                     first_name: faker.person.firstName(),
                     last_name: faker.person.lastName(),
@@ -101,7 +172,7 @@ describe("Users Service", () => {
                 expect(createUserStub.notCalled).to.be.true;
             });
 
-            it("when user is doctor and has invalid center_id, expect Error with Medical center not found", async () => {
+            it("when user is doctor and has invalid center_id, expect Error with 'Medical center not found'", async () => {
                 const newUser = {
                     first_name: faker.person.firstName(),
                     last_name: faker.person.lastName(),
@@ -120,5 +191,29 @@ describe("Users Service", () => {
                 expect(createUserStub.notCalled).to.be.true;
             })
         });
+        describe("Get user/users", () => {
+            afterEach(async () => {
+                sinon.restore();
+            });
+            it("when user is not in DB, expect Error with 'User not found'", async () => {
+                findOneUserStub = sinon.stub(users, "findOne").resolves(false);
+
+                await expect(UserService.findUserByEmail("")).to.be.rejectedWith(Error, "User not found");
+
+                expect(findOneUserStub.calledOnce).to.be.true;
+            });
+        });
+        describe("Update user", () => {
+            afterEach(async () => {
+                sinon.restore();
+            });
+            it("when user is not in DB, expect Error with 'User not found'", async () => {
+                findByPkUserStub = sinon.stub(users, "findByPk").resolves(false);
+
+                await expect(UserService.updateUser(1, {})).to.be.rejectedWith(Error, "User not found");
+
+                expect(findByPkUserStub.calledOnce).to.be.true;
+            });
+        })
     });
 });
