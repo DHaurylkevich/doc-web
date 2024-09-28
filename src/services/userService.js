@@ -5,7 +5,7 @@ const { hashingPassword } = require("../utils/passwordCrypt");
 
 const UserService = {
     /**
-     * 
+     * createUser создает пользователя в базе даных.
      * @param {Object} user
      * @param {String} user.email
      * @param {String} user.role
@@ -37,7 +37,7 @@ const UserService = {
         }
     },
     /**
-    * 
+    * findUsers возвращает массив всех пользователей
     * @returns {Array}
     * @throws {Error} "Error occurred"
     */
@@ -50,7 +50,7 @@ const UserService = {
         }
     },
     /**
-     * 
+     * findUSerByEmail возвращает объект пользователя
      * @param {String} email 
      * @returns {Object} 
      * @throws {Error} "User not found", "Error occurred"
@@ -68,7 +68,7 @@ const UserService = {
         }
     },
     /**
-     * 
+     * updateUser возвращает обновленный объект пользователя
      * @param {Number} id 
      * @param {Object} updatedData 
      * @returns {Object}
@@ -86,12 +86,31 @@ const UserService = {
             console.error("Error occurred", err);
             throw new Error(err.message)
         }
+    },
+    /**
+     * deleteUser удаляет существующего пользователя из базы данных
+     * @param {Number} id 
+     * @returns {Object} {message: "Successful delete"}
+     * @throws {Error}  "User not found", "Error occurred"
+     */
+    deleteUser: async (id) => {
+        try {
+            const user = await User.findByPk(id)
+            if (!user) {
+                throw Error("User not found")
+            }
+
+            await user.destroy();
+            return { message: "Successful delete" }
+        } catch (err) {
+            console.error("Error occurred", err);
+            throw new Error(err.message)
+        }
     }
 }
 
 module.exports = UserService;
 
-// createUser создает пользователя в базе даных. findUsers возвращает всех пользователей
 // Данные в сервис уже приходят проверенными.
 // Можно создать три вида пользователя: Admin, Patient, Doctor. 
 // Чтобы cоздать доктора, нужно чтобы был корректный существующий center_id

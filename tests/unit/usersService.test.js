@@ -16,6 +16,7 @@ describe("Users Service", () => {
         describe("Create new user", () => {
             beforeEach(async () => {
                 createUserStub = sinon.stub(users, "create");
+                findOneUserStub = sinon.stub(users, "findOne");
             })
 
             afterEach(async () => {
@@ -34,11 +35,11 @@ describe("Users Service", () => {
                     center_id: null,
                 };
                 createUserStub.resolves(newUser);
-                findOneUserStub = sinon.stub(users, "findOne").resolves(false);
+                findOneUserStub.resolves(false);
 
                 const user = await UserService.createUser(newUser);
 
-                expect(createUserStub.calledWith(newUser)).to.be.true;
+                expect(createUserStub.calledOnceWith(newUser)).to.be.true;
                 expect(user.password).to.not.equal(passwordTrue);
                 expect(user).to.be.a("object").that.deep.include(newUser);
             });
@@ -59,23 +60,19 @@ describe("Users Service", () => {
                     name: faker.person.firstName(),
                 };
                 findCenterStub = sinon.stub(medical_centers, "findOne").resolves(fakeCenter);
-                findOneUserStub = sinon.stub(users, "findOne").resolves(false);
+                findOneUserStub.resolves(false);
                 createUserStub.resolves(newUser);
 
                 const user = await UserService.createUser(newUser);
 
-                expect(findCenterStub.calledWith({ where: { center_id: 1 } })).to.be.true;
-                expect(createUserStub.calledWith(newUser)).to.be.true;
+                expect(findCenterStub.calledOnceWith({ where: { center_id: 1 } })).to.be.true;
+                expect(createUserStub.calledOnceWith(newUser)).to.be.true;
                 expect(user).to.be.a("object").that.deep.include(newUser);
                 expect(user.password).to.not.equal(passwordTrue);
 
             });
         });
         describe("Get user/users", () => {
-            beforeEach(async () => {
-                findUsersStub = sinon.stub(users, "findAll");
-            })
-
             afterEach(async () => {
                 sinon.restore();
             });
@@ -89,14 +86,14 @@ describe("Users Service", () => {
                     role: "doctor",
                     center_id: 1,
                 };
-                findUsersStub.resolves([userData]);
+                findUsersStub = sinon.stub(users, "findAll").resolves([userData]);
 
                 const user = await UserService.findUsers();
 
                 expect(findUsersStub.calledOnce).to.be.true;
                 expect(user).to.be.a("array").that.deep.include(userData);
             });
-            it("When user has in DB, expect get user from DB successful", async () => {
+            it("When user is in DB, expect get user from DB successful", async () => {
                 const userData = {
                     first_name: faker.person.firstName(),
                     last_name: faker.person.lastName(),
@@ -110,43 +107,51 @@ describe("Users Service", () => {
 
                 const user = await UserService.findUserByEmail(userData.email);
 
-                expect(findOneUserStub.calledOnce).to.be.true;
+                expect(findOneUserStub.calledOnceWith({ where: { email: userData.email } })).to.be.true;
                 expect(user).to.be.a("object").to.deep.include(userData);
             });
         });
         describe("Update user", () => {
-            beforeEach(async () => {
-                updateUserStub = sinon.stub(users, "update");
-            })
-
             afterEach(async () => {
                 sinon.restore();
             });
-            it("when user has in DB and has valid data, expect update user and get updated user successful", async () => {
-                const user = {
-                    id: 1,
-                    email: faker.internet.email(),
-                    password: faker.internet.password(),
-                };
+            it("when user is in DB and has valid data, expect update user and get updated user successful", async () => {
+                const user = { id: 1, email: faker.internet.email(), password: faker.internet.password() };
                 const updatedData = { email: faker.internet.email(), password: faker.internet.password() }
                 findByPkUserStub = sinon.stub(users, "findByPk").resolves(user);
-                updateUserStub.resolves({ ...user, ...updatedData });
+                updateUserStub = sinon.stub(users, "update").resolves({ ...user, ...updatedData });
 
                 const updatedUser = await UserService.updateUser(1, updatedData);
 
-                expect(findByPkUserStub.calledOnce).to.be.true;
-                expect(findByPkUserStub.calledWith(1)).to.be.true;
-                expect(updateUserStub.calledOnce).to.be.true;
-                expect(updateUserStub.calledWith(updatedData)).to.be.true;
+                expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
+                expect(updateUserStub.calledOnceWith(updatedData)).to.be.true;
                 expect(updatedUser.email).to.equal(updatedData.email);
                 expect(updatedUser.password).to.equal(updatedData.password);
             });
-        })
+        });
+        describe("Delete user", () => {
+            afterEach(async () => {
+                sinon.restore();
+            })
+
+            it("When user is in DB, expect delete user from BD successful", async () => {
+                const destroyUserStub = sinon.stub().resolves();
+                const user = { id: 1, email: faker.internet.email(), password: faker.internet.password(), destroy: destroyUserStub };
+                findByPkUserStub = sinon.stub(users, "findByPk").resolves(user);
+
+                const result = await UserService.deleteUser(1);
+
+                expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
+                expect(destroyUserStub.calledOnce).to.be.true;
+                expect(result).to.deep.equal({ message: "Successful delete" });
+            });
+        });
     });
     describe("Error test", () => {
         describe("Create user", () => {
             beforeEach(async () => {
                 createUserStub = sinon.stub(users, "create");
+                findUserStub = sinon.stub(users, "findOne");
             })
 
             afterEach(async () => {
@@ -163,8 +168,7 @@ describe("Users Service", () => {
                     role: "doctor",
                     center_id: 2,
                 }
-
-                findUserStub = sinon.stub(users, "findOne").resolves({ email: newUser.email });
+                findUserStub.resolves({ email: newUser.email });
 
                 await expect(UserService.createUser(newUser)).to.be.rejectedWith(Error, "User already exist");
 
@@ -182,7 +186,7 @@ describe("Users Service", () => {
                     role: "doctor",
                     center_id: 2,
                 }
-                findUserStub = sinon.stub(users, "findOne").resolves(false);
+                findUserStub.resolves(false);
                 findCenterStub = sinon.stub(medical_centers, "findOne").resolves(null);
 
                 await expect(UserService.createUser(newUser)).to.be.rejectedWith(Error, "Medical center not found");
@@ -191,7 +195,7 @@ describe("Users Service", () => {
                 expect(createUserStub.notCalled).to.be.true;
             })
         });
-        describe("Get user/users", () => {
+        describe("Get user by email", () => {
             afterEach(async () => {
                 sinon.restore();
             });
@@ -212,8 +216,21 @@ describe("Users Service", () => {
 
                 await expect(UserService.updateUser(1, {})).to.be.rejectedWith(Error, "User not found");
 
-                expect(findByPkUserStub.calledOnce).to.be.true;
+                expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
             });
-        })
+        });
+        describe("Delete user", () => {
+            afterEach(async () => {
+                sinon.restore();
+            })
+
+            it("When user is not in DB, expect Error with 'User not found'", async () => {
+                findByPkUserStub = sinon.stub(users, "findByPk").resolves(false);
+
+                await expect(UserService.deleteUser(1)).to.be.rejectedWith(Error, "User not found");
+
+                expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
+            });
+        });
     });
 });
