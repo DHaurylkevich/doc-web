@@ -4,15 +4,14 @@ process.env.NODE_ENV = 'test';
 const sinon = require("sinon");
 const { expect, use } = require("chai");
 const chaiAsPromised = require("chai-as-promised");
-// const sequelize = require("../../src/config/db");
 const { faker } = require('@faker-js/faker');
-const { users, medical_centers } = require("../../src/models").models;
-const UserService = require("../../src/services/userService");
+const { users, medical_centers } = require("../../../src/models").models;
+const UserService = require("../../../src/services/userService");
 
 use(chaiAsPromised);
 
 describe("Users Service", () => {
-    describe("Positive test", () => {
+    describe("Positive tests", () => {
         describe("Create new user", () => {
             beforeEach(async () => {
                 createUserStub = sinon.stub(users, "create");
@@ -147,7 +146,7 @@ describe("Users Service", () => {
             });
         });
     });
-    describe("Error test", () => {
+    describe("Error tests", () => {
         describe("Create user", () => {
             beforeEach(async () => {
                 createUserStub = sinon.stub(users, "create");

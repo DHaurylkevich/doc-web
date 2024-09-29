@@ -3,7 +3,7 @@
 Этот проект представляет собой backend для веб-приложения MyLekarz, позволяющего клиентам записываться на прием к врачу.
 
 ## Технологии:
-(morgan, swagger(Документация маршрутов), testcheck, jsdoc) - 
+(morgan, swagger(Документация маршрутов), testcheck, jsdoc, express-validator) - 
 
 - Node.js
 - Express
