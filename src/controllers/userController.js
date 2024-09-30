@@ -1,61 +1,38 @@
 // const User = require("../models/user");
-// const checkingPassword = require("../utils/passwordOperation");
 // const { validationResult } = require("express-validator");
 // const jwt = require("jsonwebtoken");
+// const { validationResult } = require('express-validator');
 const UserService = require("../services/userService");
+const authMiddleware = require("../middleware/auth");
+const passwordUtil = require("../utils/passwordUtil");
 
 const UserController = {
     registerUser: async (req, res, next) => {
-        // const errors = validationResult(req);
-        // if (!errors.isEmpty()) {
-        //     return res.status(400).json({ errors: errors.array() });
-        // }
-        const { name, email, password, role } = req.body;
-
         try {
-            // if (!name || !email || !password) {
-            //     return res.status(400).json({ message: "Не хватает обязательных полей: name, email, password" })
-            // }
-
             const user = await UserService.createUser(req.body);
 
-            // const payload = { user: { id: user.id, role: user.name } };
-            // jwt.sign(payload, process.env.JWT_AUTH_TOKEN, { expiresIn: "1h" }, (error, token) => {
-            //     if (error) throw error;
-            //     res.status(201).json(token);
-            // });
-            res.status(201).json(user);
+            const token = authMiddleware.createJWT(user.id, user.role);
+            res.status(201).json(token);
         } catch (error) {
             next(error);
         }
     },
 
-    loginUser: async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
+    loginUser: async (req, res, next) => {
         const { email, password } = req.body;
 
         try {
-            let user = await User.findOne({ email }).lean().exec();
-            if (!user) {
-                return res.status(400).json({ message: "Invalid credentials" });
-            }
+            let user = await UserService.findUserByEmail(email);
 
-            const isMatch = await checkingPassword(password, user.password);
+            const isMatch = passwordUtil.checkingPassword(password, user.password);
             if (!isMatch) {
-                return res.status(400).json({ message: 'Invalid credentials' });
+                throw new Error("Login Error");
             }
 
-            const payload = { user: { id: user.id, role: user.name } };
-            jwt.sign(payload, process.env.JWT_AUTH_TOKEN, { expiresIn: "1h" }, (error, token) => {
-                if (error) throw error;
-                res.status(201).json(token);
-            });
-        } catch (err) {
-            next(err);
+            const token = authMiddleware.createJWT(user.id, user.role);
+            res.status(200).json(token);
+        } catch (error) {
+            next(error);
         }
     },
 

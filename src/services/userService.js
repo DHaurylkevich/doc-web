@@ -1,7 +1,7 @@
 const { models } = require("../models");
 const User = models.users;
 const medical_centers = models.medical_centers;
-const { hashingPassword } = require("../utils/passwordCrypt");
+const { hashingPassword } = require("../utils/passwordUtil");
 
 const UserService = {
     /**
