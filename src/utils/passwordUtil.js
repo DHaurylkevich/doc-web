@@ -9,5 +9,7 @@ exports.hashingPassword = function (password) {
 
 exports.checkingPassword = function (password, hashPassword) {
     const match = bcrypt.match(password, hashPassword);
-    return match;
+    if (!match){
+        throw new Error("Login Error");
+    };
 }

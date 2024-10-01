@@ -152,11 +152,9 @@ describe("Users Service", () => {
                 createUserStub = sinon.stub(users, "create");
                 findUserStub = sinon.stub(users, "findOne");
             })
-
             afterEach(async () => {
                 sinon.restore();
             });
-
             it("when email already is in DB, expect Error with 'User already exist'", async () => {
                 const newUser = {
                     first_name: faker.person.firstName(),
@@ -174,7 +172,6 @@ describe("Users Service", () => {
                 expect(findUserStub.calledWith({ where: { email: newUser.email } })).to.be.true;
                 expect(createUserStub.notCalled).to.be.true;
             });
-
             it("when user is doctor and has invalid center_id, expect Error with 'Medical center not found'", async () => {
                 const newUser = {
                     first_name: faker.person.firstName(),

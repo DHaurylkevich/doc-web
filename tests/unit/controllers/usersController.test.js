@@ -13,17 +13,16 @@ const passwordUtil = require("../../../src/utils/passwordUtil");
 use(chaiAsPromised);
 
 describe("Users Controller", () => {
+    let next, res;
+    beforeEach(async () => {
+        next = sinon.stub();
+        res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
+    });
+    afterEach(async () => {
+        sinon.restore();
+    });
     describe("Positive tests", () => {
-        let next, res;
-        beforeEach(async () => {
-            next = sinon.stub();
-            res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
-        })
         describe("registerUser()", () => {
-
-            afterEach(async () => {
-                sinon.restore();
-            });
             it("Expect create user with token JWT and return status 201, when valid data is provide", async () => {
                 const req = { body: { role: "patient" } };
                 const createdUser = { id: 1, ...req.body };
@@ -40,9 +39,9 @@ describe("Users Controller", () => {
             });
         });
         describe("loginUser", () => {
-            it("Expect login user with JWT token and return status 200, when valid data is provide", async () => {
+            it("Expect login user and return status 200 with JWT token, when valid data is provide", async () => {
                 const req = { body: { email: "", password: "pass" } };
-                const foundUser = { id: 1, email: "", password: "hashPass", role: "" };
+                const foundUser = { id: 1, email: "", password: "hashPass", role: "patient" };
                 const findByEmailStub = sinon.stub(UserService, "findUserByEmail").resolves(foundUser);
                 const checkingPassStub = sinon.stub(passwordUtil, "checkingPassword").resolves(true);
                 const createJwtStub = sinon.stub(authMiddleware, "createJWT").returns("fake-jwt-token");
@@ -55,24 +54,24 @@ describe("Users Controller", () => {
                 expect(res.status.calledOnceWith(200)).to.be.true;
                 expect(res.json.calledOnceWith("fake-jwt-token")).to.be.true;
                 expect(next.called).to.be.false;
+            });
+        });
+        describe("getUsers()", () => {
+            it("", async () => {
+                // expect(UserController.loginUser(req,))
             })
         })
     });
     describe("Negative tests", () => {
         describe("registerUser()", () => {
-            let next, res, req;
+            let req, createUserStun;
             beforeEach(async () => {
-                next = sinon.stub();
                 req = { body: { name: "" } };
-                res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
-            })
-
-            afterEach(async () => {
-                sinon.restore();
+                createUserStun = sinon.stub(UserService, "createUser")
             });
-            it("Expect next('Error occurred'), when createUser fails", async () => {
+            it("Expect next('Error occurred') from createUser, when the service createUser error", async () => {
                 const error = new Error("Error occurred");
-                const createUserStun = sinon.stub(UserService, "createUser").rejects(error);
+                createUserStun.rejects(error);
 
                 await UserController.registerUser(req, res, next);
 
@@ -80,33 +79,28 @@ describe("Users Controller", () => {
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             });
-            it("Expect next('Token create error'), when createJwt fails", async () => {
-                const newUser = { id: "1", role: "" }
+            it("Expect next('Token create error') from createJWT, when the token error", async () => {
+                const newUser = { id: "1", role: "" };
                 const error = new Error("Token create error");
-                const createUserStun = sinon.stub(UserService, "createUser").resolves(newUser);
-                const createJwtStub = sinon.stub(authMiddleware, "createJWT").throws(error);
+                createUserStun.resolves(newUser);
+                sinon.stub(authMiddleware, "createJWT").throws(error);
 
                 await UserController.registerUser(req, res, next);
 
                 expect(next.calledOnceWith(error)).to.be.true;
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
-            })
+            });
         });
         describe("loginUser()", () => {
-            let next, res, req;
+            let req, findByEmailStub;
             beforeEach(async () => {
-                next = sinon.stub();
                 req = { body: { email: "", password: "pass" } };
-                res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
-            })
-
-            afterEach(async () => {
-                sinon.restore();
+                findByEmailStub = sinon.stub(UserService, "findUserByEmail");
             });
-            it("Expect next('User not found'), when the user not found", async () => {
+            it("Expect next('User not found') from findByEmailStub, when the user not found", async () => {
                 const error = new Error("User not found");
-                const findByEmailStub = sinon.stub(UserService, "findUserByEmail").rejects(error);
+                findByEmailStub.rejects(error);
 
                 await UserController.loginUser(req, res, next);
 
@@ -114,11 +108,11 @@ describe("Users Controller", () => {
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             });
-            it("Expect next('Login Error'), when the passwords are different", async () => {
-                const error = new Error("Login Error");
+            it("Expect next('Login Error') from checkingPassword, when passwords do not match", async () => {
                 const foundUser = { id: 1, email: "", password: "hashPass", role: "" };
-                const findByEmailStub = sinon.stub(UserService, "findUserByEmail").resolves(foundUser);
-                const checkingPassStub = sinon.stub(passwordUtil, "checkingPassword").returns(false);
+                const error = new Error("User not found");
+                findByEmailStub.resolves(foundUser);
+                sinon.stub(passwordUtil, "checkingPassword").throws(error);
 
                 await UserController.loginUser(req, res, next);
 
@@ -126,21 +120,20 @@ describe("Users Controller", () => {
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             });
-            it("Expect next('Token Error'), when the passwords are different", async () => {
+            it("Expect next('Token Error') from createJWT(), when the token error", async () => {
+                const foundUser = { id: 1, email: "", password: "hashPass", role: "" };
                 const error = new Error("Token Error");
-                const foundUser = { id: 1, email: "", password: "hashPass", role: "" };
-                const findByEmailStub = sinon.stub(UserService, "findUserByEmail").resolves(foundUser);
-                const checkingPassStub = sinon.stub(passwordUtil, "checkingPassword").returns(false);
-                const createJwtStub = sinon.stub(authMiddleware, "createJWT").returns("fake-jwt-token");
-                await UserController.loginUser(req, res, next);
+                findByEmailStub.resolves(foundUser);
+                sinon.stub(passwordUtil, "checkingPassword");
+                sinon.stub(authMiddleware, "createJWT").throws(error);
 
+                await UserController.loginUser(req, res, next);
 
                 expect(next.calledOnceWith(error)).to.be.true;
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
-            })
-        })
-    })
-
+            });
+        });
+    });
 });
 

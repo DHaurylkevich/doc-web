@@ -24,10 +24,7 @@ const UserController = {
         try {
             let user = await UserService.findUserByEmail(email);
 
-            const isMatch = passwordUtil.checkingPassword(password, user.password);
-            if (!isMatch) {
-                throw new Error("Login Error");
-            }
+            passwordUtil.checkingPassword(password, user.password);
 
             const token = authMiddleware.createJWT(user.id, user.role);
             res.status(200).json(token);
