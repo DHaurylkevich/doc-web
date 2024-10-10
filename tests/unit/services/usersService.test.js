@@ -4,11 +4,12 @@ process.env.NODE_ENV = 'test';
 const sinon = require("sinon");
 const { expect, use } = require("chai");
 const chaiAsPromised = require("chai-as-promised");
-const { Op } = require("sequelize"); 
+const { Op } = require("sequelize");
 const { faker } = require('@faker-js/faker');
 const { users } = require("../../../src/models").models;
 const sequelize = require("../../../src/config/db");
 const UserService = require("../../../src/services/userService");
+const passwordUtil = require("../../../src/utils/passwordUtil");
 
 use(chaiAsPromised);
 
@@ -93,22 +94,40 @@ describe("Users Service", () => {
             });
         });
         describe("Update user", () => {
+            let findByPkUserStub, updateUserStub;
+
+            beforeEach(async () => {
+                findByPkUserStub = sinon.stub(users, "findByPk")
+                updateUserStub = sinon.stub(users, "update")
+            })
             afterEach(async () => {
                 sinon.restore();
             });
             it("when user is in DB and has a valid data, expect to update user and get updated user data successfully", async () => {
-                const user = { id: 1, email: faker.internet.email(), password: faker.internet.password() };
-                const updatedData = { email: faker.internet.email(), password: faker.internet.password() }
-                findByPkUserStub = sinon.stub(users, "findByPk").resolves(user);
-                updateUserStub = sinon.stub(users, "update").resolves({ ...user, ...updatedData });
+                const user = { id: 1, email: faker.internet.email() };
+                const updatedData = { email: faker.internet.email() };
+                findByPkUserStub.resolves(user);
+                updateUserStub.resolves({ ...user, ...updatedData });
 
                 const updatedUser = await UserService.updateUser(1, updatedData);
 
                 expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
                 expect(updateUserStub.calledOnceWith(updatedData)).to.be.true;
-                expect(updatedUser.email).to.equal(updatedData.email);
-                expect(updatedUser.password).to.equal(updatedData.password);
+                expect(updatedUser.email).to.equal(updatedData.email);;
             });
+            it("updatePassword", async () => {
+                const user = { id: 1, password: faker.internet.password() }
+                const newPassword = faker.internet.password();
+                const checkingPassStub = sinon.stub(passwordUtil, "checkingPassword").resolves(true);
+                findByPkUserStub.resolves(user);
+                updateUserStub.resolves(1);
+
+                await UserService.updatePassword(user.id, user.password, newPassword);
+
+                expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
+                expect(checkingPassStub.calledOnceWith(user.password, user.password)).to.be.true;
+                expect(updateUserStub.calledOnceWith({ password: { newPassword } })).to.be.false;
+            })
         });
         describe("Delete user", () => {
             afterEach(async () => {
@@ -129,14 +148,14 @@ describe("Users Service", () => {
         });
     });
     describe("Error tests", () => {
+        afterEach(async () => {
+            sinon.restore();
+        });
         describe("Create user", () => {
             beforeEach(async () => {
                 createUserStub = sinon.stub(users, "create");
                 findUserStub = sinon.stub(users, "findOne");
             })
-            afterEach(async () => {
-                sinon.restore();
-            });
             it("when email already is in DB, expect Error with 'User already exist'", async () => {
                 const newUser = {
                     first_name: faker.person.firstName(),
@@ -155,10 +174,7 @@ describe("Users Service", () => {
                 expect(createUserStub.notCalled).to.be.true;
             });
         });
-        describe("Get user by param(email)", () => {
-            afterEach(async () => {
-                sinon.restore();
-            });
+        describe("findUserByParam() => Get user by param(email):", () => {
             it("when user is not in DB, expect Error with 'User not found'", async () => {
                 findOneUserStub = sinon.stub(users, "findOne").resolves(false);
 
@@ -167,10 +183,7 @@ describe("Users Service", () => {
                 expect(findOneUserStub.calledOnce).to.be.true;
             });
         });
-        describe("Update user", () => {
-            afterEach(async () => {
-                sinon.restore();
-            });
+        describe("updateUser() => Update user:", () => {
             it("when user is not in DB, expect Error with 'User not found'", async () => {
                 findByPkUserStub = sinon.stub(users, "findByPk").resolves(false);
 
@@ -179,11 +192,26 @@ describe("Users Service", () => {
                 expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
             });
         });
-        describe("Delete user", () => {
-            afterEach(async () => {
-                sinon.restore();
-            })
+        describe("updatePassword() => Update user:", () => {
+            it("when user is not in DB, expect Error with 'User not found'", async () => {
+                findByPkUserStub = sinon.stub(users, "findByPk").resolves(false);
 
+                await expect(UserService.updatePassword(1, "", "")).to.be.rejectedWith(Error, "User not found");
+
+                expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
+            });
+            it("when password not equal, expect Error with 'Password Error'", async () => {
+                const userData = { id: 1, password: "hashedOldPassword" };
+                findByPkUserStub = sinon.stub(users, "findByPk").resolves(userData);
+                const checkingPassStub = sinon.stub(passwordUtil, "checkingPassword").throws(new Error("Password Error"));
+
+                await expect(UserService.updatePassword(1, "wrongOldPassword", "newPassword")).to.be.rejectedWith(Error, "Password Error");
+
+                expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
+                expect(checkingPassStub.calledOnceWith("wrongOldPassword", "hashedOldPassword")).to.be.true;
+            });
+        });
+        describe("deleteUser() => Delete user:", () => {
             it("When user is not in DB, expect Error with 'User not found'", async () => {
                 findByPkUserStub = sinon.stub(users, "findByPk").resolves(false);
 

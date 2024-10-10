@@ -10,6 +10,6 @@ exports.hashingPassword = async (password) => {
 exports.checkingPassword = function (password, hashPassword) {
     const match = bcrypt.match(password, hashPassword);
     if (!match){
-        throw new Error("Login Error");
+        throw new Error("Password Error");
     };
 }

@@ -56,11 +56,24 @@ describe("Users Controller", () => {
                 expect(next.called).to.be.false;
             });
         });
-        describe("getUsers()", () => {
-            it("", async () => {
-                // expect(UserController.loginUser(req,))
+        describe("updateUserPassword()", () => {
+            it("Expect changed password and return message, when valid data is provide", async () => {
+                const req = { body: { oldPassword: "old", newPassword: "new" }, params: { id: "1" } };
+                const updatePasswordStub = sinon.stub(UserService, "updatePassword").resolves();
+
+                await UserController.updateUserPassword(req, res, next);
+
+                expect(updatePasswordStub.calledOnceWith({ id: req.params, oldPassword: req.body.oldPassword, newPassword: req.body.newPassword }));
+                expect(res.status.calledOnceWith(200)).to.be.true;
+                expect(res.json.calledOnceWith({ message: "Password changed successfully" })).to.be.true;
             })
-        })
+        });
+        // describe("updateUser", () => {
+        //     it("Expect update user data", async () => {
+        //         const req = { body: { userData } };
+
+        //     })
+        // })
     });
     describe("Negative tests", () => {
         // describe("registerUser()", () => {
@@ -133,6 +146,32 @@ describe("Users Controller", () => {
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             });
+        });
+        describe("updateUserPassword()", () => {
+            it("Expect next('Service Error')", async () => {
+                const req = { body: { oldPassword: "", newPassword: "" }, params: { id: "id" } };
+                const error = new Error("Service Error");
+                const updatePasswordStub = sinon.stub(UserService, "updatePassword").rejects(error);
+
+                await UserController.updateUserPassword(req, res, next);
+
+                expect(updatePasswordStub.calledOnceWith({ id: req.params, oldPassword: req.body.oldPassword, newPassword: req.body.newPassword }));
+                expect(next.calledOnceWith(error)).to.be.true;
+                expect(res.status.called).to.be.false;
+                expect(res.json.called).to.be.false;
+            })
+            it("Expect next('Valid data error')", async () => {
+                const req = { body: { oldPassword: "", newPassword: "" }, params: { id: "" } };
+                const updatePasswordStub = sinon.stub(UserService, "updatePassword");
+
+                await UserController.updateUserPassword(req, res, next);
+
+                expect(updatePasswordStub.called).to.be.false;
+                expect(next.called).to.be.true;
+                expect(next.calledOnceWith("Valid data error"));
+                expect(res.status.called).to.be.false;
+                expect(res.json.called).to.be.false;
+            })
         });
     });
 });

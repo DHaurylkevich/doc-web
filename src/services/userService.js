@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const { models } = require("../models");
 const User = models.users;
-const { hashingPassword } = require("../utils/passwordUtil");
+const passwordUtil = require("../utils/passwordUtil");
 
 const UserService = {
     /**
@@ -20,7 +20,7 @@ const UserService = {
                 throw new Error("User already exist");
             }
 
-            user.password = await hashingPassword(user.password);
+            user.password = await passwordUtil.hashingPassword(user.password);
 
             return await User.create(user, { transaction: t });
         } catch (err) {
@@ -61,6 +61,7 @@ const UserService = {
         }
     },
     /**
+     * ВОЗМОЖНО НАДО ОПРЕДЕЛИТЬ ИМЕННО ЧТО ОБНОВЛЯЕТСЯ
      * updateUser возвращает обновленный объект пользователя
      * @param {Number} id 
      * @param {Object} updatedData 
@@ -76,6 +77,29 @@ const UserService = {
 
             return await User.update(updatedData);
         } catch (err) {
+            console.error("Error occurred", err);
+            throw new Error(err.message)
+        }
+    },
+    /**
+     *  На фронте должна быть проверка одинаковы ли все пароли введенные 
+     * @param {Number} id 
+     * @param {String} oldPassword 
+     * @param {String} newPassword 
+     */
+    updatePassword: async (id, oldPassword, newPassword) => {
+        try{
+            const user = await User.findByPk(id);
+            if (!user) {
+                throw Error("User not found")
+            }
+
+            passwordUtil.checkingPassword(oldPassword, user.password);
+
+            newPassword = passwordUtil.hashingPassword(newPassword);
+
+            return await User.update({ password: newPassword });
+        }catch(err){
             console.error("Error occurred", err);
             throw new Error(err.message)
         }

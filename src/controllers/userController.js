@@ -19,14 +19,14 @@ const UserController = {
     // },
 
     /**
-     * Через валидацию проверяются данные для входа и передаются сюда в параметре loginParam
+     * Вход пользователя
      * @param {String} loginParam 
      * @param {String} password
      * @param {*} next 
      */
     loginUser: async (req, res, next) => {
         const { loginParam, password } = req.body;
-    
+
         try {
             let user = await UserService.findUserByParam(loginParam);
 
@@ -40,7 +40,7 @@ const UserController = {
     },
 
     //Получить список всех пациентов, наверное смотреть может только Админ
-    getAllUser: async (res, req) => {
+    getAllUser: async (req, res) => {
         try {
             const users = await User.find().lean().exec();
             res.status(200).json(users);
@@ -48,12 +48,31 @@ const UserController = {
             console.error(err);
             res.status(500).json({ message: err.message });
         }
+    },
+
+    /**
+     * Обновление паролей
+     * @param {Number} req.param.id 
+     * @param {String} req.body.oldPassword 
+     * @param {String} req.body.newPassword
+     * @returns status(200), message: "Password changed successfully"  
+     */
+    updateUserPassword: async (req, res, next) => {
+        const { id } = req.params;
+        const { oldPassword, newPassword } = req.body;
+        try {
+            if(!id || !oldPassword || !newPassword) {
+                throw new Error("Valid data error");
+            }
+
+            await UserService.updatePassword(id, oldPassword, newPassword);
+            res.status(200).json({ message: "Password changed successfully" });
+        } catch (err) {
+            next(err);
+        }
     }
-}
+};
 
 module.exports = UserController;
 
-
-//registerUser добавляет пользователя и создает JWT токен,  
 //Данные должны проверяться другим  на корректность в middleware
-//Возращает токен и пользователя 
