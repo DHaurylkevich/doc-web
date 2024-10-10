@@ -69,7 +69,7 @@ describe("Users Controller", () => {
                 req = { body: { name: "" } };
                 createUserStun = sinon.stub(UserService, "createUser")
             });
-            it("Expect next('Error occurred') from createUser, when the service createUser error", async () => {
+            it("Expect next('Error occurred') from createUser(), when the service createUser() throws an error", async () => {
                 const error = new Error("Error occurred");
                 createUserStun.rejects(error);
 
@@ -79,7 +79,7 @@ describe("Users Controller", () => {
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             });
-            it("Expect next('Token create error') from createJWT, when the token error", async () => {
+            it("Expect next('Token create error') from createJWT(), when createJWT() throws an error", async () => {
                 const newUser = { id: "1", role: "" };
                 const error = new Error("Token create error");
                 createUserStun.resolves(newUser);
@@ -98,7 +98,7 @@ describe("Users Controller", () => {
                 req = { body: { email: "", password: "pass" } };
                 findByEmailStub = sinon.stub(UserService, "findUserByEmail");
             });
-            it("Expect next('User not found') from findByEmailStub, when the user not found", async () => {
+            it("Expect next('User not found') from findByEmailStub(), when the user not found", async () => {
                 const error = new Error("User not found");
                 findByEmailStub.rejects(error);
 
@@ -108,7 +108,7 @@ describe("Users Controller", () => {
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             });
-            it("Expect next('Login Error') from checkingPassword, when passwords do not match", async () => {
+            it("Expect next('Login Error') from checkingPassword(), when passwords do not match", async () => {
                 const foundUser = { id: 1, email: "", password: "hashPass", role: "" };
                 const error = new Error("User not found");
                 findByEmailStub.resolves(foundUser);
@@ -120,7 +120,7 @@ describe("Users Controller", () => {
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             });
-            it("Expect next('Token Error') from createJWT(), when the token error", async () => {
+            it("Expect next('Token Error') from createJWT(), when createJWT() throws an error", async () => {
                 const foundUser = { id: 1, email: "", password: "hashPass", role: "" };
                 const error = new Error("Token Error");
                 findByEmailStub.resolves(foundUser);

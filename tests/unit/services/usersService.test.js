@@ -5,7 +5,8 @@ const sinon = require("sinon");
 const { expect, use } = require("chai");
 const chaiAsPromised = require("chai-as-promised");
 const { faker } = require('@faker-js/faker');
-const { users, medical_centers } = require("../../../src/models").models;
+const { users } = require("../../../src/models").models;
+const sequelize = require("../../../src/config/db");
 const UserService = require("../../../src/services/userService");
 
 use(chaiAsPromised);
@@ -14,6 +15,7 @@ describe("Users Service", () => {
     describe("Positive tests", () => {
         describe("Create new user", () => {
             beforeEach(async () => {
+                transactionStub = sinon.stub(sequelize, "transaction").resolves();
                 createUserStub = sinon.stub(users, "create");
                 findOneUserStub = sinon.stub(users, "findOne");
             })
@@ -22,60 +24,32 @@ describe("Users Service", () => {
                 sinon.restore();
             });
 
-            it("when user has valid data and role 'patient', expect user to be create", async () => {
+            it("when user has a valid data, expect user to be created with transaction and return user data", async () => {
                 const passwordTrue = faker.internet.password();
                 const newUser = {
                     first_name: faker.person.firstName(),
                     last_name: faker.person.lastName(),
                     email: faker.internet.email(),
-                    password: passwordTrue,
                     phone: faker.phone.number(),
+                    password: passwordTrue,
                     role: "patient",
-                    center_id: null,
+                    birthday: faker.date.birthdate(),
                 };
                 createUserStub.resolves(newUser);
                 findOneUserStub.resolves(false);
 
-                const user = await UserService.createUser(newUser);
+                const user = await UserService.createUser(newUser, transactionStub);
 
                 expect(createUserStub.calledOnceWith(newUser)).to.be.true;
                 expect(user.password).to.not.equal(passwordTrue);
                 expect(user).to.be.a("object").that.deep.include(newUser);
-            });
-
-            it("when user has valid data and role 'doctor', expect user to be create", async () => {
-                const passwordTrue = faker.internet.password();
-                const newUser = {
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email(),
-                    password: passwordTrue,
-                    phone: faker.phone.number(),
-                    role: "doctor",
-                    center_id: 1,
-                };
-                const fakeCenter = {
-                    center_id: 1,
-                    name: faker.person.firstName(),
-                };
-                findCenterStub = sinon.stub(medical_centers, "findOne").resolves(fakeCenter);
-                findOneUserStub.resolves(false);
-                createUserStub.resolves(newUser);
-
-                const user = await UserService.createUser(newUser);
-
-                expect(findCenterStub.calledOnceWith({ where: { center_id: 1 } })).to.be.true;
-                expect(createUserStub.calledOnceWith(newUser)).to.be.true;
-                expect(user).to.be.a("object").that.deep.include(newUser);
-                expect(user.password).to.not.equal(passwordTrue);
-
             });
         });
         describe("Get user/users", () => {
             afterEach(async () => {
                 sinon.restore();
             });
-            it("Expect get users from DB successful", async () => {
+            it("Expect to get users from DB successfully", async () => {
                 const userData = {
                     first_name: faker.person.firstName(),
                     last_name: faker.person.lastName(),
@@ -92,7 +66,7 @@ describe("Users Service", () => {
                 expect(findUsersStub.calledOnce).to.be.true;
                 expect(user).to.be.a("array").that.deep.include(userData);
             });
-            it("When user is in DB, expect get user from DB successful", async () => {
+            it("When user is in DB, expect to get user from DB successfully", async () => {
                 const userData = {
                     first_name: faker.person.firstName(),
                     last_name: faker.person.lastName(),
@@ -114,7 +88,7 @@ describe("Users Service", () => {
             afterEach(async () => {
                 sinon.restore();
             });
-            it("when user is in DB and has valid data, expect update user and get updated user successful", async () => {
+            it("when user is in DB and has a valid data, expect to update user and get updated user data successfully", async () => {
                 const user = { id: 1, email: faker.internet.email(), password: faker.internet.password() };
                 const updatedData = { email: faker.internet.email(), password: faker.internet.password() }
                 findByPkUserStub = sinon.stub(users, "findByPk").resolves(user);
@@ -133,7 +107,7 @@ describe("Users Service", () => {
                 sinon.restore();
             })
 
-            it("When user is in DB, expect delete user from BD successful", async () => {
+            it("When user is in DB, expect to delete user data from DB successfully", async () => {
                 const destroyUserStub = sinon.stub().resolves();
                 const user = { id: 1, email: faker.internet.email(), password: faker.internet.password(), destroy: destroyUserStub };
                 findByPkUserStub = sinon.stub(users, "findByPk").resolves(user);
@@ -172,24 +146,6 @@ describe("Users Service", () => {
                 expect(findUserStub.calledWith({ where: { email: newUser.email } })).to.be.true;
                 expect(createUserStub.notCalled).to.be.true;
             });
-            it("when user is doctor and has invalid center_id, expect Error with 'Medical center not found'", async () => {
-                const newUser = {
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email(),
-                    password: faker.internet.password(),
-                    phone: faker.phone.number(),
-                    role: "doctor",
-                    center_id: 2,
-                }
-                findUserStub.resolves(false);
-                findCenterStub = sinon.stub(medical_centers, "findOne").resolves(null);
-
-                await expect(UserService.createUser(newUser)).to.be.rejectedWith(Error, "Medical center not found");
-
-                expect(findCenterStub.calledWith({ where: { center_id: 2 } })).to.be.true;
-                expect(createUserStub.notCalled).to.be.true;
-            })
         });
         describe("Get user by email", () => {
             afterEach(async () => {

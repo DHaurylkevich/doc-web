@@ -23,26 +23,22 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      password: {
-        type: Sequelize.STRING(255),
-        allowNull: false,
-      },
       phone: {
         type: Sequelize.STRING(20),
         allowNull: true,
+      },
+      password: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
       },
       role: {
         type: Sequelize.ENUM('patient', 'doctor', 'admin'),
         allowNull: false,
         defaultValue: 'patient',
       },
-      center_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        // references: {
-        //   model: 'medical_centers',
-        //   key: 'center_id',
-        // },
+      birthday: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,

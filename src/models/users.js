@@ -20,26 +20,22 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       unique: "email"
     },
-    password: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
     phone: {
       type: DataTypes.STRING(20),
       allowNull: true
+    },
+    password: {
+      type: DataTypes.STRING(255),
+      allowNull: false
     },
     role: {
       type: DataTypes.ENUM('patient','doctor','admin'),
       allowNull: false,
       defaultValue: "patient"
     },
-    center_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'medical_centers',
-        key: 'center_id'
-      }
+    birthday: {
+      type: DataTypes.DATE,
+      allowNull: false,
     }
   }, {
     sequelize,
@@ -60,13 +56,6 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "email" },
-        ]
-      },
-      {
-        name: "fk_user_center_id",
-        using: "BTREE",
-        fields: [
-          { name: "center_id" },
         ]
       },
     ]
