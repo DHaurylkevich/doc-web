@@ -4,6 +4,7 @@ process.env.NODE_ENV = 'test';
 const sinon = require("sinon");
 const { expect, use } = require("chai");
 const chaiAsPromised = require("chai-as-promised");
+const { Op } = require("sequelize"); 
 const { faker } = require('@faker-js/faker');
 const { users } = require("../../../src/models").models;
 const sequelize = require("../../../src/config/db");
@@ -19,12 +20,11 @@ describe("Users Service", () => {
                 createUserStub = sinon.stub(users, "create");
                 findOneUserStub = sinon.stub(users, "findOne");
             })
-
             afterEach(async () => {
                 sinon.restore();
             });
 
-            it("when user has a valid data, expect user to be created with transaction and return user data", async () => {
+            it("when user has a valid data, expect user to be created with transaction and return user data with hash password", async () => {
                 const passwordTrue = faker.internet.password();
                 const newUser = {
                     first_name: faker.person.firstName(),
@@ -66,7 +66,7 @@ describe("Users Service", () => {
                 expect(findUsersStub.calledOnce).to.be.true;
                 expect(user).to.be.a("array").that.deep.include(userData);
             });
-            it("When user is in DB, expect to get user from DB successfully", async () => {
+            it("When user is in DB, expect to get user by email or phone or pesel from DB successfully", async () => {
                 const userData = {
                     first_name: faker.person.firstName(),
                     last_name: faker.person.lastName(),
@@ -78,9 +78,17 @@ describe("Users Service", () => {
                 };
                 findOneUserStub = sinon.stub(users, "findOne").resolves(userData);
 
-                const user = await UserService.findUserByEmail(userData.email);
+                const user = await UserService.findUserByParam(userData.email);
 
-                expect(findOneUserStub.calledOnceWith({ where: { email: userData.email } })).to.be.true;
+                expect(findOneUserStub.calledOnceWith({
+                    where: {
+                        [Op.or]: [
+                            { email: userData.email },
+                            { phone: userData.email },//Возможно не надо
+                            { pesel: userData.email }
+                        ]
+                    }
+                })).to.be.true;
                 expect(user).to.be.a("object").to.deep.include(userData);
             });
         });
@@ -147,14 +155,14 @@ describe("Users Service", () => {
                 expect(createUserStub.notCalled).to.be.true;
             });
         });
-        describe("Get user by email", () => {
+        describe("Get user by param(email)", () => {
             afterEach(async () => {
                 sinon.restore();
             });
             it("when user is not in DB, expect Error with 'User not found'", async () => {
                 findOneUserStub = sinon.stub(users, "findOne").resolves(false);
 
-                await expect(UserService.findUserByEmail("")).to.be.rejectedWith(Error, "User not found");
+                await expect(UserService.findUserByParam("")).to.be.rejectedWith(Error, "User not found");
 
                 expect(findOneUserStub.calledOnce).to.be.true;
             });

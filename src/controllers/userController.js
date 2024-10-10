@@ -7,22 +7,28 @@ const authMiddleware = require("../middleware/auth");
 const passwordUtil = require("../utils/passwordUtil");
 
 const UserController = {
-    registerUser: async (req, res, next) => {
-        try {
-            const user = await UserService.createUser(req.body);
+    // registerUser: async (req, res, next) => {
+    //     try {
+    //         const user = await UserService.createUser(req.body);
 
-            const token = authMiddleware.createJWT(user.id, user.role);
-            res.status(201).json(token);
-        } catch (error) {
-            next(error);
-        }
-    },
+    //         const token = authMiddleware.createJWT(user.id, user.role);
+    //         res.status(201).json(token);
+    //     } catch (error) {
+    //         next(error);
+    //     }
+    // },
 
+    /**
+     * Через валидацию проверяются данные для входа и передаются сюда в параметре loginParam
+     * @param {String} loginParam 
+     * @param {String} password
+     * @param {*} next 
+     */
     loginUser: async (req, res, next) => {
-        const { email, password } = req.body;
-
+        const { loginParam, password } = req.body;
+    
         try {
-            let user = await UserService.findUserByEmail(email);
+            let user = await UserService.findUserByParam(loginParam);
 
             passwordUtil.checkingPassword(password, user.password);
 

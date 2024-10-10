@@ -1,11 +1,11 @@
+const { Op } = require("sequelize");
 const { models } = require("../models");
 const User = models.users;
-const medical_centers = models.medical_centers;
 const { hashingPassword } = require("../utils/passwordUtil");
 
 const UserService = {
     /**
-     * createUser создает пользователя в базе даных.
+     * createUser создает транзакцию создания пользователя в базе даных.
      * @param {Object} user
      * @param {Transaction} t
      * @param {String} user.email
@@ -19,10 +19,10 @@ const UserService = {
             if (userFound) {
                 throw new Error("User already exist");
             }
-            console.log(user.password);
+
             user.password = await hashingPassword(user.password);
 
-            return await User.create(user, {transaction: t});
+            return await User.create(user, { transaction: t });
         } catch (err) {
             console.error("Error occurred", err);
             throw new Error(err.message);
@@ -42,14 +42,15 @@ const UserService = {
         }
     },
     /**
-     * findUSerByEmail возвращает объект пользователя
-     * @param {String} email 
+     * findUSerByParam возвращает объект пользователя
+     * @param {String} param 
      * @returns {Object} 
      * @throws {Error} "User not found", "Error occurred"
      */
-    findUserByEmail: async (email) => {
+    findUserByParam: async (param) => {
         try {
-            const user = await User.findOne({ where: { email } });
+            const user = await User.findOne({ where: { [Op.or]: [{ email: param }, { phone: param }, { pesel: param }] } });
+
             if (!user) {
                 throw new Error("User not found");
             }
