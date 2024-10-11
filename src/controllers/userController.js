@@ -1,12 +1,13 @@
-// const User = require("../models/user");
-// const { validationResult } = require("express-validator");
-// const jwt = require("jsonwebtoken");
-// const { validationResult } = require('express-validator');
+// const TEST = require("../../tests/unit/controllers/usersController.test.js");
 const UserService = require("../services/userService");
 const authMiddleware = require("../middleware/auth");
 const passwordUtil = require("../utils/passwordUtil");
 
 const UserController = {
+    // const User = require("../models/user");
+    // const { validationResult } = require("express-validator");
+    // const jwt = require("jsonwebtoken");
+    // const { validationResult } = require('express-validator');
     // registerUser: async (req, res, next) => {
     //     try {
     //         const user = await UserService.createUser(req.body);
@@ -61,7 +62,7 @@ const UserController = {
         const { id } = req.params;
         const { oldPassword, newPassword } = req.body;
         try {
-            if(!id || !oldPassword || !newPassword) {
+            if (!id || !oldPassword || !newPassword) {
                 throw new Error("Valid data error");
             }
 
@@ -74,5 +75,3 @@ const UserController = {
 };
 
 module.exports = UserController;
-
-//Данные должны проверяться другим  на корректность в middleware

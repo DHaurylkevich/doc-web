@@ -68,14 +68,14 @@ const UserService = {
      * @returns {Object}
      * @throws {Error} "User not found", "Error occurred"
      */
-    updateUser: async (id, updatedData) => {
+    updateUser: async (id, updatedData, t) => {
         try {
             const user = await db.Users.findByPk(id);
             if (!user) {
                 throw Error("User not found")
             }
 
-            return await db.Users.update(updatedData);
+            return await user.update(updatedData, {transaction: t});
         } catch (err) {
             console.error("Error occurred", err);
             throw new Error(err.message)

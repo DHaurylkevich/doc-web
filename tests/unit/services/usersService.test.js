@@ -94,24 +94,25 @@ describe("Users Service", () => {
             });
         });
         describe("Update user", () => {
-            let findByPkUserStub, updateUserStub;
+            let findByPkUserStub, updateUserStub, transactionStub;
 
             beforeEach(async () => {
                 findByPkUserStub = sinon.stub(db.Users, "findByPk")
-                updateUserStub = sinon.stub(db.Users, "update")
+                transactionStub = sinon.stub(sequelize, "transaction").resolves();
+                updateUserStub = sinon.stub()
             })
             afterEach(async () => {
                 sinon.restore();
             });
             it("when user is in DB and has a valid data, expect to update user and get updated user data successfully", async () => {
-                const user = { id: 1, email: faker.internet.email() };
+                const id = 1;
                 const updatedData = { email: faker.internet.email() };
-                findByPkUserStub.resolves(user);
-                updateUserStub.resolves({ ...user, ...updatedData });
+                findByPkUserStub.resolves({ update: updateUserStub });
+                updateUserStub.resolves({ id, ...updatedData });
 
-                const updatedUser = await UserService.updateUser(1, updatedData);
+                const updatedUser = await UserService.updateUser(id, updatedData, transactionStub);
 
-                expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
+                expect(findByPkUserStub.calledOnceWith(id)).to.be.true;
                 expect(updateUserStub.calledOnceWith(updatedData)).to.be.true;
                 expect(updatedUser.email).to.equal(updatedData.email);;
             });
