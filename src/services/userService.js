@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
-const { models } = require("../models");
-const User = models.users;
+const db = require("../models");
+// const User = db.Users;
 const passwordUtil = require("../utils/passwordUtil");
 
 const UserService = {
@@ -15,14 +15,14 @@ const UserService = {
     */
     createUser: async (user, t) => {
         try {
-            const userFound = await User.findOne({ where: { email: user.email } });
+            const userFound = await db.Users.findOne({ where: { email: user.email } });
             if (userFound) {
                 throw new Error("User already exist");
             }
 
             user.password = await passwordUtil.hashingPassword(user.password);
 
-            return await User.create(user, { transaction: t });
+            return await db.Users.create(user, { transaction: t });
         } catch (err) {
             console.error("Error occurred", err);
             throw new Error(err.message);
@@ -35,7 +35,7 @@ const UserService = {
     */
     findUsers: async () => {
         try {
-            return await User.findAll();
+            return await db.Users.findAll();
         } catch (err) {
             console.error("Error occurred", err);
             throw new Error(err.message)
@@ -49,7 +49,7 @@ const UserService = {
      */
     findUserByParam: async (param) => {
         try {
-            const user = await User.findOne({ where: { [Op.or]: [{ email: param }, { phone: param }, { pesel: param }] } });
+            const user = await db.Users.findOne({ where: { [Op.or]: [{ email: param }, { phone: param }, { pesel: param }] } });
 
             if (!user) {
                 throw new Error("User not found");
@@ -70,12 +70,12 @@ const UserService = {
      */
     updateUser: async (id, updatedData) => {
         try {
-            const user = await User.findByPk(id);
+            const user = await db.Users.findByPk(id);
             if (!user) {
                 throw Error("User not found")
             }
 
-            return await User.update(updatedData);
+            return await db.Users.update(updatedData);
         } catch (err) {
             console.error("Error occurred", err);
             throw new Error(err.message)
@@ -89,7 +89,7 @@ const UserService = {
      */
     updatePassword: async (id, oldPassword, newPassword) => {
         try{
-            const user = await User.findByPk(id);
+            const user = await db.Users.findByPk(id);
             if (!user) {
                 throw Error("User not found")
             }
@@ -98,7 +98,7 @@ const UserService = {
 
             newPassword = passwordUtil.hashingPassword(newPassword);
 
-            return await User.update({ password: newPassword });
+            return await db.Users.update({ password: newPassword });
         }catch(err){
             console.error("Error occurred", err);
             throw new Error(err.message)
@@ -112,7 +112,7 @@ const UserService = {
      */
     deleteUser: async (id) => {
         try {
-            const user = await User.findByPk(id)
+            const user = await db.Users.findByPk(id)
             if (!user) {
                 throw Error("User not found")
             }

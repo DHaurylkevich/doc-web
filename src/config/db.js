@@ -17,7 +17,6 @@ if (config.use_env_variable) {
     });
 }
 
-
 (async () => {
     try {
         await sequelize.authenticate()

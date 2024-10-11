@@ -6,7 +6,7 @@ const { expect, use } = require("chai");
 const chaiAsPromised = require("chai-as-promised");
 const { Op } = require("sequelize");
 const { faker } = require('@faker-js/faker');
-const { users } = require("../../../src/models").models;
+const db = require("../../../src/models");
 const sequelize = require("../../../src/config/db");
 const UserService = require("../../../src/services/userService");
 const passwordUtil = require("../../../src/utils/passwordUtil");
@@ -18,8 +18,8 @@ describe("Users Service", () => {
         describe("Create new user", () => {
             beforeEach(async () => {
                 transactionStub = sinon.stub(sequelize, "transaction").resolves();
-                createUserStub = sinon.stub(users, "create");
-                findOneUserStub = sinon.stub(users, "findOne");
+                createUserStub = sinon.stub(db.Users, "create");
+                findOneUserStub = sinon.stub(db.Users, "findOne");
             })
             afterEach(async () => {
                 sinon.restore();
@@ -60,7 +60,7 @@ describe("Users Service", () => {
                     role: "doctor",
                     center_id: 1,
                 };
-                findUsersStub = sinon.stub(users, "findAll").resolves([userData]);
+                findUsersStub = sinon.stub(db.Users, "findAll").resolves([userData]);
 
                 const user = await UserService.findUsers();
 
@@ -77,7 +77,7 @@ describe("Users Service", () => {
                     role: "doctor",
                     center_id: 1,
                 };
-                findOneUserStub = sinon.stub(users, "findOne").resolves(userData);
+                findOneUserStub = sinon.stub(db.Users, "findOne").resolves(userData);
 
                 const user = await UserService.findUserByParam(userData.email);
 
@@ -97,8 +97,8 @@ describe("Users Service", () => {
             let findByPkUserStub, updateUserStub;
 
             beforeEach(async () => {
-                findByPkUserStub = sinon.stub(users, "findByPk")
-                updateUserStub = sinon.stub(users, "update")
+                findByPkUserStub = sinon.stub(db.Users, "findByPk")
+                updateUserStub = sinon.stub(db.Users, "update")
             })
             afterEach(async () => {
                 sinon.restore();
@@ -137,7 +137,7 @@ describe("Users Service", () => {
             it("When user is in DB, expect to delete user data from DB successfully", async () => {
                 const destroyUserStub = sinon.stub().resolves();
                 const user = { id: 1, email: faker.internet.email(), password: faker.internet.password(), destroy: destroyUserStub };
-                findByPkUserStub = sinon.stub(users, "findByPk").resolves(user);
+                findByPkUserStub = sinon.stub(db.Users, "findByPk").resolves(user);
 
                 const result = await UserService.deleteUser(1);
 
@@ -153,8 +153,8 @@ describe("Users Service", () => {
         });
         describe("Create user", () => {
             beforeEach(async () => {
-                createUserStub = sinon.stub(users, "create");
-                findUserStub = sinon.stub(users, "findOne");
+                createUserStub = sinon.stub(db.Users, "create");
+                findUserStub = sinon.stub(db.Users, "findOne");
             })
             it("when email already is in DB, expect Error with 'User already exist'", async () => {
                 const newUser = {
@@ -176,7 +176,7 @@ describe("Users Service", () => {
         });
         describe("findUserByParam() => Get user by param(email):", () => {
             it("when user is not in DB, expect Error with 'User not found'", async () => {
-                findOneUserStub = sinon.stub(users, "findOne").resolves(false);
+                findOneUserStub = sinon.stub(db.Users, "findOne").resolves(false);
 
                 await expect(UserService.findUserByParam("")).to.be.rejectedWith(Error, "User not found");
 
@@ -185,7 +185,7 @@ describe("Users Service", () => {
         });
         describe("updateUser() => Update user:", () => {
             it("when user is not in DB, expect Error with 'User not found'", async () => {
-                findByPkUserStub = sinon.stub(users, "findByPk").resolves(false);
+                findByPkUserStub = sinon.stub(db.Users, "findByPk").resolves(false);
 
                 await expect(UserService.updateUser(1, {})).to.be.rejectedWith(Error, "User not found");
 
@@ -194,7 +194,7 @@ describe("Users Service", () => {
         });
         describe("updatePassword() => Update user:", () => {
             it("when user is not in DB, expect Error with 'User not found'", async () => {
-                findByPkUserStub = sinon.stub(users, "findByPk").resolves(false);
+                findByPkUserStub = sinon.stub(db.Users, "findByPk").resolves(false);
 
                 await expect(UserService.updatePassword(1, "", "")).to.be.rejectedWith(Error, "User not found");
 
@@ -202,7 +202,7 @@ describe("Users Service", () => {
             });
             it("when password not equal, expect Error with 'Password Error'", async () => {
                 const userData = { id: 1, password: "hashedOldPassword" };
-                findByPkUserStub = sinon.stub(users, "findByPk").resolves(userData);
+                findByPkUserStub = sinon.stub(db.Users, "findByPk").resolves(userData);
                 const checkingPassStub = sinon.stub(passwordUtil, "checkingPassword").throws(new Error("Password Error"));
 
                 await expect(UserService.updatePassword(1, "wrongOldPassword", "newPassword")).to.be.rejectedWith(Error, "Password Error");
@@ -213,7 +213,7 @@ describe("Users Service", () => {
         });
         describe("deleteUser() => Delete user:", () => {
             it("When user is not in DB, expect Error with 'User not found'", async () => {
-                findByPkUserStub = sinon.stub(users, "findByPk").resolves(false);
+                findByPkUserStub = sinon.stub(db.Users, "findByPk").resolves(false);
 
                 await expect(UserService.deleteUser(1)).to.be.rejectedWith(Error, "User not found");
 
