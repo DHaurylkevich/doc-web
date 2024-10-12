@@ -1,7 +1,14 @@
-const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('users', {
-    user_id: {
+'use strict';
+const {
+  Model
+} = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  class Users extends Model {
+    static associate(models) {
+    }
+  }
+  Users.init({
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -20,55 +27,27 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       unique: "email"
     },
-    password: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
     phone: {
       type: DataTypes.STRING(20),
       allowNull: true
+    },
+    password: {
+      type: DataTypes.STRING(255),
+      allowNull: false
     },
     role: {
       type: DataTypes.ENUM('patient','doctor','admin'),
       allowNull: false,
       defaultValue: "patient"
     },
-    center_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'medical_centers',
-        key: 'center_id'
-      }
+    birthday: {
+      type: DataTypes.DATE,
+      allowNull: false,
     }
   }, {
     sequelize,
-    tableName: 'users',
+    modelName: 'Users',
     timestamps: true,
-    indexes: [
-      {
-        name: "PRIMARY",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "user_id" },
-        ]
-      },
-      {
-        name: "email",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "email" },
-        ]
-      },
-      {
-        name: "fk_user_center_id",
-        using: "BTREE",
-        fields: [
-          { name: "center_id" },
-        ]
-      },
-    ]
   });
+  return Users;
 };

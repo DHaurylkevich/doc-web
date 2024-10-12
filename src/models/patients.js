@@ -1,98 +1,46 @@
-const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('patients', {
-    patient_id: {
-      autoIncrement: true,
+'use strict';
+const {
+  Model
+} = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  class Patients extends Model {
+    static associate(models) {
+      Patients.belongsTo(models.Users, {
+        foreignKey: 'user_id',
+        onDelete: 'CASCADE'
+      });
+      Patients.belongsTo(models.Addresses, {
+        foreignKey: 'address_id'
+      });
+    }
+  }
+  Patients.init({
+    id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      autoIncrement: true,
       primaryKey: true
     },
     user_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'users',
-        key: 'user_id'
-      }
-    },
-    date_of_birth: {
-      type: DataTypes.DATEONLY,
-      allowNull: true
-    },
-    phone: {
-      type: DataTypes.STRING(20),
-      allowNull: true
-    },
-    city: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    postal_code: {
-      type: DataTypes.CHAR(6),
-      allowNull: true
-    },
-    street: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    building_number: {
-      type: DataTypes.STRING(10),
-      allowNull: true
-    },
-    apartment_number: {
-      type: DataTypes.STRING(10),
-      allowNull: true
+      allowNull: false
     },
     gender: {
-      type: DataTypes.ENUM('male','female','other'),
+      type: DataTypes.ENUM('male', 'female', 'other'),
       allowNull: true
     },
-    pesel: {
-      type: DataTypes.CHAR(11),
-      allowNull: true,
-      unique: "pesel"
+    address_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     },
-    email: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      unique: "email"
+    market_inf: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true
     }
   }, {
     sequelize,
-    tableName: 'patients',
+    modelName: 'Patients',
     timestamps: true,
-    indexes: [
-      {
-        name: "PRIMARY",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "patient_id" },
-        ]
-      },
-      {
-        name: "email",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "email" },
-        ]
-      },
-      {
-        name: "pesel",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "pesel" },
-        ]
-      },
-      {
-        name: "fk_patient_user_id",
-        using: "BTREE",
-        fields: [
-          { name: "user_id" },
-        ]
-      },
-    ]
   });
+  return Patients;
 };

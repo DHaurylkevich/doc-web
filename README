@@ -3,15 +3,18 @@
 Этот проект представляет собой backend для веб-приложения MyLekarz, позволяющего клиентам записываться на прием к врачу.
 
 ## Технологии:
-(morgan, swagger, testcheck)
+(morgan, swagger(Документация маршрутов), testcheck, jsdoc, express-validator(санитайзером, Поддержка схем валидации
+)) - 
 
 - Node.js
 - Express
 - MySQL
 - Sequelize
+- bcrypt
 - JWT
 
 - dotenv
+- morgan
 - mocha
 - chai@4.2.0
 - chai-as-promised@7.1.1
@@ -51,7 +54,20 @@
 
 - `modules/` - модели базы данных
     -`users` - структура модели Users
-
+- `services` - сервисы для реализации бизнес логики
+    - `userService` - бизнес логика для таблицы users
+-  `controllers` - контроллеры для получения запросов от пользователя и возаимодействия с сервисом
+    - `userController`
 ## Тесты
+- unit
+    - controllers
+        - usersController
+            - when email already is in DB, expect Error with 'User already exist'
+            - when user has a valid data, expect user to be created with transaction and return user data
+            - when user is in DB and has a valid data, expect to update user and get updated user data successfully
 
 ## Планы по разработке
+- Нало разобраться с refreshToket 
+- Возможно надо добавить проверку center_id для Admina, если есть возможность привязать их к Мед центру
+- Наверное надо добавить хеш пароля при обновлении. Надо узнать обновляются ли все данные в Объекте или только новые с помощью update 
+- middleware validator: emaile, проверка, что все данные при создании юзера есть.

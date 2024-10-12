@@ -1,75 +1,77 @@
-const User = require("../models/user");
-const checkingPassword = require("../utils/passwordOperation");
-const { validationResult } = require("express-validator");
-const jwt = require("jsonwebtoken");
+// const TEST = require("../../tests/unit/controllers/usersController.test.js");
+const UserService = require("../services/userService");
+const authMiddleware = require("../middleware/auth");
+const passwordUtil = require("../utils/passwordUtil");
 
-exports.registerUser = async (req,res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+const UserController = {
+    // const User = require("../models/user");
+    // const { validationResult } = require("express-validator");
+    // const jwt = require("jsonwebtoken");
+    // const { validationResult } = require('express-validator');
+    // registerUser: async (req, res, next) => {
+    //     try {
+    //         const user = await UserService.createUser(req.body);
 
-    const { name, email, password, role } = req.body;
+    //         const token = authMiddleware.createJWT(user.id, user.role);
+    //         res.status(201).json(token);
+    //     } catch (error) {
+    //         next(error);
+    //     }
+    // },
 
-    try{
-        if (!name || !email || !password) {
-            return res.status(400).json({message: "Не хватает обязательных полей: name, email, password" })
+    /**
+     * Вход пользователя
+     * @param {String} loginParam 
+     * @param {String} password
+     * @param {*} next 
+     */
+    loginUser: async (req, res, next) => {
+        const { loginParam, password } = req.body;
+
+        try {
+            let user = await UserService.findUserByParam(loginParam);
+
+            passwordUtil.checkingPassword(password, user.password);
+
+            const token = authMiddleware.createJWT(user.id, user.role);
+            res.status(200).json(token);
+        } catch (error) {
+            next(error);
         }
+    },
 
-        let user = await User.findOne({ email }).lean().exec();
-        if (user) {
-            return res.status(400).json({ message: "User already exists"});
+    //Получить список всех пациентов, наверное смотреть может только Админ
+    getAllUser: async (req, res) => {
+        try {
+            const users = await User.find().lean().exec();
+            res.status(200).json(users);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ message: err.message });
         }
+    },
 
-        user = new User({ name, email, password, role });
-        await user.save();
+    /**
+     * Обновление паролей
+     * @param {Number} req.param.id 
+     * @param {String} req.body.oldPassword 
+     * @param {String} req.body.newPassword
+     * @returns status(200), message: "Password changed successfully"  
+     */
+    updateUserPassword: async (req, res, next) => {
+        const { id } = req.params;
+        const { oldPassword, newPassword } = req.body;
+        try {
+            if (!id || !oldPassword || !newPassword) {
+                throw new Error("Valid data error");
+            }
 
-        const payload = { user: { id: user.id, role: user.name } };
-        jwt.sign( payload, process.env.JWT_AUTH_TOKEN, { expiresIn: "1h" }, (error, token) =>{
-            if(error) throw error;
-            res.status(201).json(token);
-        });
-    }catch (error){
-        next(error);
-    }
-}
-
-exports.loginUser = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { email, password} = req.body;
-
-    try{
-        let user = await User.findOne({ email }).lean().exec();
-        if (!user) {
-            return res.status(400).json({ message: "Invalid credentials"});
+            await UserService.updatePassword(id, oldPassword, newPassword);
+            res.status(200).json({ message: "Password changed successfully" });
+        } catch (err) {
+            next(err);
         }
-        
-        const isMatch = await checkingPassword(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        const payload = { user: { id: user.id, role: user.name } };
-        jwt.sign( payload, process.env.JWT_AUTH_TOKEN, { expiresIn: "1h" }, (error, token) =>{
-            if(error) throw error;
-            res.status(201).json(token);
-        });
-    }catch(err){
-        next(err);
     }
-}
+};
 
-//Получить список всех пациентов, наверное смотреть может только Админ
-exports.getAllUser = async (res, req) => {
-    try{
-        const users = await User.find().lean().exec();
-        res.status(200).json(users);
-    }catch (err){
-        console.error(err);
-        res.status(500).json({message: err.message});
-    }
-}
+module.exports = UserController;
