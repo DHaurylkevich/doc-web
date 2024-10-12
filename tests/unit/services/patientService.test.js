@@ -59,7 +59,7 @@ describe("Patient Service", () => {
             });
         });
         describe("updatePatient() => Update:", () => {
-            let findByPkPatientStub, updatePatientStub, transactionStub;
+            let findByPkPatientStub, updatePatientStub, transactionStub, updateUserServiceStub, updateAddressServiceStub;
 
             beforeEach(async () => {
                 transactionStub = {
@@ -71,7 +71,7 @@ describe("Patient Service", () => {
                 updateUserServiceStub = sinon.stub(UserService, "updateUser");
                 updateAddressServiceStub = sinon.stub(AddressService, "updateAddress");
                 updatePatientStub = sinon.stub(db.Patients, "update");
-            })
+            });
             afterEach(async () => {
                 sinon.restore();
             });
@@ -80,16 +80,19 @@ describe("Patient Service", () => {
                 const userData = { email: "FOO" };
                 const patientData = { gender: "FOO" };
                 const addressData = { city: "FOO" };
-                findByPkPatientStub.resolves({ update: sinon.stub() });
+                const foundPatient = { id, user_id: 2, address_id: 3, update: updatePatientStub };
+                findByPkPatientStub.resolves(foundPatient);
+                updateUserServiceStub.resolves();
+                updateAddressServiceStub.resolves();
                 updatePatientStub.resolves({ id, ...userData });
 
-                const updatedUser = await PatientService.updatePatient(1, userData, patientData, addressData);
+                await PatientService.updatePatient(id, userData, patientData, addressData);
 
-                expect(findByPkPatientStub.calledOnceWith(1)).to.be.true;
-                expect(updateUserServiceStub.calledOnceWith(id, userData, { transaction: sinon.match.any })).to.be.true;
-                expect(updateAddressServiceStub.calledOnceWith(addressData)).to.be.true
-                expect(updatePatientStub.calledOnceWith(patientData)).to.be.true;
-                // expect(updatedUser.email).to.equal(userData.email);
+                expect(findByPkPatientStub.calledOnceWith(id)).to.be.true;
+                expect(updateUserServiceStub.calledOnceWith(foundPatient.user_id, userData, transactionStub)).to.be.true;
+                expect(updateAddressServiceStub.calledOnceWith(foundPatient.address_id, addressData, transactionStub)).to.be.true;
+                expect(updatePatientStub.calledOnceWith(patientData, transactionStub)).to.be.true;
+                expect(transactionStub.commit.calledOnce).to.be.true;
             });
         });
     });
@@ -164,9 +167,9 @@ describe("Patient Service", () => {
                 const userData = { email: "FOO" };
                 const patientData = { gender: "FOO" };
                 const addressData = { city: "FOO" };
-                findByPkPatientStub.rejects(false);
+                findByPkPatientStub.resolves(false);
 
-                await expect(PatientService.updatePatient(id, userData, patientData, addressData)).to.be.rejectedWith(Error, "Patient not found");;
+                await expect(PatientService.updatePatient(id, userData, patientData, addressData)).to.be.rejectedWith(Error, "Patient not found");
 
                 expect(findByPkPatientStub.calledOnceWith(id)).to.be.true;
                 expect(updatePatientStub.calledOnce).to.be.false;

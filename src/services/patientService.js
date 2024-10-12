@@ -38,21 +38,21 @@ const PatientService = {
         const t = await sequelize.transaction();
 
         try {
-            const fundPatient = await db.Patients.findByPk(id);
-            if (!fundPatient) {
-                throw Error("Patient not found")
+            const foundPatient = await db.Patients.findByPk(id);
+            if (!foundPatient) {
+                throw new Error("Patient not found")
             }
 
-            await UserService.updateUser(fundPatient.user_id, userData, t);
-            await AddressService.updateAddress(fundPatient.address_id, addressData, t)
-            await fundPatient.update(patientData, t);
+            await UserService.updateUser(foundPatient.user_id, userData, t);
+            await AddressService.updateAddress(foundPatient.address_id, addressData, t)
+            await foundPatient.update(patientData, t);
 
             await t.commit();
-            return fundPatient;
+            return foundPatient;
         } catch (err) {
             await t.rollback();
             console.error("Error occurred", err);
-            throw new Error(err.message);
+            throw err;
         }
     }
 }

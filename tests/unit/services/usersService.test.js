@@ -99,7 +99,7 @@ describe("Users Service", () => {
             beforeEach(async () => {
                 findByPkUserStub = sinon.stub(db.Users, "findByPk")
                 transactionStub = sinon.stub(sequelize, "transaction").resolves();
-                updateUserStub = sinon.stub()
+                updateUserStub = sinon.stub(db.Users, "update")
             })
             afterEach(async () => {
                 sinon.restore();
