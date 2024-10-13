@@ -15,6 +15,9 @@ use(chaiAsPromised);
 
 describe("Users Service", () => {
     describe("Positive tests", () => {
+        afterEach(async () => {
+            sinon.restore();
+        });
         describe("Create new user", () => {
             beforeEach(async () => {
                 transactionStub = sinon.stub(sequelize, "transaction").resolves();
@@ -107,14 +110,15 @@ describe("Users Service", () => {
             it("when user is in DB and has a valid data, expect to update user and get updated user data successfully", async () => {
                 const id = 1;
                 const updatedData = { email: faker.internet.email() };
-                findByPkUserStub.resolves({ update: updateUserStub });
+                const user = { update: updateUserStub }
+                findByPkUserStub.resolves(user);
                 updateUserStub.resolves({ id, ...updatedData });
 
                 const updatedUser = await UserService.updateUser(id, updatedData, transactionStub);
 
                 expect(findByPkUserStub.calledOnceWith(id)).to.be.true;
                 expect(updateUserStub.calledOnceWith(updatedData)).to.be.true;
-                expect(updatedUser.email).to.equal(updatedData.email);;
+                expect(updatedUser).to.equal(user);
             });
             it("updatePassword", async () => {
                 const user = { id: 1, password: faker.internet.password() }
@@ -157,6 +161,9 @@ describe("Users Service", () => {
                 createUserStub = sinon.stub(db.Users, "create");
                 findUserStub = sinon.stub(db.Users, "findOne");
             })
+            afterEach(async () => {
+                sinon.restore();
+            });
             it("when email already is in DB, expect Error with 'User already exist'", async () => {
                 const newUser = {
                     first_name: faker.person.firstName(),
@@ -176,6 +183,9 @@ describe("Users Service", () => {
             });
         });
         describe("findUserByParam() => Get user by param(email):", () => {
+            afterEach(async () => {
+                sinon.restore();
+            });
             it("when user is not in DB, expect Error with 'User not found'", async () => {
                 findOneUserStub = sinon.stub(db.Users, "findOne").resolves(false);
 
@@ -185,6 +195,9 @@ describe("Users Service", () => {
             });
         });
         describe("updateUser() => Update user:", () => {
+            afterEach(async () => {
+                sinon.restore();
+            });
             it("when user is not in DB, expect Error with 'User not found'", async () => {
                 findByPkUserStub = sinon.stub(db.Users, "findByPk").resolves(false);
 
@@ -194,12 +207,18 @@ describe("Users Service", () => {
             });
         });
         describe("updatePassword() => Update user:", () => {
+            afterEach(async () => {
+                sinon.restore();
+            });
             it("when user is not in DB, expect Error with 'User not found'", async () => {
                 findByPkUserStub = sinon.stub(db.Users, "findByPk").resolves(false);
 
                 await expect(UserService.updatePassword(1, "", "")).to.be.rejectedWith(Error, "User not found");
 
                 expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
+            });
+            afterEach(async () => {
+                sinon.restore();
             });
             it("when password not equal, expect Error with 'Password Error'", async () => {
                 const userData = { id: 1, password: "hashedOldPassword" };
@@ -213,6 +232,9 @@ describe("Users Service", () => {
             });
         });
         describe("deleteUser() => Delete user:", () => {
+            afterEach(async () => {
+                sinon.restore();
+            });
             it("When user is not in DB, expect Error with 'User not found'", async () => {
                 findByPkUserStub = sinon.stub(db.Users, "findByPk").resolves(false);
 

@@ -33,23 +33,20 @@ describe("Address Service", () => {
             });
         });
         describe("updateAddress => Update:", () => {
-            let findByPkAddressStub, updateAddressStub
+            let updateAddressStub
 
             beforeEach(async () => {
                 transactionStub = sinon.stub(sequelize, "transaction").resolves();
-                findByPkAddressStub = sinon.stub(db.Addresses, "findByPk");
                 updateAddressStub = sinon.stub(db.Addresses, "update")
             });
 
             it("expend address to be updated, when valid data and transaction are ", async () => {
                 const id = 1;
                 const newAddress = { city: "foo", street: "foo", home: 1, flat: 1, post_index: "123-1234" };
-                findByPkAddressStub.resolves({ update: updateAddressStub });
                 updateAddressStub.resolves({ ...newAddress, home: 2 });
 
-                const result = await AddressService.updateAddress(id, newAddress, transactionStub);
+                const result = await AddressService.updateAddress({update: updateAddressStub}, newAddress, transactionStub);
 
-                expect(findByPkAddressStub.calledOnceWith(id)).to.be.true;
                 expect(updateAddressStub.calledOnceWith(newAddress, { transaction: transactionStub })).to.be.true;
                 expect(result).to.deep.include({ ...newAddress, home: 2 });
             })
@@ -76,33 +73,20 @@ describe("Address Service", () => {
             });
         });
         describe("updateAddress => Update:", () => {
-            let findByPkAddressStub, updateAddressStub
+            let updateAddressStub
 
             beforeEach(async () => {
                 transactionStub = sinon.stub(sequelize, "transaction").resolves();
-                findByPkAddressStub = sinon.stub(db.Addresses, "findByPk");
                 updateAddressStub = sinon.stub(db.Addresses, "update")
             });
 
-            it("expend error('Address not found'), when address isn't in db", async () => {
-                const id = 1;
-                const newAddress = { city: "foo", street: "foo", home: 1, flat: 1, post_index: "123-1234" };
-                findByPkAddressStub.resolves(false);
-
-                await expect(AddressService.updateAddress(id, newAddress, transactionStub)).to.be.rejectedWith(Error, "Address not found");
-
-                expect(findByPkAddressStub.calledOnceWith(id)).to.be.true;
-                expect(updateAddressStub.calledOnce).to.be.false;
-            });
             it("expend error('Address error'), when error with db", async () => {
                 const id = 1;
                 const newAddress = { city: "foo", street: "foo", home: 1, flat: 1, post_index: "123-1234" };
-                findByPkAddressStub.resolves({update: updateAddressStub});
                 updateAddressStub.rejects(new Error("Address error"));
 
-                await expect(AddressService.updateAddress(id, newAddress, transactionStub)).to.be.rejectedWith(Error, "Address error");
+                await expect(AddressService.updateAddress({update: updateAddressStub}, newAddress, transactionStub)).to.be.rejectedWith(Error, "Address error");
 
-                expect(findByPkAddressStub.calledOnceWith(id)).to.be.true;
                 expect(updateAddressStub.calledOnceWith(newAddress, {transaction: transactionStub})).to.be.true;
             })
         });

@@ -1,10 +1,13 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Users extends Model {
     static associate(models) {
+      Users.hasOne(models.Patients, {
+        foreignKey: 'user_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      })
     }
   }
   Users.init({
@@ -36,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     role: {
-      type: DataTypes.ENUM('patient','doctor','admin'),
+      type: DataTypes.ENUM('patient', 'doctor', 'admin'),
       allowNull: false,
       defaultValue: "patient"
     },

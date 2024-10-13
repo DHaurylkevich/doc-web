@@ -1,3 +1,4 @@
+// const TEST = require("../../tests/unit/services/usersService.test");
 const { Op } = require("sequelize");
 const db = require("../models");
 // const User = db.Users;
@@ -61,8 +62,7 @@ const UserService = {
         }
     },
     /**
-     * ВОЗМОЖНО НАДО ОПРЕДЕЛИТЬ ИМЕННО ЧТО ОБНОВЛЯЕТСЯ
-     * updateUser возвращает обновленный объект пользователя
+     * updateUser возвращает объект пользователя, для дальнейшего взаимодействия (наример  get'AnyModels'())
      * @param {Number} id 
      * @param {Object} updatedData 
      * @returns {Object}
@@ -74,8 +74,9 @@ const UserService = {
             if (!user) {
                 throw Error("User not found")
             }
+            await user.update(updatedData, { transaction: t, returning: true })
 
-            return await user.update(updatedData, {transaction: t});
+            return user;
         } catch (err) {
             console.error("Error occurred", err);
             throw new Error(err.message)
@@ -88,7 +89,7 @@ const UserService = {
      * @param {String} newPassword 
      */
     updatePassword: async (id, oldPassword, newPassword) => {
-        try{
+        try {
             const user = await db.Users.findByPk(id);
             if (!user) {
                 throw Error("User not found")
@@ -99,7 +100,7 @@ const UserService = {
             newPassword = passwordUtil.hashingPassword(newPassword);
 
             return await db.Users.update({ password: newPassword });
-        }catch(err){
+        } catch (err) {
             console.error("Error occurred", err);
             throw new Error(err.message)
         }
