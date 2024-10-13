@@ -7,10 +7,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Patients.belongsTo(models.Users, {
         foreignKey: 'user_id',
-        onDelete: 'CASCADE'
       });
-      Patients.belongsTo(models.Addresses, {
-        foreignKey: 'address_id'
+      Patients.hasOne(models.Addresses, {
+        foreignKey: 'user_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       });
     }
   }
@@ -21,16 +22,8 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
     gender: {
       type: DataTypes.ENUM('male', 'female', 'other'),
-      allowNull: true
-    },
-    address_id: {
-      type: DataTypes.INTEGER,
       allowNull: true
     },
     market_inf: {

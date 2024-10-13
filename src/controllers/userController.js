@@ -1,4 +1,4 @@
-// const TEST = require("../../tests/unit/controllers/usersController.test.js");
+const TEST = require("../../tests/unit/controllers/usersController.test.js");
 const UserService = require("../services/userService");
 const authMiddleware = require("../middleware/auth");
 const passwordUtil = require("../utils/passwordUtil");

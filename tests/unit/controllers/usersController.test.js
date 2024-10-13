@@ -4,7 +4,6 @@ process.env.NODE_ENV = 'test';
 const sinon = require("sinon");
 const { expect, use } = require("chai");
 const chaiAsPromised = require("chai-as-promised");
-// const { faker } = require('@faker-js/faker');
 const UserController = require("../../../src/controllers/userController");
 const UserService = require("../../../src/services/userService");
 const authMiddleware = require("../../../src/middleware/auth");
@@ -39,6 +38,9 @@ describe("Users Controller", () => {
         //     });
         // });
         describe("loginUser", () => {
+            afterEach(async () => {
+                sinon.restore();
+            });
             it("Expect login user and return status 200 with JWT token, when valid data is provide", async () => {
                 const req = { body: { loginParam: "", password: "pass" } };
                 const foundUser = { id: 1, email: "", password: "hashPass", role: "patient" };
@@ -57,6 +59,9 @@ describe("Users Controller", () => {
             });
         });
         describe("updateUserPassword()", () => {
+            afterEach(async () => {
+                sinon.restore();
+            });
             it("Expect changed password and return message, when valid data is provide", async () => {
                 const req = { body: { oldPassword: "old", newPassword: "new" }, params: { id: "1" } };
                 const updatePasswordStub = sinon.stub(UserService, "updatePassword").resolves();
@@ -66,7 +71,7 @@ describe("Users Controller", () => {
                 expect(updatePasswordStub.calledOnceWith({ id: req.params, oldPassword: req.body.oldPassword, newPassword: req.body.newPassword }));
                 expect(res.status.calledOnceWith(200)).to.be.true;
                 expect(res.json.calledOnceWith({ message: "Password changed successfully" })).to.be.true;
-            })
+            });
         });
         // describe("updateUser", () => {
         //     it("Expect update user data", async () => {
@@ -111,6 +116,9 @@ describe("Users Controller", () => {
                 req = { body: { email: "", password: "pass" } };
                 findByParamStub = sinon.stub(UserService, "findUserByParam");
             });
+            afterEach(async () => {
+                sinon.restore();
+            });
             it("Expect next('User not found') from findByParamStub(), when the user not found", async () => {
                 const error = new Error("User not found");
                 findByParamStub.rejects(error);
@@ -148,6 +156,9 @@ describe("Users Controller", () => {
             });
         });
         describe("updateUserPassword()", () => {
+            afterEach(async () => {
+                sinon.restore();
+            });
             it("Исправить next Expect next('Service Error')", async () => {
                 const req = { body: { oldPassword: "", newPassword: "" }, params: { id: "id" } };
                 const error = new Error("Service Error");
