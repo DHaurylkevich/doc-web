@@ -46,16 +46,15 @@ const PatientService = {
         try {
             const user = await UserService.updateUser(id, userData, t);
 
-            const patient = await user.getPatients()
+            const patient = await user.getPatients();
             if (!patient) {
                 throw new Error("Patient not found");
             }
             await patient.update(patientData, { transaction: t });
 
-            const address = await patient.getAddresses()
+            const address = await patient.getAddresses();
             if (address) {
-                console.log(address)
-                await AddressService.updateAddress(address, addressData, t)
+                await AddressService.updateAddress(address, addressData, t);
             }
 
             await t.commit();

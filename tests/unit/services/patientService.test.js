@@ -96,8 +96,8 @@ describe("Patient Service", () => {
                 expect(transactionStub.commit.calledOnce).to.be.true;
             });
         });
-        describe("deletePatient() => Delete:", () => {
-            let findByPkPatientStub, updatePatientStub, transactionStub, updateUserServiceStub, updateAddressServiceStub;
+        describe("getPatientById() => get patient:", () => {
+            let findByPkPatientStub, transactionStub, getPatientsStub, getAddressStub;
 
             beforeEach(async () => {
                 transactionStub = {
@@ -106,9 +106,8 @@ describe("Patient Service", () => {
                 };
                 sinon.stub(sequelize, "transaction").resolves(transactionStub);
                 findByPkPatientStub = sinon.stub(db.Patients, "findByPk");
-                updateUserServiceStub = sinon.stub(UserService, "updateUser");
-                updateAddressServiceStub = sinon.stub(AddressService, "updateAddress");
-                updatePatientStub = sinon.stub(db.Patients, "update");
+                // getPatientsStub = sinon.stub(db.User, "updateUser");
+                getAddressStub = sinon.stub(AddressService, "updateAddress");
             });
             afterEach(async () => {
                 sinon.restore();

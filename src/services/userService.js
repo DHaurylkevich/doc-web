@@ -1,8 +1,10 @@
 // const TEST = require("../../tests/unit/services/usersService.test");
 const { Op } = require("sequelize");
+const sequelize = require("../config/db");
 const db = require("../models");
-// const User = db.Users;
 const passwordUtil = require("../utils/passwordUtil");
+const PatientService = require("../services/patientService");
+const AddressesService = require("../services/addressService");
 
 const UserService = {
     /**
@@ -14,19 +16,18 @@ const UserService = {
      * @returns {Object} createdUser
      * @throws {Error} "User already exist", "Error occurred"
     */
-    createUser: async (user, t) => {
+    createUser: async (userData, t) => {
         try {
-            const userFound = await db.Users.findOne({ where: { email: user.email } });
-            if (userFound) {
+            const foundUser = await db.Users.findOne({ where: { pesel: userData.pesel } });
+            if (foundUser) {
                 throw new Error("User already exist");
             }
 
-            user.password = await passwordUtil.hashingPassword(user.password);
-
-            return await db.Users.create(user, { transaction: t });
+            userData.password = await passwordUtil.hashingPassword(userData.password);
+            return await db.Users.create(userData, { transaction: t });
         } catch (err) {
             console.error("Error occurred", err);
-            throw new Error(err.message);
+            throw err;
         }
     },
     /**
@@ -34,12 +35,34 @@ const UserService = {
     * @returns {Array}
     * @throws {Error} "Error occurred"
     */
-    findUsers: async () => {
+    findAllUsers: async () => {
         try {
             return await db.Users.findAll();
         } catch (err) {
             console.error("Error occurred", err);
             throw new Error(err.message)
+        }
+    },
+    findUserById: async (id) => {
+        try {
+            const findUser = await db.Users.findByPk(id);
+            if (!findUser) {
+                throw new Error("User not found");
+            }
+
+            let userByRole;
+            if (findUser.role === "patient") {
+                userByRole = await findUser.getPatients();
+                address = await userByRole.getAddresses();
+                return { userByRole, address };
+            }
+
+            if (!userByRole) {
+                throw new Error(`${userByRole} not found`);
+            }
+        } catch (err) {
+            console.error("Error occurred", err);
+            throw err;
         }
     },
     /**

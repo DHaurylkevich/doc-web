@@ -37,7 +37,7 @@ describe("Users Controller", () => {
         //         expect(next.called).to.be.false;
         //     });
         // });
-        describe("loginUser", () => {
+        describe("loginUser() =>", () => {
             afterEach(async () => {
                 sinon.restore();
             });
@@ -58,7 +58,7 @@ describe("Users Controller", () => {
                 expect(next.called).to.be.false;
             });
         });
-        describe("updateUserPassword()", () => {
+        describe("updateUserPassword() =>", () => {
             afterEach(async () => {
                 sinon.restore();
             });
@@ -73,14 +73,42 @@ describe("Users Controller", () => {
                 expect(res.json.calledOnceWith({ message: "Password changed successfully" })).to.be.true;
             });
         });
-        // describe("updateUser", () => {
-        //     it("Expect update user data", async () => {
-        //         const req = { body: { userData } };
+        describe("getUserById() =>", () => {
+            afterEach(async () => {
+                sinon.restore();
+            });
+            it("Expect get user and its associates from dataBase", async () => {
+                const req = { params: { id: 3 } };
+                const user = { id: 3, name: "FOO" }
+                const getUserByIdStub = sinon.stub(UserService, "findUserById").resolves(user);
 
-        //     })
-        // })
+                await UserController.getUserById(req, res, next);
+
+                expect(getUserByIdStub.calledOnceWith(req.params.id)).to.be.true;
+                expect(res.status.calledOnceWith(200)).to.be.true;
+                expect(res.json.calledOnceWith(user)).to.be.true;
+            })
+        })
+        describe("deleteUser() => Delete:", () => {
+            afterEach(async () => {
+                sinon.restore();
+            });
+            it("Expect delete user from dataBase", async () => {
+                const req = { params: { id: 3 } };
+                const deleteUser = sinon.stub(UserService, "deleteUser").resolves({ message: "Successful delete" });
+
+                const result = await UserController.deleteUser(req, res, next);
+
+                expect(deleteUser.calledOnceWith(req.params.id)).to.be.true;
+                expect(res.status.calledOnceWith(200)).to.be.true;
+                expect(res.json.calledOnceWith({ message: "Successful delete" })).to.be.true;
+            })
+        })
     });
     describe("Negative tests", () => {
+        afterEach(async () => {
+            sinon.restore();
+        });
         // describe("registerUser()", () => {
         //     let req, createUserStun;
         //     beforeEach(async () => {
@@ -115,9 +143,6 @@ describe("Users Controller", () => {
             beforeEach(async () => {
                 req = { body: { email: "", password: "pass" } };
                 findByParamStub = sinon.stub(UserService, "findUserByParam");
-            });
-            afterEach(async () => {
-                sinon.restore();
             });
             it("Expect next('User not found') from findByParamStub(), when the user not found", async () => {
                 const error = new Error("User not found");
@@ -156,9 +181,6 @@ describe("Users Controller", () => {
             });
         });
         describe("updateUserPassword()", () => {
-            afterEach(async () => {
-                sinon.restore();
-            });
             it("Исправить next Expect next('Service Error')", async () => {
                 const req = { body: { oldPassword: "", newPassword: "" }, params: { id: "id" } };
                 const error = new Error("Service Error");
@@ -180,6 +202,34 @@ describe("Users Controller", () => {
                 expect(updatePasswordStub.called).to.be.false;
                 expect(next.called).to.be.true;
                 expect(next.calledOnceWith("Valid data error"));
+                expect(res.status.called).to.be.false;
+                expect(res.json.called).to.be.false;
+            })
+        });
+        describe("getUserById() =>", () => {
+            it("Expect error('User not found')", async () => {
+                const req = { params: { id: 3 } };
+                const getUserByIdUser = sinon.stub(UserService, "findUserById").rejects(new Error("User not found"));
+
+                await UserController.getUserById(req, res, next);
+
+                expect(getUserByIdUser.calledOnceWith(req.params.id)).to.be.true;
+                expect(next.called).to.be.true;
+                expect(next.calledOnceWith("User not found"));
+                expect(res.status.called).to.be.false;
+                expect(res.json.called).to.be.false;
+            })
+        });
+        describe("deleteUser() => Delete:", () => {
+            it("Expect message: 'Delete error', when delete user service from dataBase", async () => {
+                const req = { params: { id: 3 } };
+                const deleteUser = sinon.stub(UserService, "deleteUser").rejects(new Error("Delete error"));
+
+                await UserController.deleteUser(req, res, next);
+
+                expect(deleteUser.calledOnceWith(req.params.id)).to.be.true;
+                expect(next.called).to.be.true;
+                expect(next.calledOnceWith("Delete error"));
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             })

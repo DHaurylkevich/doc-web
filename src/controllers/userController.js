@@ -35,22 +35,21 @@ const UserController = {
 
             const token = authMiddleware.createJWT(user.id, user.role);
             res.status(200).json(token);
-        } catch (error) {
-            next(error);
+        } catch (err) {
+            next(err);
         }
     },
 
-    //Получить список всех пациентов, наверное смотреть может только Админ
-    getAllUser: async (req, res) => {
+    getUserById: async (req, res, next) => {
+        const { id } = req.params;
         try {
-            const users = await User.find().lean().exec();
-            res.status(200).json(users);
+            const user = await UserService.findUserById(id);
+            res.status(200).json(user);
         } catch (err) {
             console.error(err);
-            res.status(500).json({ message: err.message });
+            next(err);
         }
     },
-
     /**
      * Обновление паролей
      * @param {Number} req.param.id 
@@ -68,6 +67,16 @@ const UserController = {
 
             await UserService.updatePassword(id, oldPassword, newPassword);
             res.status(200).json({ message: "Password changed successfully" });
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    deleteUser: async (req, res, next) => {
+        const { id } = req.params;
+        try {
+            await UserService.deleteUser(id);
+            res.status(200).json({ message: "Successful delete" });
         } catch (err) {
             next(err);
         }
