@@ -1,10 +1,7 @@
 // const TEST = require("../../tests/unit/services/usersService.test");
 const { Op } = require("sequelize");
-const sequelize = require("../config/db");
 const db = require("../models");
 const passwordUtil = require("../utils/passwordUtil");
-const PatientService = require("../services/patientService");
-const AddressesService = require("../services/addressService");
 
 const UserService = {
     /**

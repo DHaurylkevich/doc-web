@@ -5,6 +5,12 @@ const createJWT = (user_id, user_role) => {
     return jwt.sign(payload, process.env.JWT_AUTH_TOKEN, { expiresIn: "1h" });
 };
 
+// const authMiddleware = expressJwt({
+//     secret: process.env.JWT_SECRET,
+//     algorithms: ['HS256'],
+//     userProperty: 'auth' // Добавляем информацию о пользователе в req.auth
+//   });
+
 const auth = (req, res, next) => {
     const token = req.header("x-auth-token");
 

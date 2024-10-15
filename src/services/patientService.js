@@ -1,9 +1,9 @@
-const TEST = require("../../tests/unit/services/patientService.test");
+// const TEST = require("../../tests/unit/services/patientService.test");
 const db = require("../models");
 const sequelize = require("../config/db");
 const UserService = require("../services/userService");
 const AddressService = require("../services/addressService");
-const tokenUtil = require("../middleware/auth");
+const authMiddleware = require("../middleware/auth");
 
 const PatientService = {
     /**
@@ -13,7 +13,7 @@ const PatientService = {
      * @param {Object} addressData 
      * @returns {String} token
      */
-    registerPatient: async (userData, patientData, addressData) => {
+    createPatient: async (userData, patientData, addressData) => {
         const t = await sequelize.transaction();
 
         try {
@@ -24,12 +24,11 @@ const PatientService = {
             await AddressService.createAddress({ user_id: createdPatient.id, ...addressData }, t);
 
             await t.commit();
-            const token = tokenUtil.createJWT(createdUser.id, createdUser.role);
-            return token;
+            return authMiddleware.createJWT(createdUser.id, createdUser.role);
         } catch (err) {
             await t.rollback();
             console.error("Error occurred", err);
-            throw new Error(err.message);
+            throw err;
         }
     },
     /**

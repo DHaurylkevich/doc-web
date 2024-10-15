@@ -1,24 +1,9 @@
-const TEST = require("../../tests/unit/controllers/usersController.test.js");
+// const TEST = require("../../tests/unit/controllers/usersController.test.js");
 const UserService = require("../services/userService");
 const authMiddleware = require("../middleware/auth");
 const passwordUtil = require("../utils/passwordUtil");
 
 const UserController = {
-    // const User = require("../models/user");
-    // const { validationResult } = require("express-validator");
-    // const jwt = require("jsonwebtoken");
-    // const { validationResult } = require('express-validator');
-    // registerUser: async (req, res, next) => {
-    //     try {
-    //         const user = await UserService.createUser(req.body);
-
-    //         const token = authMiddleware.createJWT(user.id, user.role);
-    //         res.status(201).json(token);
-    //     } catch (error) {
-    //         next(error);
-    //     }
-    // },
-
     /**
      * Вход пользователя
      * @param {String} loginParam 
@@ -29,7 +14,7 @@ const UserController = {
         const { loginParam, password } = req.body;
 
         try {
-            let user = await UserService.findUserByParam(loginParam);
+            const user = await UserService.findUserByParam(loginParam);
 
             passwordUtil.checkingPassword(password, user.password);
 
@@ -68,6 +53,7 @@ const UserController = {
             await UserService.updatePassword(id, oldPassword, newPassword);
             res.status(200).json({ message: "Password changed successfully" });
         } catch (err) {
+            console.log(err);
             next(err);
         }
     },

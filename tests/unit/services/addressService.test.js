@@ -11,10 +11,10 @@ const AddressService = require("../../../src/services/addressService");
 use(chaiAsPromised);
 
 describe("Address Service", () => {
+    afterEach(() => {
+        sinon.restore();
+    });
     describe("Positive tests", () => {
-        afterEach(async () => {
-            sinon.restore();
-        });
         describe("addressCreate() => Create:", () => {
             let createAddressStub;
 
@@ -53,9 +53,6 @@ describe("Address Service", () => {
         });
     });
     describe("Negative tests", () => {
-        afterEach(async () => {
-            sinon.restore();
-        });
         describe("addressCreate() => Create:", () => {
             let createAddressStub;
 
@@ -63,7 +60,7 @@ describe("Address Service", () => {
                 createAddressStub = sinon.stub(db.Addresses, "create");
             });
 
-            it("expect throws error('Create address failed') when ", async () => {
+            it("expect to throw an error('Create address failed') when address creation fails", async () => {
                 const newAddress = { city: "foo", street: "foo", home: 1, flat: 1, post_index: "123-1234" };
                 createAddressStub.rejects(new Error("Create address failed"));
 
@@ -73,7 +70,7 @@ describe("Address Service", () => {
             });
         });
         describe("updateAddress => Update:", () => {
-            let updateAddressStub
+            let updateAddressStub, transactionStub;
 
             beforeEach(async () => {
                 transactionStub = sinon.stub(sequelize, "transaction").resolves();
@@ -81,7 +78,6 @@ describe("Address Service", () => {
             });
 
             it("expend error('Address error'), when error with db", async () => {
-                const id = 1;
                 const newAddress = { city: "foo", street: "foo", home: 1, flat: 1, post_index: "123-1234" };
                 updateAddressStub.rejects(new Error("Address error"));
 

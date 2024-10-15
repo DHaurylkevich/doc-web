@@ -17,30 +17,11 @@ describe("Users Controller", () => {
         next = sinon.stub();
         res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
     });
-    afterEach(async () => {
+    afterEach(() => {
         sinon.restore();
     });
     describe("Positive tests", () => {
-        // describe("registerUser()", () => {
-        //     it("Expect create user with token JWT and return status 201, when valid data is provide", async () => {
-        //         const req = { body: { role: "patient" } };
-        //         const createdUser = { id: 1, ...req.body };
-        //         const createUserStub = sinon.stub(UserService, "createUser").resolves(createdUser);
-        //         const createJwtStub = sinon.stub(authMiddleware, "createJWT").returns("fake-jwt-token");
-
-        //         await UserController.registerUser(req, res, next);
-
-        //         expect(createUserStub.calledOnceWith(req.body)).to.be.true;
-        //         expect(createJwtStub.calledOnceWith(createdUser.id, createdUser.role)).to.be.true;
-        //         expect(res.status.calledOnceWith(201)).to.be.true;
-        //         expect(res.json.calledOnceWith("fake-jwt-token")).to.be.true;
-        //         expect(next.called).to.be.false;
-        //     });
-        // });
         describe("loginUser() =>", () => {
-            afterEach(async () => {
-                sinon.restore();
-            });
             it("Expect login user and return status 200 with JWT token, when valid data is provide", async () => {
                 const req = { body: { loginParam: "", password: "pass" } };
                 const foundUser = { id: 1, email: "", password: "hashPass", role: "patient" };
@@ -59,24 +40,17 @@ describe("Users Controller", () => {
             });
         });
         describe("updateUserPassword() =>", () => {
-            afterEach(async () => {
-                sinon.restore();
-            });
             it("Expect changed password and return message, when valid data is provide", async () => {
                 const req = { body: { oldPassword: "old", newPassword: "new" }, params: { id: "1" } };
                 const updatePasswordStub = sinon.stub(UserService, "updatePassword").resolves();
 
                 await UserController.updateUserPassword(req, res, next);
 
-                expect(updatePasswordStub.calledOnceWith({ id: req.params, oldPassword: req.body.oldPassword, newPassword: req.body.newPassword }));
-                expect(res.status.calledOnceWith(200)).to.be.true;
+                expect(updatePasswordStub.calledOnceWith({ id: req.params.id, oldPassword: req.body.oldPassword, newPassword: req.body.newPassword }));                expect(res.status.calledOnceWith(200)).to.be.true;
                 expect(res.json.calledOnceWith({ message: "Password changed successfully" })).to.be.true;
             });
         });
         describe("getUserById() =>", () => {
-            afterEach(async () => {
-                sinon.restore();
-            });
             it("Expect get user and its associates from dataBase", async () => {
                 const req = { params: { id: 3 } };
                 const user = { id: 3, name: "FOO" }
@@ -90,9 +64,6 @@ describe("Users Controller", () => {
             })
         })
         describe("deleteUser() => Delete:", () => {
-            afterEach(async () => {
-                sinon.restore();
-            });
             it("Expect delete user from dataBase", async () => {
                 const req = { params: { id: 3 } };
                 const deleteUser = sinon.stub(UserService, "deleteUser").resolves({ message: "Successful delete" });
@@ -106,45 +77,14 @@ describe("Users Controller", () => {
         })
     });
     describe("Negative tests", () => {
-        afterEach(async () => {
-            sinon.restore();
-        });
-        // describe("registerUser()", () => {
-        //     let req, createUserStun;
-        //     beforeEach(async () => {
-        //         req = { body: { name: "" } };
-        //         createUserStun = sinon.stub(UserService, "createUser")
-        //     });
-        //     it("Expect next('Error occurred') from createUser(), when the service createUser() throws an error", async () => {
-        //         const error = new Error("Error occurred");
-        //         createUserStun.rejects(error);
-
-        //         await UserController.registerUser(req, res, next);
-
-        //         expect(next.calledOnceWith(error)).to.be.true;
-        //         expect(res.status.called).to.be.false;
-        //         expect(res.json.called).to.be.false;
-        //     });
-        //     it("Expect next('Token create error') from createJWT(), when createJWT() throws an error", async () => {
-        //         const newUser = { id: "1", role: "" };
-        //         const error = new Error("Token create error");
-        //         createUserStun.resolves(newUser);
-        //         sinon.stub(authMiddleware, "createJWT").throws(error);
-
-        //         await UserController.registerUser(req, res, next);
-
-        //         expect(next.calledOnceWith(error)).to.be.true;
-        //         expect(res.status.called).to.be.false;
-        //         expect(res.json.called).to.be.false;
-        //     });
-        // });
         describe("loginUser()", () => {
-            let req, findByParamStub;
+            let res, findByParamStub;
             beforeEach(async () => {
-                req = { body: { email: "", password: "pass" } };
+                res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
                 findByParamStub = sinon.stub(UserService, "findUserByParam");
             });
             it("Expect next('User not found') from findByParamStub(), when the user not found", async () => {
+                const req = { body: { email: "", password: "pass" } };
                 const error = new Error("User not found");
                 findByParamStub.rejects(error);
 
@@ -155,6 +95,7 @@ describe("Users Controller", () => {
                 expect(res.json.called).to.be.false;
             });
             it("Expect next('Login Error') from checkingPassword(), when passwords do not match", async () => {
+                const req = { body: { email: "", password: "pass" } };
                 const foundUser = { id: 1, email: "", password: "hashPass", role: "" };
                 const error = new Error("User not found");
                 findByParamStub.resolves(foundUser);
@@ -167,6 +108,7 @@ describe("Users Controller", () => {
                 expect(res.json.called).to.be.false;
             });
             it("Expect next('Token Error') from createJWT(), when createJWT() throws an error", async () => {
+                const req = { body: { email: "", password: "pass" } };
                 const foundUser = { id: 1, email: "", password: "hashPass", role: "" };
                 const error = new Error("Token Error");
                 findByParamStub.resolves(foundUser);
@@ -181,18 +123,6 @@ describe("Users Controller", () => {
             });
         });
         describe("updateUserPassword()", () => {
-            it("Исправить next Expect next('Service Error')", async () => {
-                const req = { body: { oldPassword: "", newPassword: "" }, params: { id: "id" } };
-                const error = new Error("Service Error");
-                const updatePasswordStub = sinon.stub(UserService, "updatePassword").rejects(error);
-
-                await UserController.updateUserPassword(req, res, next);
-
-                expect(updatePasswordStub.calledOnceWith({ id: req.params, oldPassword: req.body.oldPassword, newPassword: req.body.newPassword }));
-                // expect(next.calledOnceWith(error)).to.be.true;
-                expect(res.status.called).to.be.false;
-                expect(res.json.called).to.be.false;
-            })
             it("Expect next('Valid data error')", async () => {
                 const req = { body: { oldPassword: "", newPassword: "" }, params: { id: "" } };
                 const updatePasswordStub = sinon.stub(UserService, "updatePassword");
@@ -201,7 +131,20 @@ describe("Users Controller", () => {
 
                 expect(updatePasswordStub.called).to.be.false;
                 expect(next.called).to.be.true;
-                expect(next.calledOnceWith("Valid data error"));
+                expect(next.calledOnceWith(new Error("Valid data error")));
+                expect(res.status.called).to.be.false;
+                expect(res.json.called).to.be.false;
+            }),
+            it("Expect next('Service Error')", async () => {
+                const req = { body: { oldPassword: "old", newPassword: "new" }, params: { id: "id" } };
+                const error = new Error("Service Error")
+                const updatePasswordStub = sinon.stub(UserService, "updatePassword").rejects(error);
+
+                await UserController.updateUserPassword(req, res, next);
+
+                expect(updatePasswordStub.calledOnceWith({ id: req.params, oldPassword: req.body.oldPassword, newPassword: req.body.newPassword }));
+                expect(next.called).to.be.true;
+                expect(next.calledOnceWith(error)).to.be.true;
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             })
@@ -215,7 +158,7 @@ describe("Users Controller", () => {
 
                 expect(getUserByIdUser.calledOnceWith(req.params.id)).to.be.true;
                 expect(next.called).to.be.true;
-                expect(next.calledOnceWith("User not found"));
+                expect(next.calledOnceWith(new Error("User not found")));
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             })
@@ -229,11 +172,10 @@ describe("Users Controller", () => {
 
                 expect(deleteUser.calledOnceWith(req.params.id)).to.be.true;
                 expect(next.called).to.be.true;
-                expect(next.calledOnceWith("Delete error"));
+                expect(next.calledOnceWith(new Error("Delete error")));
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             })
         });
     });
 });
-
