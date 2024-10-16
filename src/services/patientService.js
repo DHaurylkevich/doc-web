@@ -1,5 +1,4 @@
 // const TEST = require("../../tests/unit/services/patientService.test");
-const db = require("../models");
 const sequelize = require("../config/db");
 const UserService = require("../services/userService");
 const AddressService = require("../services/addressService");
@@ -19,9 +18,9 @@ const PatientService = {
         try {
             const createdUser = await UserService.createUser(userData, t);
 
-            const createdPatient = await db.Patients.create({ user_id: createdUser.id, ...patientData }, { transaction: t });
+            const createdPatient = await createdUser.createPatients(patientData, { transaction: t });
 
-            await AddressService.createAddress({ user_id: createdPatient.id, ...addressData }, t);
+            await createdPatient.createAddress(addressData, t);
 
             await t.commit();
             return authMiddleware.createJWT(createdUser.id, createdUser.role);
