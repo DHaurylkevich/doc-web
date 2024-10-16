@@ -1,8 +1,8 @@
 // const TEST = require("../../tests/unit/services/doctorService.test");
 const sequelize = require("../config/db");
 const UserService = require("../services/userService");
-const ClinicService = require("../services/clinicService");
-const SpecialtyService = require("../services/specialtyService");
+const ClinicService = require("./clinicService");
+const SpecialtyService = require("./specialtyService");
 
 const DoctorService = {
     /**

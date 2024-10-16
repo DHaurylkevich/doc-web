@@ -6,11 +6,12 @@ module.exports = (sequelize, DataTypes) => {
       Doctors.belongsTo(models.Users, {
         foreignKey: 'user_id',
       });
-      // Doctors.belongsTo(models.Clinic, {
-      //   foreignKey: "clinic_id",
-      // });
+      Doctors.belongsTo(models.Clinics, {
+        foreignKey: "clinic_id",
+      });
       // Doctors.hasOne(models.Schedules, {
       //   foreignKey: "schedule_id",
+      //   onDelete: 'CASCADE',
       // });
       // Doctors.hasMany(models.Reviews, {
       //   foreignKey: "review_id",
@@ -21,6 +22,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Doctors.init({
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true
+    },
     rating: {
       type: DataTypes.FLOAT,
       defaultValue: 0,

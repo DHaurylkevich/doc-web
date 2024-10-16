@@ -35,6 +35,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: "email"
     },
+    pesel: {
+      type: DataTypes.STRING(8),//Точно???
+      allowNull: false,
+      unique: "pesel"
+    },
     phone: {
       type: DataTypes.STRING(20),
       allowNull: true
