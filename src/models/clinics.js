@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       });
+      Clinics.hasMany(models.Schedules, {
+        foreignKey: "clinic_id",
+        onDelete: 'CASCADE',
+      });
       // Clinics.hasMany(models.Reviews, {
       //   foreignKey: "review_id",
       // });

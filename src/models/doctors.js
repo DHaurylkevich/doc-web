@@ -9,15 +9,15 @@ module.exports = (sequelize, DataTypes) => {
       Doctors.belongsTo(models.Clinics, {
         foreignKey: "clinic_id",
       });
-      // Doctors.hasOne(models.Schedules, {
-      //   foreignKey: "schedule_id",
-      //   onDelete: 'CASCADE',
-      // });
+      Doctors.belongsToMany(models.Specialties, {
+        through: "DoctorsSpecialties",
+      });
+      Doctors.hasMany(models.Schedules, {
+        foreignKey: "doctor_id",
+        onDelete: 'CASCADE',
+      });
       // Doctors.hasMany(models.Reviews, {
       //   foreignKey: "review_id",
-      // });
-      // Doctors.belongsToMany(models.Specialties, {
-      //   through: "DoctorSpecialty",
       // });
     }
   }

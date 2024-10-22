@@ -1,5 +1,6 @@
 // const TEST = require("../../tests/unit/services/doctorService.test");
 const sequelize = require("../config/db");
+const db = require("../models");
 const UserService = require("../services/userService");
 const ClinicService = require("./clinicService");
 const SpecialtyService = require("./specialtyService");
@@ -17,16 +18,27 @@ const DoctorService = {
         const t = await sequelize.transaction();
 
         try {
-            await ClinicService.findById(clinic_id);
-            await SpecialtyService.findById(specialty_id);
+            await ClinicService.getClinicById(clinic_id);
+            await SpecialtyService.getSpecialtyById(specialty_id);
 
             const createdUser = await UserService.createUser(userData, t);
-            const createdPatient = await createdUser.createDoctor({ specialty_id: specialty_id, clinic_id: clinic_id, ...doctorData }, { transaction: t });
+            const createdDoctor= await createdUser.createDoctor({ specialty_id: specialty_id, clinic_id: clinic_id, ...doctorData }, { transaction: t });
 
             await t.commit();
-            return createdPatient;
+            return createdDoctor;
         } catch (err) {
             await t.rollback();
+            throw err;
+        }
+    },
+    getDoctorById: async (id) => {
+        try {
+            const doctor = await db.Doctors.findByPk(id);
+            if (!doctor) {
+                throw new Error('Doctor not found');
+            }
+            return doctor;
+        } catch (err) {
             throw err;
         }
     },
@@ -43,7 +55,7 @@ const DoctorService = {
 
         try {
             const user = await UserService.updateUser(id, userData, t);
-            
+
             const doctor = await user.getDoctors();
             if (!doctor) {
                 throw new Error("Doctor not found");
@@ -59,6 +71,6 @@ const DoctorService = {
             throw err;
         }
     },
-}
+};
 
 module.exports = DoctorService;

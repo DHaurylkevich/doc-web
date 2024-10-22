@@ -16,24 +16,109 @@ describe("Clinic Service", () => {
         sinon.restore();
     });
     describe("Positive tests", () => {
-        describe("updateClinic => Update:", () => {
-            let updateClinicStub
+        describe("clinicCreate() =>:", () => {
+            let transactionStub, createAddressStub, createClinicStub;
 
             beforeEach(async () => {
-                transactionStub = sinon.stub(sequelize, "transaction").resolves();
-                updateClinicStub = sinon.stub(db.Clinices, "update")
+                transactionStub = {
+                    commit: sinon.stub(),
+                    rollback: sinon.stub(),
+                };
+                sinon.stub(sequelize, "transaction").resolves(transactionStub);
+                createAddressStub = sinon.stub();
+                createClinicStub = sinon.stub(db.Clinics, "create");
             });
+            it("expect create clinic when valid data", async () => {
+                const clinic = 1;
+                const address = 2;
+                createClinicStub.resolves({ createAddress: createAddressStub });
 
-            it("expend Clinic to be updated, when valid data and transaction are ", async () => {
-                const id = 1;
-                const newClinic = { city: "foo", street: "foo", home: 1, flat: 1, post_index: "123-1234" };
-                updateClinicStub.resolves({ ...newClinic, home: 2 });
+                await ClinicService.createClinic(clinic, address);
 
-                const result = await ClinicService.updateClinic({ update: updateClinicStub }, newClinic, transactionStub);
-
-                expect(updateClinicStub.calledOnceWith(newClinic, { transaction: transactionStub })).to.be.true;
-                expect(result).to.deep.include({ ...newClinic, home: 2 });
+                expect(createClinicStub.calledOnceWith(clinic, { transaction: transactionStub })).to.be.true;
+                expect(createAddressStub.calledOnce).to.be.true;
+                expect(transactionStub.commit.calledOnce).to.be.true;
+                expect(transactionStub.rollback.calledOnce).to.be.false;
+            });
+        });
+        describe("getClinicById() =>:", () => {
+            let findByPkStub;
+            beforeEach(async () => {
+                findByPkStub = sinon.stub(db.Clinics, "findByPk");
             })
+            it("expect get clinics by id, when it is in db", async () => {
+                const clinic = { id: 1, name: "House" };
+                findByPkStub.resolves(clinic);
+
+                const result = await ClinicService.getClinicById(1);
+
+                expect(findByPkStub.calledOnceWith(1)).to.be.true;
+                expect(result).to.deep.equal(doctor);
+            });
+        });
+        describe("getFullDataById() =>:", () => {
+            let findOneStub;
+
+            beforeEach(async () => {
+                findOneStub = sinon.stub(db.Clinics, "findOne");
+            });
+            it("expect create clinic when valid data", async () => {
+                const id = 1;
+                const clinic = "foo";
+                findOneStub.resolves(clinic);
+
+                const result = await ClinicService.getFullDataById(id);
+
+                expect(findOneStub.calledOnceWith({ where: { id: id }, include: [db.Addresses] })).to.be.true;
+                expect(result).to.equals(clinic);
+            });
+        });
+        describe("getAllClinicsFullData() =>:", () => {
+            let findAllStub;
+
+            beforeEach(async () => {
+                findAllStub = sinon.stub(db.Clinics, "findAll");
+            });
+            it("expect create clinic when valid data", async () => {
+                const clinic = "foo";
+                findAllStub.resolves(clinic);
+
+                const result = await ClinicService.getAllClinicsFullData();
+
+                expect(findAllStub.calledOnceWith({ include: [db.Addresses] })).to.be.true;
+                expect(result).to.equals(clinic);
+            });
+        });
+        describe("updateClinic => Update:", () => {
+            let updateClinicsStub, transactionStub, findByPkClinicStub, getAddressesStub, updateAddressStub;
+
+            beforeEach(async () => {
+                transactionStub = {
+                    commit: sinon.stub(),
+                    rollback: sinon.stub(),
+                };
+                sinon.stub(sequelize, "transaction").resolves(transactionStub);
+                findByPkClinicStub = sinon.stub(db.Clinics, "findByPk");
+                updateClinicsStub = sinon.stub();
+                getAddressesStub = sinon.stub();
+                updateAddressStub = sinon.stub(AddressService, "updateAddress");
+            });
+            it("should return the updated clinic", async () => {
+                const id = 1;
+                const newClinic = { name: "Updated Clinic" };
+                const addressData = { city: "foo", street: "foo", home: 2, flat: 1, post_index: "123-1234" };
+                findByPkClinicStub.resolves({ updateClinics: updateClinicsStub, getAddresses: getAddressesStub });
+                updateClinicsStub.resolves();
+                updateAddressStub.resolves();
+
+                await ClinicService.updateClinic(id, newClinic, addressData);
+
+                expect(sequelize.transaction.calledOnce).to.be.true;
+                expect(updateClinicsStub.calledOnceWith(newClinic, { transaction: transactionStub })).to.be.true;
+                expect(getAddressesStub.calledOnce).to.be.true;
+                expect(updateAddressStub.calledOnceWith(sinon.match.any, addressData, transactionStub)).to.be.true;
+                expect(transactionStub.commit.calledOnce).to.be.true;
+            });
         });
     });
     describe("Negative tests", () => {
@@ -75,22 +160,131 @@ describe("Clinic Service", () => {
                 expect(createAddressStub.calledOnceWith(address)).to.be.true;
             });
         });
-        describe("updateClinic => Update:", () => {
-            let updateClinicStub, transactionStub;
+        describe("getDoctorById() =>:", () => {
+            let findByPkStub;
+            beforeEach(async () => {
+                findByPkStub = sinon.stub(db.Clinics, "findByPk");
+            })
+            it("expect error('Clinic not found'), when it isn't in db", async () => {
+                findByPkStub.resolves(false);
+
+                await expect(ClinicService.getClinicById(1)).to.be.rejectedWith(Error, "Clinic not found");
+
+                expect(findByPkStub.calledOnceWith(1)).to.be.true;
+            });
+            it("expect error('Clinic error'), when error db", async () => {
+                findByPkStub.rejects(new Error("Clinic error"));
+
+                await expect(ClinicService.getClinicById(1)).to.be.rejectedWith(Error, "Clinic error");
+
+                expect(findByPkStub.calledOnceWith(1)).to.be.true;
+            });
+        });
+        describe("getFullDataById() =>:", () => {
+            let findOneStub;
 
             beforeEach(async () => {
-                transactionStub = sinon.stub(sequelize, "transaction").resolves();
-                updateClinicStub = sinon.stub(db.Clinices, "update")
+                findOneStub = sinon.stub(db.Clinics, "findOne");
             });
+            it("expend expect to throw an error('Clinic error'), when error on db", async () => {
+                const id = 1;
+                const error = new Error("Clinic error");
+                findOneStub.rejects(error);
 
-            it("expend error('Clinic error'), when error with db", async () => {
-                const newClinic = { city: "foo", street: "foo", home: 1, flat: 1, post_index: "123-1234" };
-                updateClinicStub.rejects(new Error("Clinic error"));
+                await expect(ClinicService.getFullDataById(id)).to.be.rejectedWith(error);
 
-                await expect(ClinicService.updateClinic({ update: updateClinicStub }, newClinic, transactionStub)).to.be.rejectedWith(Error, "Clinic error");
+                expect(findOneStub.calledOnceWith({ where: { id: id }, include: [db.Addresses] })).to.be.true;
+            });
+            it("expend expect to throw an error('Clinic not found'), when error on db", async () => {
+                const id = 1;
+                findOneStub.resolves(false);
 
-                expect(updateClinicStub.calledOnceWith(newClinic, { transaction: transactionStub })).to.be.true;
-            })
+                await expect(ClinicService.getFullDataById(id)).to.be.rejectedWith(Error, "Clinic not found");
+
+                expect(findOneStub.calledOnceWith({ where: { id: id }, include: [db.Addresses] })).to.be.true;
+            });
+        });
+        describe("getAllClinicsFullData() =>:", () => {
+            let findAllStub;
+
+            beforeEach(async () => {
+                findAllStub = sinon.stub(db.Clinics, "findAll");
+            });
+            it("expend expect to throw an error('Clinic error'), when error on db", async () => {
+                const error = new Error("Clinic error");
+                findAllStub.rejects(error);
+
+                await expect(ClinicService.getAllClinicsFullData()).to.be.rejectedWith(error);
+
+                expect(findAllStub.calledOnceWith({ include: [db.Addresses] })).to.be.true;
+            });
+            it("expend expect to throw an error('Clinics not found'), when error on db", async () => {
+                const id = 1;
+                findAllStub.resolves(false);
+
+                await expect(ClinicService.getAllClinicsFullData()).to.be.rejectedWith(Error, "Clinics not found");
+
+                expect(findAllStub.calledOnceWith({ include: [db.Addresses] })).to.be.true;
+            });
+        });        
+        describe("updateClinic => Update:", () => {
+            let updateClinicsStub, transactionStub, findByPkClinicStub, getAddressesStub, updateAddressStub;
+
+            beforeEach(async () => {
+                transactionStub = {
+                    commit: sinon.stub(),
+                    rollback: sinon.stub(),
+                };
+                sinon.stub(sequelize, "transaction").resolves(transactionStub);
+                findByPkClinicStub = sinon.stub(db.Clinics, "findByPk");
+                updateClinicsStub = sinon.stub();
+                getAddressesStub = sinon.stub();
+                updateAddressStub = sinon.stub(AddressService, "updateAddress");
+            });
+            it("expend expect to throw an error('Clinics not found'), when clinic isn't in db", async () => {
+                const id = 1;
+                const newClinic = { name: "Updated Clinic" };
+                const addressData = { city: "foo", street: "foo", home: 2, flat: 1, post_index: "123-1234" };
+
+                findByPkClinicStub.resolves(null);
+
+                await expect(ClinicService.updateClinic(id, newClinic, addressData)).to.be.rejectedWith(Error, "Clinics not found");
+
+                expect(transactionStub.commit.calledOnce).to.be.false;
+                expect(transactionStub.rollback.calledOnce).to.be.true;
+                expect(updateClinicsStub.called).to.be.false;
+            });
+            it("expend expect to throw an error('Error update'), when error on db", async () => {
+                const id = 1;
+                const newClinic = { name: "Updated Clinic" };
+                const addressData = { city: "foo", street: "foo", home: 2, flat: 1, post_index: "123-1234" };
+                const error = new Error("Error update");
+                findByPkClinicStub.resolves({ updateClinics: updateClinicsStub });
+                updateClinicsStub.rejects(error);
+
+                await expect(ClinicService.updateClinic(id, newClinic, addressData)).to.be.rejectedWith(Error, "Error update");
+
+                expect(transactionStub.commit.calledOnce).to.be.false;
+                expect(transactionStub.rollback.calledOnce).to.be.true;
+                expect(updateClinicsStub.called).to.be.true;
+                expect(updateAddressStub.calledOnce).to.be.false;
+            });
+            it("expend expect to throw an error('Address error'), when error on db", async () => {
+                const id = 1;
+                const newClinic = { name: "Updated Clinic" };
+                const addressData = { city: "foo", street: "foo", home: 2, flat: 1, post_index: "123-1234" };
+                const error = new Error("Address error");
+                findByPkClinicStub.resolves({ updateClinics: updateClinicsStub, getAddresses: getAddressesStub });
+                updateClinicsStub.resolves();
+                updateAddressStub.throws(error);
+
+                await expect(ClinicService.updateClinic(id, newClinic, addressData)).to.be.rejectedWith(Error, "Address error");
+
+                expect(transactionStub.commit.calledOnce).to.be.false;
+                expect(transactionStub.rollback.calledOnce).to.be.true;
+                expect(updateClinicsStub.called).to.be.true;
+                expect(updateAddressStub.calledOnce).to.be.true;
+            });
         });
     });
 });

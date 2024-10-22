@@ -26,6 +26,10 @@ const AddressService = {
      */
     updateAddress: async (address, addressData, t) => {
         try {
+            if (!address) {
+                throw new Error("Address not found");
+            }
+
             return await address.update(addressData, { transaction: t })
         } catch (err) {
             console.error("Error occurred", err);
