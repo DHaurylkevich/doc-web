@@ -6,8 +6,13 @@ module.exports = (sequelize, DataTypes) => {
       Schedules.belongsTo(models.Doctors, {
         foreignKey: "doctor_id"
       });
-      Schedules.belongsTo(models.Clinics, {
+      Schedules.hasOne(models.Clinics, {
         foreignKey: "clinic_id"
+      });
+      Schedules.hasMany(models.Appointments, {
+        foreignKey: "schedule_id",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       });
     }
   }

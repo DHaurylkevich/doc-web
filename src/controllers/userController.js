@@ -28,7 +28,7 @@ const UserController = {
     getUserById: async (req, res, next) => {
         const { id } = req.params;
         try {
-            const user = await UserService.findUserById(id);
+            const user = await UserService.getUserById(id);
             res.status(200).json(user);
         } catch (err) {
             console.error(err);

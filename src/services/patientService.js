@@ -63,6 +63,17 @@ const PatientService = {
             throw err;
         }
     },
+    getClinicById: async (id) => {
+        try {
+            const clinic = await db.Clinics.findByPk(id);
+            if (!clinic) {
+                throw new Error("Clinic not found");
+            }
+            return clinic;
+        } catch (err) {
+            throw err;
+        }
+    },
 }
 
 module.exports = PatientService;

@@ -73,14 +73,14 @@ describe("Schedule Service", () => {
                 expect(result).to.deep.equal(scheduleData);
             });
         });
-        describe("deleteSpecialty() =>:", () => {
+        describe("deleteSchedule() =>:", () => {
             let destroyStub;
 
             beforeEach(async () => {
                 findByPkStub = sinon.stub(db.Schedules, "findByPk");
                 destroyStub = sinon.stub();
             });
-            it("expect create specialty when valid data", async () => {
+            it("expect delete schedule when valid data", async () => {
                 findByPkStub.resolves({ destroy: destroyStub });
                 destroyStub.resolves();
 

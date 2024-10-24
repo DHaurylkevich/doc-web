@@ -53,7 +53,7 @@ describe("Clinic Service", () => {
                 const result = await ClinicService.getClinicById(1);
 
                 expect(findByPkStub.calledOnceWith(1)).to.be.true;
-                expect(result).to.deep.equal(doctor);
+                expect(result).to.deep.equal(clinic);
             });
         });
         describe("getFullDataById() =>:", () => {

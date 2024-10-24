@@ -51,10 +51,10 @@ describe("Users Controller", () => {
             });
         });
         describe("getUserById() =>", () => {
-            it("Expect get user and its associates from dataBase", async () => {
+            it("Expect get user, when it exists", async () => {
                 const req = { params: { id: 3 } };
                 const user = { id: 3, name: "FOO" }
-                const getUserByIdStub = sinon.stub(UserService, "findUserById").resolves(user);
+                const getUserByIdStub = sinon.stub(UserService, "getUserById").resolves(user);
 
                 await UserController.getUserById(req, res, next);
 
@@ -150,9 +150,9 @@ describe("Users Controller", () => {
             })
         });
         describe("getUserById() =>", () => {
-            it("Expect error('User not found')", async () => {
+            it("Expect error('User not found'), when it don't exist", async () => {
                 const req = { params: { id: 3 } };
-                const getUserByIdUser = sinon.stub(UserService, "findUserById").rejects(new Error("User not found"));
+                const getUserByIdUser = sinon.stub(UserService, "getUserById").rejects(new Error("User not found"));
 
                 await UserController.getUserById(req, res, next);
 

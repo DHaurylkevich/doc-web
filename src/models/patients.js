@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       });
+      Patients.hasMany(models.Appointments, {
+        foreignKey: "patient_id",
+      })
     }
   }
   Patients.init({

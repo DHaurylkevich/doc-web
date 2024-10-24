@@ -40,23 +40,13 @@ const UserService = {
             throw new Error(err.message)
         }
     },
-    findUserById: async (id) => {
+    getUserById: async (id) => {
         try {
-            const findUser = await db.Users.findByPk(id);
-            if (!findUser) {
+            const user = await db.Users.findByPk(id);
+            if (!user) {
                 throw new Error("User not found");
             }
-
-            let userByRole;
-            if (findUser.role === "patient") {
-                userByRole = await findUser.getPatients();
-                address = await userByRole.getAddresses();
-                return { userByRole, address };
-            }
-
-            if (!userByRole) {
-                throw new Error(`${userByRole} not found`);
-            }
+            return user;
         } catch (err) {
             console.error("Error occurred", err);
             throw err;

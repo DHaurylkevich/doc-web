@@ -13,9 +13,11 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       });
-      Clinics.hasMany(models.Schedules, {
+      Clinics.belongsTo(models.Schedules, {
         foreignKey: "clinic_id",
-        onDelete: 'CASCADE',
+      });
+      Clinics.belongsTo(models.Appointments, {
+        foreignKey: "clinic_id"
       });
       // Clinics.hasMany(models.Reviews, {
       //   foreignKey: "review_id",
