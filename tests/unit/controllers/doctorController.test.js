@@ -22,7 +22,7 @@ describe("Doctor Controller", () => {
         describe("CreateDoctor() =>:", () => {
             it("Expect to create a doctor associated with the clinic.", async () => {
                 const req = { body: { userData: "user", doctorData: "doctor", specialty_id: 1, clinic_id: 1 } };
-                const createDoctorServiceStub = sinon.stub(DoctorService, "createDoctorByClinic").resolves({id: 1, ...req.body});
+                const createDoctorServiceStub = sinon.stub(DoctorService, "createDoctor").resolves({id: 1, ...req.body});
                 
                 await DoctorController.createDoctor(req, res, next);
                 
@@ -36,7 +36,7 @@ describe("Doctor Controller", () => {
         describe("CreateDoctor() =>:", () => {
             it("Expect error('CreateError') a doctor associated with the clinic.", async () => {
                 const req = { body: { userData: "user", doctorData: "doctor", specialty_id: "House", clinic_id: 1 } };
-                const createDoctorServiceStub = sinon.stub(DoctorService, "createDoctorByClinic").rejects(new Error('CreateError'));
+                const createDoctorServiceStub = sinon.stub(DoctorService, "createDoctor").rejects(new Error('CreateError'));
                 
                 await DoctorController.createDoctor(req, res, next);
                 

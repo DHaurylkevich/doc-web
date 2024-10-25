@@ -24,7 +24,12 @@ const UserController = {
             next(err);
         }
     },
-
+    /**
+     * Получение объекта 
+     * @param {*} req 
+     * @param {*} res 
+     * @param {*} next 
+     */
     getUserById: async (req, res, next) => {
         const { id } = req.params;
         try {

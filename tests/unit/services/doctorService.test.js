@@ -19,7 +19,7 @@ describe("Doctor Service", () => {
     });
     describe("Positive test", () => {
         let transactionStub, findClinicStub, findSpecialtyStub, createUserStub, createDoctorStub;
-        describe("createDoctorByClinic() =>:", () => {
+        describe("createDoctor() =>:", () => {
             beforeEach(async () => {
                 transactionStub = {
                     commit: sinon.stub(),
@@ -36,7 +36,7 @@ describe("Doctor Service", () => {
                 const newDoctor = { specialty_id: 2, clinic_id: 1, name: doctorData };
                 createUserStub.resolves({ createDoctor: createDoctorStub.resolves(newDoctor) });
 
-                await DoctorService.createDoctorByClinic("user", doctorData, 2, 1);
+                await DoctorService.createDoctor("user", doctorData, 2, 1);
 
                 expect(findClinicStub.calledOnceWith(1)).to.be.true;
                 expect(findSpecialtyStub.calledOnceWith(2)).to.be.true;
@@ -94,7 +94,7 @@ describe("Doctor Service", () => {
         });
     });
     describe("Negative test", () => {
-        describe("createDoctorByClinic() =>:", () => {
+        describe("createDoctor() =>:", () => {
             let transactionStub, findClinicStub, findSpecialtyStub, createUserStub, createDoctorStub;
             beforeEach(async () => {
                 transactionStub = {
@@ -111,7 +111,7 @@ describe("Doctor Service", () => {
                 const error = new Error('Clinic not found');
                 findClinicStub.throws(error);
 
-                await expect(DoctorService.createDoctorByClinic("user", "doctor", 2, 1)).to.be.rejectedWith(error);
+                await expect(DoctorService.createDoctor("user", "doctor", 2, 1)).to.be.rejectedWith(error);
 
                 expect(findClinicStub.calledOnceWith(1)).to.be.true;
                 expect(findSpecialtyStub.calledOnce).to.be.false;
@@ -123,7 +123,7 @@ describe("Doctor Service", () => {
                 const error = new Error('Specialty not found');
                 findSpecialtyStub.throws(error);
 
-                await expect(DoctorService.createDoctorByClinic("user", "doctor", 2, 1)).to.be.rejectedWith(error);
+                await expect(DoctorService.createDoctor("user", "doctor", 2, 1)).to.be.rejectedWith(error);
 
                 expect(findClinicStub.calledOnceWith(1)).to.be.true;
                 expect(findSpecialtyStub.calledOnceWith(2)).to.be.true;
@@ -135,7 +135,7 @@ describe("Doctor Service", () => {
                 const error = new Error("Create error");
                 createUserStub.throws(error);
 
-                await expect(DoctorService.createDoctorByClinic("user", "doctor", 2, 1)).to.be.rejectedWith(error);
+                await expect(DoctorService.createDoctor("user", "doctor", 2, 1)).to.be.rejectedWith(error);
 
                 expect(findClinicStub.calledOnceWith(1)).to.be.true;
                 expect(findSpecialtyStub.calledOnceWith(2)).to.be.true;
@@ -148,7 +148,7 @@ describe("Doctor Service", () => {
                 const error = new Error("Create error");
                 createUserStub.resolves({ createDoctor: createDoctorStub.rejects(error) });
 
-                await expect(DoctorService.createDoctorByClinic("user", doctorData, 2, 1)).to.be.rejectedWith(error);
+                await expect(DoctorService.createDoctor("user", doctorData, 2, 1)).to.be.rejectedWith(error);
 
                 expect(findClinicStub.calledOnceWith(1)).to.be.true;
                 expect(findSpecialtyStub.calledOnceWith(2)).to.be.true;

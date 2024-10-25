@@ -14,7 +14,7 @@ const DoctorController = {
         const { userData, doctorData, specialty_id, clinic_id } = req.body;
 
         try {
-            const createdDoctor = await DoctorService.createDoctorByClinic(userData, doctorData, specialty_id, clinic_id);
+            const createdDoctor = await DoctorService.createDoctor(userData, doctorData, specialty_id, clinic_id);
             res.status(201).json(createdDoctor);
         } catch (err) {
             next(err);

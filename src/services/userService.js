@@ -53,7 +53,45 @@ const UserService = {
         }
     },
     /**
-     * findUSerByParam возвращает объект пользователя
+     * Возвращает даные пользователя с данными его роли
+    * @param {number} id - ID пользователя
+    * @param {string} role - Роль пользователя ("patient", "doctor", "admin")
+    * @returns {Promise<Object>} - Данные пользователя с его ролью
+    */
+    getRoleUserById: async (id, role) => {
+        let user;
+        try {
+            switch (role) {
+                case "patient":
+                    user = await db.Users.findOne({
+                        where: { id },
+                        include: [db.Patients],
+                    });
+                    break;
+                case "doctor":
+                    user = await db.Users.findOne({
+                        where: { id },
+                        include: [db.Doctors],
+                    });
+                    break;
+                case "admin":
+                    user = await db.Users.findByPk(id);
+                    break;
+                default:
+                    throw new Error("Invalid role specified");
+            }
+
+            if (!user) {
+                throw new Error("User not found");
+            }
+            return user;
+        } catch (err) {
+            console.error("Error occurred", err);
+            throw err;
+        }
+    },
+    /**
+     * Возвращает объект пользователя по параметру email/phone/pesel
      * @param {String} param 
      * @returns {Object} 
      * @throws {Error} "User not found", "Error occurred"
@@ -72,7 +110,7 @@ const UserService = {
         }
     },
     /**
-     * updateUser возвращает объект пользователя, для дальнейшего взаимодействия (наример  get'AnyModels'())
+     * Возвращает обновленный объект пользователя
      * @param {Number} id 
      * @param {Object} updatedData 
      * @returns {Object}
@@ -116,7 +154,7 @@ const UserService = {
         }
     },
     /**
-     * deleteUser удаляет существующего пользователя из базы данных
+     * Удаляет существующего пользователя из базы данных
      * @param {Number} id 
      * @returns {Object} {message: "Successful delete"}
      * @throws {Error}  "User not found", "Error occurred"

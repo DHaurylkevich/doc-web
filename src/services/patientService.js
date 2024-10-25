@@ -1,5 +1,6 @@
 // const TEST = require("../../tests/unit/services/patientService.test");
 const sequelize = require("../config/db");
+const db = require("../models");
 const UserService = require("../services/userService");
 const AddressService = require("../services/addressService");
 const authMiddleware = require("../middleware/auth");
@@ -31,6 +32,22 @@ const PatientService = {
         }
     },
     /**
+     * Находит Пациента по id
+     * @param {Number} id 
+     * @returns {Object} Обьект patient
+     */    
+    getPatientById: async (id) => {
+        try {
+            const clinic = await db.Patients.findByPk(id);
+            if (!clinic) {
+                throw new Error("Patient not found");
+            }
+            return clinic;
+        } catch (err) {
+            throw err;
+        }
+    },
+    /**
      * 
      * @param {Number} id 
      * @param {Object} userData 
@@ -38,11 +55,11 @@ const PatientService = {
      * @param {Object} addressData 
      * @returns {Object}
      */
-    updatePatient: async (id, userData, patientData, addressData) => {
+    updatePatient: async (user_id, userData, patientData, addressData) => {
         const t = await sequelize.transaction();
 
         try {
-            const user = await UserService.updateUser(id, userData, t);
+            const user = await UserService.updateUser(user_id, userData, t);
 
             const patient = await user.getPatients();
             if (!patient) {
@@ -63,17 +80,7 @@ const PatientService = {
             throw err;
         }
     },
-    getClinicById: async (id) => {
-        try {
-            const clinic = await db.Clinics.findByPk(id);
-            if (!clinic) {
-                throw new Error("Clinic not found");
-            }
-            return clinic;
-        } catch (err) {
-            throw err;
-        }
-    },
+
 }
 
 module.exports = PatientService;

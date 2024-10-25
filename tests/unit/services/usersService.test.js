@@ -41,7 +41,7 @@ describe("Users Service", () => {
             let findByPkStub;
             beforeEach(async () => {
                 findByPkStub = sinon.stub(db.Users, "findByPk");
-            })
+            });
             it("expect user, when it exists", async () => {
                 const user = { id: 1, name: "Foo" };
                 findByPkStub.resolves(user);
@@ -79,6 +79,37 @@ describe("Users Service", () => {
                 expect(user).to.be.a("object").to.deep.include(userData);
             });
         });
+        describe("getRoleUserById() => :", () => {
+            let findOneStub;
+            beforeEach(async () => {
+                findOneStub = sinon.stub(db.Users, "findOne");
+            });
+
+            it("expect user and patient, when it exists", async () => {
+                findOneStub.resolves({ id: 1, name: "FOO" });
+
+                const result = await UserService.getRoleUserById(1, "patient");
+
+                expect(findOneStub.calledOnceWith({ where: { id: 1 }, include: [db.Patients] }))
+                expect(result).to.deep.equals({ id: 1, name: "FOO" });
+            });
+            it("expect user and doctor data, when it exists", async () => {
+                findOneStub.resolves({ id: 1, name: "FOO" });
+
+                const result = await UserService.getRoleUserById(1, "admin");
+
+                expect(findOneStub.calledOnceWith({ where: { id: 1 }, include: [db.Patients] }))
+                expect(result).to.deep.equals({ id: 1, name: "FOO" });
+            });
+            it("expect user and admin data, when it exists", async () => {
+                const findByPkStub = sinon.stub(db.Users, "findByPk").resolves({ id: 1, name: "FOO" });
+
+                const result = await UserService.getRoleUserById(1, "admin");
+
+                expect(findByPkStub.calledOnceWith({ where: { id: 1 }, include: [db.Patients] }))
+                expect(result).to.deep.equals({ id: 1, name: "FOO" });
+            });
+        })
         describe("updateUser: => :", () => {
             let findByPkUserStub, updateUserStub, transactionStub;
             beforeEach(async () => {
@@ -160,15 +191,6 @@ describe("Users Service", () => {
                 expect(createUserStub.calledOnce).to.be.true;
             });
         });
-        describe("findUserByParam() => Get user by param(email/pesel/phone):", () => {
-            it("expect Error('User not found'), when user with param don't exist", async () => {
-                const findOneUserStub = sinon.stub(db.Users, "findOne").resolves(false);
-
-                await expect(UserService.findUserByParam("")).to.be.rejectedWith(Error, "User not found");
-
-                expect(findOneUserStub.calledOnce).to.be.true;
-            });
-        });
         describe("getUserById() => :", () => {
             it("expect Error('User not found'), when user don't exist", async () => {
                 const findOneUserStub = sinon.stub(db.Users, "findByPk").resolves(false);
@@ -178,6 +200,28 @@ describe("Users Service", () => {
                 expect(findOneUserStub.calledOnce).to.be.true;
             });
         });
+        describe("getRoleUserById() => :", () => {
+            it("expect Error('Invalid role specified'), when role don't exists", async () => {
+                await expect(UserService.getRoleUserById(1, "FOO")).to.be.rejectedWith(Error, "Invalid role specified");
+            });
+            it("expect Error('User not found'), when role don't exists", async () => {
+                findOneStub = sinon.stub(db.Users, "findOne").resolves(false);
+
+                await expect(UserService.getRoleUserById(1, "patient")).to.be.rejectedWith(Error, "User not found");
+
+                expect(findOneStub.calledOnce).to.be.true;
+            });
+        });
+        describe("findUserByParam() => Get user by param(email/pesel/phone):", () => {
+            it("expect Error('User not found'), when user with param don't exist", async () => {
+                const findOneUserStub = sinon.stub(db.Users, "findOne").resolves(false);
+
+                await expect(UserService.findUserByParam("")).to.be.rejectedWith(Error, "User not found");
+
+                expect(findOneUserStub.calledOnce).to.be.true;
+            });
+        });
+
         describe("updateUser() => :", () => {
             it("expect Error('User not found'), when user don't exist", async () => {
                 findByPkUserStub = sinon.stub(db.Users, "findByPk").resolves(false);

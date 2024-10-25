@@ -14,7 +14,7 @@ const DoctorService = {
      * @param {Object} clinic_id 
      * @returns {String} token
      */
-    createDoctorByClinic: async (userData, doctorData, specialty_id, clinic_id) => {
+    createDoctor: async (userData, doctorData, specialty_id, clinic_id) => {
         const t = await sequelize.transaction();
 
         try {
