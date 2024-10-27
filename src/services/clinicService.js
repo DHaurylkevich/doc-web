@@ -29,7 +29,7 @@ const ClinicService = {
             throw err;
         }
     },
-    getFullClinicDataById: async (id) => {
+    getFullClinicById: async (id) => {
         try {
             const clinic = await db.Clinics.findOne({
                 where: { id: id },
@@ -64,10 +64,10 @@ const ClinicService = {
                 throw new Error("Clinics not found");
             }
             await clinic.updateClinics(clinicData, { transaction: t });
-    
+
             const address = await clinic.getAddresses();
             await AddressService.updateAddress(address, addressData, t)
-    
+
             await t.commit();
             return clinic;
         } catch (err) {
@@ -75,6 +75,19 @@ const ClinicService = {
             throw err;
         }
     },
+    deleteClinicById: async (id) => {
+        try {
+            const clinic = await db.Clinics.findByPk(id);
+            if (!clinic) {
+                throw Error("Clinic not found");
+            }
+
+            await clinic.destroy();
+            return;
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 module.exports = ClinicService;

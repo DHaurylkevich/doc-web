@@ -56,7 +56,7 @@ describe("Clinic Service", () => {
                 expect(result).to.deep.equal(clinic);
             });
         });
-        describe("getFullClinicDataById() =>:", () => {
+        describe("getFullClinicById() =>:", () => {
             let findOneStub;
 
             beforeEach(async () => {
@@ -67,7 +67,7 @@ describe("Clinic Service", () => {
                 const clinic = "foo";
                 findOneStub.resolves(clinic);
 
-                const result = await ClinicService.getFullClinicDataById(id);
+                const result = await ClinicService.getFullClinicById(id);
 
                 expect(findOneStub.calledOnceWith({ where: { id: id }, include: [db.Addresses] })).to.be.true;
                 expect(result).to.equals(clinic);
@@ -120,6 +120,23 @@ describe("Clinic Service", () => {
                 expect(transactionStub.commit.calledOnce).to.be.true;
             });
         });
+        describe("deleteClinicById", () => {
+            let findByPkStub, destroyStub;
+
+            beforeEach(async () => {
+                findByPkStub = sinon.stub(db.Clinics, "findByPk");
+                destroyStub = sinon.stub();
+            });
+            it("expect to destroy clinic, when it exists", async () => {
+                findByPkStub.resolves({ destroy: destroyStub });
+                destroyStub.resolves(true);
+
+                await ClinicService.deleteClinicById(1);
+
+                expect(findByPkStub.calledOnceWith(1)).to.be.true;
+                expect(destroyStub.calledOnce).to.be.true;
+            })
+        })
     });
     describe("Negative tests", () => {
         describe("clinicCreate() =>:", () => {
@@ -160,7 +177,7 @@ describe("Clinic Service", () => {
                 expect(createAddressStub.calledOnceWith(address)).to.be.true;
             });
         });
-        describe("getDoctorById() =>:", () => {
+        describe("getClinicById() =>:", () => {
             let findByPkStub;
             beforeEach(async () => {
                 findByPkStub = sinon.stub(db.Clinics, "findByPk");
@@ -180,7 +197,7 @@ describe("Clinic Service", () => {
                 expect(findByPkStub.calledOnceWith(1)).to.be.true;
             });
         });
-        describe("getFullClinicDataById() =>:", () => {
+        describe("getFullClinicById() =>:", () => {
             let findOneStub;
 
             beforeEach(async () => {
@@ -191,7 +208,7 @@ describe("Clinic Service", () => {
                 const error = new Error("Clinic error");
                 findOneStub.rejects(error);
 
-                await expect(ClinicService.getFullClinicDataById(id)).to.be.rejectedWith(error);
+                await expect(ClinicService.getFullClinicById(id)).to.be.rejectedWith(error);
 
                 expect(findOneStub.calledOnceWith({ where: { id: id }, include: [db.Addresses] })).to.be.true;
             });
@@ -199,7 +216,7 @@ describe("Clinic Service", () => {
                 const id = 1;
                 findOneStub.resolves(false);
 
-                await expect(ClinicService.getFullClinicDataById(id)).to.be.rejectedWith(Error, "Clinic not found");
+                await expect(ClinicService.getFullClinicById(id)).to.be.rejectedWith(Error, "Clinic not found");
 
                 expect(findOneStub.calledOnceWith({ where: { id: id }, include: [db.Addresses] })).to.be.true;
             });
@@ -219,14 +236,13 @@ describe("Clinic Service", () => {
                 expect(findAllStub.calledOnceWith({ include: [db.Addresses] })).to.be.true;
             });
             it("expend expect to throw an error('Clinics not found'), when error on db", async () => {
-                const id = 1;
                 findAllStub.resolves(false);
 
-                await expect(ClinicService.getAllClinicsFullData()).to.be.rejectedWith(Error, "Clinics not found");
+                await expect(ClinicService.getAllClinicsFullData(1)).to.be.rejectedWith(Error, "Clinics not found");
 
                 expect(findAllStub.calledOnceWith({ include: [db.Addresses] })).to.be.true;
             });
-        });        
+        });
         describe("updateClinic => Update:", () => {
             let updateClinicsStub, transactionStub, findByPkClinicStub, getAddressesStub, updateAddressStub;
 
@@ -286,5 +302,21 @@ describe("Clinic Service", () => {
                 expect(updateAddressStub.calledOnce).to.be.true;
             });
         });
+        describe("deleteClinicById", () => {
+            let findByPkStub, destroyStub;
+
+            beforeEach(async () => {
+                findByPkStub = sinon.stub(db.Clinics, "findByPk");
+                destroyStub = sinon.stub();
+            });
+            it("expect Error('Clinic not found'), when it doesn't exist", async () => {
+                findByPkStub.resolves(false);
+
+                await expect(ClinicService.deleteClinicById(1)).to.be.rejectedWith(Error, "Clinic not found");
+
+                expect(findByPkStub.calledOnceWith(1)).to.be.true;
+                expect(destroyStub.calledOnce).to.be.false;
+            })
+        })
     });
 });

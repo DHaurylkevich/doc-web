@@ -178,11 +178,10 @@ describe("Users Service", () => {
                 const user = { destroy: destroyUserStub };
                 findByPkUserStub = sinon.stub(db.Users, "findByPk").resolves(user);
 
-                const result = await UserService.deleteUser(1);
+                await UserService.deleteUser(1);
 
                 expect(findByPkUserStub.calledOnceWith(1)).to.be.true;
                 expect(destroyUserStub.calledOnce).to.be.true;
-                expect(result).to.deep.equal({ message: "Successful delete" });
             });
         });
     });

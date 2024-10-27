@@ -170,7 +170,8 @@ const UserService = {
             }
 
             await user.destroy();
-            return { message: "Successful delete" }
+
+            return;
         } catch (err) {
             console.error("Error occurred", err);
             throw new Error(err.message)

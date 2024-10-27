@@ -18,21 +18,21 @@ const ClinicController = {
             next(err);
         }
     },
-    getClinicById: async (req, res, next) => {
-        const {id} = req.params;
+    getClinic: async (req, res, next) => {
+        const { id } = req.params;
         try {
             const clinicData = await ClinicService.getClinicById(id);
-            
+
             res.status(200).json(clinicData);
         } catch (err) {
             next(err);
         }
     },
-    getFullClinicDataById: async (req, res, next) => {
-        const {id} = req.params;
+    getFullClinic: async (req, res, next) => {
+        const { id } = req.params;
         try {
-            const clinicData = await ClinicService.getFullClinicDataById(id);
-            
+            const clinicData = await ClinicService.getFullClinicById(id);
+
             res.status(200).json(clinicData);
         } catch (err) {
             next(err);
@@ -56,6 +56,17 @@ const ClinicController = {
             next(err);
         }
     },
+    deleteClinic: async (req, res, next) => {
+        const { id } = req.params;
+
+        try {
+            await ClinicService.deleteClinicById(id);
+
+            res.status(200).json({ message: "Successful delete" })
+        } catch (err) {
+            next(err);
+        }
+    }
 };
 
 module.exports = ClinicController;
