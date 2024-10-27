@@ -10,25 +10,37 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
       nip: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
       registration_day: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        allowNull: false
       },
       nr_license: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
       email: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING(255),
+        allowNull: false,
+        unique: true
       },
       phone: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING(20),
+        allowNull: true
       },
-      opis: {
-        type: Sequelize.TEXT
+      description: {
+        type: Sequelize.STRING(255),
+        allowNull: true
+      },
+      schedule: {
+        type: Sequelize.STRING(255),
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
@@ -40,6 +52,7 @@ module.exports = {
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Clinics');
   }

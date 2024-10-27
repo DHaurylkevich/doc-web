@@ -15,6 +15,7 @@ const ClinicService = {
             return clinic;
         } catch (err) {
             await t.rollback();
+            console.log(err);
             throw err;
         }
     },
@@ -59,13 +60,13 @@ const ClinicService = {
     updateClinic: async (id, clinicData, addressData) => {
         const t = await sequelize.transaction();
         try {
-            const clinic = await db.Clinics.findByPk(id)
+            const clinic = await db.Clinics.findByPk(id);
             if (!clinic) {
                 throw new Error("Clinics not found");
             }
-            await clinic.updateClinics(clinicData, { transaction: t });
+            await clinic.update(clinicData, { transaction: t });
 
-            const address = await clinic.getAddresses();
+            const address = await clinic.getAddress();
             await AddressService.updateAddress(address, addressData, t)
 
             await t.commit();

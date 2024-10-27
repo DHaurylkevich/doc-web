@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     post_index: {
-      type: DataTypes.CHAR(6),
+      type: DataTypes.STRING(10),
       allowNull: false
     }
   }, {

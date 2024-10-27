@@ -107,7 +107,7 @@ describe("Clinic Service", () => {
                 const id = 1;
                 const newClinic = { name: "Updated Clinic" };
                 const addressData = { city: "foo", street: "foo", home: 2, flat: 1, post_index: "123-1234" };
-                findByPkClinicStub.resolves({ updateClinics: updateClinicsStub, getAddresses: getAddressesStub });
+                findByPkClinicStub.resolves({ update: updateClinicsStub, getAddress: getAddressesStub });
                 updateClinicsStub.resolves();
                 updateAddressStub.resolves();
 
@@ -275,7 +275,7 @@ describe("Clinic Service", () => {
                 const newClinic = { name: "Updated Clinic" };
                 const addressData = { city: "foo", street: "foo", home: 2, flat: 1, post_index: "123-1234" };
                 const error = new Error("Error update");
-                findByPkClinicStub.resolves({ updateClinics: updateClinicsStub });
+                findByPkClinicStub.resolves({ update: updateClinicsStub });
                 updateClinicsStub.rejects(error);
 
                 await expect(ClinicService.updateClinic(id, newClinic, addressData)).to.be.rejectedWith(Error, "Error update");
@@ -290,7 +290,7 @@ describe("Clinic Service", () => {
                 const newClinic = { name: "Updated Clinic" };
                 const addressData = { city: "foo", street: "foo", home: 2, flat: 1, post_index: "123-1234" };
                 const error = new Error("Address error");
-                findByPkClinicStub.resolves({ updateClinics: updateClinicsStub, getAddresses: getAddressesStub });
+                findByPkClinicStub.resolves({ update: updateClinicsStub, getAddress: getAddressesStub });
                 updateClinicsStub.resolves();
                 updateAddressStub.throws(error);
 

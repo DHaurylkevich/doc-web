@@ -28,6 +28,7 @@ const ClinicController = {
             next(err);
         }
     },
+    //getAllClinicByParams
     getFullClinic: async (req, res, next) => {
         const { id } = req.params;
         try {
@@ -53,6 +54,7 @@ const ClinicController = {
 
             res.status(200).json(updatedClinic);
         } catch (err) {
+            console.log(err);
             next(err);
         }
     },

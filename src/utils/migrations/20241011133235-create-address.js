@@ -10,24 +10,42 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       city: {
-        type: DataTypes.STRING(255),
+        type: Sequelize.STRING(255),
         allowNull: false
       },
       street: {
-        type: DataTypes.STRING(255),
+        type: Sequelize.STRING(255),
         allowNull: false
       },
       home: {
-        type: DataTypes.STRING(10),
+        type: Sequelize.STRING(10),
         allowNull: false
       },
       flat: {
-        type: DataTypes.STRING(10),
+        type: Sequelize.STRING(10),
         allowNull: true
       },
       post_index: {
-        type: DataTypes.CHAR(6),
+        type: Sequelize.CHAR(6),
         allowNull: false
+      },
+      user_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Patients', // имя таблицы, к которой привязан внешний ключ
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+      clinic_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Clinics', // имя таблицы, к которой привязан внешний ключ
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       createdAt: {
         allowNull: false,
