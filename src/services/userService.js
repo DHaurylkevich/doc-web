@@ -98,10 +98,13 @@ const UserService = {
      */
     findUserByParam: async (param) => {
         try {
-            const user = await db.Users.findOne({ where: { [Op.or]: [{ email: param }, { phone: param }, { pesel: param }] } });
+            let user = await db.Users.findOne({ where: { [Op.or]: [{ email: param }, { phone: param }, { pesel: param }] } });
 
             if (!user) {
-                throw new Error("User not found");
+                user = await db.Clinics.findOne({ where: { [Op.or]: [{ email: param }, { phone: param }] } });
+                if (!user) {
+                    throw new Error("User not found");
+                }
             }
             return user;
         } catch (err) {
