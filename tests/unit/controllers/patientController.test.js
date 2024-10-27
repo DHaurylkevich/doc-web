@@ -51,7 +51,7 @@ describe("Patient Controller", () => {
                 expect(updatePatientServiceStub.calledOnceWith(1, req.body.userData, req.body.patientData, req.body.addressData)).to.be.true;
                 expect(res.status.calledOnceWith(200)).to.be.true;
                 expect(res.json.calledOnceWith(newData)).to.be.true;
-            })
+            });
         });
     });
     describe("Negative test", () => {
@@ -95,7 +95,7 @@ describe("Patient Controller", () => {
                 expect(next.calledOnceWith(error)).to.be.true;
                 expect(res.status.calledOnce).to.be.false;
                 expect(res.json.calledOnce).to.be.false;
-            })
+            });
         });
     });
 });

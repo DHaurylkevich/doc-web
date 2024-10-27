@@ -56,7 +56,7 @@ describe("Clinic Service", () => {
                 expect(result).to.deep.equal(clinic);
             });
         });
-        describe("getFullDataById() =>:", () => {
+        describe("getFullClinicDataById() =>:", () => {
             let findOneStub;
 
             beforeEach(async () => {
@@ -67,7 +67,7 @@ describe("Clinic Service", () => {
                 const clinic = "foo";
                 findOneStub.resolves(clinic);
 
-                const result = await ClinicService.getFullDataById(id);
+                const result = await ClinicService.getFullClinicDataById(id);
 
                 expect(findOneStub.calledOnceWith({ where: { id: id }, include: [db.Addresses] })).to.be.true;
                 expect(result).to.equals(clinic);
@@ -180,7 +180,7 @@ describe("Clinic Service", () => {
                 expect(findByPkStub.calledOnceWith(1)).to.be.true;
             });
         });
-        describe("getFullDataById() =>:", () => {
+        describe("getFullClinicDataById() =>:", () => {
             let findOneStub;
 
             beforeEach(async () => {
@@ -191,7 +191,7 @@ describe("Clinic Service", () => {
                 const error = new Error("Clinic error");
                 findOneStub.rejects(error);
 
-                await expect(ClinicService.getFullDataById(id)).to.be.rejectedWith(error);
+                await expect(ClinicService.getFullClinicDataById(id)).to.be.rejectedWith(error);
 
                 expect(findOneStub.calledOnceWith({ where: { id: id }, include: [db.Addresses] })).to.be.true;
             });
@@ -199,7 +199,7 @@ describe("Clinic Service", () => {
                 const id = 1;
                 findOneStub.resolves(false);
 
-                await expect(ClinicService.getFullDataById(id)).to.be.rejectedWith(Error, "Clinic not found");
+                await expect(ClinicService.getFullClinicDataById(id)).to.be.rejectedWith(Error, "Clinic not found");
 
                 expect(findOneStub.calledOnceWith({ where: { id: id }, include: [db.Addresses] })).to.be.true;
             });

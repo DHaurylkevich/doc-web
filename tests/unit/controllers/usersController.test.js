@@ -46,15 +46,15 @@ describe("Users Controller", () => {
 
                 await UserController.updateUserPassword(req, res, next);
 
-                expect(updatePasswordStub.calledOnceWith({ id: req.params.id, oldPassword: req.body.oldPassword, newPassword: req.body.newPassword }));                expect(res.status.calledOnceWith(200)).to.be.true;
+                expect(updatePasswordStub.calledOnceWith({ id: req.params.id, oldPassword: req.body.oldPassword, newPassword: req.body.newPassword })); expect(res.status.calledOnceWith(200)).to.be.true;
                 expect(res.json.calledOnceWith({ message: "Password changed successfully" })).to.be.true;
             });
         });
         describe("getUserById() =>", () => {
             it("Expect get user, when it exists", async () => {
-                const req = { params: { id: 3 } };
+                const req = { params: { id: 3 }, body: { role: "admin" } };
                 const user = { id: 3, name: "FOO" }
-                const getUserByIdStub = sinon.stub(UserService, "getUserById").resolves(user);
+                const getUserByIdStub = sinon.stub(UserService, "getRoleUserById").resolves(user);
 
                 await UserController.getUserById(req, res, next);
 
@@ -135,19 +135,19 @@ describe("Users Controller", () => {
                 expect(res.status.called).to.be.false;
                 expect(res.json.called).to.be.false;
             }),
-            it("Expect next('Service Error')", async () => {
-                const req = { body: { oldPassword: "old", newPassword: "new" }, params: { id: "id" } };
-                const error = new Error("Service Error")
-                const updatePasswordStub = sinon.stub(UserService, "updatePassword").rejects(error);
+                it("Expect next('Service Error')", async () => {
+                    const req = { body: { oldPassword: "old", newPassword: "new" }, params: { id: "id" } };
+                    const error = new Error("Service Error")
+                    const updatePasswordStub = sinon.stub(UserService, "updatePassword").rejects(error);
 
-                await UserController.updateUserPassword(req, res, next);
+                    await UserController.updateUserPassword(req, res, next);
 
-                expect(updatePasswordStub.calledOnceWith({ id: req.params, oldPassword: req.body.oldPassword, newPassword: req.body.newPassword }));
-                expect(next.called).to.be.true;
-                expect(next.calledOnceWith(error)).to.be.true;
-                expect(res.status.called).to.be.false;
-                expect(res.json.called).to.be.false;
-            })
+                    expect(updatePasswordStub.calledOnceWith({ id: req.params, oldPassword: req.body.oldPassword, newPassword: req.body.newPassword }));
+                    expect(next.called).to.be.true;
+                    expect(next.calledOnceWith(error)).to.be.true;
+                    expect(res.status.called).to.be.false;
+                    expect(res.json.called).to.be.false;
+                })
         });
         describe("getUserById() =>", () => {
             it("Expect error('User not found'), when it don't exist", async () => {

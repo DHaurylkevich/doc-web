@@ -20,6 +20,24 @@ const DoctorController = {
             next(err);
         }
     },
+    /**
+     * Обновление данных доктора
+     * @param {*} req praram{ id } ,body{ userData, doctorData }
+     * @param {*} res 
+     * @param {*} next 
+     */
+    updateDoctorById: async (req, res, next) => {
+        const { id } = req.params;
+        const { userData, doctorData } = req.body;
+
+        try {
+            const updatedDoctor = await DoctorService.updateDoctor(id, userData, doctorData);
+
+            res.status(200).json(updatedDoctor);
+        } catch (err) {
+            next(err);
+        }
+    },
 }
 
 module.exports = DoctorController;

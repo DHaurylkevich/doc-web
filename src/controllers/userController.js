@@ -25,15 +25,16 @@ const UserController = {
         }
     },
     /**
-     * Получение объекта 
+     * Получение объекта и данных по его 
      * @param {*} req 
      * @param {*} res 
      * @param {*} next 
      */
     getUserById: async (req, res, next) => {
         const { id } = req.params;
+        const { role } = req.body;
         try {
-            const user = await UserService.getUserById(id);
+            const user = await UserService.getRoleUserById(id, role);
             res.status(200).json(user);
         } catch (err) {
             console.error(err);

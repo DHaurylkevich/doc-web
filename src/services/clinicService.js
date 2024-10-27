@@ -29,7 +29,7 @@ const ClinicService = {
             throw err;
         }
     },
-    getFullDataById: async (id) => {
+    getFullClinicDataById: async (id) => {
         try {
             const clinic = await db.Clinics.findOne({
                 where: { id: id },
