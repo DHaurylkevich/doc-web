@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const clinicRouter = require("./clinic");
+const userRouter = require("./user");
 // const { checkAuth, refreshTokenAdmin } = require("../middleware/auth");
 
 router.use("/clinic", clinicRouter);
-// router.use("/package", packageRouter);
+router.use("/user", userRouter);
 // router.use("/order", orderRouter);
 // router.use("/contacts", contactRouter);
 // router.use("/image", imageRouter);

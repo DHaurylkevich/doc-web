@@ -145,12 +145,11 @@ const UserService = {
             if (!user) {
                 throw Error("User not found")
             }
-
+            
             passwordUtil.checkingPassword(oldPassword, user.password);
+            newPassword = await passwordUtil.hashingPassword(newPassword);
 
-            newPassword = passwordUtil.hashingPassword(newPassword);
-
-            return await db.Users.update({ password: newPassword });
+            return await user.update({ password: newPassword });
         } catch (err) {
             console.error("Error occurred", err);
             throw new Error(err.message)

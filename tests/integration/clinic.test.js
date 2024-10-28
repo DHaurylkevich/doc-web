@@ -3,7 +3,6 @@ process.env.NODE_ENV = 'test';
 
 const { expect } = require("chai");
 const request = require("supertest");
-const sinon = require("sinon");
 const { faker } = require('@faker-js/faker');
 const app = require("../../doc-web");
 const db = require("../../src/models");

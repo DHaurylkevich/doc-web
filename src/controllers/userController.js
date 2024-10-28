@@ -21,16 +21,17 @@ const UserController = {
             const token = authMiddleware.createJWT(user.id, user.role);
             res.status(200).json(token);
         } catch (err) {
+            console.log(err);
             next(err);
         }
     },
     /**
-     * Получение объекта и данных по его 
+     * Получение объекта и данных по его id и role
      * @param {*} req 
      * @param {*} res 
      * @param {*} next 
      */
-    getUserById: async (req, res, next) => {
+    getUserByIdAndRole: async (req, res, next) => {
         const { id } = req.params;
         const { role } = req.body;
         try {
@@ -68,7 +69,7 @@ const UserController = {
         const { id } = req.params;
         try {
             await UserService.deleteUser(id);
-            
+
             res.status(200).json({ message: "Successful delete" });
         } catch (err) {
             next(err);
