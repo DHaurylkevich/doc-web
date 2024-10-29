@@ -159,11 +159,11 @@ describe("Users Service", () => {
         });
         describe("updatePassword: => :", () => {
             it("expect to change and hash password, when user exists, valid data", async () => {
-                const user = { id: 1, password: faker.internet.password() }
+                const updateStub = sinon.stub().resolves(1);
+                const user = { id: 1, password: faker.internet.password(), update: updateStub };
                 const newPassword = faker.internet.password();
                 const checkingPassStub = sinon.stub(passwordUtil, "checkingPassword").resolves(true);
                 const findByPkStub = sinon.stub(db.Users, "findByPk").resolves(user);
-                const updateStub = sinon.stub(db.Users, "update").resolves(1);
 
                 await UserService.updatePassword(user.id, user.password, newPassword);
 

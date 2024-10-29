@@ -36,7 +36,7 @@ describe("Patient Service", () => {
                 const newUser = { id: 1, data: "foo" };
                 const newPatient = { gender: "foo", market_inf: true };
                 const newAddress = { city: "foo", street: "foo", home: 1, flat: 1, post_index: "123-1234" };
-                createUserServiceStub.resolves({ newUser, createPatients: createPatientStub });
+                createUserServiceStub.resolves({ newUser, createPatient: createPatientStub });
                 createPatientStub.resolves({ ...newPatient, id: 1, createAddress: createAddressStub });
                 createAddressStub.resolves();
                 createJWTStub.resolves("fake-JWT-Token");
@@ -76,8 +76,8 @@ describe("Patient Service", () => {
                 updateAddressStub = sinon.stub(AddressService, "updateAddress");
             });
             it("expect update Patient and User, Address data successfully, when data is valid", async () => {
-                updateUserStub.resolves({ getPatients: getPatientsStub });
-                getPatientsStub.resolves({ update: updateStub, getAddresses: getAddressesStub });
+                updateUserStub.resolves({ getPatient: getPatientsStub });
+                getPatientsStub.resolves({ update: updateStub, getAddress: getAddressesStub });
                 updateStub.resolves();
                 getAddressesStub.resolves({ id: 1, address: "foo" });
                 updateAddressStub.resolves();
@@ -142,7 +142,7 @@ describe("Patient Service", () => {
                 const userData = { email: "FOO" };
                 const patientData = { gender: "FOO" };
                 const addressData = { city: "FOO" };
-                updateUserStub.resolves({ getPatients: getPatientsStub })
+                updateUserStub.resolves({ getPatient: getPatientsStub })
                 getPatientsStub.resolves(false);
 
                 await expect(PatientService.updatePatient(id, userData, patientData, addressData)).to.be.rejectedWith(Error, "Patient not found");

@@ -56,7 +56,7 @@ describe("Users Controller", () => {
                 const user = { id: 3, name: "FOO" }
                 const getUserByIdStub = sinon.stub(UserService, "getRoleUserById").resolves(user);
 
-                await UserController.getUserById(req, res, next);
+                await UserController.getUserByIdAndRole(req, res, next);
 
                 expect(getUserByIdStub.calledOnceWith(req.params.id)).to.be.true;
                 expect(res.status.calledOnceWith(200)).to.be.true;
@@ -154,7 +154,7 @@ describe("Users Controller", () => {
                 const req = { params: { id: 3 }, body: { role: "doctor" } };
                 const getUserByIdUser = sinon.stub(UserService, "getRoleUserById").rejects(new Error("User not found"));
 
-                await UserController.getUserById(req, res, next);
+                await UserController.getUserByIdAndRole(req, res, next);
 
                 expect(getUserByIdUser.calledOnceWith(req.params.id, req.body.role)).to.be.true;
                 expect(next.called).to.be.true;
