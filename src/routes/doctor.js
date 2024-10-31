@@ -1,81 +1,49 @@
 const express = require("express");
 const router = express.Router();
-const Doctor = require("../models/doctor");
+const doctorController = require("../controllers/doctorController");
 
-router.post("/doctors", async (req, res) => {
-    try {
-        const { name, specialization, contact } = req.body;
-        if (!name || !specialization || !contact) {
-            return res.status(400).json({ message: "Не хватает обязательных полей: name, specialization, contact" });
-        }
-        const doctor = new Doctor({ 
-            name, 
-            specialization, 
-            contact 
-        });
-        const saveDoctor = await doctor.save();
-        res.status(201).send(saveDoctor);
-    } catch (err){
-        console.error(err);
-        res.status(500).json({ message: err.message });
-    }
-});
+/**
+ * @swagger
+ * paths:
+ *  /doctor/:
+ *    post:
+ *      summary: Создание доктора
+ *      description: Создание доктора с возможностью определить специальзации
+ *      operationId: loginUser
+ *      tags:
+ *        - Doctors
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                loginParam:
+ *                  type: string
+ *                  description: Логин (email, телефон или pesel) пользователя
+ *                password:
+ *                  type: string
+ *                  description: Пароль пользователя
+ *      responses:
+ *        200:
+ *          description: Успешный вход и получение токена
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: string
+ *                example: "<access_token>"
+ *        404:
+ *          description: Пользователь не найден
+ */
+router.post("/", doctorController.createDoctor);
 
-router.get("/doctors", async (req, res) => {
-    try {
-        const doctors = await Doctor.find().lean().exec();
-        if (!doctors) {
-            return res.status(200).json({ message: "Врачей нету" });
-        }
-        res.status(200).json(doctors);
-    } catch (err){
-        console.error(err);
-        res.status(500).json({ message: err.message });
-    }
-});
+// router.get("/doctors", doctorController);
 
-router.get("/doctors/:id", async (req, res) => {
-    try {
-        const doctor = await Doctor.findById(req.params.id).lean().exec();
-        if (!doctor) {
-            return res.status(200).json({ message: "Врач не найден" });
-        }
-        res.status(200).json(doctor);
-    } catch (err){
-        console.error(err);
-        res.status(500).json({ message: err.message });
-    }
-});
+router.get("/:id", doctorController.getShortDoctorById);
 
-router.put("/doctors/:id", async (req, res) => {
-    try {
-        const { name, specialization, contact } = req.body;
-        const doctor = await Doctor.findByIdAndUpdate(
-            req.params.id,
-            { name, specialization, contact },
-            {new: true, runValidation: true }
-        );
-        if (!doctor) {
-            return res.status(404).json({ message: "Врач не найден" });
-        }
-        res.status(200).json(doctor);
-    } catch (err){
-        console.error(err);
-        res.status(500).json({ message: err.message });
-    }
-});
+router.get("/:id/services", doctorController.addServiceToDoctor);
 
-router.delete("/doctors/:id", async (req, res) => {
-    try {
-        const doctor = await Doctor.findByIdAndDelete(req.params.id);
-        if (!doctor) {
-            return res.status(404).json({ message: "Врач не найден" });
-        }
-        res.status(200).json({ message: "Врач удален" });
-    } catch (err){
-        console.error(err);
-        res.status(500).json({ message: err.message });
-    }
-});
+// router.put("/:id", doctorController.updateDoctorById);
 
 module.exports = router;

@@ -7,18 +7,18 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
       });
       Doctors.belongsTo(models.Clinics, {
-        foreignKey: "clinic_id",
+        foreignKey: 'clinic_id',
       });
       Doctors.belongsToMany(models.Specialties, {
-        through: "DoctorsSpecialties",
+        through: models.DoctorSpecialty,
+        foreignKey: 'doctor_id',
+        otherKey: 'specialty_id',
+        as: 'specialties',
       });
       Doctors.hasMany(models.Schedules, {
         foreignKey: "doctor_id",
         onDelete: 'CASCADE',
       });
-      // Doctors.hasMany(models.Reviews, {
-      //   foreignKey: "review_id",
-      // });
     }
   }
   Doctors.init({

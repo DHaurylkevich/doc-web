@@ -1,4 +1,3 @@
-// const TEST = require("../../tests/unit/controllers/usersController.test.js");
 const UserService = require("../services/userService");
 const authMiddleware = require("../middleware/auth");
 const passwordUtil = require("../utils/passwordUtil");
@@ -26,16 +25,16 @@ const UserController = {
         }
     },
     /**
-     * Получение объекта и данных по его id и role
+     * Получение объекта user и данных по его id и role
      * @param {*} req 
      * @param {*} res 
      * @param {*} next 
      */
-    getUserByIdAndRole: async (req, res, next) => {
+    getUserAccount: async (req, res, next) => {
         const { id } = req.params;
-        const { role } = req.body;
+
         try {
-            const user = await UserService.getRoleUserById(id, role);
+            const user = await UserService.getUserById(id);
             res.status(200).json(user);
         } catch (err) {
             console.error(err);
@@ -64,7 +63,6 @@ const UserController = {
             next(err);
         }
     },
-
     deleteUser: async (req, res, next) => {
         const { id } = req.params;
         try {

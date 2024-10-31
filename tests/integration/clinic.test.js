@@ -8,21 +8,21 @@ const app = require("../../doc-web");
 const db = require("../../src/models");
 
 describe("ClinicController API", () => {
-    let clinicId;
+    let clinicId, clinicData, addressData;
 
     before(async () => {
         await db.sequelize.sync({ force: true });
     });
-
+    beforeEach(async () => {
+        clinicData = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date" };
+        addressData = { city: faker.location.city(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() };
+    });
     afterEach(async () => {
         await db.Clinics.destroy({ where: {} });
     });
 
-    describe("POST /api/clinics", () => {
+    describe("POST /api/clinic", () => {
         it("expect to create clinic with address, when clinicData and addressData is valid", async () => {
-            const clinicData = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number(), description: faker.lorem.sentence(), schedule: "Date" };
-            const addressData = { city: faker.location.city(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() };
-
             const response = await request(app)
                 .post("/api/clinic")
                 .send({ clinicData, addressData })
@@ -37,9 +37,8 @@ describe("ClinicController API", () => {
             expect(clinicInDb.name).to.equal(clinicData.name);
         });
     });
-    describe("GET /api/clinics/:id", () => {
+    describe("GET /api/clinic/:id", () => {
         it("expect clinic by id, when it exists", async () => {
-            const clinicData = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number(), description: faker.lorem.sentence(), schedule: "Date" };
             const createdClinic = await db.Clinics.create(clinicData);
             clinicId = createdClinic.id;
 
@@ -51,10 +50,8 @@ describe("ClinicController API", () => {
             expect(response.body.name).to.equal(clinicData.name);
         });
     });
-    describe("PUT /api/clinics/:id", () => {
+    describe("PUT /api/clinic/:id", () => {
         it("expect to update clinic, when data valid and it exists", async () => {
-            const clinicData = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number(), description: faker.lorem.sentence(), schedule: "Date" };
-            const addressData = { city: faker.location.city(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() };
             const updatedClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number(), description: faker.lorem.sentence(), schedule: "Date" };
             const updatedAddress = { city: faker.location.city(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() };
 
@@ -73,10 +70,8 @@ describe("ClinicController API", () => {
             expect(clinicInDb.name).to.equal(updatedClinic.name);
         });
     });
-    describe("DELETE /api/clinics/:id", () => {
+    describe("DELETE /api/clinic/:id", () => {
         it("expect delete clinic by id, when it exists", async () => {
-            const clinicData = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number(), description: faker.lorem.sentence(), schedule: "Date" };
-
             const createdClinic = await db.Clinics.create(clinicData);
             clinicId = createdClinic.id;
 

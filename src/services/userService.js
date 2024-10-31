@@ -1,5 +1,3 @@
-// const TEST = require("../../tests/unit/services/usersService.test");
-const { Op } = require("sequelize");
 const db = require("../models");
 const passwordUtil = require("../utils/passwordUtil");
 
@@ -52,44 +50,44 @@ const UserService = {
             throw err;
         }
     },
-    /**
-     * Возвращает даные пользователя с данными его роли
-    * @param {number} id - ID пользователя
-    * @param {string} role - Роль пользователя ("patient", "doctor", "admin")
-    * @returns {Promise<Object>} - Данные пользователя с его ролью
-    */
-    getRoleUserById: async (id, role) => {
-        let user;
-        try {
-            switch (role) {
-                case "patient":
-                    user = await db.Users.findOne({
-                        where: { id },
-                        include: [db.Patients],
-                    });
-                    break;
-                case "doctor":
-                    user = await db.Users.findOne({
-                        where: { id },
-                        include: [db.Doctors],
-                    });
-                    break;
-                case "admin":
-                    user = await db.Users.findByPk(id);
-                    break;
-                default:
-                    throw new Error("Invalid role specified");
-            }
+    // /**
+    //  * Возвращает даные пользователя
+    // * @param {number} id - ID пользователя
+    // * @returns {Promise<Object>} - Данные пользователя
+    // */
+    // getUserById: async (id) => {
+    //     let user;
+    //     try {
+    //         // switch (role) {
+    //         //     case "patient":
+    //         //         user = await db.Users.findOne({
+    //         //             where: { id },
+    //         //             include: [db.Patients],
+    //         //         });
+    //         //         break;
+    //         //     case "doctor":
+    //         //         user = await db.Users.findOne({
+    //         //             where: { id },
+    //         //             include: [db.Doctors],
+    //         //         });
+    //         //         break;
+    //         //     case "admin":
+    //         //         user = await db.Users.findByPk(id);
+    //         //         break;
+    //         //     default:
+    //         //         throw new Error("Invalid role specified");
+    //         // }
+    //         user = await db.Users.findByPk(id);
 
-            if (!user) {
-                throw new Error("User not found");
-            }
-            return user;
-        } catch (err) {
-            console.error("Error occurred", err);
-            throw err;
-        }
-    },
+    //         if (!user) {
+    //             throw new Error("User not found");
+    //         }
+    //         return user;
+    //     } catch (err) {
+    //         console.error("Error occurred", err);
+    //         throw err;
+    //     }
+    // },
     /**
      * Возвращает объект пользователя по параметру email/phone/pesel
      * @param {String} param 
@@ -179,8 +177,3 @@ const UserService = {
 }
 
 module.exports = UserService;
-
-// Данные в сервис уже приходят проверенными.
-// Можно создать три вида пользователя: Admin, Patient, Doctor. 
-// Чтобы cоздать доктора, нужно чтобы был корректный существующий center_id
-// Проверки: есть ли email в БД и есть center id в бд

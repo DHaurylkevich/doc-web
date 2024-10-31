@@ -7,12 +7,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
-      }),
+      });
       Users.hasOne(models.Doctors, {
         foreignKey: 'user_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
-      })
+      });
     }
   }
   Users.init({
@@ -35,8 +35,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: "email"
     },
+    gender: {
+      type: DataTypes.ENUM('male', 'female', 'other'),
+      allowNull: true
+    },
     pesel: {
-      type: DataTypes.STRING(8),//Точно???
+      type: DataTypes.STRING(11),
       allowNull: false,
       unique: "pesel"
     },

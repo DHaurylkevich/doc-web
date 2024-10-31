@@ -1,9 +1,10 @@
-// const TEST = require("../../tests/unit/services/doctorService.test");
 const sequelize = require("../config/db");
 const db = require("../models");
 const UserService = require("../services/userService");
 const ClinicService = require("./clinicService");
+const ServiceService = require("./serviceService");
 const SpecialtyService = require("./specialtyService");
+const DoctorSpecialtyService = require("./doctorSpecialtyService");
 
 const DoctorService = {
     /**
@@ -14,26 +15,38 @@ const DoctorService = {
      * @param {Object} clinic_id 
      * @returns {String} token
      */
-    createDoctor: async (userData, doctorData, specialty_id, clinic_id) => {
+    createDoctor: async (userData, doctorData, specialtyIds, clinicId) => {
         const t = await sequelize.transaction();
 
         try {
-            await ClinicService.getClinicById(clinic_id);
-            await SpecialtyService.getSpecialtyById(specialty_id);
-
+            await ClinicService.getClinicById(clinicId);
+            // await Promise.all(specialtyIds.map(async (specialtyId) => {
+            //     await SpecialtyService.getSpecialtyById(specialtyId);
+            // }));
             const createdUser = await UserService.createUser(userData, t);
-            const createdDoctor= await createdUser.createDoctor({ specialty_id: specialty_id, clinic_id: clinic_id, ...doctorData }, { transaction: t });
-
+            const createdDoctor = await createdUser.createDoctor({ clinic_id: clinicId, ...doctorData }, { transaction: t });
             await t.commit();
+
+            await DoctorSpecialtyService.assignSpecialtyToDoctor(createdDoctor.id, specialtyIds);
             return createdDoctor;
         } catch (err) {
             await t.rollback();
             throw err;
         }
     },
-    getDoctorById: async (id) => {
+    getShortDoctorById: async (doctorId) => {
         try {
-            const doctor = await db.Doctors.findByPk(id);
+            console.log(doctorId);
+            const doctor = await db.Doctors.findByPk(doctorId, {
+                include: [
+                    {
+                        model: db.Users, attributes: ["id", "first_name", "last_name"],
+                    },
+                    {
+                        model: db.Specialties, as: 'specialties'
+                    }
+                ]
+            });
             if (!doctor) {
                 throw new Error('Doctor not found');
             }
@@ -50,11 +63,11 @@ const DoctorService = {
      * @param {Object} addressData 
      * @returns {Object}
      */
-    updateDoctor: async (id, userData, doctorData) => {
+    updateDoctor: async (userId, userData, doctorData) => {
         const t = await sequelize.transaction();
 
         try {
-            const user = await UserService.updateUser(id, userData, t);
+            const user = await UserService.updateUser(userId, userData, t);
 
             const doctor = await user.getDoctors();
             if (!doctor) {
@@ -68,6 +81,24 @@ const DoctorService = {
         } catch (err) {
             await t.rollback();
             console.log(err);
+            throw err;
+        }
+    },
+    addServiceToDoctor: async (doctorId, data) => {
+        const t = await sequelize.transaction();
+
+        try {
+            const createdDoctor = await db.Doctors.findByPk(doctorId);
+            await Promise.all(datas.map(async (specialtyId) => {
+                await SpecialtyService.getSpecialtyById(specialtyId);
+                await ServiceService.getServiceById(serviceId);
+            }));
+            await createdDoctor.addServices(servicesIds, price, { transaction: t });
+
+            await t.commit();
+            return createdDoctor;
+        } catch (err) {
+            await t.rollback();
             throw err;
         }
     },

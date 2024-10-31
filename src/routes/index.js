@@ -3,18 +3,18 @@ const router = express.Router();
 const clinicRouter = require("./clinic");
 const userRouter = require("./user");
 const patientRouter = require("./patient");
+const doctorRouter = require("./doctor");
+const serviceRouter = require("./service");
+const specialtyRouter = require("./specialty");
 
-/** 
- * @swagger 
- *  /userrs:
- *   get:
-*/
-const { checkAuth, refreshTokenAdmin } = require("../middleware/auth");
+// const { checkAuth, refreshTokenAdmin } = require("../middleware/auth");
 
 router.use("/clinic", clinicRouter);
 router.use("/user", userRouter);
 router.use("/patient", patientRouter);
-// router.use("/contacts", contactRouter);
+router.use("/doctor", doctorRouter);
+router.use("/service", serviceRouter);
+router.use("/specialty", specialtyRouter);
 // router.use("/image", imageRouter);
 // router.use("/menu", menuRouter);
 

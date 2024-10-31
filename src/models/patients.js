@@ -23,10 +23,6 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    gender: {
-      type: DataTypes.ENUM('male', 'female', 'other'),
-      allowNull: true
-    },
     market_inf: {
       type: DataTypes.BOOLEAN,
       allowNull: true

@@ -67,7 +67,7 @@ describe("PatientController API", () => {
         });
         it("expect to update patient, when data valid and it exists", async () => {
             const updateUser = { first_name: faker.person.firstName() }
-            const updatePatient = { gender: "female" };
+            const updatePatient = { market_inf: true };
             const updateAddress = { city: faker.location.city() }
 
             const response = await request(app)

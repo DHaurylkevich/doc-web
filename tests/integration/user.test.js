@@ -34,7 +34,7 @@ describe("UserController API", () => {
         await db.Users.destroy({ where: {} });
     });
 
-    describe("POST /api/user", () => {
+    describe("POST /api/user/login", () => {
         it("expect token, when user exists and data is valid", async () => {
             const loginParam = fakeUser.email;
             const password = "Test@1234";
@@ -51,7 +51,6 @@ describe("UserController API", () => {
         it("expect user by id, when it exists", async () => {
             const response = await request(app)
                 .get(`/api/user/${userId}`)
-                .send({ role: fakeUser.role })
                 .expect(200);
 
             expect(response.body).to.have.property("id", userId);

@@ -2,9 +2,21 @@
 const db = require("../models");
 
 const SpecialtyService = {
-    createSpecialty: async (name) => {
+    createSpecialty: async (specialtyData) => {
         try {
-            return await db.Specialties.create(name);
+            return await db.Specialties.create(specialtyData);
+        } catch (err) {
+            throw err;
+        }
+    },
+    getAllSpecialties: async (id) => {
+        try {
+            const specialties = await db.Specialties.findAll();
+            if (!specialties) {
+                throw new Error("Specialty not found");
+            }
+
+            return specialties;
         } catch (err) {
             throw err;
         }
