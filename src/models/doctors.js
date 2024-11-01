@@ -9,11 +9,15 @@ module.exports = (sequelize, DataTypes) => {
       Doctors.belongsTo(models.Clinics, {
         foreignKey: 'clinic_id',
       });
-      Doctors.belongsToMany(models.Specialties, {
-        through: models.DoctorSpecialty,
+      Doctors.belongsTo(models.Specialties, {
+        foreignKey: 'specialty_id',
+        as: 'specialty',
+      });
+      Doctors.belongsToMany(models.Services, {
+        through: models.DoctorService,
         foreignKey: 'doctor_id',
-        otherKey: 'specialty_id',
-        as: 'specialties',
+        otherKey: 'service_id',
+        as: 'services',
       });
       Doctors.hasMany(models.Schedules, {
         foreignKey: "doctor_id",

@@ -11,10 +11,10 @@ const DoctorController = {
      * @param {*} next 
      */
     createDoctor: async (req, res, next) => {
-        const { userData, doctorData, specialtyIds, clinicId } = req.body;
+        const { userData, doctorData, specialtyId, clinicId, servicesIds } = req.body;
 
         try {
-            const createdDoctor = await DoctorService.createDoctor(userData, doctorData, specialtyIds, clinicId);
+            const createdDoctor = await DoctorService.createDoctor(userData, doctorData, specialtyId, clinicId, servicesIds);
             res.status(201).json(createdDoctor);
         } catch (err) {
             console.log(err);
@@ -26,41 +26,35 @@ const DoctorController = {
 
         try {
             const createdDoctor = await DoctorService.getShortDoctorById(doctorId);
-            res.status(201).json(createdDoctor);
+            res.status(200).json(createdDoctor);
         } catch (err) {
             console.log(err);
             next(err);
         }
     },
-    // /**
-    //  * Обновление данных доктора
-    //  * @param {*} req praram{ id } ,body{ userData, doctorData }
-    //  * @param {*} res 
-    //  * @param {*} next 
-    //  */
-    // updateDoctorById: async (req, res, next) => {
-    //     const { id } = req.params;
-    //     const { userData, doctorData } = req.body;
+    updateDoctorById: async (req, res, next) => {
+        const doctorId = req.params.id;
+        const { userData, doctorData, servicesIds } = req.body;
+
+        try {
+            const updateDoctor = await DoctorService.updateDoctorById(doctorId, userData, doctorData, servicesIds);
+            res.status(200).json(updateDoctor);
+        } catch (err) {
+            console.log(err);
+            next(err);
+        }
+    },
+    // addServiceToDoctor: async (req, res, next) => {
+    //     const doctorId = req.params.id;
+    //     const { data } = req.body; // data: [{ specialtyId, services: [{ serviceId, price }] }]
 
     //     try {
-    //         const updatedDoctor = await DoctorService.updateDoctor(id, userData, doctorData);
-
-    //         res.status(200).json(updatedDoctor);
+    //         await DoctorService.addServiceToDoctor(doctorId, data);
+            // res.status(200).json({ message: "Successfully added services to doctor" });
     //     } catch (err) {
     //         next(err);
     //     }
     // },
-    addServiceToDoctor: async (req, res, next) => {
-        const doctorId = req.params.id;
-        const { data } = req.body; // data: [{ specialtyId, services: [{ serviceId, price }] }]
-
-        try {
-            await DoctorService.addServiceToDoctor(doctorId, data);
-            res.status(200).json({ message: "Successfully added services to doctor" });
-        } catch (err) {
-            next(err);
-        }
-    },
 }
 
 module.exports = DoctorController;

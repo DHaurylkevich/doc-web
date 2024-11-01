@@ -44,6 +44,6 @@ router.get("/:id", doctorController.getShortDoctorById);
 
 router.get("/:id/services", doctorController.addServiceToDoctor);
 
-// router.put("/:id", doctorController.updateDoctorById);
+router.put("/:id", doctorController.updateDoctorById);
 
 module.exports = router;

@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
       Clinics.belongsTo(models.Schedules, {
         foreignKey: "clinic_id",
       });
+      Clinics.hasMany(models.Services,{
+        foreignKey: "clinic_id",
+        as: 'services',
+      });
       Clinics.belongsTo(models.Appointments, {
         foreignKey: "clinic_id"
       });

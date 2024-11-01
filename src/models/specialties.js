@@ -3,18 +3,14 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Specialties extends Model {
         static associate(models) {
-            Specialties.belongsToMany(models.Doctors, {
-                through: models.DoctorSpecialty,
+            Specialties.hasMany(models.Doctors, {
                 foreignKey: 'specialty_id',
-                otherKey: 'doctor_id',
                 as: 'doctors',
             });
-            // Specialties.belongsToMany(models.Services, {
-            //     through: models.SpecialtyService,
-            //     foreignKey: 'specialty_id',
-            //     otherKey: 'service_id',
-            //     as: 'services',
-            // });
+            Specialties.hasMany(models.Services, {
+                foreignKey: 'specialty_id',
+                as: 'services',
+            });
         }
     }
     Specialties.init({
@@ -27,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             type: DataTypes.STRING,
             allowNull: false,
-        }
+        },
     }, {
         sequelize,
         modelName: 'Specialties',

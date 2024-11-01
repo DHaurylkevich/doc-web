@@ -4,7 +4,7 @@ const UserService = require("../services/userService");
 const ClinicService = require("./clinicService");
 const ServiceService = require("./serviceService");
 const SpecialtyService = require("./specialtyService");
-const DoctorSpecialtyService = require("./doctorSpecialtyService");
+const DoctorServiceService = require("./DoctorServiceService");
 
 const DoctorService = {
     /**
@@ -15,19 +15,25 @@ const DoctorService = {
      * @param {Object} clinic_id 
      * @returns {String} token
      */
-    createDoctor: async (userData, doctorData, specialtyIds, clinicId) => {
+    createDoctor: async (userData, doctorData, specialtyId, clinicId, servicesIds) => {
         const t = await sequelize.transaction();
 
         try {
-            await ClinicService.getClinicById(clinicId);
-            // await Promise.all(specialtyIds.map(async (specialtyId) => {
-            //     await SpecialtyService.getSpecialtyById(specialtyId);
-            // }));
-            const createdUser = await UserService.createUser(userData, t);
-            const createdDoctor = await createdUser.createDoctor({ clinic_id: clinicId, ...doctorData }, { transaction: t });
-            await t.commit();
+            await ClinicService.getClinicById(clinicId, { transaction: t });
 
-            await DoctorSpecialtyService.assignSpecialtyToDoctor(createdDoctor.id, specialtyIds);
+            const createdUser = await UserService.createUser(userData, t);
+
+            const createdDoctor = await createdUser.createDoctor(
+                { clinic_id: clinicId, ...doctorData, specialty_id: specialtyId },
+                { transaction: t }
+            );
+            createdDoctor.specialties_id = specialtyId;
+
+            if (servicesIds && servicesIds.length) {
+                await createdDoctor.setServices(servicesIds, { transaction: t });
+            }
+
+            await t.commit();
             return createdDoctor;
         } catch (err) {
             await t.rollback();
@@ -43,7 +49,7 @@ const DoctorService = {
                         model: db.Users, attributes: ["id", "first_name", "last_name"],
                     },
                     {
-                        model: db.Specialties, as: 'specialties'
+                        model: db.Specialties, as: 'specialty'
                     }
                 ]
             });
@@ -63,42 +69,25 @@ const DoctorService = {
      * @param {Object} addressData 
      * @returns {Object}
      */
-    updateDoctor: async (userId, userData, doctorData) => {
+    updateDoctorById: async (doctorId, userData, doctorData, servicesIds) => {
         const t = await sequelize.transaction();
 
         try {
-            const user = await UserService.updateUser(userId, userData, t);
+            const user = await UserService.updateUser(doctorId, userData, t);
 
-            const doctor = await user.getDoctors();
+            const doctor = await user.getDoctor();
             if (!doctor) {
                 throw new Error("Doctor not found");
             }
             await doctor.update(doctorData, { transaction: t });
-            console.log(doctor);
+            
+            await doctor.setServices(servicesIds, { transaction: t });
 
             await t.commit();
             return doctor;
         } catch (err) {
             await t.rollback();
             console.log(err);
-            throw err;
-        }
-    },
-    addServiceToDoctor: async (doctorId, data) => {
-        const t = await sequelize.transaction();
-
-        try {
-            const createdDoctor = await db.Doctors.findByPk(doctorId);
-            await Promise.all(datas.map(async (specialtyId) => {
-                await SpecialtyService.getSpecialtyById(specialtyId);
-                await ServiceService.getServiceById(serviceId);
-            }));
-            await createdDoctor.addServices(servicesIds, price, { transaction: t });
-
-            await t.commit();
-            return createdDoctor;
-        } catch (err) {
-            await t.rollback();
             throw err;
         }
     },
