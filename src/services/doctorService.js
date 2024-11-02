@@ -40,6 +40,29 @@ const DoctorService = {
             throw err;
         }
     },
+    getDoctorById: async (doctorId) => {
+        try {
+            console.log(doctorId);
+            const doctor = await db.Doctors.findByPk(doctorId, {
+                include: [
+                    {
+                        model: db.Users,
+                        exclude: ["password"],
+                        include: [db.Addresses],
+                    },
+                    {
+                        model: db.Specialties, as: 'specialty'
+                    },
+                ]
+            });
+            if (!doctor) {
+                throw new Error('Doctor not found');
+            }
+            return doctor;
+        } catch (err) {
+            throw err;
+        }
+    },
     getShortDoctorById: async (doctorId) => {
         try {
             console.log(doctorId);
@@ -57,6 +80,33 @@ const DoctorService = {
                 throw new Error('Doctor not found');
             }
             return doctor;
+        } catch (err) {
+            throw err;
+        }
+    },
+    getDoctorsByClinicWithSorting: async (clinicId, filters) => {
+        try {
+            // const query = { clinic_id: clinicId };
+            const query = {};
+            if (filters.gender) {
+                query.gender = filters.gender;
+            }
+
+            const sortOptions = [];
+            if (filters.sortBy) {
+                sortOptions.push({ "$User.name": filters.order === "desc" ? "DESC" : "ASC" });
+            }
+            const doctors = await db.Doctors.findAll({
+                where: { clinic_id: clinicId },
+                attributes: ["id"],
+                include: [{
+                    model: db.Users,
+                    where: query,
+                    attributes: ["first_name", "last_name", "gender"],
+                }],
+                order: sortOptions,
+            })
+            return doctors;
         } catch (err) {
             throw err;
         }
@@ -80,7 +130,7 @@ const DoctorService = {
                 throw new Error("Doctor not found");
             }
             await doctor.update(doctorData, { transaction: t });
-            
+
             await doctor.setServices(servicesIds, { transaction: t });
 
             await t.commit();

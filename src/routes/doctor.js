@@ -40,10 +40,12 @@ router.post("/", doctorController.createDoctor);
 
 // router.get("/doctors", doctorController);
 
-router.get("/:id", doctorController.getShortDoctorById);
+router.get("/:id/short", doctorController.getShortDoctorById);
 
-router.get("/:id/services", doctorController.addServiceToDoctor);
+router.get("/:id", doctorController.getDoctorById);
 
 router.put("/:id", doctorController.updateDoctorById);
+
+router.get('/clinics/:clinicId/', doctorController.getDoctorsByClinicWithSorting);
 
 module.exports = router;

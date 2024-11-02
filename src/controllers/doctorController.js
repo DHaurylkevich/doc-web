@@ -21,11 +21,11 @@ const DoctorController = {
             next(err);
         }
     },
-    getShortDoctorById: async (req, res, next) => {
+    getDoctorById: async (req, res, next) => {
         const doctorId = req.params.id;
 
         try {
-            const createdDoctor = await DoctorService.getShortDoctorById(doctorId);
+            const createdDoctor = await DoctorService.getDoctorById(doctorId);
             res.status(200).json(createdDoctor);
         } catch (err) {
             console.log(err);
@@ -50,11 +50,36 @@ const DoctorController = {
 
     //     try {
     //         await DoctorService.addServiceToDoctor(doctorId, data);
-            // res.status(200).json({ message: "Successfully added services to doctor" });
+    // res.status(200).json({ message: "Successfully added services to doctor" });
     //     } catch (err) {
     //         next(err);
     //     }
     // },
+    getShortDoctorById: async (req, res, next) => {
+        const doctorId = req.params.id;
+
+        try {
+            const createdDoctor = await DoctorService.getShortDoctorById(doctorId);
+            res.status(200).json(createdDoctor);
+        } catch (err) {
+            console.log(err);
+            next(err);
+        }
+    },
+    getDoctorsByClinicWithSorting: async (req, res) => {
+        const { clinicId } = req.params;
+        const { gender, order } = req.query;
+
+        // Проверка существования клиники(Отдельный сервис)
+
+        try {
+            const doctors = await DoctorService.getDoctorsByClinicWithSorting(clinicId, { gender, order });
+            res.status(200).json(doctors);
+        } catch (err) {
+            console.log(err);
+            next(err);
+        }
+    },
 }
 
 module.exports = DoctorController;

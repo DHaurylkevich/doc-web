@@ -8,7 +8,7 @@ const app = require("../../doc-web");
 const db = require("../../src/models");
 
 describe("DoctorController API", () => {
-    let clinicId, fakeDoctor;
+    let fakeDoctor;
 
     before(async () => {
         await db.sequelize.sync({ force: true });
@@ -30,13 +30,13 @@ describe("DoctorController API", () => {
     });
 
     describe("POST /api/doctor", () => {
-        let fakeClinic, fakeUser, doctorData;
+        let fakeClinic, fakeUser;
         beforeEach(async () => {
             fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date" };
             fakeUser = {
                 first_name: faker.person.firstName(), last_name: faker.person.lastName(),
                 email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }),
-                pesel: 12345678, password: "Test@1234",
+                pesel: 12345678, password: "Test@1234", gender: "male",
                 role: "patient", birthday: faker.date.past(30)
             };
         });
@@ -48,7 +48,7 @@ describe("DoctorController API", () => {
             const servicesIds = servicesInDb.map(serviceId => serviceId.id);
 
             const response = await request(app)
-                .post("/api/doctor")
+                .post("/api/doctors")
                 .send({ userData: fakeUser, doctorData: fakeDoctor, specialtyId, clinicId: clinic.id, servicesIds })
                 .expect(201);
 
@@ -68,25 +68,20 @@ describe("DoctorController API", () => {
             expect(doctorInDb.services[0].id).to.deep.equals(1);
         });
     });
-    describe("GET /api/doctor/:id", () => {
+    describe("GET /api/doctor/:id/short", () => {
         it("should return a doctor by id when it exists", async () => {
             const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
-            const doctorData = {
-                rating: faker.number.float({ min: 1, max: 5 }),
-                hired_at: faker.date.past(),
-                description: faker.lorem.paragraph(),
-                specialty_id: specialtiesInDb.id
-            };
-            const createdDoctor = await db.Doctors.create(doctorData);
+            fakeDoctor.specialty_id = specialtiesInDb.id
+            const createdDoctor = await db.Doctors.create(fakeDoctor);
 
             const response = await request(app)
-                .get(`/api/doctor/${createdDoctor.id}`)
+                .get(`/api/doctors/${createdDoctor.id}/short`)
                 .expect(200);
 
             expect(response.body).to.have.property("id", createdDoctor.id);
-            expect(response.body.firstName).to.equal(doctorData.firstName);
-            expect(response.body.lastName).to.equal(doctorData.lastName);
-            expect(response.body.description).to.equal(doctorData.description);
+            expect(response.body.firstName).to.equal(createdDoctor.firstName);
+            expect(response.body.lastName).to.equal(createdDoctor.lastName);
+            expect(response.body.description).to.equal(createdDoctor.description);
             expect(response.body).to.have.property("specialty");
         });
 
@@ -94,11 +89,55 @@ describe("DoctorController API", () => {
             const nonExistentId = 99999;
 
             await request(app)
-                .get(`/api/doctor/${nonExistentId}`)
+                .get(`/api/doctors/${nonExistentId}`)
                 .expect(404);
         });
     });
-    describe("PUT /api/doctor/:id", () => {
+    describe("GET /api/doctor/:id", () => {
+        it("should return a doctor by id when it exists", async () => {
+            const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
+            fakeDoctor.specialty_id = specialtiesInDb.id
+            const createdDoctor = await db.Doctors.create(fakeDoctor);
+
+            const response = await request(app)
+                .get(`/api/doctors/${createdDoctor.id}`)
+                .expect(200);
+
+            expect(response.body).to.have.property("id", createdDoctor.id);
+            expect(response.body.firstName).to.equal(createdDoctor.firstName);
+            expect(response.body.lastName).to.equal(createdDoctor.lastName);
+            expect(response.body.description).to.equal(createdDoctor.description);
+            expect(response.body).to.have.property("specialty");
+        });
+    });
+    describe("GET /clinics/:clinicId/doctors", () => {
+        let fakeClinic, fakeUser;
+        beforeEach(async () => {
+            fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date" };
+            fakeUser = {
+                first_name: faker.person.firstName(), last_name: faker.person.lastName(),
+                email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }),
+                pesel: 12345678, password: "Test@1234", gender: "male",
+                role: "patient", birthday: faker.date.past(30)
+            };
+        });
+        it("should return a doctor by id when it exists", async () => {
+            const clinic = await db.Clinics.create(fakeClinic);
+            const user = await db.Users.create(fakeUser);
+            fakeDoctor.clinic_id = clinic.id;
+            const createdDoctor = await user.createDoctor(fakeDoctor);
+
+            const response = await request(app)
+                .get(`/api/doctors/clinics/${clinic.id}?gender=male&order=asc`)
+                .expect(200);
+
+            expect(response.body[0]).to.have.property("id", createdDoctor.id);
+            expect(response.body[0].firstName).to.equal(createdDoctor.firstName);
+            expect(response.body[0].lastName).to.equal(createdDoctor.lastName);
+            expect(response.body[0].gender).to.equal(createdDoctor.gender);
+        });
+    });
+    describe("PUT /api/doctors/:id", () => {
         let fakeUser, fakeDoctor;
         beforeEach(async () => {
             fakeUser = {
@@ -124,7 +163,7 @@ describe("DoctorController API", () => {
             fakeDoctor.specialty_id = 2;
 
             const response = await request(app)
-                .put(`/api/doctor/${createdDoctor.id}`)
+                .put(`/api/doctors/${createdDoctor.id}`)
                 .send({ userData: fakeUser, doctorData: fakeDoctor, servicesIds: [2] })
                 .expect(200);
 
@@ -143,7 +182,7 @@ describe("DoctorController API", () => {
             expect(doctorInDb.services[0].name).to.equal("Cut");
         });
     });
-    // describe("POST /api/doctor/:id/services", () => {
+    // describe("POST /api/doctors/:id/services", () => {
     //     it("expect to add services for doctor, when data valid and they exists", async () => {
     //         const createdDoctor = await db.Doctors.create(fakeDoctor);
     //         const specialties = [{ name: "Cardiology" }, { name: "Dermatology" }];

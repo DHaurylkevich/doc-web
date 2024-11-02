@@ -36,8 +36,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       defaultValue: 0,
     },
-    hired_at: DataTypes.DATE,
-    description: DataTypes.STRING(255),
+    hired_at: DataTypes.DATE,//может и не нужно
+    description: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'Doctors',

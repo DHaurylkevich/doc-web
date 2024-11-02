@@ -9,12 +9,12 @@ const specialtyRouter = require("./specialty");
 
 // const { checkAuth, refreshTokenAdmin } = require("../middleware/auth");
 
-router.use("/clinic", clinicRouter);
-router.use("/user", userRouter);
+router.use("/clinics", clinicRouter);
+router.use("/users", userRouter);
 router.use("/patient", patientRouter);
-router.use("/doctor", doctorRouter);
-router.use("/service", serviceRouter);
-router.use("/specialty", specialtyRouter);
+router.use("/doctors", doctorRouter);
+router.use("/services", serviceRouter);
+router.use("/specialties", specialtyRouter);
 // router.use("/image", imageRouter);
 // router.use("/menu", menuRouter);
 
