@@ -3,8 +3,11 @@ const morgan = require("morgan");
 const errorHandler = require("./src/middleware/errorHandler");
 const swaggerDocs = require("./src/utils/swagger");
 const app = express();
+
 require("./src/config/db");
-require("dotenv").config();
+// const db = require("./src/models");
+// require("dotenv").config();
+// db.sequelize.sync({ force: true });
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -15,7 +18,7 @@ app.get("/", (req, res) => {
 
 swaggerDocs(app);
 
-app.use("/api", require("./src/routes"));
+app.use("/", require("./src/routes"));
 
 app.use((req, res, next) => {
     res.status(404).json({ message: "Not Found" });

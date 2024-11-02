@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       Appointments.belongsTo(models.Patients, {
         foreignKey: "patient_id"
       });
-      Appointments.hasOne(models.Clinics, {
+      Appointments.belongsTo(models.Clinics, {
         foreignKey: "clinic_id"
       });
       Appointments.belongsTo(models.Schedules, {

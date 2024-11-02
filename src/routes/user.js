@@ -52,7 +52,7 @@ const userController = require("../controllers/userController");
  *        404:
  *          description: Пользователь не найден
  */
-router.post("/login", userController.loginUser);
+router.post("/users/login", userController.loginUser);
 /**
  * @swagger
  * /users/{id}:
@@ -80,7 +80,7 @@ router.post("/login", userController.loginUser);
  *       404:
  *         description: Пользователь не найден
  */
-router.get("/:id", userController.getUserAccount);
+router.get("/users/:id", userController.getUserAccount);
 /**
  * @swagger
  * /users/password/{id}:
@@ -121,7 +121,7 @@ router.get("/:id", userController.getUserAccount);
  *       404:
  *         description: Пользователь не найден
  */
-router.put("/password/:id", userController.updateUserPassword);
+router.put("/users/password/:id", userController.updateUserPassword);
 /**
  * @swagger
  * /users/{id}:
@@ -151,6 +151,6 @@ router.put("/password/:id", userController.updateUserPassword);
  *       404:
  *         description: Пользователь не найден
  */
-router.delete("/:id", userController.deleteUser);
+router.delete("/users/:id", userController.deleteUser);
 
 module.exports = router;

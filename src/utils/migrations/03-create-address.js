@@ -32,7 +32,7 @@ module.exports = {
       user_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Patients', // имя таблицы, к которой привязан внешний ключ
+          model: 'Users',
           key: 'id'
         },
         onUpdate: 'CASCADE',
@@ -41,11 +41,11 @@ module.exports = {
       clinic_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Clinics', // имя таблицы, к которой привязан внешний ключ
+          model: 'Clinics',
           key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'SET NULL'
       },
       createdAt: {
         allowNull: false,

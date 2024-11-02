@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "users",
+          model: "Users",
           key: "id"
         },
         onUpdate: "CASCADE",
@@ -27,9 +27,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: "addresses",
+          model: "Addresses",
           key: "id"
-        }
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL"
       },
       market_inf: {
         type: Sequelize.BOOLEAN,

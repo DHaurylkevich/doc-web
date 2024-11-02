@@ -40,7 +40,7 @@ describe("UserController API", () => {
             const password = "Test@1234";
 
             const response = await request(app)
-                .post("/api/user/login")
+                .post("/api/users/login")
                 .send({ loginParam, password })
                 .expect(200);
 
@@ -50,7 +50,7 @@ describe("UserController API", () => {
     describe("GET /api/user/:id", () => {
         it("expect user by id, when it exists", async () => {
             const response = await request(app)
-                .get(`/api/user/${userId}`)
+                .get(`/api/users/${userId}`)
                 .expect(200);
 
             expect(response.body).to.have.property("id", userId);
@@ -60,7 +60,7 @@ describe("UserController API", () => {
     describe("PUT /api/user/:id", () => {
         it("expect to update user password, when data valid and it exists", async () => {
             const response = await request(app)
-                .put(`/api/user/password/${userId}`)
+                .put(`/api/users/password/${userId}`)
                 .send({ oldPassword: "Test@1234", newPassword: "TEST" })
                 .expect(200);
 
@@ -72,7 +72,7 @@ describe("UserController API", () => {
     describe("DELETE /api/user/:id", () => {
         it("expect delete user by id, when it exists", async () => {
             await request(app)
-                .delete(`/api/user/${userId}`)
+                .delete(`/api/users/${userId}`)
                 .expect(200);
 
             const userInDb = await db.Users.findByPk(userId);

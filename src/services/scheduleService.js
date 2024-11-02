@@ -1,32 +1,50 @@
-// const TEST = require("../../tests/unit/services/doctorService.test");
+const { Op } = require("sequelize");
 const db = require("../models");
-const DoctorService = require("../services/doctorService");
-const ClinicService = require("../services/clinicService");
+// const DoctorService = require("../services/doctorService");
+// const ClinicService = require("../services/clinicService");
 
 const ScheduleService = {
     createSchedule: async (scheduleData) => {
-        const { doctor_id, clinic_id, date, start_time, end_time } = scheduleData;
-
-        await DoctorService.getDoctorById(doctor_id);
-        await ClinicService.getClinicById(clinic_id);
-
-        const schedule = await db.Schedules.findOne({
-            where: { date: date, clinic_id: clinic_id, doctor_id: doctor_id },
-        });
-        if (schedule) {
-            throw new Error("Schedule is exist");
-        }
+        const transaction = await db.sequelize.transaction();
 
         try {
-            const newSchedule = await db.Schedules.create({
-                doctor_id,
-                clinic_id,
-                date,
-                start_time,
-                end_time
+            const { doctorsIds, ...commonData } = scheduleData;
+            const existingDoctors = await db.Doctors.findAll({
+                where: { id: { [Op.in]: doctorsIds } },
+                attributes: ['id'],
+                transaction
             });
-            return newSchedule;
+            if (existingDoctors.length !== doctorsIds.length) {
+                throw new Error("One or more doctors do not exist.");
+            }
+            const clinicId = scheduleData.clinic_id;
+            const existingClinic = await db.Clinics.findByPk(clinicId, {
+                attributes: ['id'],
+                transaction
+            });
+            if (!existingClinic) {
+                throw new Error(`Clinic does not exist.`);
+            }
+            scheduleData = doctorsIds.map(doctorId => ({
+                ...commonData,
+                doctor_id: doctorId
+            }));
+            console.log(scheduleData)
+            const existingSchedules = await db.Schedules.findAll({
+                where: {
+                    [Op.or]: scheduleData
+                },
+                transaction
+            });
+            if (existingSchedules.length > 0) {
+                throw new Error("One or more schedules already exist.");
+            }
+            const createdSchedules = await db.Schedules.bulkCreate(scheduleData, { transaction });
+
+            await transaction.commit();
+            return createdSchedules;
         } catch (err) {
+            await transaction.rollback();
             throw err;
         }
     },

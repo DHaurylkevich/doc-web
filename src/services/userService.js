@@ -1,5 +1,7 @@
+const { Op } = require("sequelize");
 const db = require("../models");
 const passwordUtil = require("../utils/passwordUtil");
+
 
 const UserService = {
     /**
@@ -143,7 +145,7 @@ const UserService = {
             if (!user) {
                 throw Error("User not found")
             }
-            
+
             passwordUtil.checkingPassword(oldPassword, user.password);
             newPassword = await passwordUtil.hashingPassword(newPassword);
 

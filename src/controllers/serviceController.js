@@ -2,9 +2,10 @@ const ServiceService = require("../services/serviceService");
 
 const ServiceController = {
     createService: async (req, res, next) => {
-        const { serviceData } = req.body;
+        const { clinicId } = req.params;
+        const { name, specialtyId, price } = req.body;
         try {
-            const service = await ServiceService.createService(serviceData);
+            const service = await ServiceService.createService(clinicId, name, specialtyId, price );
             res.status(201).json(service);
         } catch (err) {
             console.log(err);

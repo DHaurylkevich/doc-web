@@ -48,7 +48,7 @@ const DoctorService = {
                     {
                         model: db.Users,
                         exclude: ["password"],
-                        include: [db.Addresses],
+                        // include: [db.Address],
                     },
                     {
                         model: db.Specialties, as: 'specialty'

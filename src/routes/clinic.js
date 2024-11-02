@@ -1,16 +1,16 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 // const { authenticateJWT } = require("../middleware/auth");
-const clinicController = require('../controllers/clinicController');
+const clinicController = require("../controllers/clinicController");
 
-router.post('/', clinicController.createClinic);
+router.post("/clinics", clinicController.createClinic);
 
-router.get('/:id', clinicController.getClinic);
+router.get("/clinics/:id", clinicController.getClinic);
 
-// router.get('/', clinicController.getFullClinic);
+// router.get("/", clinicController.getFullClinic);
 
-router.put('/:id', clinicController.updateClinicById);
+router.put("/clinics/:id", clinicController.updateClinicById);
 
-router.delete('/:id', clinicController.deleteClinic);
+router.delete("/clinics/:id", clinicController.deleteClinic);
 
 module.exports = router;

@@ -13,21 +13,21 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Doctors', // Убедитесь, что имя таблицы указано верно
-          key: 'id',
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE'
-        }
+          model: 'Doctors',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
-      specialty_id: {
+      service_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Specialties', // Убедитесь, что имя таблицы указано верно
-          key: 'id',
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE'
-        }
+          model: 'Services',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       createdAt: {
         allowNull: false,

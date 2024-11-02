@@ -48,13 +48,13 @@ const specialtyController = require("../controllers/specialtyController");
  *        404:
  *          description: Специальность не найдена
  */
-router.post("/", specialtyController.createSpecialty);
+router.post("/specialties/", specialtyController.createSpecialty);
 /**
  * @swagger
  * paths:
  *  /specialty:
  *    get:
- *      summary: Получить все специальности
+ *      summary: Получить все специальности без услуг
  *      operationId: getAllSpecialties
  *      tags:
  *        - Specialty
@@ -89,7 +89,48 @@ router.post("/", specialtyController.createSpecialty);
  *        404:
  *          description: Специальности не найдены
  */
-router.get("/", specialtyController.getAllSpecialties);
+router.get("/specialties/", specialtyController.getAllSpecialties);
+/**
+ * @swagger
+ * paths:
+ *  /specialty:
+ *    get:
+ *      summary: Получить все специальности и все услуги связанные с клиникой
+ *      operationId: getAllSpecialties
+ *      tags:
+ *        - Specialty
+ *      responses:
+ *        200:
+ *          description: Массив всех специальностей
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: array
+ *                items:
+ *                  type: object
+ *                  properties:
+ *                    id:
+ *                      type: integer
+ *                      example: 1
+ *                    name:
+ *                      type: string
+ *                      example: "Хирург"
+ *                    createdAt:
+ *                      type: string
+ *                      format: date-time
+ *                      example: "2024-10-31T20:29:46.000Z"
+ *                    updatedAt:
+ *                      type: string
+ *                      format: date-time
+ *                      example: "2024-10-31T20:29:46.000Z"
+ *        400:
+ *          description: Неверные данные запроса
+ *        401:
+ *          description: Ошибка авторизации - требуется роль администратора
+ *        404:
+ *          description: Специальности не найдены
+ */
+router.get("/clinic/:clinicId/specialties", specialtyController.getAllSpecialtiesByClinic);
 /**
  * @swagger
  * paths:
@@ -137,7 +178,7 @@ router.get("/", specialtyController.getAllSpecialties);
  *        404:
  *          description: Специальность не найдена
 */
-router.get("/:id", specialtyController.getSpecialty);
+router.get("/specialties/:id", specialtyController.getSpecialty);
 /**
  * @swagger
  * paths:
@@ -185,7 +226,7 @@ router.get("/:id", specialtyController.getSpecialty);
  *        404:
  *          description: Специальность не найдена
 */
-router.put("/:id", specialtyController.updateSpecialty);
+router.put("/specialties/:id", specialtyController.updateSpecialty);
 /**
  * @swagger
  * paths:
@@ -233,6 +274,6 @@ router.put("/:id", specialtyController.updateSpecialty);
  *        404:
  *          description: Специальность не найдена
 */
-router.delete("/:id", specialtyController.deleteSpecialty);
+router.delete("/specialties/:id", specialtyController.deleteSpecialty);
 
 module.exports = router;

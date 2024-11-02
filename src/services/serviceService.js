@@ -1,9 +1,12 @@
 const db = require("../models");
 
 const ServiceService = {
-    createService: async (serviceData) => {
+    createService: async (clinicId, name, specialtyId, price) => {
         try {
-            const service = await db.Services.create(serviceData);
+            // Проверка существования клиники
+            // Проверка существования специальности
+
+            const service = await db.Services.create({ name, price, clinic_id: clinicId, specialty_id: specialtyId });
             return service
         } catch (err) {
             throw err;

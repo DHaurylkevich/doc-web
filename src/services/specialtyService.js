@@ -21,6 +21,25 @@ const SpecialtyService = {
             throw err;
         }
     },
+    getAllSpecialtiesByClinic: async (clinicId) => {
+        try {
+            const specialties = await db.Specialties.findAll({
+                include: [
+                    {
+                        model: db.Services, as: "services",
+                        where: { clinic_id: clinicId },
+                    }
+                ]
+            });
+            if (!specialties) {
+                throw new Error("Specialty not found");
+            }
+
+            return specialties;
+        } catch (err) {
+            throw err;
+        }
+    },
     getSpecialtyById: async (id) => {
         try {
             const specialty = await db.Specialties.findByPk(id);

@@ -6,15 +6,17 @@ const patientRouter = require("./patient");
 const doctorRouter = require("./doctor");
 const serviceRouter = require("./service");
 const specialtyRouter = require("./specialty");
+const scheduleRouter = require("./schedule");
 
 // const { checkAuth, refreshTokenAdmin } = require("../middleware/auth");
 
-router.use("/clinics", clinicRouter);
-router.use("/users", userRouter);
-router.use("/patient", patientRouter);
-router.use("/doctors", doctorRouter);
-router.use("/services", serviceRouter);
-router.use("/specialties", specialtyRouter);
+router.use("/api", clinicRouter);
+router.use("/api", userRouter);
+router.use("/api", patientRouter);
+router.use("/api", doctorRouter);
+router.use("/api", serviceRouter);
+router.use("/api", specialtyRouter);
+router.use("/api", scheduleRouter);
 // router.use("/image", imageRouter);
 // router.use("/menu", menuRouter);
 

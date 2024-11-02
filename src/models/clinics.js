@@ -13,14 +13,14 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       });
-      Clinics.belongsTo(models.Schedules, {
+      Clinics.hasMany(models.Schedules, {
         foreignKey: "clinic_id",
       });
       Clinics.hasMany(models.Services,{
         foreignKey: "clinic_id",
         as: 'services',
       });
-      Clinics.belongsTo(models.Appointments, {
+      Clinics.hasMany(models.Appointments, {
         foreignKey: "clinic_id"
       });
       // Clinics.hasMany(models.Reviews, {

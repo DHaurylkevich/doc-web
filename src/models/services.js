@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
                 as: 'clinic',
             });
             Services.belongsTo(models.Specialties, {
-                foreignKey: 'specialties_id',
+                foreignKey: 'specialty_id',
                 as: 'specialty',
             });
             Services.belongsToMany(models.Doctors, {

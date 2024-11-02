@@ -52,7 +52,7 @@ const patientController = require("../controllers/patientController");
  *        404:
  *          description: Пользователь не найден
  */
-router.post("/", patientController.registrationPatient);
+router.post("/patients/", patientController.registrationPatient);
 /**
  * @swagger
  * paths:
@@ -103,7 +103,7 @@ router.post("/", patientController.registrationPatient);
  *        404:
  *          description: Пользователь не найден
  */
-router.get("/", patientController.getPatientsFilter);
+router.get("/patients/", patientController.getPatientsFilter);
 /**
  * @swagger
  * paths:
@@ -154,7 +154,7 @@ router.get("/", patientController.getPatientsFilter);
  *        404:
  *          description: Пользователь не найден
  */
-// router.get("/:id", patientController.getPatientById);
+// router.get("/patients/:id", patientController.getPatientById);
 /**
  * @swagger
  * paths:
@@ -205,6 +205,6 @@ router.get("/", patientController.getPatientsFilter);
  *        404:
  *          description: Пользователь не найден
  */
-router.put("/:id", patientController.updatePatientById);
+router.put("/patients/:id", patientController.updatePatientById);
 
 module.exports = router;

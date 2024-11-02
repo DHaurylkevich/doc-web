@@ -29,7 +29,7 @@ describe("DoctorController API", () => {
         await db.Services.destroy({ where: {} });
     });
 
-    describe("POST /api/doctor", () => {
+    describe("POST /api/doctors", () => {
         let fakeClinic, fakeUser;
         beforeEach(async () => {
             fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date" };
@@ -68,7 +68,7 @@ describe("DoctorController API", () => {
             expect(doctorInDb.services[0].id).to.deep.equals(1);
         });
     });
-    describe("GET /api/doctor/:id/short", () => {
+    describe("GET /api/doctors/:id/short", () => {
         it("should return a doctor by id when it exists", async () => {
             const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
             fakeDoctor.specialty_id = specialtiesInDb.id
@@ -93,11 +93,20 @@ describe("DoctorController API", () => {
                 .expect(404);
         });
     });
-    describe("GET /api/doctor/:id", () => {
+    describe("GET /api/doctors/:id", () => {
+        beforeEach(async () => {
+            fakeUser = {
+                first_name: faker.person.firstName(), last_name: faker.person.lastName(),
+                email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }),
+                pesel: 12345678, password: "Test@1234", gender: "male",
+                role: "patient", birthday: faker.date.past(30)
+            };
+        });
         it("should return a doctor by id when it exists", async () => {
             const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
+            const user = await db.Users.create(fakeUser);
             fakeDoctor.specialty_id = specialtiesInDb.id
-            const createdDoctor = await db.Doctors.create(fakeDoctor);
+            const createdDoctor = await user.createDoctor(fakeDoctor);
 
             const response = await request(app)
                 .get(`/api/doctors/${createdDoctor.id}`)
@@ -128,7 +137,7 @@ describe("DoctorController API", () => {
             const createdDoctor = await user.createDoctor(fakeDoctor);
 
             const response = await request(app)
-                .get(`/api/doctors/clinics/${clinic.id}?gender=male&order=asc`)
+                .get(`/api/clinics/${clinic.id}/doctors/?gender=male&order=asc`)
                 .expect(200);
 
             expect(response.body[0]).to.have.property("id", createdDoctor.id);
@@ -138,19 +147,13 @@ describe("DoctorController API", () => {
         });
     });
     describe("PUT /api/doctors/:id", () => {
-        let fakeUser, fakeDoctor;
+        let fakeUser;
         beforeEach(async () => {
             fakeUser = {
                 first_name: faker.person.firstName(), last_name: faker.person.lastName(),
                 email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }),
                 pesel: 12345678, password: "Test@1234",
                 role: "patient", birthday: faker.date.past(30)
-            };
-            fakeDoctor = {
-                rating: faker.number.float({ min: 1, max: 5 }),
-                hired_at: faker.date.past(),
-                description: faker.lorem.paragraph(),
-                specialty_id: 1
             };
         })
         it("expect to update doctor, when data valid and it exists", async () => {
@@ -171,10 +174,10 @@ describe("DoctorController API", () => {
             const doctorInDb = await db.Doctors.findByPk(1, {
                 include: [
                     {
-                        model: db.Specialties, as: 'specialty'
+                        model: db.Specialties, as: "specialty"
                     },
                     {
-                        model: db.Services, as: 'services'
+                        model: db.Services, as: "services"
                     }]
             });
             expect(doctorInDb.first_name).to.equal(fakeUser.name);

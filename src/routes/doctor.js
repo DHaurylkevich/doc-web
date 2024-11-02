@@ -36,16 +36,16 @@ const doctorController = require("../controllers/doctorController");
  *        404:
  *          description: Пользователь не найден
  */
-router.post("/", doctorController.createDoctor);
+router.post("/doctors/", doctorController.createDoctor);
 
 // router.get("/doctors", doctorController);
 
-router.get("/:id/short", doctorController.getShortDoctorById);
+router.get("/doctors/:id/short", doctorController.getShortDoctorById);
 
-router.get("/:id", doctorController.getDoctorById);
+router.get("/doctors/:id", doctorController.getDoctorById);
 
-router.put("/:id", doctorController.updateDoctorById);
+router.put("/doctors/:id", doctorController.updateDoctorById);
 
-router.get('/clinics/:clinicId/', doctorController.getDoctorsByClinicWithSorting);
+router.get("/clinics/:clinicId/doctors", doctorController.getDoctorsByClinicWithSorting);
 
 module.exports = router;

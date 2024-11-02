@@ -16,7 +16,7 @@ const SpecialtyController = {
 
         try {
             const specialty = await SpecialtyService.getSpecialtyById(id);
-            res.status(200).json(specialty)
+            res.status(200).json(specialty);
         } catch (err) {
             next(err);
         }
@@ -24,7 +24,18 @@ const SpecialtyController = {
     getAllSpecialties: async (req, res, next) => {
         try {
             const specialties = await SpecialtyService.getAllSpecialties();
-            res.status(200).json(specialties)
+            res.status(200).json(specialties);
+        } catch (err) {
+            console.log(err)
+            next(err);
+        }
+    },
+    getAllSpecialtiesByClinic: async (req, res, next) => {
+        const { clinicId } = req.params;
+
+        try {
+            const specialties = await SpecialtyService.getAllSpecialtiesByClinic(clinicId);
+            res.status(200).json(specialties);
         } catch (err) {
             console.log(err)
             next(err);
