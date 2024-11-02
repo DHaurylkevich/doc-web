@@ -49,8 +49,8 @@ const ScheduleController = {
 
     getScheduleByDoctor: async (req, res) => {
         try {
-            const { doctor_id } = req.params;
-            const schedules = await ScheduleService.getScheduleByDoctor(doctor_id);
+            const { doctorId } = req.params;
+            const schedules = await ScheduleService.getScheduleByDoctor(doctorId);
             return res.status(200).json(schedules);
         } catch (error) {
             console.error("Error in getScheduleByDoctor controller:", error);
@@ -60,8 +60,8 @@ const ScheduleController = {
 
     getScheduleByClinic: async (req, res) => {
         try {
-            const { clinic_id } = req.params;
-            const schedules = await ScheduleService.getScheduleByClinic(clinic_id);
+            const { clinicId } = req.params;
+            const schedules = await ScheduleService.getScheduleByClinic(clinicId);
             return res.status(200).json(schedules);
         } catch (error) {
             console.error("Error in getScheduleByClinic controller:", error);

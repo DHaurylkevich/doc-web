@@ -5,9 +5,8 @@ const swaggerDocs = require("./src/utils/swagger");
 const app = express();
 
 require("./src/config/db");
-// const db = require("./src/models");
-// require("dotenv").config();
-// db.sequelize.sync({ force: true });
+const db = require("./src/models");
+require("dotenv").config();
 
 app.use(express.json());
 app.use(morgan("dev"));

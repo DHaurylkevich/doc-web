@@ -108,7 +108,7 @@ const ScheduleService = {
                 where: { clinic_id: clinic_id },
                 include: [db.Doctors],
             });
-
+            
             return schedule;
         } catch (err) {
             throw err;

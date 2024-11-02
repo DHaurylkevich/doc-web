@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const scheduleController = require('../controllers/scheduleController');
+const scheduleController = require("../controllers/scheduleController");
 
 /**
  * @swagger
@@ -40,7 +40,7 @@ const scheduleController = require('../controllers/scheduleController');
  *       400:
  *         description: Ошибка создания расписания.
  */
-router.post('/schedules', scheduleController.createSchedule);
+router.post("/schedules", scheduleController.createSchedule);
 
 /**
  * @swagger
@@ -62,7 +62,7 @@ router.post('/schedules', scheduleController.createSchedule);
  *       404:
  *         description: Расписание не найдено.
  */
-router.get('/schedules/:id', scheduleController.getScheduleById);
+router.get("/schedules/:id", scheduleController.getScheduleById);
 
 /**
  * @swagger
@@ -105,7 +105,7 @@ router.get('/schedules/:id', scheduleController.getScheduleById);
  *       400:
  *         description: Ошибка обновления расписания.
  */
-router.put('/schedules/:id', scheduleController.updateSchedule);
+router.put("/schedules/:id", scheduleController.updateSchedule);
 
 /**
  * @swagger
@@ -129,7 +129,7 @@ router.put('/schedules/:id', scheduleController.updateSchedule);
  *       400:
  *         description: Ошибка удаления расписания.
  */
-router.delete('/schedules/:id', scheduleController.deleteSchedule);
+router.delete("/schedules/:id", scheduleController.deleteSchedule);
 
 /**
  * @swagger
@@ -151,7 +151,7 @@ router.delete('/schedules/:id', scheduleController.deleteSchedule);
  *       400:
  *         description: Ошибка при получении расписания.
  */
-router.get('/schedules/doctor/:doctor_id', scheduleController.getScheduleByDoctor);
+router.get("/doctors/:doctorId/schedules", scheduleController.getScheduleByDoctor);
 
 /**
  * @swagger
@@ -173,6 +173,6 @@ router.get('/schedules/doctor/:doctor_id', scheduleController.getScheduleByDocto
  *       400:
  *         description: Ошибка при получении расписания.
  */
-router.get('/schedules/clinic/:clinic_id', scheduleController.getScheduleByClinic);
+router.get("/clinics/:clinicId/schedules", scheduleController.getScheduleByClinic);
 
 module.exports = router;
