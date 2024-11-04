@@ -1,0 +1,31 @@
+'use strict';
+const { Model } = require('sequelize');
+
+module.exports = (sequelize, DataTypes) => {
+    class Tags extends Model {
+        static associate(models) {
+            Tags.belongsToMany(models.Reviews, {
+                through: 'ReviewTags',
+                foreignKey: 'tag_id',
+                otherKey: 'review_id',
+                as: 'reviews',
+            });
+        }
+    }
+    Tags.init({
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true,
+        },
+        positive: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+        }
+    }, {
+        sequelize,
+        modelName: 'Tags',
+        timestamps: false,
+    });
+    return Tags;
+};

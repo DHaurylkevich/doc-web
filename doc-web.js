@@ -5,8 +5,11 @@ const swaggerDocs = require("./src/utils/swagger");
 const app = express();
 
 require("./src/config/db");
-const db = require("./src/models");
+
 require("dotenv").config();
+// const db = require("./src/models");
+// process.env.NODE_ENV = 'test';
+// db.sequelize.sync({ force: true });
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -32,4 +35,3 @@ app.listen(port, () => {
 });
 
 module.exports = app;
-

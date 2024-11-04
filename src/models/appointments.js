@@ -3,9 +3,6 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Appointments extends Model {
     static associate(models) {
-      Appointments.belongsTo(models.Doctors, {
-        foreignKey: "doctor_id"
-      });
       Appointments.belongsTo(models.Patients, {
         foreignKey: "patient_id"
       });
@@ -15,30 +12,31 @@ module.exports = (sequelize, DataTypes) => {
       Appointments.belongsTo(models.Schedules, {
         foreignKey: "schedule_id"
       });
-      // Appointments.belongsTo(models.SpecialtyService, {
-      //   foreignKey: "offer_id"
-      // });
+      Appointments.belongsTo(models.DoctorService, {
+        foreignKey: 'doctor_service_id',
+        as: 'doctorService'
+      });
     }
   }
   Appointments.init({
-    time: {
+    timeSlot: {
       type: DataTypes.TIME,
-      allowNull: true
+      allowNull: false
     },
     description: {
       type: DataTypes.STRING,
       allowNull: true
     },
     first_visit: {
-      type: DataTypes.ENUM('prywatna', 'NFZ'),
+      type: DataTypes.BOOLEAN,
       allowNull: true
     },
     visit_type: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM('prywatna', 'NFZ'),
       allowNull: true
     },
     status: {
-      type: DataTypes.ENUM('scheduled', 'completed', 'canceled'),
+      type: DataTypes.ENUM('active', 'canceled', 'completed'),
       allowNull: true
     },
   }, {

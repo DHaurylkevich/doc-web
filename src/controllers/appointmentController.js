@@ -1,13 +1,14 @@
-const SpecialtyService = require("../services/specialtyService");
+const AppointmentService = require("../services/appointmentService");
 
-const SpecialtyController = {
-    createSpecialty: async (req, res, next) => {
-        const { specialtyData } = req.body;
+const AppointmentController = {
+    createAppointment: async (req, res, next) => {
+        const { doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description } = req.body;
 
         try {
-            const specialty = await SpecialtyService.createSpecialty(specialtyData);
+            const specialty = await AppointmentService.createAppointment(doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description);
             res.status(201).json(specialty);
         } catch (err) {
+            console.log(err);
             next(err);
         }
     },
@@ -21,21 +22,34 @@ const SpecialtyController = {
             next(err);
         }
     },
-    getAllSpecialties: async (req, res, next) => {
+    getAvailableSlotsWithFilter: async (req, res, next) => {
+        const { city, specialty, date, visitType, limit = 10, offset = 0 } = req.query;
+
         try {
-            const specialties = await SpecialtyService.getAllSpecialties();
+            const specialties = await AppointmentService.getAvailableSlotsWithFilter({ city, specialty, date, visitType, limit, offset });
             res.status(200).json(specialties);
         } catch (err) {
             console.log(err)
             next(err);
         }
     },
-    getAllSpecialtiesByClinic: async (req, res, next) => {
-        const { clinicId } = req.params;
+    getAllAppointmentsByDoctor: async (req, res, next) => {
+        const { doctorId } = req.params;
 
         try {
-            const specialties = await SpecialtyService.getAllSpecialtiesByClinic(clinicId);
-            res.status(200).json(specialties);
+            const appointments = await AppointmentService.getAllAppointmentsByDoctor(doctorId);
+            res.status(200).json(appointments);
+        } catch (err) {
+            console.log(err)
+            next(err);
+        }
+    },
+    getAllAppointmentsByPatient: async (req, res, next) => {
+        const { patientId } = req.params;
+
+        try {
+            const appointments = await AppointmentService.getAllAppointmentsByPatient(patientId);
+            res.status(200).json(appointments);
         } catch (err) {
             console.log(err)
             next(err);
@@ -52,11 +66,11 @@ const SpecialtyController = {
             next(err);
         }
     },
-    deleteSpecialty: async (req, res, next) => {
+    deleteAppointment: async (req, res, next) => {
         const { id } = req.params;
 
         try {
-            await SpecialtyService.deleteSpecialty(id);
+            await AppointmentService.deleteAppointment(id);
             res.status(200).json({ message: "Successful delete" });
         } catch (err) {
             next(err);
@@ -64,4 +78,4 @@ const SpecialtyController = {
     },
 };
 
-module.exports = SpecialtyController;
+module.exports = AppointmentController;

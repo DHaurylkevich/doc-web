@@ -10,6 +10,8 @@
 - Sequelize
 - bcrypt
 - JWT
+- cloudinary
+- multer
 
 - dotenv
 - morgan

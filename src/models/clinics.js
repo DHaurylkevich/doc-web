@@ -6,26 +6,27 @@ module.exports = (sequelize, DataTypes) => {
       Clinics.hasOne(models.Addresses, {
         foreignKey: 'clinic_id',
         onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
+        onUpdate: 'CASCADE',
+        as: 'address'
       });
       Clinics.hasMany(models.Doctors, {
         foreignKey: 'clinic_id',
         onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
+        onUpdate: 'CASCADE',
+        as: 'doctors'
       });
       Clinics.hasMany(models.Schedules, {
         foreignKey: "clinic_id",
+        as: 'schedules'
       });
-      Clinics.hasMany(models.Services,{
+      Clinics.hasMany(models.Services, {
         foreignKey: "clinic_id",
         as: 'services',
       });
       Clinics.hasMany(models.Appointments, {
-        foreignKey: "clinic_id"
+        foreignKey: "clinic_id",
+        as: 'appointments'
       });
-      // Clinics.hasMany(models.Reviews, {
-      //   foreignKey: "review_id",
-      // });
     }
   }
   Clinics.init({

@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Doctors.belongsTo(models.Clinics, {
         foreignKey: 'clinic_id',
+        // as: 'clinic'
       });
       Doctors.belongsTo(models.Specialties, {
         foreignKey: 'specialty_id',
@@ -23,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "doctor_id",
         onDelete: 'CASCADE',
       });
+      Doctors.hasMany(models.Reviews, {
+        foreignKey: "doctor_id",
+        as: "reviews"
+      })
     }
   }
   Doctors.init({

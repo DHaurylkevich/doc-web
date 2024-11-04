@@ -40,7 +40,7 @@ const ServiceService = {
         try {
             let service = await db.Services.findByPk(id);
             if (!service) {
-                throw new Error("Schedule not found");
+                throw new Error("Specialty not found");
             }
 
             service = await service.update(data);
@@ -54,7 +54,7 @@ const ServiceService = {
         try {
             let service = await db.Services.findByPk(id);
             if (!service) {
-                throw new Error("Schedule not found");
+                throw new Error("Specialty not found");
             }
 
             await service.destroy();

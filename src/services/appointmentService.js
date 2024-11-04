@@ -1,30 +1,25 @@
 const db = require("../models");
-const DoctorService = require("../services/doctorService");
 const ClinicService = require("../services/clinicService");
 const UserService = require("../services/userService");
-const ScheduleService = require("../services/scheduleService");
 
 const AppointmentService = {
-    createAppointment: async (appointmentData) => {
-        const { doctor_id, user_id, clinic_id, schedule_id, time, description, first_visit, visit_type, status } = appointmentData;
+    createAppointment: async (doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description) => {
+        const schedule = await db.Schedules.findOne({
+            where: { doctor_id: doctorId, date: date },
+        });
+        if (!schedule) {
+            throw new Error("This Schedule doesn't exist");
+        }
 
-        await DoctorService.getDoctorById(doctor_id);
-        await ClinicService.getClinicById(clinic_id);
-        const user = await UserService.getUserById(user_id);
-        const patient = user.getPatients();
+        await ClinicService.getClinicById(clinicId);
+        const user = await UserService.getUserById(userId);
+        const patient = user.getPatient();
         if (!patient) {
             throw new Error("Patient not found");
         }
 
-        const schedule = await ScheduleService.getScheduleById(schedule_id);
-
-        const slots = AppointmentService.getAvailableSlots(schedule);
-        if (!slots.includes(time)) {
-            throw new Error("Invalid or unavailable time slot");
-        }
-
         const existingAppointment = await db.Appointments.findOne({
-            where: { time, clinic_id, doctor_id, patients_id: patient.id, schedule_id },
+            where: { schedule_id: schedule.id, timeSlot: timeSlot },
         });
         if (existingAppointment) {
             throw new Error("Appointment already exists");
@@ -32,15 +27,15 @@ const AppointmentService = {
 
         try {
             const newAppointment = await db.Appointments.create({
-                doctor_id,
-                clinic_id,
-                schedule_id,
+                clinic_id: clinicId,
+                schedule_id: schedule.id,
                 patients_id: patient.id,
-                time,
-                description,
-                first_visit,
-                visit_type,
-                status
+                doctor_service_id: doctorServiceId,
+                timeSlot: timeSlot,
+                description: description,
+                first_visit: firstVisit,
+                visit_type: visitType,
+                status: status
             });
             return newAppointment;
         } catch (err) {
@@ -79,7 +74,6 @@ const AppointmentService = {
             throw err;
         }
     },
-
     deleteAppointment: async (id) => {
         try {
             const appointment = await db.Appointments.findByPk(id);
@@ -93,6 +87,121 @@ const AppointmentService = {
             throw err;
         }
     },
+    getAllAppointmentsByDoctor: async (doctorId) => {
+        try {
+            const appointments = await db.Appointments.findAll({
+                include: [
+                    {
+                        model: db.DoctorService, as: "doctorService",
+                        where: { doctor_id: doctorId },
+                    }
+                ]
+            });
+            if (!appointments) {
+                throw new Error("Appointments not found");
+            }
+
+            return appointments;
+        } catch (err) {
+            throw err;
+        }
+    },
+    getAllAppointmentsByPatient: async (patientId) => {
+        try {
+            const appointments = await db.Appointments.findAll({
+                where: { patient_id: patientId },
+                include: [
+                    {
+                        model: db.DoctorService, as: "doctorService",
+                    }
+                ]
+            });
+            if (!appointments) {
+                throw new Error("Appointments not found");
+            }
+
+            return appointments;
+        } catch (err) {
+            throw err;
+        }
+    },
+    getAvailableSlotsWithFilter: async (filters) => {
+        try {
+            const doctors = await db.Doctors.findAll({
+                attributes: ["id", "description", "rating"],
+                limit: parseInt(filters.limit),
+                offset: parseInt(filters.offset),
+                include: [
+                    {
+                        model: db.Clinics,
+                        // as: 'clinic',
+                        // attributes: [],
+                        include: [
+                            {
+                                model: db.Addresses,
+                                as: "address",
+                                where: { city: filters.city },
+                                attributes: ["city", "street", "home", "flat", "post_index"],
+                            }
+                        ]
+                    },
+                    {
+                        model: db.Specialties,
+                        as: "specialty",
+                        where: { name: filters.specialty },
+                        attributes: ["name"],
+                    },
+                    {
+                        model: db.Schedules,
+                        where: { date: filters.date },
+                        attributes: ["id", "date", "interval", "end_time", "start_time"],
+                        include: [
+                            {
+                                model: db.Appointments,
+                                attributes: ["timeSlot"]
+                                // include: [
+                                //     {
+                                //         model: db.DoctorService,
+                                //         as: "doctorService",
+                                //         include: [
+                                //             {
+                                //                 model: db.Services,
+                                //                 as: "service",
+                                //                 attributes: ["name", "price"]
+                                //             }
+                                //         ]
+                                //     }
+                                // ]
+                            }
+                        ]
+                    },
+                ]
+            });
+            if (!doctors.length) {
+                return [];
+            }
+
+            return doctors.map(doctor => {
+                const availableSlots = doctor.Schedules.map(schedule => {
+                    const occupiedSlots = schedule.Appointments.map(app => app.timeSlot.slice(0, -3));
+                    const slots = AppointmentService.getAvailableSlots(schedule);
+                    const freeSlots = slots.filter(slot => !occupiedSlots.includes(slot));
+                    return {
+                        doctor_id: doctor.id,
+                        description: doctor.description,
+                        rating: doctor.rating,
+                        specialty: doctor.specialty.name,
+                        address: doctor.Clinic.address,
+                        date: schedule.date,
+                        slots: freeSlots
+                    };
+                });
+                return availableSlots;
+            }).flat();
+        } catch (err) {
+            throw err;
+        }
+    },
     /**
      * Получение всех слотов
      * @param {*} schedule 
@@ -101,8 +210,8 @@ const AppointmentService = {
     getAvailableSlots: (schedule) => {
         const { start_time, end_time, interval } = schedule;
 
-        const start = AppointmentService.timeToMinutes(start_time);
-        const end = AppointmentService.timeToMinutes(end_time);
+        const start = AppointmentService.timeToMinutes(start_time.slice(0, -3));
+        const end = AppointmentService.timeToMinutes(end_time.slice(0, -3));
         const slots = [];
 
         for (let time = start; time < end; time += interval) {
