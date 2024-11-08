@@ -2,7 +2,6 @@
     "version": 2,
     "builds": [
         {
-            "src": "doc-web.js",
             "use": "@vercel/node"
         }
     ],
