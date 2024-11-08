@@ -35,4 +35,4 @@ app.listen(port, () => {
     console.log(`The documentation is available at: ${link}:${port}/api-docs`);
 });
 
-// module.exports = app;
+module.exports = app;
