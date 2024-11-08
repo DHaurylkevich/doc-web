@@ -38,7 +38,6 @@ module.exports = (sequelize, DataTypes) => {
     first_name: {
       type: DataTypes.STRING(255),
       allowNull: true,
-      defaultValue: null
     },
     last_name: {
       type: DataTypes.STRING(255),
