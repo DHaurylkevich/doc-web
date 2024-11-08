@@ -17,12 +17,8 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
-const swaggerSetupOptions = {
-    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css',
-};
-
 module.exports = (app) => {
-    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs, swaggerSetupOptions));
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
     // Явное указание маршрутов для статики Swagger UI
     app.get('/swagger-ui-bundle.js', (req, res) => {
