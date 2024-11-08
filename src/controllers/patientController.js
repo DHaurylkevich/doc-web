@@ -9,10 +9,10 @@ const PatientController = {
      * @param {*} next 
      */
     registrationPatient: async (req, res, next) => {
-        const { userData, patientData, addressData } = req.body;
+        const { userData, patientData } = req.body;
 
         try {
-            const userToken = await PatientService.createPatient(userData, patientData, addressData);
+            const userToken = await PatientService.createPatient(userData, patientData);
             res.status(201).json(userToken);
         } catch (err) {
             next(err);

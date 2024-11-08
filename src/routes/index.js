@@ -35,7 +35,7 @@ router.use("/api", notionRouter);
 // router.get("/auth/check", checkAuth);
 // router.get("/auth/refresh", refreshTokenAdmin);
 
-router.get("/", (req, res) => {
+router.get("/api", (req, res) => {
     res.send("API");
 })
 

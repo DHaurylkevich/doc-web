@@ -37,15 +37,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     first_name: {
       type: DataTypes.STRING(255),
-      allowNull: false
+      allowNull: true,
+      defaultValue: null
     },
     last_name: {
       type: DataTypes.STRING(255),
-      allowNull: false
+      allowNull: true
     },
     email: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
       unique: "email"
     },
     gender: {
@@ -54,12 +55,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     pesel: {
       type: DataTypes.STRING(11),
-      allowNull: false,
+      allowNull: true,
       unique: "pesel"
     },
     phone: {
       type: DataTypes.STRING(20),
-      allowNull: true
+      allowNull: true,
+      unique: "phone"
     },
     password: {
       type: DataTypes.STRING(255),
@@ -72,7 +74,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     birthday: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     }
   }, {
     sequelize,

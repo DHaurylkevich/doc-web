@@ -4,6 +4,7 @@ const db = require("../models");
 const UserService = require("../services/userService");
 const AddressService = require("../services/addressService");
 const authMiddleware = require("../middleware/auth");
+const { Op } = require("sequelize");
 
 const PatientService = {
     /**
@@ -13,28 +14,46 @@ const PatientService = {
      * @param {Object} addressData 
      * @returns {String} token
      */
-    createPatient: async (userData, patientData, addressData) => {
+    createPatient: async (userData, patientData) => {
         const t = await sequelize.transaction();
-        userData.role = "patient"
         try {
-            const foundUser = await db.Users.findOne({ where: { pesel: userData.pesel } });
+            const filter = {};
+            if (userData.pesel) {
+                filter.pesel = userData.pesel;
+            } else if (userData.phone) {
+                filter.phone = userData.phone;
+            } else if (userData.email) {
+                filter.email = userData.email;
+            } else {
+                throw new Error("Необходимо указать хотя бы один идентификатор: pesel, phone или email.");
+            }
+
+            const foundUser = await db.Users.findOne({
+                where: filter,
+                transaction: t
+            });
             if (foundUser) {
                 throw new Error("User already exist");
             }
-            const createdUser = await db.Users.create(
-                {
-                    ...userData,
-                    address: addressData
-                },
-                {
-                    include: [{ model: db.Addresses, as: 'address' }],
-                    transaction: t
-                }
-            );
+            const createdUser = await db.Users.create({
+                ...filter,
+                password: userData.password,
+                role: "patient",
+            });
+            // const createdUser = await db.Users.create(
+            //     {
+            //         ...userData,
+            //         address: addressData
+            //     },
+            //     {
+            //         include: [{ model: db.Addresses, as: 'address' }],
+            //         transaction: t
+            //     }
+            // );
 
-            const createdPatient = await createdUser.createPatient(patientData, { transaction: t });
+            await createdUser.createPatient(patientData, { transaction: t });
 
-            await createdPatient.createAddress(addressData, { transaction: t });
+            // await createdPatient.createAddress(addressData, { transaction: t });
 
             await t.commit();
             return authMiddleware.createJWT(createdUser.id, createdUser.role);

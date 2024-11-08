@@ -7,7 +7,8 @@ const app = express();
 require("./src/config/db");
 
 require("dotenv").config();
-// const db = require("./src/models");
+const db = require("./src/models");
+
 // process.env.NODE_ENV = 'test';
 // db.sequelize.sync({ force: true });
 

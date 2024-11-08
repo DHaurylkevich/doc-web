@@ -1,13 +1,14 @@
 const { Sequelize } = require("sequelize");
 require("dotenv").config();
-const env = process.env.NODE_ENV || "development";
+const env = process.env;
+const NODE_ENV = process.env.NODE_ENV || "development";
 // const config = require("./sequelize.config.json")[env];
 const config = {
-    url: process.env.DATABASE_URL || null,
-    username: process.env.DB_USER || "root",
-    password: process.env.DB_PASS || null,
-    database: process.env.DB_NAME || "mylekarz",
-    host: process.env.DB_HOST || "localhost",
+    url: env.DATABASE_URL || null,
+    username: env.DB_USER || "root",
+    password: env.DB_PASS || null,
+    database: env.DB_NAME || "mylekarz",
+    host: env.DB_HOST || "localhost",
     dialect: "mysql",
 };
 
@@ -29,6 +30,12 @@ if (config.url) {
     try {
         await sequelize.authenticate()
         console.log("Database connected");
+
+        if (env.DB_SYNC === "true") {
+            console.log("Добавление/Обноаление данных...");
+            await sequelize.sync();
+            console.log("Начальные данные добавлены/обновлены");
+        }
     } catch (err) {
         console.error("Error database connect:", err);
     }

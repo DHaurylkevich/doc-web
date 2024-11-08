@@ -27,18 +27,15 @@ const patientController = require("../controllers/patientController");
  *                   phone:
  *                     type: string
  *                     example: "+123456789"
- *               patientData:
- *                 type: object
- *                 properties:
  *                   gender:
  *                     type: string
  *                     example: "male"
- *               addressData:
+ *               patientData:
  *                 type: object
  *                 properties:
- *                   city:
- *                     type: string
- *                     example: "New York"
+ *                   market_inf:
+ *                     type: boolean
+ *                     example: false
  *     responses:
  *       201:
  *         description: Пациент успешно зарегистрирован
