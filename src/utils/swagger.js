@@ -17,8 +17,12 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
+const swaggerSetupOptions = {
+    customCss: '.swagger-ui .topbar { display: none }',
+};
+
 module.exports = (app) => {
-    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs, swaggerSetupOptions));
 
     // Явное указание маршрутов для статики Swagger UI
     app.get('/swagger-ui-bundle.js', (req, res) => {
