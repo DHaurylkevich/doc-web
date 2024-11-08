@@ -28,10 +28,11 @@ app.use((req, res, next) => {
 
 app.use(errorHandler);
 
-const link = process.env.LINK || "http://localhost";
 const port = process.env.PORT || 5000;
+const link = process.env.LINK || "http://localhost";
 app.listen(port, () => {
-    console.log(`The server start at: ${link}:${port}`);
+    console.log(`The server start at: ${link}:${port}`)
+    console.log(`The documentation is available at: ${link}:${port}/api-docs`);
 });
 
 module.exports = app;
