@@ -3,16 +3,17 @@ require("dotenv").config();
 const env = process.env.NODE_ENV || "development";
 // const config = require("./sequelize.config.json")[env];
 const config = {
+    url: process.env.DATABASE_URL || null,
     username: process.env.DB_USER || "root",
     password: process.env.DB_PASS || null,
     database: process.env.DB_NAME || "mylekarz",
     host: process.env.DB_HOST || "localhost",
-    dialect: "mysql"
+    dialect: "mysql",
 };
 
 let sequelize
-if (config.use_env_variable) {
-    sequelize = new Sequelize(process.env[config.use_env_variable], config);
+if (config.url) {
+    sequelize = new Sequelize(config.url, config);
 } else {
     sequelize = new Sequelize(config.database, config.username, config.password, {
         ...config,
