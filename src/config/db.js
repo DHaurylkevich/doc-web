@@ -9,7 +9,7 @@ const config = {
     password: env.DB_PASS || null,
     database: env.DB_NAME || "mylekarz",
     host: env.DB_HOST || "localhost",
-    dialect: "mysql2",
+    dialect: "mysql",
 };
 
 let sequelize
