@@ -13,10 +13,10 @@ const ServiceController = {
         }
     },
     getService: async (req, res, next) => {
-        const { id } = req.params;
+        const { serviceId } = req.params;
 
         try {
-            const service = await ServiceService.getServiceById(id);
+            const service = await ServiceService.getServiceById(serviceId);
             res.status(200).json(service)
         } catch (err) {
             next(err);
@@ -31,11 +31,11 @@ const ServiceController = {
         }
     },
     updateService: async (req, res, next) => {
-        const { id } = req.params;
+        const { serviceId } = req.params;
         const { serviceData } = req.body;
 
         try {
-            const updateService = await ServiceService.updateSpecialty(id, serviceData);
+            const updateService = await ServiceService.updateService(serviceId, serviceData);
 
             res.status(200).json(updateService);
         } catch (err) {
@@ -43,10 +43,10 @@ const ServiceController = {
         }
     },
     deleteService: async (req, res, next) => {
-        const { id } = req.params;
+        const { serviceId } = req.params;
 
         try {
-            await ServiceService.deleteService(id);
+            await ServiceService.deleteService(serviceId);
             res.status(200).json({ message: "Successful delete" });
         } catch (err) {
             next(err);

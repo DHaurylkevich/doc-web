@@ -24,9 +24,9 @@ const ServiceService = {
             throw err;
         }
     },
-    getServiceById: async (id) => {
+    getServiceById: async (serviceId) => {
         try {
-            const service = await db.Services.findByPk(id);
+            const service = await db.Services.findByPk(serviceId);
             if (!service) {
                 throw new Error("Specialty not found");
             }
@@ -36,9 +36,9 @@ const ServiceService = {
             throw err;
         }
     },
-    updateSpecialty: async (id, data) => {
+    updateService: async (serviceId, data) => {
         try {
-            let service = await db.Services.findByPk(id);
+            let service = await db.Services.findByPk(serviceId);
             if (!service) {
                 throw new Error("Specialty not found");
             }
@@ -50,9 +50,9 @@ const ServiceService = {
             throw err;
         }
     },
-    deleteService: async (id) => {
+    deleteService: async (serviceId) => {
         try {
-            let service = await db.Services.findByPk(id);
+            let service = await db.Services.findByPk(serviceId);
             if (!service) {
                 throw new Error("Specialty not found");
             }

@@ -12,25 +12,25 @@ const ReviewController = {
             next(err);
         }
     },
-    getSpecialty: async (req, res, next) => {
-        const { id } = req.params;
+    // getSpecialty: async (req, res, next) => {
+    //     const { id } = req.params;
 
-        try {
-            const specialty = await ReviewService.getSpecialtyById(id);
-            res.status(200).json(specialty);
-        } catch (err) {
-            next(err);
-        }
-    },
-    getAllSpecialties: async (req, res, next) => {
-        try {
-            const specialties = await ReviewService.getAllSpecialties();
-            res.status(200).json(specialties);
-        } catch (err) {
-            console.log(err)
-            next(err);
-        }
-    },
+    //     try {
+    //         const specialty = await ReviewService.getSpecialtyById(id);
+    //         res.status(200).json(specialty);
+    //     } catch (err) {
+    //         next(err);
+    //     }
+    // },
+    // getAllSpecialties: async (req, res, next) => {
+    //     try {
+    //         const specialties = await ReviewService.getAllSpecialties();
+    //         res.status(200).json(specialties);
+    //     } catch (err) {
+    //         console.log(err)
+    //         next(err);
+    //     }
+    // },
     getAllReviewsByClinic: async (req, res, next) => {
         const { clinicId } = req.params;
 
@@ -53,17 +53,17 @@ const ReviewController = {
             next(err);
         }
     },
-    updateSpecialty: async (req, res, next) => {
-        const { id } = req.params;
-        const { specialtyData } = req.body;
+    // updateSpecialty: async (req, res, next) => {
+    //     const { id } = req.params;
+    //     const { specialtyData } = req.body;
 
-        try {
-            const updateSpecialty = await ReviewService.updateSpecialty(id, specialtyData);
-            res.status(200).json(updateSpecialty);
-        } catch (err) {
-            next(err);
-        }
-    },
+    //     try {
+    //         const updateSpecialty = await ReviewService.updateSpecialty(id, specialtyData);
+    //         res.status(200).json(updateSpecialty);
+    //     } catch (err) {
+    //         next(err);
+    //     }
+    // },
     deleteReview: async (req, res, next) => {
         const { reviewId } = req.params;
 

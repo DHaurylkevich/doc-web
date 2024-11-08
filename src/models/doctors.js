@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Doctors.belongsTo(models.Users, {
         foreignKey: 'user_id',
+        as: "user"
       });
       Doctors.belongsTo(models.Clinics, {
         foreignKey: 'clinic_id',
@@ -41,7 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       defaultValue: 0,
     },
-    hired_at: DataTypes.DATE,//может и не нужно
+    hired_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
     description: {
       type: DataTypes.STRING(255),
       allowNull: false,

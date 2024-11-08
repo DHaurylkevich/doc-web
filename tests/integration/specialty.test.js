@@ -21,9 +21,9 @@ describe("SpecialtyController API", () => {
         // token = authMiddleware.createJWT(userId, fakeUser.role);
     });
     afterEach(async () => {
-        await db.Clinics.destroy({ where: {} });
         await db.Specialties.destroy({ where: {} });
         await db.Services.destroy({ where: {} });
+        await db.Clinics.destroy({ where: {} });
     });
 
     describe("POST /api/specialty", () => {
@@ -53,20 +53,19 @@ describe("SpecialtyController API", () => {
         });
     });
     describe("GET /api/clinic/:id/specialties", () => {
-        let fakeClinic;
+        let fakeClinic, createdClinic, specialtiesInDb, specialtyId, servicesInDb;
         beforeEach(async () => {
             fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date" };
+            createdClinic = await db.Clinics.create(fakeClinic);
+            specialtiesInDb = await db.Specialties.create(fakeSpecialty);
+            specialtyId = specialtiesInDb.id;
+            servicesInDb = await db.Services.bulkCreate([{ clinic_id: 1, specialty_id: specialtyId, name: "Cut hand", price: 10.10, }, { clinic_id: 1, specialty_id: specialtyId, name: "Say less you", price: 10.10, }]);
         });
         it("expect specialties, when they exist", async () => {
-            const createdClinic = await db.Clinics.create(fakeClinic);
-            const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
-            const specialtyId = specialtiesInDb.id;
-            const servicesInDb = await db.Services.bulkCreate([{ clinic_id: 1, specialty_id: 1, name: "Cut hand", price: 10.10, }, { clinic_id: 1, specialty_id: 1, name: "Say less you", price: 10.10, }]);
-
             const response = await request(app)
                 .get(`/api/clinic/${createdClinic.id}/specialties`)
                 .expect(200);
-            console.log(response.body);
+
             expect(response.body[0]).to.have.property("id", specialtyId);
             expect(response.body[0].name).to.equal(specialtiesInDb.name);
             expect(response.body[0].services[0].name).to.deep.equal(servicesInDb[0].name);

@@ -57,10 +57,10 @@ describe("UserController API", () => {
             expect(response.body.first_name).to.equal(fakeUser.first_name);
         });
     });
-    describe("PUT /api/user/:id", () => {
+    describe("PUT /api/user/:id/password", () => {
         it("expect to update user password, when data valid and it exists", async () => {
             const response = await request(app)
-                .put(`/api/users/password/${userId}`)
+                .put(`/api/users/${userId}/password`)
                 .send({ oldPassword: "Test@1234", newPassword: "TEST" })
                 .expect(200);
 

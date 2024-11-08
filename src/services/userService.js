@@ -40,9 +40,9 @@ const UserService = {
             throw new Error(err.message)
         }
     },
-    getUserById: async (id) => {
+    getUserById: async (userId) => {
         try {
-            const user = await db.Users.findByPk(id);
+            const user = await db.Users.findByPk(userId);
             if (!user) {
                 throw new Error("User not found");
             }
@@ -119,9 +119,9 @@ const UserService = {
      * @returns {Object}
      * @throws {Error} "User not found", "Error occurred"
      */
-    updateUser: async (id, updatedData, t) => {
+    updateUser: async (userId, updatedData, t) => {
         try {
-            const user = await db.Users.findByPk(id);
+            const user = await db.Users.findByPk(userId);
             if (!user) {
                 throw Error("User not found")
             }
@@ -139,9 +139,9 @@ const UserService = {
      * @param {String} oldPassword 
      * @param {String} newPassword 
      */
-    updatePassword: async (id, oldPassword, newPassword) => {
+    updatePassword: async (userId, oldPassword, newPassword) => {
         try {
-            const user = await db.Users.findByPk(id);
+            const user = await db.Users.findByPk(userId);
             if (!user) {
                 throw Error("User not found")
             }
@@ -161,9 +161,9 @@ const UserService = {
      * @returns {Object} {message: "Successful delete"}
      * @throws {Error}  "User not found", "Error occurred"
      */
-    deleteUser: async (id) => {
+    deleteUser: async (userId) => {
         try {
-            const user = await db.Users.findByPk(id)
+            const user = await db.Users.findByPk(userId)
             if (!user) {
                 throw Error("User not found")
             }

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const userController = require("../controllers/userController");
+const UserController = require("../controllers/userController");
 
 /**
  * @swagger
@@ -52,10 +52,10 @@ const userController = require("../controllers/userController");
  *        404:
  *          description: Пользователь не найден
  */
-router.post("/users/login", userController.loginUser);
+router.post("/users/login", UserController.loginUser);
 /**
  * @swagger
- * /users/{id}:
+ * /users/{userId}:
  *   get:
  *     summary: Возвращает информацию о пользователе по ID 
  *     description: Возвращает данные пользователя, включая его роль, на основе идентификатора
@@ -63,7 +63,7 @@ router.post("/users/login", userController.loginUser);
  *     tags:
  *       - Users
  *     parameters:
- *       - name: id
+ *       - name: userId
  *         in: path
  *         required: true
  *         schema:
@@ -80,17 +80,17 @@ router.post("/users/login", userController.loginUser);
  *       404:
  *         description: Пользователь не найден
  */
-router.get("/users/:id", userController.getUserAccount);
+router.get("/users/:userId", UserController.getUserAccount);
 /**
  * @swagger
- * /users/password/{id}:
+ * /users/{userId}/password:
  *   put:
  *     summary: Обновить пароль пользователя
  *     operationId: updateUserPassword
  *     tags:
  *       - Users
  *     parameters:
- *       - name: id
+ *       - name: userId
  *         in: path
  *         required: true
  *         schema:
@@ -121,17 +121,17 @@ router.get("/users/:id", userController.getUserAccount);
  *       404:
  *         description: Пользователь не найден
  */
-router.put("/users/password/:id", userController.updateUserPassword);
+router.put("/users/:userId/password", UserController.updateUserPassword);
 /**
  * @swagger
- * /users/{id}:
+ * /users/{userId}:
  *   delete:
  *     summary: Удаляет пользователя по ID и связанные с ним элементы
  *     operationId: deleteUser
  *     tags:
  *       - Users
  *     parameters:
- *       - name: id
+ *       - name: userId
  *         in: path
  *         required: true
  *         schema:
@@ -148,9 +148,7 @@ router.put("/users/password/:id", userController.updateUserPassword);
  *                 message:
  *                   type: string
  *                   example: "Successful delete"
- *       404:
- *         description: Пользователь не найден
  */
-router.delete("/users/:id", userController.deleteUser);
+router.delete("/users/:userId", UserController.deleteUser);
 
 module.exports = router;

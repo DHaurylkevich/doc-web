@@ -11,7 +11,20 @@ module.exports = (sequelize, DataTypes) => {
       Users.hasOne(models.Doctors, {
         foreignKey: 'user_id',
         onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
+        onUpdate: 'CASCADE',
+        as: "doctor"
+      });
+      Users.hasMany(models.Notions, {
+        foreignKey: 'user_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        as: "notions"
+      });
+      Users.hasOne(models.Addresses, {
+        foreignKey: 'user_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        as: "address"
       });
     }
   }

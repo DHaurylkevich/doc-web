@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const scheduleController = require("../controllers/scheduleController");
+const ScheduleController = require("../controllers/scheduleController");
 
 /**
  * @swagger
@@ -8,7 +8,8 @@ const scheduleController = require("../controllers/scheduleController");
  *   post:
  *     summary: Создание нового расписания
  *     description: Создает новое расписание для указанного врача и клиники.
- *     tags: [Schedules]
+ *     tags:
+ *       - Schedules
  *     requestBody:
  *       required: true
  *       content:
@@ -40,15 +41,15 @@ const scheduleController = require("../controllers/scheduleController");
  *       400:
  *         description: Ошибка создания расписания.
  */
-router.post("/schedules", scheduleController.createSchedule);
-
+router.post("/schedules", ScheduleController.createSchedule)
 /**
  * @swagger
  * /schedules/{id}:
  *   get:
  *     summary: Получить расписание по ID
  *     description: Возвращает информацию о расписании по его ID.
- *     tags: [Schedules]
+ *     tags:
+ *       - Schedules
  *     parameters:
  *       - in: path
  *         name: id
@@ -62,15 +63,15 @@ router.post("/schedules", scheduleController.createSchedule);
  *       404:
  *         description: Расписание не найдено.
  */
-router.get("/schedules/:id", scheduleController.getScheduleById);
-
+router.get("/schedules/:id", ScheduleController.getScheduleById);
 /**
  * @swagger
  * /schedules/{id}:
  *   put:
  *     summary: Обновить расписание
  *     description: Обновляет существующее расписание по его ID.
- *     tags: [Schedules]
+ *     tags:
+ *       - Schedules
  *     parameters:
  *       - in: path
  *         name: id
@@ -105,15 +106,15 @@ router.get("/schedules/:id", scheduleController.getScheduleById);
  *       400:
  *         description: Ошибка обновления расписания.
  */
-router.put("/schedules/:id", scheduleController.updateSchedule);
-
+router.put("/schedules/:id", ScheduleController.updateSchedule);
 /**
  * @swagger
  * /schedules/{id}:
  *   delete:
  *     summary: Удалить расписание
  *     description: Удаляет существующее расписание по его ID.
- *     tags: [Schedules]
+ *     tags:
+ *       - Schedules
  *     parameters:
  *       - in: path
  *         name: id
@@ -129,15 +130,15 @@ router.put("/schedules/:id", scheduleController.updateSchedule);
  *       400:
  *         description: Ошибка удаления расписания.
  */
-router.delete("/schedules/:id", scheduleController.deleteSchedule);
-
+router.delete("/schedules/:id", ScheduleController.deleteSchedule);
 /**
  * @swagger
  * /schedules/doctor/{doctor_id}:
  *   get:
  *     summary: Получить расписание по ID доктора
  *     description: Возвращает список расписаний для указанного доктора.
- *     tags: [Schedules]
+ *     tags:
+ *       - Schedules
  *     parameters:
  *       - in: path
  *         name: doctor_id
@@ -151,15 +152,15 @@ router.delete("/schedules/:id", scheduleController.deleteSchedule);
  *       400:
  *         description: Ошибка при получении расписания.
  */
-router.get("/doctors/:doctorId/schedules", scheduleController.getScheduleByDoctor);
-
+router.get("/doctors/:doctorId/schedules", ScheduleController.getScheduleByDoctor);
 /**
  * @swagger
  * /schedules/clinic/{clinic_id}:
  *   get:
  *     summary: Получить расписание по ID клиники
  *     description: Возвращает список расписаний для указанной клиники.
- *     tags: [Schedules]
+ *     tags: 
+ *       - Schedules
  *     parameters:
  *       - in: path
  *         name: clinic_id
@@ -173,6 +174,6 @@ router.get("/doctors/:doctorId/schedules", scheduleController.getScheduleByDocto
  *       400:
  *         description: Ошибка при получении расписания.
  */
-router.get("/clinics/:clinicId/schedules", scheduleController.getScheduleByClinic);
+router.get("/clinics/:clinicId/schedules", ScheduleController.getScheduleByClinic);
 
 module.exports = router;

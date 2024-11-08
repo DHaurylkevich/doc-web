@@ -31,10 +31,10 @@ const UserController = {
      * @param {*} next 
      */
     getUserAccount: async (req, res, next) => {
-        const { id } = req.params;
+        const { userId } = req.params;
 
         try {
-            const user = await UserService.getUserById(id);
+            const user = await UserService.getUserById(userId);
             res.status(200).json(user);
         } catch (err) {
             console.error(err);
@@ -49,14 +49,14 @@ const UserController = {
      * @returns status(200), message: "Password changed successfully"  
      */
     updateUserPassword: async (req, res, next) => {
-        const { id } = req.params;
+        const { userId } = req.params;
         const { oldPassword, newPassword } = req.body;
         try {
-            if (!id || !oldPassword || !newPassword) {
+            if (!userId || !oldPassword || !newPassword) {
                 throw new Error("Valid data error");
             }
 
-            await UserService.updatePassword(id, oldPassword, newPassword);
+            await UserService.updatePassword(userId, oldPassword, newPassword);
             res.status(200).json({ message: "Password changed successfully" });
         } catch (err) {
             console.log(err);
@@ -64,9 +64,9 @@ const UserController = {
         }
     },
     deleteUser: async (req, res, next) => {
-        const { id } = req.params;
+        const { userId } = req.params;
         try {
-            await UserService.deleteUser(id);
+            await UserService.deleteUser(userId);
 
             res.status(200).json({ message: "Successful delete" });
         } catch (err) {

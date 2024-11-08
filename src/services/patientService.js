@@ -15,9 +15,22 @@ const PatientService = {
      */
     createPatient: async (userData, patientData, addressData) => {
         const t = await sequelize.transaction();
-
+        userData.role = "patient"
         try {
-            const createdUser = await UserService.createUser(userData, t);
+            const foundUser = await db.Users.findOne({ where: { pesel: userData.pesel } });
+            if (foundUser) {
+                throw new Error("User already exist");
+            }
+            const createdUser = await db.Users.create(
+                {
+                    ...userData,
+                    address: addressData
+                },
+                {
+                    include: [{ model: db.Addresses, as: 'address' }],
+                    transaction: t
+                }
+            );
 
             const createdPatient = await createdUser.createPatient(patientData, { transaction: t });
 
@@ -46,7 +59,12 @@ const PatientService = {
                     {
                         model: db.Patients,
                         attributes: ['id', 'gender'],
-                        include: [{ model: db.Users, attributes: ['id', 'first_name', 'last_name', "photo"] }]
+                        include: [
+                            {
+                                model: db.Users, attributes: ['id', 'first_name', 'last_name', "photo"],
+                                include: [{ model: db.Addresses, as: 'address' }],
+                            }
+                        ]
                     }
                 ]
             });
@@ -61,9 +79,18 @@ const PatientService = {
      * @param {Number} id 
      * @returns {Object} Обьект patient
      */
-    getPatientById: async (id) => {
+    getPatientById: async (userId) => {
         try {
-            const patient = await db.Patients.findByPk(id);
+            const patient = await db.Patients.findOne({
+                include: [
+                    {
+                        model: db.Users,
+                        where: { id: userId },
+                        include: [{ model: db.Addresses, as: 'address' }],
+                    }
+                ]
+            });
+
             if (!patient) {
                 throw new Error("Patient not found");
             }
@@ -80,11 +107,11 @@ const PatientService = {
      * @param {Object} addressData 
      * @returns {Object}
      */
-    updatePatient: async (user_id, userData, patientData, addressData) => {
+    updatePatient: async (userId, userData, patientData, addressData) => {
         const t = await sequelize.transaction();
 
         try {
-            const user = await UserService.updateUser(user_id, userData, t);
+            const user = await UserService.updateUser(userId, userData, t);
 
             const patient = await user.getPatient();
             if (!patient) {

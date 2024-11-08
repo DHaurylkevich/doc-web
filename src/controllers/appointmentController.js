@@ -23,10 +23,10 @@ const AppointmentController = {
         }
     },
     getAvailableSlotsWithFilter: async (req, res, next) => {
-        const { city, specialty, date, visitType, limit = 10, offset = 0 } = req.query;
+        const { city, specialty, date, visitType, limit = 10, page = 1 } = req.query;
 
         try {
-            const specialties = await AppointmentService.getAvailableSlotsWithFilter({ city, specialty, date, visitType, limit, offset });
+            const specialties = await AppointmentService.getAvailableSlotsWithFilter({ city, specialty, date, visitType, limit: parseInt(limit), page: parseInt(page) });
             res.status(200).json(specialties);
         } catch (err) {
             console.log(err)
@@ -35,9 +35,9 @@ const AppointmentController = {
     },
     getAllAppointmentsByDoctor: async (req, res, next) => {
         const { doctorId } = req.params;
-
+        const { limit = 10, offset = 0 } = req.query;
         try {
-            const appointments = await AppointmentService.getAllAppointmentsByDoctor(doctorId);
+            const appointments = await AppointmentService.getAllAppointmentsByDoctor(doctorId, parseInt(limit), parseInt(offset));
             res.status(200).json(appointments);
         } catch (err) {
             console.log(err)
@@ -46,9 +46,10 @@ const AppointmentController = {
     },
     getAllAppointmentsByPatient: async (req, res, next) => {
         const { patientId } = req.params;
+        const { limit = 10, offset = 0 } = req.query;
 
         try {
-            const appointments = await AppointmentService.getAllAppointmentsByPatient(patientId);
+            const appointments = await AppointmentService.getAllAppointmentsByPatient(patientId, parseInt(limit), parseInt(offset));
             res.status(200).json(appointments);
         } catch (err) {
             console.log(err)

@@ -58,79 +58,13 @@ const AppointmentService = {
             throw err;
         }
     },
-
-    updateAppointment: async (id, data) => {
-        try {
-            let appointment = await db.Appointments.findByPk(id);
-
-            if (!appointment) {
-                throw new Error("Appointment not found");
-            }
-
-            appointment = await appointment.update(data);
-
-            return appointment;
-        } catch (err) {
-            throw err;
-        }
-    },
-    deleteAppointment: async (id) => {
-        try {
-            const appointment = await db.Appointments.findByPk(id);
-
-            if (!appointment) {
-                throw new Error("Appointment not found");
-            }
-
-            await appointment.destroy();
-        } catch (err) {
-            throw err;
-        }
-    },
-    getAllAppointmentsByDoctor: async (doctorId) => {
-        try {
-            const appointments = await db.Appointments.findAll({
-                include: [
-                    {
-                        model: db.DoctorService, as: "doctorService",
-                        where: { doctor_id: doctorId },
-                    }
-                ]
-            });
-            if (!appointments) {
-                throw new Error("Appointments not found");
-            }
-
-            return appointments;
-        } catch (err) {
-            throw err;
-        }
-    },
-    getAllAppointmentsByPatient: async (patientId) => {
-        try {
-            const appointments = await db.Appointments.findAll({
-                where: { patient_id: patientId },
-                include: [
-                    {
-                        model: db.DoctorService, as: "doctorService",
-                    }
-                ]
-            });
-            if (!appointments) {
-                throw new Error("Appointments not found");
-            }
-
-            return appointments;
-        } catch (err) {
-            throw err;
-        }
-    },
     getAvailableSlotsWithFilter: async (filters) => {
         try {
+            const offset = (filters.page - 1) * filters.limit;
             const doctors = await db.Doctors.findAll({
                 attributes: ["id", "description", "rating"],
-                limit: parseInt(filters.limit),
-                offset: parseInt(filters.offset),
+                limit: filters.limit,
+                offset: offset >= 0 ? offset : 0,
                 include: [
                     {
                         model: db.Clinics,
@@ -198,6 +132,94 @@ const AppointmentService = {
                 });
                 return availableSlots;
             }).flat();
+        } catch (err) {
+            throw err;
+        }
+    },
+    updateAppointment: async (id, data) => {
+        try {
+            let appointment = await db.Appointments.findByPk(id);
+
+            if (!appointment) {
+                throw new Error("Appointment not found");
+            }
+
+            appointment = await appointment.update(data);
+
+            return appointment;
+        } catch (err) {
+            throw err;
+        }
+    },
+    deleteAppointment: async (id) => {
+        try {
+            const appointment = await db.Appointments.findByPk(id);
+
+            if (!appointment) {
+                throw new Error("Appointment not found");
+            }
+
+            await appointment.destroy();
+        } catch (err) {
+            throw err;
+        }
+    },
+
+    getAllAppointmentsByDoctor: async (doctorId, limit, page) => {
+        try {
+            const offset = (page - 1) * limit;
+            const appointments = await db.Appointments.findAll({
+                limit: limit,
+                offset: offset >= 0 ? offset : 0,
+                order: [['timeSlot', 'DESC']],
+                include: [
+                    {
+                        model: db.DoctorService, as: "doctorService",
+                        where: { doctor_id: doctorId },
+                    },
+                    {
+                        model: db.Schedules,
+                        order: [['date', 'DESC']]
+                    },
+                    {
+                        model: db.Schedules,
+                        order: [['date', 'DESC']]
+                    }
+                ],
+            });
+            if (!appointments) {
+                throw new Error("Appointments not found");
+            }
+
+            return appointments;
+        } catch (err) {
+            throw err;
+        }
+    },
+    getAllAppointmentsByPatient: async (patientId, limit, page) => {
+        try {
+            const offset = (page - 1) * limit;
+
+            const appointments = await db.Appointments.findAll({
+                where: { patient_id: patientId },
+                limit: limit,
+                offset: offset >= 0 ? offset : 0,
+                order: [['timeSlot', 'DESC']],
+                include: [
+                    {
+                        model: db.DoctorService, as: "doctorService",
+                    },
+                    {
+                        model: db.Schedules,
+                        order: [['date', 'DESC']]
+                    }
+                ]
+            });
+            if (!appointments) {
+                throw new Error("Appointments not found");
+            }
+
+            return appointments;
         } catch (err) {
             throw err;
         }

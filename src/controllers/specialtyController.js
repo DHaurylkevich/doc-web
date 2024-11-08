@@ -12,10 +12,10 @@ const SpecialtyController = {
         }
     },
     getSpecialty: async (req, res, next) => {
-        const { id } = req.params;
+        const { specialtyId } = req.params;
 
         try {
-            const specialty = await SpecialtyService.getSpecialtyById(id);
+            const specialty = await SpecialtyService.getSpecialtyById(specialtyId);
             res.status(200).json(specialty);
         } catch (err) {
             next(err);
@@ -42,21 +42,21 @@ const SpecialtyController = {
         }
     },
     updateSpecialty: async (req, res, next) => {
-        const { id } = req.params;
+        const { specialtyId } = req.params;
         const { specialtyData } = req.body;
 
         try {
-            const updateSpecialty = await SpecialtyService.updateSpecialty(id, specialtyData);
+            const updateSpecialty = await SpecialtyService.updateSpecialty(specialtyId, specialtyData);
             res.status(200).json(updateSpecialty);
         } catch (err) {
             next(err);
         }
     },
     deleteSpecialty: async (req, res, next) => {
-        const { id } = req.params;
+        const { specialtyId } = req.params;
 
         try {
-            await SpecialtyService.deleteSpecialty(id);
+            await SpecialtyService.deleteSpecialty(specialtyId);
             res.status(200).json({ message: "Successful delete" });
         } catch (err) {
             next(err);

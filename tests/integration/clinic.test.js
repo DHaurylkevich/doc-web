@@ -14,11 +14,12 @@ describe("ClinicController API", () => {
         await db.sequelize.sync({ force: true });
     });
     beforeEach(async () => {
-        clinicData = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date" };
-        addressData = { city: faker.location.city(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() };
+        clinicData = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), province: faker.location.state(), description: faker.lorem.sentence(), schedule: "Date" };
+        addressData = { city: faker.location.city(), province: faker.location.state(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() };
     });
     afterEach(async () => {
         await db.Clinics.destroy({ where: {} });
+        await db.Addresses.destroy({ where: {} });
     });
 
     describe("POST /api/clinics", () => {
@@ -45,9 +46,22 @@ describe("ClinicController API", () => {
             const response = await request(app)
                 .get(`/api/clinics/${clinicId}`)
                 .expect(200);
-
+            console.log(response.body);
             expect(response.body).to.have.property("id", clinicId);
             expect(response.body.name).to.equal(clinicData.name);
+        });
+    });
+    describe("GET /api/clinics", () => {
+        it("expect clinic by id, when it exists", async () => {
+            const createdClinic = await db.Clinics.create(clinicData);
+            clinicId = createdClinic.id;
+
+            const response = await request(app)
+                .get(`/api/clinics`)
+                .expect(200);
+            console.log(response.body);
+            expect(response.body[0]).to.have.property("id", clinicId);
+            expect(response.body[0]).to.have.property("name", clinicData.name);
         });
     });
     describe("PUT /api/clinics/:id", () => {

@@ -116,7 +116,7 @@ describe("AppointmentController API", () => {
                 visit_type: "NFZ",
                 status: "active"
             });
-            testAddress = await db.Addresses.create({ city: faker.location.city(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() });
+            testAddress = await db.Addresses.create({ city: faker.location.city(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode(), province: faker.location.state() });
             await testClinic.setAddress(testAddress.id);
         });
         it("expect services, when they exists", async () => {

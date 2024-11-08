@@ -25,7 +25,7 @@ describe("ReviewController API", () => {
     beforeEach(async () => {
         testPatient = await db.Patients.create({ gender: "male", market_inf: false });
         testDoctor = await createTestDoctor();
-        testTag = await db.Tags.create({ name: faker.lorem.paragraph() });
+        testTag = await db.Tags.create({ name: faker.lorem.paragraph(), positive: true });
     });
     afterEach(async () => {
         await db.Reviews.destroy({ where: {} });
@@ -37,18 +37,17 @@ describe("ReviewController API", () => {
     describe("POST /api/reviews", () => {
         it("expect to create review, when data is valid", async () => {
             const reviewData = {
-                patient_id: testPatient.id,
-                doctor_id: testDoctor.id,
+                patientId: testPatient.id,
+                doctorId: testDoctor.id,
                 rating: faker.number.int({ min: 1, max: 5 }),
                 comment: faker.lorem.paragraph(),
                 tagsIds: [testTag.id],
             };
-
             const response = await request(app)
-                .post("/api/reviews")
-                .send(reviewData)
-                .expect(201);
-
+            .post("/api/reviews")
+            .send(reviewData)
+            .expect(201);
+            
             expect(response.body).that.is.a("object");
             expect(response.body).to.include({ patient_id: reviewData.patientId });
             expect(response.body).to.include({ doctor_id: reviewData.doctorId });
@@ -116,7 +115,7 @@ describe("ReviewController API", () => {
             const response = await request(app)
                 .get(`/api/clinics/${testClinic.id}/reviews`)
                 .expect(200);
-            console.log(response.body[0]);
+                
             expect(response.body).to.be.an("array").that.is.not.empty;
             expect(response.body[0].doctor).to.include({ clinic_id: testClinic.id });
         });

@@ -11,10 +11,10 @@ const DoctorController = {
      * @param {*} next 
      */
     createDoctor: async (req, res, next) => {
-        const { userData, doctorData, specialtyId, clinicId, servicesIds } = req.body;
+        const { userData, addressData, doctorData, specialtyId, clinicId, servicesIds } = req.body;
 
         try {
-            const createdDoctor = await DoctorService.createDoctor(userData, doctorData, specialtyId, clinicId, servicesIds);
+            const createdDoctor = await DoctorService.createDoctor(userData, addressData, doctorData, specialtyId, clinicId, servicesIds);
             res.status(201).json(createdDoctor);
         } catch (err) {
             console.log(err);
@@ -22,10 +22,10 @@ const DoctorController = {
         }
     },
     getDoctorById: async (req, res, next) => {
-        const doctorId = req.params.id;
+        const { userId } = req.params;
 
         try {
-            const createdDoctor = await DoctorService.getDoctorById(doctorId);
+            const createdDoctor = await DoctorService.getDoctorById(userId);
             res.status(200).json(createdDoctor);
         } catch (err) {
             console.log(err);
@@ -33,11 +33,11 @@ const DoctorController = {
         }
     },
     updateDoctorById: async (req, res, next) => {
-        const doctorId = req.params.id;
-        const { userData, doctorData, servicesIds } = req.body;
+        const { userId } = req.params;
+        const { userData, addressData, doctorData, servicesIds } = req.body;
 
         try {
-            const updateDoctor = await DoctorService.updateDoctorById(doctorId, userData, doctorData, servicesIds);
+            const updateDoctor = await DoctorService.updateDoctorById(userId, userData, addressData, doctorData, servicesIds);
             res.status(200).json(updateDoctor);
         } catch (err) {
             console.log(err);
@@ -56,7 +56,7 @@ const DoctorController = {
     //     }
     // },
     getShortDoctorById: async (req, res, next) => {
-        const doctorId = req.params.id;
+        const { doctorId } = req.params;
 
         try {
             const createdDoctor = await DoctorService.getShortDoctorById(doctorId);
@@ -68,12 +68,12 @@ const DoctorController = {
     },
     getDoctorsByClinicWithSorting: async (req, res) => {
         const { clinicId } = req.params;
-        const { gender, order } = req.query;
+        const { gender, sort } = req.query;
 
         // Проверка существования клиники(Отдельный сервис)
 
         try {
-            const doctors = await DoctorService.getDoctorsByClinicWithSorting(clinicId, { gender, order });
+            const doctors = await DoctorService.getDoctorsByClinicWithSorting(clinicId, { gender, sort });
             res.status(200).json(doctors);
         } catch (err) {
             console.log(err);

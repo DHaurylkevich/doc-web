@@ -30,11 +30,14 @@ const ClinicService = {
             throw err;
         }
     },
-    getFullClinicById: async (id) => {
+    getFullClinicById: async (clinicId) => {
         try {
             const clinic = await db.Clinics.findOne({
-                where: { id: id },
-                include: [db.Addresses]
+                where: { id: clinicId },
+                include: [{
+                    model: db.Addresses,
+                    as: "address"
+                }]
             });
             if (!clinic) {
                 throw new Error("Clinic not found");
@@ -44,23 +47,49 @@ const ClinicService = {
             throw err;
         }
     },
-    getAllClinicsFullData: async () => {
+    getAllClinicsFullData: async (filters) => {
         try {
+            const query = {};
+            if (filters.name) query.name = filters.name;
+            if (filters.province) query.province = filters.province;
+
+            const queryAddress = {};
+            if (filters.city) queryAddress.city = filters.city;
+
+            const querySpecialty = {};
+            if (filters.specialty) querySpecialty.specialty = filters.specialty;
+
             const clinics = await db.Clinics.findAll({
-                include: [db.Addresses]
+                where: query,
+                include: [
+                    {
+                        model: db.Addresses,
+                        as: "address",
+                        ...(Object.keys(queryAddress).length > 0 && { where: queryAddress }),
+                    },
+                    {
+                        model: db.Services,
+                        as: "services",
+                        include: [
+                            {
+                                model: db.Specialties,
+                                as: "specialty",
+                                where: querySpecialty
+                            }
+                        ]
+                    }
+                ]
             });
-            if (!clinics) {
-                throw new Error("Clinics not found");
-            }
+
             return clinics;
         } catch (err) {
             throw err;
         }
     },
-    updateClinic: async (id, clinicData, addressData) => {
+    updateClinic: async (clinicId, clinicData, addressData) => {
         const t = await sequelize.transaction();
         try {
-            const clinic = await db.Clinics.findByPk(id);
+            const clinic = await db.Clinics.findByPk(clinicId);
             if (!clinic) {
                 throw new Error("Clinics not found");
             }
@@ -76,9 +105,9 @@ const ClinicService = {
             throw err;
         }
     },
-    deleteClinicById: async (id) => {
+    deleteClinicById: async (clinicId) => {
         try {
-            const clinic = await db.Clinics.findByPk(id);
+            const clinic = await db.Clinics.findByPk(clinicId);
             if (!clinic) {
                 throw Error("Clinic not found");
             }

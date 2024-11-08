@@ -3,188 +3,97 @@ const router = express.Router();
 const TagController = require("../controllers/tagController");
 /**
  * @swagger
- * paths:
- *  /specialty:
- *    post:
- *      summary: Создает специальность
- *      description: Создает новую специальность при корректных данных и роли администратора
- *      operationId: createSpecialty
- *      tags:
- *        - Tags
- *      requestBody:
- *        description: Данные для создания специальности
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                specialtyData:
- *                  type: object
- *                  description: Объект данных специальности
- *                  properties:
- *                    name:
- *                      type: string
- *                      example: "хирург"
- *                      description: Название специальности
- *      responses:
- *        201:
- *          description: Успешное создание специальности
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                properties:
- *                  id:
- *                    type: integer
- *                    example: 1
- *                  name:
- *                    type: string
- *                    example: "Хирург"
- *        400:
- *          description: Неверные данные запроса
- *        401:
- *          description: Ошибка авторизации - требуется роль администратора
- *        404:
- *          description: Специальность не найдена
+ * /tags:
+ *   post:
+ *     summary: Создать новый тэг
+ *     description: Создает новый тэг с заданными данными
+ *     tags:
+ *       - Tags
+ *     requestBody:
+ *       description: Данные для создания тэга
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Название тэга"
+ *             required:
+ *               - name
+ *     responses:
+ *       201:
+ *         description: Успешно создана тэга
  */
 router.post("/tags", TagController.createTag);
 /**
  * @swagger
- * paths:
- *  /specialty:
- *    get:
- *      summary: Получить все специальности без услуг
- *      operationId: getAllSpecialties
- *      tags:
- *        - Tags
- *      responses:
- *        200:
- *          description: Массив всех специальностей
- *          content:
- *            application/json:
- *              schema:
- *                type: array
- *                items:
- *                  type: object
- *                  properties:
- *                    id:
- *                      type: integer
- *                      example: 1
- *                    name:
- *                      type: string
- *                      example: "Хирург"
- *                    createdAt:
- *                      type: string
- *                      format: date-time
- *                      example: "2024-10-31T20:29:46.000Z"
- *                    updatedAt:
- *                      type: string
- *                      format: date-time
- *                      example: "2024-10-31T20:29:46.000Z"
- *        400:
- *          description: Неверные данные запроса
- *        401:
- *          description: Ошибка авторизации - требуется роль администратора
- *        404:
- *          description: Специальности не найдены
+ * /tags:
+ *   get:
+ *     summary: Получить все тэги
+ *     description: Возвращает список всех тэгов.
+ *     tags:
+ *       - Tags
+ *     responses:
+ *       200:
+ *         description: Массив всех тэгов
  */
 router.get("/tags", TagController.getAllTags);
 /**
  * @swagger
- * paths:
- *  /specialty/:id:
- *    put:
- *      summary: Создает специальность
- *      description: Создает новую специальность при корректных данных и роли администратора
- *      operationId: createSpecialty
- *      tags:
- *        - Tags
- *      requestBody:
- *        description: Данные для создания специальности
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                specialtyData:
- *                  type: object
- *                  description: Объект данных специальности
- *                  properties:
- *                    name:
- *                      type: string
- *                      example: "хирург"
- *                      description: Название специальности
- *      responses:
- *        200:
- *          description: Успешное создание специальности
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                properties:
- *                  id:
- *                    type: integer
- *                    example: 1
- *                  name:
- *                    type: string
- *                    example: Хирург
- *        400:
- *          description: Неверные данные запроса
- *        401:
- *          description: Ошибка авторизации - требуется роль администратора
- *        404:
- *          description: Специальность не найдена
-*/
+ * /tags/{tagId}:
+ *   put:
+ *     summary: Обновить тэг
+ *     description: Обновляет существующый тэг по его ID.
+ *     tags:
+ *       - Tags
+ *     parameters:
+ *       - name: tagId
+ *         in: path
+ *         required: true
+ *         description: ID тэга
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     requestBody:
+ *       description: Обновленные данные тэга
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Обновленный тэг"
+ *             required:
+ *               - name
+ *     responses:
+ *       200:
+ *         description: Тэг успешно обновлен
+ */
 router.put("/tags/:tagId", TagController.updateTag);
 /**
  * @swagger
- * paths:
- *  /specialty/:id:
- *    delete:
- *      summary: Создает специальность
- *      description: Создает новую специальность при корректных данных и роли администратора
- *      operationId: createSpecialty
- *      tags:
- *        - Tags
- *      requestBody:
- *        description: Данные для создания специальности
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                specialtyData:
- *                  type: object
- *                  description: Объект данных специальности
- *                  properties:
- *                    name:
- *                      type: string
- *                      example: "хирург"
- *                      description: Название специальности
- *      responses:
- *        200:
- *          description: Успешное создание специальности
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                properties:
- *                  id:
- *                    type: integer
- *                    example: 1
- *                  name:
- *                    type: string
- *                    example: Хирург
- *        400:
- *          description: Неверные данные запроса
- *        401:
- *          description: Ошибка авторизации - требуется роль администратора
- *        404:
- *          description: Специальность не найдена
-*/
+ * /tags/{tagId}:
+ *   delete:
+ *     summary: Удалить тэг
+ *     description: Удаляет тэг по заданному ID.
+ *     tags:
+ *       - Tags
+ *     parameters:
+ *       - name: tagId
+ *         in: path
+ *         required: true
+ *         description: ID тэга для удаления
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         description: Таг успешно удален
+ */
 router.delete("/tags/:tagId", TagController.deleteTag);
 
 module.exports = router;

@@ -19,23 +19,34 @@ const ClinicController = {
         }
     },
     getClinic: async (req, res, next) => {
-        const { id } = req.params;
+        const { clinicId } = req.params;
         try {
-            const clinicData = await ClinicService.getClinicById(id);
+            const clinicData = await ClinicService.getClinicById(clinicId);
 
             res.status(200).json(clinicData);
         } catch (err) {
             next(err);
         }
     },
-    //getAllClinicByParams
-    getFullClinic: async (req, res, next) => {
-        const { id } = req.params;
+    getAllClinicByParams: async (req, res, next) => {
+        const { name, province, specialty, city } = req.query;
         try {
-            const clinicData = await ClinicService.getFullClinicById(id);
+            const clinicData = await ClinicService.getAllClinicsFullData({name, province, specialty, city});
 
             res.status(200).json(clinicData);
         } catch (err) {
+            console.log(err);
+            next(err);
+        }
+    },
+    getFullClinic: async (req, res, next) => {
+        const { clinicId } = req.params;
+        try {
+            const clinicData = await ClinicService.getFullClinicById(clinicId);
+
+            res.status(200).json(clinicData);
+        } catch (err) {
+            console.log(err);
             next(err);
         }
     },
@@ -46,11 +57,11 @@ const ClinicController = {
     * @param {*} next 
     */
     updateClinicById: async (req, res, next) => {
-        const { id } = req.params;
+        const { clinicId } = req.params;
         const { clinicData, addressData } = req.body;
 
         try {
-            const updatedClinic = await ClinicService.updateClinic(id, clinicData, addressData);
+            const updatedClinic = await ClinicService.updateClinic(clinicId, clinicData, addressData);
 
             res.status(200).json(updatedClinic);
         } catch (err) {
@@ -59,10 +70,10 @@ const ClinicController = {
         }
     },
     deleteClinic: async (req, res, next) => {
-        const { id } = req.params;
+        const { clinicId } = req.params;
 
         try {
-            await ClinicService.deleteClinicById(id);
+            await ClinicService.deleteClinicById(clinicId);
 
             res.status(200).json({ message: "Successful delete" })
         } catch (err) {

@@ -29,12 +29,13 @@ const PatientController = {
         }
     },
     getPatientById: async (req, res, next) => {
-        const { id } = req.params;
+        const { userId } = req.params;
 
         try {
-            const patient = await PatientService.getPatientById(id);
+            const patient = await PatientService.getPatientById(userId);
             res.status(200).json(patient)
         } catch (err) {
+            console.log(err);
             next(err);
         }
     },
@@ -46,11 +47,11 @@ const PatientController = {
      * @returns 
      */
     updatePatientById: async (req, res, next) => {
-        const { id } = req.params;
+        const { userId } = req.params;
         const { userData, patientData, addressData } = req.body;
 
         try {
-            const updatePatient = await PatientService.updatePatient(id, userData, patientData, addressData)
+            const updatePatient = await PatientService.updatePatient(userId, userData, patientData, addressData)
 
             res.status(200).json(updatePatient);
         } catch (err) {

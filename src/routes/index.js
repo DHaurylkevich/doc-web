@@ -10,6 +10,9 @@ const scheduleRouter = require("./schedule");
 const appointmentRouter = require("./appointments");
 const reviewRouter = require("./review");
 const tagRouter = require("./tag");
+const categoryRouter = require("./category");
+const postRouter = require("./post");
+const notionRouter = require("./notion");
 
 // const { checkAuth, refreshTokenAdmin } = require("../middleware/auth");
 
@@ -23,14 +26,17 @@ router.use("/api", scheduleRouter);
 router.use("/api", appointmentRouter);
 router.use("/api", reviewRouter);
 router.use("/api", tagRouter);
+router.use("/api", categoryRouter);
+router.use("/api", postRouter);
+router.use("/api", notionRouter);
 // router.use("/image", imageRouter);
 // router.use("/menu", menuRouter);
 
 // router.get("/auth/check", checkAuth);
-// router.get("/auth/refresh", refreshTokenAdmin)
+// router.get("/auth/refresh", refreshTokenAdmin);
 
 router.get("/", (req, res) => {
-    res.send("API")
+    res.send("API");
 })
 
 module.exports = router;

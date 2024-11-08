@@ -198,7 +198,7 @@ router.get("/appointments", AppointmentController.getAvailableSlotsWithFilter);
  * @swagger
  *   /doctors/{doctorId}/appointments:
  *     get:
- *       summary: Получить все записи к врачу
+ *       summary: Получить все записи на прием
  *       description: Получает все записи для указанного врача.
  *       operationId: getAllAppointmentsByDoctor
  *       tags:
@@ -248,7 +248,7 @@ router.get("/doctors/:doctorId/appointments", AppointmentController.getAllAppoin
  *   /patients/{patientId}/appointments:
  *     get:
  *       summary: Получить все записи пациента
- *       description: Получает все записи для указанного пациента.
+ *       description: Получает все записи на прием для указанного пациента.
  *       operationId: getAllAppointmentsByPatient
  *       tags:
  *         - Appointment
