@@ -1,4 +1,5 @@
 const { Sequelize } = require("sequelize");
+const mysql2 = require("mysql2");
 require("dotenv").config();
 const env = process.env;
 const NODE_ENV = process.env.NODE_ENV || "development";
@@ -9,7 +10,8 @@ const config = {
     password: env.DB_PASS || null,
     database: env.DB_NAME || "mylekarz",
     host: env.DB_HOST || "localhost",
-    dialect: "mysql",
+    dialect: 'mysql',
+    dialectModule: mysql2,
 };
 
 let sequelize
