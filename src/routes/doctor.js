@@ -5,111 +5,111 @@ const doctorController = require("../controllers/doctorController");
 /**
  * @swagger
  * paths:
- *  /doctors:
+ *   /doctors:
  *     post:
- *        summary: Создание нового доктора
- *        operationId: createDoctor
- *        tags:
- *          - Doctors
- *        requestBody:
- *          required: true
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                properties:
- *                  clinicId:
- *                    type: integer
- *                    description: Идентификатор клиники
- *                    example: 1
- *                  userData:
- *                    type: object
- *                    description: Данные пользователя
- *                    properties:
- *                      first_name:
- *                        type: string
- *                        description: Имя пользователя
- *                        example: "Серега"
- *                      last_name:
- *                        type: string
- *                        description: Фамилия пользователя
- *                        example: "Фамильный"
- *                      email:
- *                        type: string
- *                        description: Электронная почта пользователя
- *                        example: "mail@example.com"
- *                      gender:
- *                        type: string
- *                        description: Пол пользователя
- *                        enum: ["male", "female", "other"]
- *                        example: "male"
- *                      pesel:
- *                        type: string
- *                        description: PESEL пользователя
- *                        example: "12345678901"
- *                      phone:
- *                        type: string
- *                        description: Телефон пользователя
- *                        example: "+48123123123"
- *                      password:
- *                        type: string
- *                        description: Пароль пользователя
- *                        example: "securepassword123"
- *                      birthday:
- *                        type: string
- *                        format: date
- *                        description: Дата рождения пользователя
- *                        example: "1980-01-01"
+ *       summary: Создание нового доктора
+ *       operationId: createDoctor
+ *       tags:
+ *         - Doctors
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 clinicId:
+ *                   type: integer
+ *                   description: Идентификатор клиники
+ *                   example: 1
+ *                 userData:
+ *                   type: object
+ *                   description: Данные пользователя
+ *                   properties:
+ *                     first_name:
+ *                       type: string
+ *                       description: Имя пользователя
+ *                       example: "Серега"
+ *                     last_name:
+ *                       type: string
+ *                       description: Фамилия пользователя
+ *                       example: "Фамильный"
+ *                     email:
+ *                       type: string
+ *                       description: Электронная почта пользователя
+ *                       example: "mail@example.com"
+ *                     gender:
+ *                       type: string
+ *                       description: Пол пользователя
+ *                       enum: ["male", "female", "other"]
+ *                       example: "male"
+ *                     pesel:
+ *                       type: string
+ *                       description: PESEL пользователя
+ *                       example: "12345678901"
+ *                     phone:
+ *                       type: string
+ *                       description: Телефон пользователя
+ *                       example: "+48123123123"
+ *                     password:
+ *                       type: string
+ *                       description: Пароль пользователя
+ *                       example: "securepassword123"
+ *                     birthday:
+ *                       type: string
+ *                       format: date
+ *                       description: Дата рождения пользователя
+ *                       example: "1980-01-01"
  *                 addressData:
- *                 type: object
- *                 description: Адрес доктора
- *                 properties:
- *                   city:
- *                     type: string
- *                     example: "Effertzhaven"
- *                   province:
- *                     type: string
- *                     example: "Ohio"
- *                   street:
- *                     type: string
- *                     example: "N Chestnut Street"
- *                   home:
- *                     type: string
- *                     example: "7903"
- *                   flat:
- *                     type: string
- *                     example: "495"
- *                   post_index:
- *                     type: string
- *                     example: "37428-7078"
- *                  doctorData:
- *                    type: object
- *                    description: Данные доктора
- *                    properties:
- *                      hired_at:
- *                        type: string
- *                        format: date
- *                        description: Дата найма доктора
- *                        example: "2023-01-01"
- *                      description:
- *                        type: string
- *                        description: Описание доктора
- *                        example: "Специалист в области кардиологии"
- *                  specialtyId:
- *                    type: integer
- *                    description: Идентификатор специальности
- *                    example: 5
- *                  servicesIds:
- *                    type: array
- *                    description: Массив идентификаторов услуг
- *                    items:
- *                      type: integer
- *                    example: [1, 2, 3]
- *      responses:
- *        200:
- *          description: Успешный вход и получение токена
- *        404:
- *          description: Пользователь не найден
+ *                   type: object
+ *                   description: Адрес доктора
+ *                   properties:
+ *                     city:
+ *                       type: string
+ *                       example: "Effertzhaven"
+ *                     province:
+ *                       type: string
+ *                       example: "Ohio"
+ *                     street:
+ *                       type: string
+ *                       example: "N Chestnut Street"
+ *                     home:
+ *                       type: string
+ *                       example: "7903"
+ *                     flat:
+ *                       type: string
+ *                       example: "495"
+ *                     post_index:
+ *                       type: string
+ *                       example: "37428-7078"
+ *                 doctorData:
+ *                   type: object
+ *                   description: Данные доктора
+ *                   properties:
+ *                     hired_at:
+ *                       type: string
+ *                       format: date
+ *                       description: Дата найма доктора
+ *                       example: "2023-01-01"
+ *                     description:
+ *                       type: string
+ *                       description: Описание доктора
+ *                       example: "Специалист в области кардиологии"
+ *                 specialtyId:
+ *                   type: integer
+ *                   description: Идентификатор специальности
+ *                   example: 5
+ *                 servicesIds:
+ *                   type: array
+ *                   description: Массив идентификаторов услуг
+ *                   items:
+ *                     type: integer
+ *                   example: [1, 2, 3]
+ *       responses:
+ *         200:
+ *           description: Успешный вход и получение токена
+ *         404:
+ *           description: Пользователь не найден
  */
 router.post("/doctors/", doctorController.createDoctor);
 
