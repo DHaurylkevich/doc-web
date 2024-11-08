@@ -16,7 +16,7 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsDoc(swaggerOptions)
 
 const options = {
-    customCss: '.swagger-ui .topbar { display: none }'
+    customCss: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css'
 }
 
 module.exports = (app) => {
