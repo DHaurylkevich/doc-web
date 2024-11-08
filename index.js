@@ -28,12 +28,10 @@ app.use((req, res, next) => {
 
 app.use(errorHandler);
 
-if (process.env.NODE_ENV !== 'production') {
-    const link = process.env.LINK || "http://localhost";
-    const port = process.env.PORT || 5000;
-    app.listen(port, () => {
-        console.log(`The server start at: ${link}:${port}`);
-    });
-}
+const link = process.env.LINK || "http://localhost";
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+    console.log(`The server start at: ${link}:${port}`);
+});
 
 module.exports = app;
