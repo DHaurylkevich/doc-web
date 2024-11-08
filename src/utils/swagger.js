@@ -18,7 +18,7 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 const swaggerSetupOptions = {
-    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css',
+    customCssUrl: 'https://unpkg.com/swagger-ui-dist@5/swagger-ui.css',
 };
 
 module.exports = (app) => {
