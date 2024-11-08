@@ -1,7 +1,7 @@
 {
   "name": "mylekarz",
   "version": "1.0.0",
-  "main": "doc-web.js",
+  "main": "index.js",
   "devDependencies": {
     "@faker-js/faker": "^9.0.2",
     "chai": "^4.2.0",
@@ -20,8 +20,8 @@
   },
   "scripts": {
     "test": "NODE_ENV=test mocha tests/integration/**.test.js",
-    "dev": "nodemon doc-web.js",
-    "build": "node doc-web.js"
+    "dev": "nodemon index.js",
+    "build": "node index.js"
   },
   "repository": {
     "type": "git",
