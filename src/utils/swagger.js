@@ -12,13 +12,13 @@ const swaggerOptions = {
             description: 'Описание API для проекта',
         },
     },
-    apis: [path.resolve(__dirname, '../routes/*.js')], // Убедитесь, что путь корректен
+    apis: [path.resolve(__dirname, '../routes/*.js')],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 const swaggerSetupOptions = {
-    customCss: '.swagger-ui .topbar { display: none }',
+    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css',
 };
 
 module.exports = (app) => {
