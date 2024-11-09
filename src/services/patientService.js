@@ -82,7 +82,9 @@ const PatientService = {
                         attributes: ['id'],
                         include: [
                             {
-                                model: db.Users, attributes: ['id', 'first_name', 'last_name', 'photo', 'gender'],
+                                model: db.Users,
+                                as: "user",
+                                attributes: ['id', 'first_name', 'last_name', 'photo', 'gender'],
                                 include: [{ model: db.Addresses, as: 'address' }],
                             }
                         ]
@@ -106,6 +108,7 @@ const PatientService = {
                 include: [
                     {
                         model: db.Users,
+                        as: "user",
                         where: { id: userId },
                         include: [{ model: db.Addresses, as: 'address' }],
                     }

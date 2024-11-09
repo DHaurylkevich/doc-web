@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Patients.belongsTo(models.Users, {
         foreignKey: 'user_id',
+        as: 'user',
       });
       Patients.hasOne(models.Addresses, {
         foreignKey: 'patient_id',
@@ -13,11 +14,16 @@ module.exports = (sequelize, DataTypes) => {
       });
       Patients.hasMany(models.Appointments, {
         foreignKey: "patient_id",
-      })
+      });
       Patients.hasMany(models.Reviews, {
         foreignKey: "patient_id",
         as: "reviews"
-      })
+      });
+      Patients.hasMany(models.Prescriptions, {
+        foreignKey: 'medication_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
     }
   }
   Patients.init({

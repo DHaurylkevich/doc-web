@@ -13,6 +13,8 @@ const tagRouter = require("./tag");
 const categoryRouter = require("./category");
 const postRouter = require("./post");
 const notionRouter = require("./notion");
+const medicationRouter = require("./medication");
+const prescriptionRouter = require("./prescription");
 
 // const { checkAuth, refreshTokenAdmin } = require("../middleware/auth");
 
@@ -29,6 +31,8 @@ router.use("/api", tagRouter);
 router.use("/api", categoryRouter);
 router.use("/api", postRouter);
 router.use("/api", notionRouter);
+router.use("/api", medicationRouter);
+router.use("/api", prescriptionRouter);
 // router.use("/image", imageRouter);
 // router.use("/menu", menuRouter);
 
