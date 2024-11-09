@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       primaryKey: true
     },
+    photo: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
     first_name: {
       type: DataTypes.STRING(255),
       allowNull: true,

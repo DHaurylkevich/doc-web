@@ -1,10 +1,9 @@
-// const TEST = require("../../tests/unit/services/patientService.test");
 const sequelize = require("../config/db");
 const db = require("../models");
 const UserService = require("../services/userService");
 const AddressService = require("../services/addressService");
 const authMiddleware = require("../middleware/auth");
-const { Op } = require("sequelize");
+const passwordUtil = require("../utils/passwordUtil");
 
 const PatientService = {
     /**
@@ -35,9 +34,12 @@ const PatientService = {
             if (foundUser) {
                 throw new Error("User already exist");
             }
+
+            const hashedPassword = await passwordUtil.hashingPassword(userData.password);
+
             const createdUser = await db.Users.create({
                 ...filter,
-                password: userData.password,
+                password: hashedPassword,
                 role: "patient",
             });
             // const createdUser = await db.Users.create(
@@ -77,10 +79,10 @@ const PatientService = {
                 include: [
                     {
                         model: db.Patients,
-                        attributes: ['id', 'gender'],
+                        attributes: ['id'],
                         include: [
                             {
-                                model: db.Users, attributes: ['id', 'first_name', 'last_name', "photo"],
+                                model: db.Users, attributes: ['id', 'first_name', 'last_name', 'photo', 'gender'],
                                 include: [{ model: db.Addresses, as: 'address' }],
                             }
                         ]

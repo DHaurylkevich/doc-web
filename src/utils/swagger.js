@@ -9,8 +9,18 @@ const swaggerOptions = {
         info: {
             title: "MyLekarz",
             version: "1.0.0",
-            description: 'Описание API для проекта',
+            description: 'Дипломный проект 0_O',
         },
+        "servers": [
+            {
+                "url": "https://doc-web-rose.vercel.app/api",
+                "description": "Сюда запросы"
+            },
+            {
+                "url": "https://doc-web-rose.vercel.app",
+                "description": "Основной сервер"
+            }
+        ]
     },
     apis: [path.resolve(__dirname, '../routes/*.js')],
 };

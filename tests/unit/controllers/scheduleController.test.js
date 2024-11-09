@@ -4,7 +4,7 @@
 // const { expect } = require("chai");
 // const request = require("supertest");
 // const { faker } = require('@faker-js/faker');
-// const app = require("../../doc-web");
+// const app = require("../../index");
 // const db = require("../../src/models");
 
 // describe("DoctorController API", () => {

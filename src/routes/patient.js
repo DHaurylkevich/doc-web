@@ -6,8 +6,8 @@ const patientController = require("../controllers/patientController");
  * @swagger
  * /patients:
  *   post:
- *     summary: Регистрация пациента
- *     description: Регистрация нового пациента и возврат токена доступа при успешной регистрации.
+ *     summary: Регистрация пациента/Пользователя
+ *     description: Регистрация нового пациента, только его пароль и email/phone/pesel и возврат токена доступа при успешной регистрации.
  *     tags:
  *       - Patients
  *     requestBody:
@@ -52,8 +52,8 @@ router.post("/patients", patientController.registrationPatient);
  * @swagger
  * /patients:
  *   get:
- *     summary: Получить пациентов с фильтрацией
- *     description: Возвращает список пациентов по указанным фильтрам.
+ *     summary: Получить пациентов по записям c фильтрацией 
+ *     description: Возвращает список пациентов по записям в клинниках/докторах по указанным фильтрам. Эндпоинт для клиники/доктора, чтобы знать своих пациентов
  *     tags:
  *       - Patients
  *     parameters:
@@ -116,10 +116,10 @@ router.post("/patients", patientController.registrationPatient);
 router.get("/patients", patientController.getPatientsFilter);
 /**
  * @swagger
- * /patients/{id}:
+ * /patients/{userId}:
  *   get:
- *     summary: Получить информацию о пациенте по ID
- *     description: Возвращает данные пациента по указанному ID.
+ *     summary: Получить информацию о пациенте по ID.
+ *     description: Возвращает данные пациента по указанному ID. Можно использовать для профиля
  *     tags:
  *       - Patients
  *     parameters:
@@ -184,12 +184,15 @@ router.get("/patients/:userId", patientController.getPatientById);
  *                   phone:
  *                     type: string
  *                     example: "+1234567890"
- *               patientData:
- *                 type: object
- *                 properties:
  *                   gender:
  *                     type: string
  *                     example: "female"
+ *               patientData:
+ *                 type: object
+ *                 properties:
+ *                   market_inf:
+ *                     type: boolean
+ *                     example: true
  *               addressData:
  *                 type: object
  *                 properties:
