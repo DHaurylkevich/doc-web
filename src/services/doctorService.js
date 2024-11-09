@@ -1,10 +1,8 @@
 const sequelize = require("../config/db");
+const AppError = require("../utils/appError");
 const db = require("../models");
 const UserService = require("../services/userService");
 const ClinicService = require("./clinicService");
-// const ServiceService = require("./serviceService");
-// const SpecialtyService = require("./specialtyService");
-// const DoctorServiceService = require("./DoctorServiceService");
 
 const DoctorService = {
     /**
@@ -17,18 +15,19 @@ const DoctorService = {
      */
     createDoctor: async (userData, addressData, doctorData, specialtyId, clinicId, servicesIds) => {
         const t = await sequelize.transaction();
-        userData.role = "doctor";
+
         try {
             await ClinicService.getClinicById(clinicId, { transaction: t });
 
             const foundUser = await db.Users.findOne({ where: { pesel: userData.pesel } });
             if (foundUser) {
-                throw new Error("User already exist");
+                throw new AppError("User already exist", 409);
             }
 
             const createdUser = await db.Users.create(
                 {
                     ...userData,
+                    role: "doctor",
                     address: addressData
                 },
                 {
@@ -60,6 +59,8 @@ const DoctorService = {
     },
     getDoctorById: async (userId) => {
         try {
+            await ClinicService.getClinicById(clinicId);
+
             const doctor = await db.Doctors.findOne({
                 include: [
                     {
@@ -80,7 +81,7 @@ const DoctorService = {
                 ]
             });
             if (!doctor) {
-                throw new Error('Doctor not found');
+                throw new AppError("Doctor not found", 404);
             }
             return doctor;
         } catch (err) {
@@ -97,7 +98,7 @@ const DoctorService = {
      */
     updateDoctorById: async (userId, userData, addressData, doctorData, servicesIds) => {
         const t = await sequelize.transaction();
-        console.log(userId);
+
         try {
             const user = await UserService.updateUser(userId, userData, t);
 
@@ -106,7 +107,7 @@ const DoctorService = {
 
             const doctor = await user.getDoctor();
             if (!doctor) {
-                throw new Error("Doctor not found");
+                throw new AppError("Doctor not found", 404);
             }
             await doctor.update(doctorData, { transaction: t });
 
@@ -135,7 +136,7 @@ const DoctorService = {
                 ]
             });
             if (!doctor) {
-                throw new Error('Doctor not found');
+                throw new AppError("Doctor not found", 404);
             }
             return doctor;
         } catch (err) {
@@ -144,7 +145,6 @@ const DoctorService = {
     },
     getDoctorsByClinicWithSorting: async (clinicId, filters) => {
         try {
-            // const query = { clinic_id: clinicId };
             const query = {};
             if (filters.gender) {
                 query.gender = filters.gender;

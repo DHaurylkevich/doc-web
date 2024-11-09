@@ -2,18 +2,25 @@
 Этот проект представляет собой backend API для веб-приложения MyLekarz, позволяющего клиентам записываться на прием к врачу.
 
 ## Технологии:
-(helmet, Logger, express-validator(санитайзером, Поддержка схем валидации)) 
+(helmet, express-validator(санитайзером, Поддержка схем валидации)) 
 
 - Node.js
 - Express
+- express-validator
 - MySQL
 - Sequelize
 - bcrypt
 - JWT
 - cloudinary
 - multer
-
+- logger
 - dotenv
+- swagger-jsdoc 
+- swagger-ui-express
+- mysql2
+- mysql
+- winston
+
 - morgan
 - mocha
 - chai@4.2.0
@@ -21,8 +28,6 @@
 - supertest
 - sinon
 - faker
-- swagger-jsdoc 
-- swagger-ui-express
 
 ## Установка и настройка 
 

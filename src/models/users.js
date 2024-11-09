@@ -50,7 +50,10 @@ module.exports = (sequelize, DataTypes) => {
     email: {
       type: DataTypes.STRING(255),
       allowNull: true,
-      unique: "email"
+      unique: true,
+      validate: {
+        isEmail: true,
+      }
     },
     gender: {
       type: DataTypes.ENUM('male', 'female', 'other'),
@@ -59,16 +62,22 @@ module.exports = (sequelize, DataTypes) => {
     pesel: {
       type: DataTypes.STRING(11),
       allowNull: true,
-      unique: "pesel"
+      unique: true,
+      validate: {
+        len: [11],
+      }
     },
     phone: {
       type: DataTypes.STRING(20),
       allowNull: true,
-      unique: "phone"
+      unique: true
     },
     password: {
       type: DataTypes.STRING(255),
-      allowNull: false
+      allowNull: false,
+      validate: {
+        len: [8, 128],
+      }
     },
     role: {
       type: DataTypes.ENUM('patient', 'doctor', 'admin'),

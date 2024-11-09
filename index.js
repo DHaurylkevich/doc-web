@@ -1,6 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
-const errorHandler = require("./src/middleware/errorHandler");
+const AppError = require("./src/utils/appError");
+const { errorHandler } = require("./src/middleware/errorHandler");
 const swaggerDocs = require("./src/utils/swagger");
 const app = express();
 
@@ -20,9 +21,8 @@ swaggerDocs(app);
 app.use("/", require("./src/routes"));
 
 app.use((req, res, next) => {
-    res.status(404).json({ message: "Not Found" });
+    next(new AppError("Not Found", 404));
 });
-
 app.use(errorHandler);
 
 const port = process.env.PORT || 5000;

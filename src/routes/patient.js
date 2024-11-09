@@ -123,7 +123,7 @@ router.get("/patients", patientController.getPatientsFilter);
  *     tags:
  *       - Patients
  *     parameters:
- *       - name: id
+ *       - name: userId
  *         in: path
  *         required: true
  *         schema:

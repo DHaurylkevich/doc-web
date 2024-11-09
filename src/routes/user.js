@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const UserController = require("../controllers/userController");
+// const { loginParamValidation } = require('../utils/validation/userValidation');
+// const { validateRequest } = require('../middleware/errorHandler');
 
 /**
  * @swagger
@@ -12,19 +14,6 @@ const UserController = require("../controllers/userController");
  *      operationId: loginUser
  *      tags:
  *        - Users
- *      parameters:
- *       - name: loginParam
- *         in: query
- *         required: true
- *         schema:
- *           type: string
- *         description: email, телефон или pesel
- *       - name: password
- *         in: query
- *         required: true
- *         schema:
- *           type: string
- *         description: пароль
  *      requestBody:
  *        description: Данные пользователя для входа
  *        required: true
@@ -121,7 +110,7 @@ router.get("/users/:userId", UserController.getUserAccount);
  *       404:
  *         description: Пользователь не найден
  */
-router.put("/users/:userId/password", UserController.updateUserPassword);
+router.put("/users/:userId/password",UserController.updateUserPassword);
 /**
  * @swagger
  * /users/{userId}:

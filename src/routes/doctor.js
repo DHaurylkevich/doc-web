@@ -297,10 +297,10 @@ router.get("/doctors/:userId", doctorController.getDoctorById);
  *                     type: string
  *                     example: "N Chestnut Street"
  *                   home:
- *                     type: string
+ *                     type: integer
  *                     example: "7903"
  *                   flat:
- *                     type: string
+ *                     type: integer
  *                     example: "495"
  *                   post_index:
  *                     type: string
@@ -313,6 +313,9 @@ router.get("/doctors/:userId", doctorController.getDoctorById);
  *                     type: string
  *                     format: date-time
  *                     example: "2023-11-13T07:29:36.618Z"
+ *                   vacation days:
+ *                      type: integer
+ *                      example: 27
  *                   description:
  *                     type: string
  *                     example: "Corroboro avaritia pecto suadeo. Claudeo aestas comitatus. Benigne spargo appono denuncio terra."

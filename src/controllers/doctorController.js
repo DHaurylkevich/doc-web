@@ -28,7 +28,6 @@ const DoctorController = {
             const createdDoctor = await DoctorService.getDoctorById(userId);
             res.status(200).json(createdDoctor);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },
@@ -40,7 +39,6 @@ const DoctorController = {
             const updateDoctor = await DoctorService.updateDoctorById(userId, userData, addressData, doctorData, servicesIds);
             res.status(200).json(updateDoctor);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },
@@ -62,7 +60,6 @@ const DoctorController = {
             const createdDoctor = await DoctorService.getShortDoctorById(doctorId);
             res.status(200).json(createdDoctor);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },
@@ -70,13 +67,10 @@ const DoctorController = {
         const { clinicId } = req.params;
         const { gender, sort } = req.query;
 
-        // Проверка существования клиники(Отдельный сервис)
-
         try {
             const doctors = await DoctorService.getDoctorsByClinicWithSorting(clinicId, { gender, sort });
             res.status(200).json(doctors);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },
