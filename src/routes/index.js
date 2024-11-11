@@ -16,6 +16,8 @@ const notionRouter = require("./notion");
 const medicationRouter = require("./medication");
 const prescriptionRouter = require("./prescription");
 
+const { auth } = require("../middleware/auth");
+
 // const { checkAuth, refreshTokenAdmin } = require("../middleware/auth");
 
 router.use("/api", clinicRouter);
@@ -38,6 +40,31 @@ router.use("/api", prescriptionRouter);
 
 // router.get("/auth/check", checkAuth);
 // router.get("/auth/refresh", refreshTokenAdmin);
+/**
+ * @swagger
+ * /api/protected:
+ *   get:
+ *     summary: Чтобы проверить работу токена 
+ *     description: Возвращает сообщение message You have accessed a protected route
+ *     operationId: getUserAccount
+ *     security:
+ *      - CookieAuth: []
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID пользователя
+ *     responses:
+ *       200:
+ *          description: Успешно
+*/
+router.get("/api/protected", auth, (req, res) => {
+    res.status(200).json({ message: `You have accessed a protected route.` });
+});
 
 router.get("/api", (req, res) => {
     res.send("API");

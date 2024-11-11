@@ -74,7 +74,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     password: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
       validate: {
         len: [8, 128],
       }
@@ -86,6 +86,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     birthday: {
       type: DataTypes.DATE,
+      allowNull: true,
+    },
+    resetToken: {
+      type: DataTypes.STRING(11),
       allowNull: true,
     }
   }, {

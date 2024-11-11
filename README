@@ -20,6 +20,8 @@
 - mysql2
 - mysql
 - winston
+- express-jwt
+- cookie-parser
 
 - morgan
 - mocha

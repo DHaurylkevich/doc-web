@@ -9,18 +9,27 @@ const swaggerOptions = {
         info: {
             title: "MyLekarz",
             version: "1.0.0",
-            description: 'Дипломный проект 0_O',
+            description: "Дипломный проект 0_O",
         },
-        "servers": [
+        servers: [
             {
-                "url": "https://doc-web-rose.vercel.app/api",
-                "description": "Сюда запросы"
+                url: "https://doc-web-rose.vercel.app/api",
+                description: "Сюда запросы"
             },
             {
-                "url": "https://doc-web-rose.vercel.app",
-                "description": "Основной сервер"
+                url: "https://doc-web-rose.vercel.app",
+                description: "Основной сервер"
             }
-        ]
+        ],
+        components: {
+            securitySchemes: {
+                CookieAuth: {
+                    type: "apiKey",
+                    in: "cookie",
+                    name: "token"
+                }
+            }
+        },
     },
     apis: [path.resolve(__dirname, '../routes/*.js')],
 };

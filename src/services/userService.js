@@ -1,7 +1,10 @@
 const { Op } = require("sequelize");
+const sequelize = require("../config/db");
 const db = require("../models");
 const passwordUtil = require("../utils/passwordUtil");
-
+const transporter = require("../utils/mail");
+const { createJWT } = require("../middleware/auth");
+const AppError = require("../utils/appError");
 
 const UserService = {
     /**
@@ -17,13 +20,12 @@ const UserService = {
         try {
             const foundUser = await db.Users.findOne({ where: { pesel: userData.pesel } });
             if (foundUser) {
-                throw new Error("User already exist");
+                throw new AppError("User already exist", 404);
             }
 
             userData.password = await passwordUtil.hashingPassword(userData.password);
             return await db.Users.create(userData, { transaction: t });
         } catch (err) {
-            console.error("Error occurred", err);
             throw err;
         }
     },
@@ -36,19 +38,17 @@ const UserService = {
         try {
             return await db.Users.findAll();
         } catch (err) {
-            console.error("Error occurred", err);
-            throw new Error(err.message)
+            throw err;
         }
     },
     getUserById: async (userId) => {
         try {
             const user = await db.Users.findByPk(userId);
             if (!user) {
-                throw new Error("User not found");
+                throw new AppError("User not found", 404);
             }
             return user;
         } catch (err) {
-            console.error("Error occurred", err);
             throw err;
         }
     },
@@ -103,13 +103,12 @@ const UserService = {
             if (!user) {
                 user = await db.Clinics.findOne({ where: { [Op.or]: [{ email: param }, { phone: param }] } });
                 if (!user) {
-                    throw new Error("User not found");
+                    throw new AppError("User not found", 404);
                 }
             }
             return user;
         } catch (err) {
-            console.error("Error occurred", err);
-            throw new Error(err.message)
+            throw err;
         }
     },
     /**
@@ -123,14 +122,13 @@ const UserService = {
         try {
             const user = await db.Users.findByPk(userId);
             if (!user) {
-                throw Error("User not found")
+                throw AppError("User not found", 404);
             }
             await user.update(updatedData, { transaction: t, returning: true })
 
             return user;
         } catch (err) {
-            console.error("Error occurred", err);
-            throw new Error(err.message)
+            throw err;
         }
     },
     /**
@@ -143,7 +141,7 @@ const UserService = {
         try {
             const user = await db.Users.findByPk(userId);
             if (!user) {
-                throw Error("User not found")
+                throw AppError("User not found", 404);
             }
 
             passwordUtil.checkingPassword(oldPassword, user.password);
@@ -151,8 +149,7 @@ const UserService = {
 
             return await user.update({ password: newPassword });
         } catch (err) {
-            console.error("Error occurred", err);
-            throw new Error(err.message)
+            throw err;
         }
     },
     /**
@@ -165,17 +162,42 @@ const UserService = {
         try {
             const user = await db.Users.findByPk(userId)
             if (!user) {
-                throw Error("User not found")
+                throw AppError("User not found", 404);
             }
 
             await user.destroy();
-
-            return;
+            return { message: "Successful delete" };
         } catch (err) {
-            console.error("Error occurred", err);
-            throw new Error(err.message)
+            throw err;
         }
-    }
+    },
+    requestToMail: async (email) => {
+        const t = await sequelize.transaction();
+        try {
+            const user = await db.Users.findOne({ where: { email: email, transaction: t } });
+            if (!user) {
+                throw new AppError("User not found", 404);
+            }
+
+            const resetToken = createJWT(user.id, user.role);
+
+            await user.update({ resetToken }, { transaction: t });
+
+            const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+            const mailOptions = {
+                from: process.env.EMAIL,
+                to: user.email,
+                subject: "Password Reset Request",
+                text: `Click the link below to reset your password:\n\n${resetUrl}`,
+            };
+
+            await transporter.sendMail(mailOptions);
+            await t.commit();
+        } catch (err) {
+            await t.rollback();
+            throw err;
+        }
+    },
 }
 
 module.exports = UserService;

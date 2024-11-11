@@ -1,4 +1,3 @@
-require("dotenv").config();
 const NODE_ENV = process.env.NODE_ENV;
 const logger = require("../utils/logger");
 const { validationResult } = require("express-validator");

@@ -1,8 +1,8 @@
 'use strict';
-/** @type {import("sequelize-cli").Migration} */
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Patients", {
+    await queryInterface.createTable('Patients', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -13,25 +13,15 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Users",
-          key: "id"
+          model: 'Users', // имя таблицы, к которой привязана связь
+          key: 'id'
         },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       city: {
         type: Sequelize.STRING,
         allowNull: true
-      },
-      address_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: "Addresses",
-          key: "id"
-        },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL"
       },
       market_inf: {
         type: Sequelize.BOOLEAN,
@@ -39,15 +29,18 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Patients");
+    await queryInterface.dropTable('Patients');
   }
 };

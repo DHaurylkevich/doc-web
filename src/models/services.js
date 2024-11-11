@@ -28,6 +28,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
         },
+        clinic_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
+        specialty_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
     }, {
         sequelize,
         modelName: 'Services',

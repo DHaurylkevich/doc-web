@@ -42,6 +42,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('DoctorService');
+    await queryInterface.dropTable('DoctorServices');
   }
 };

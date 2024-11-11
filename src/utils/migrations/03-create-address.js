@@ -1,5 +1,4 @@
 'use strict';
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Addresses', {
@@ -11,6 +10,10 @@ module.exports = {
       },
       city: {
         type: Sequelize.STRING(255),
+        allowNull: false
+      },
+      province: {
+        type: Sequelize.STRING(20),
         allowNull: false
       },
       street: {
@@ -26,13 +29,13 @@ module.exports = {
         allowNull: true
       },
       post_index: {
-        type: Sequelize.CHAR(6),
+        type: Sequelize.STRING(10),
         allowNull: false
       },
-      user_id: {
+      patient_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Users',
+          model: 'Patients',
           key: 'id'
         },
         onUpdate: 'CASCADE',

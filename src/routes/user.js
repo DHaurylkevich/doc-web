@@ -1,14 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const UserController = require("../controllers/userController");
-// const { loginParamValidation } = require('../utils/validation/userValidation');
-// const { validateRequest } = require('../middleware/errorHandler');
+const { auth } = require("../middleware/auth");
+const { passwordValidation } = require('../utils/validation/userValidation');
+const { validateRequest } = require('../middleware/errorHandler');
 
 /**
  * @swagger
  * paths:
  *  /users/login:
- *    post:
+ *   post:
  *      summary: Получить токен доступа
  *      description: Возвращает токен доступа при корректных данных пользователя
  *      operationId: loginUser
@@ -44,11 +45,13 @@ const UserController = require("../controllers/userController");
 router.post("/users/login", UserController.loginUser);
 /**
  * @swagger
- * /users/{userId}:
+ * /users/account:
  *   get:
  *     summary: Возвращает информацию о пользователе по ID 
  *     description: Возвращает данные пользователя, включая его роль, на основе идентификатора
  *     operationId: getUserAccount
+ *     security:
+ *      - CookieAuth: []
  *     tags:
  *       - Users
  *     parameters:
@@ -68,13 +71,15 @@ router.post("/users/login", UserController.loginUser);
  *               description: Данные пользователя
  *       404:
  *         description: Пользователь не найден
- */
-router.get("/users/:userId", UserController.getUserAccount);
+*/
+router.get("/users/account", auth, UserController.getUserAccount);
 /**
  * @swagger
  * /users/{userId}/password:
  *   put:
  *     summary: Обновить пароль пользователя
+ *     security:
+ *      - CookieAuth: []
  *     operationId: updateUserPassword
  *     tags:
  *       - Users
@@ -110,13 +115,15 @@ router.get("/users/:userId", UserController.getUserAccount);
  *       404:
  *         description: Пользователь не найден
  */
-router.put("/users/:userId/password",UserController.updateUserPassword);
+router.put("/users/:userId/password", passwordValidation, validateRequest, auth, UserController.updateUserPassword);
 /**
  * @swagger
  * /users/{userId}:
  *   delete:
  *     summary: Удаляет пользователя по ID и связанные с ним элементы
  *     operationId: deleteUser
+ *     security:
+ *      - CookieAuth: []
  *     tags:
  *       - Users
  *     parameters:
@@ -138,6 +145,71 @@ router.put("/users/:userId/password",UserController.updateUserPassword);
  *                   type: string
  *                   example: "Successful delete"
  */
-router.delete("/users/:userId", UserController.deleteUser);
+router.delete("/users/:userId", auth, UserController.deleteUser);
+/**
+ * @swagger
+ * paths:
+ *  /users/forgot-password:
+ *    post:
+ *      summary: Отправляет ссылку для изменения пароля
+ *      description: Получая майл существующего юзера отправялет запрос на изменение пароляля на почту
+ *      operationId: requestPasswordReset
+ *      tags:
+ *        - Users
+ *      requestBody:
+ *        description: Мэйл пользователя
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                email:
+ *                  type: string
+ *                  example: email@gmail.com
+ *                  description: email
+ *      responses:
+ *        200:
+ *          description: Успешно отправлен запрос
+ *        404:
+ *          description: Пользователь не найден
+ */
+router.post("/users/forgot-password", UserController.requestPasswordReset);
+/**
+ * @swagger
+ * paths:
+ *  /reset-password:
+ *   post:
+ *      summary: Обновление пароля
+ *      description: Обновление пароля после перехода по ссылке
+ *      operationId: resetPassword
+ *      security:
+ *        - CookieAuth: []
+ *      tags:
+ *        - Users
+ *      requestBody:
+ *        description: Новый пароль
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                newPassword:
+ *                  type: string
+ *                  example: 123456789
+ *                  description: Пароль пользователя
+ *      responses:
+ *        200:
+ *          description: Успешный вход и получение токена
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: string
+ *                example: "<access_token>"
+ *        404:
+ *          description: Пользователь не найден
+ */
+router.post("/reset-password", passwordValidation, validateRequest, UserController.resetPassword);
 
 module.exports = router;

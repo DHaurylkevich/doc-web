@@ -1,5 +1,5 @@
 const UserService = require("../services/userService");
-const authMiddleware = require("../middleware/auth");
+const { createJWT } = require("../middleware/auth");
 const passwordUtil = require("../utils/passwordUtil");
 
 const UserController = {
@@ -17,7 +17,13 @@ const UserController = {
 
             passwordUtil.checkingPassword(password, user.password);
 
-            const token = authMiddleware.createJWT(user.id, user.role);
+            const token = createJWT(user.id, user.role);
+
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                maxAge: 24 * 60 * 60 * 1000
+            });
             res.status(200).json(token);
         } catch (err) {
             console.log(err);
@@ -49,11 +55,11 @@ const UserController = {
      * @returns status(200), message: "Password changed successfully"  
      */
     updateUserPassword: async (req, res, next) => {
-        const { userId } = req.params;
         const { oldPassword, newPassword } = req.body;
+        const userId = req.auth.id;
         try {
             if (!userId || !oldPassword || !newPassword) {
-                throw new Error("Valid data error");
+                throw new AppError("Valid data error", 400);
             }
 
             await UserService.updatePassword(userId, oldPassword, newPassword);
@@ -66,13 +72,43 @@ const UserController = {
     deleteUser: async (req, res, next) => {
         const { userId } = req.params;
         try {
-            await UserService.deleteUser(userId);
+            const result = await UserService.deleteUser(userId);
 
-            res.status(200).json({ message: "Successful delete" });
+            res.status(200).json(result);
         } catch (err) {
             next(err);
         }
-    }
-};
+    },
+    requestPasswordReset: async (req, res, next) => {
+        const { email } = req.body;
+
+        try {
+            await UserService.requestToMail(email);
+
+            res.status(200).json({
+                status: "success",
+                message: "Password reset link has been sent to your email address",
+            });
+        } catch (err) {
+            next(err);
+        }
+    },
+    resetPassword: async (req, res) => {
+        const { newPassword } = req.body;
+        const userId = req.auth.id;
+
+        try {
+
+            const user = await UserService.getUserById(userId);
+
+            user.password = await passwordUtil.hashingPassword(newPassword);
+            await user.save();
+
+            res.status(200).json({ message: "Пароль успешно сброшен" });
+        } catch (err) {
+            next(err)
+        }
+    },
+}
 
 module.exports = UserController;

@@ -43,17 +43,29 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    clinic_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    specialty_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     rating: {
       type: DataTypes.FLOAT,
       defaultValue: 0,
     },
     hired_at: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
     description: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
   }, {
     sequelize,

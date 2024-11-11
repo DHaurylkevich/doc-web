@@ -11,55 +11,73 @@ module.exports = {
       },
       patient_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Patients',
           key: 'id'
         },
-        onDelete: 'CASCADE'
-      },
-      doctor_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Doctors',
-          key: 'id'
-        },
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       clinic_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Clinics',
           key: 'id'
         },
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
-      time: {
+      schedule_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Schedules',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
+      doctor_service_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'DoctorServices',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
+      timeSlot: {
         type: Sequelize.TIME,
-        allowNull: true
+        allowNull: false
       },
       description: {
         type: Sequelize.STRING,
         allowNull: true
       },
       first_visit: {
-        type: Sequelize.ENUM('prywatna', 'NFZ'),
+        type: Sequelize.BOOLEAN,
         allowNull: true
       },
       visit_type: {
-        type: Sequelize.STRING,
+        type: Sequelize.ENUM('prywatna', 'NFZ'),
         allowNull: true
       },
       status: {
-        type: Sequelize.ENUM('scheduled', 'completed', 'canceled'),
+        type: Sequelize.ENUM('active', 'canceled', 'completed'),
         allowNull: true
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
       }
     });
   },

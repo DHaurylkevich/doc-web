@@ -1,14 +1,15 @@
+require('dotenv').config();
 const express = require("express");
 const morgan = require("morgan");
 const AppError = require("./src/utils/appError");
+const cookieParser = require('cookie-parser');
 const { errorHandler } = require("./src/middleware/errorHandler");
 const swaggerDocs = require("./src/utils/swagger");
 const app = express();
 
 require("./src/config/db");
 
-require("dotenv").config();
-
+app.use(cookieParser());
 app.use(express.json());
 app.use(morgan("dev"));
 
