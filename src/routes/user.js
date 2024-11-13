@@ -5,45 +5,6 @@ const { passwordValidation } = require('../utils/validation/userValidation');
 const { validateRequest } = require('../middleware/errorHandler');
 
 /**
-// //  * @swagger
-// //  * paths:
-// //  *  /users/login:
-// //  *   post:
-// //  *      summary: Получить токен доступа
-// //  *      description: Возвращает токен доступа при корректных данных пользователя
-// //  *      operationId: loginUser
-// //  *      tags:
-// //  *        - Users
-// //  *      requestBody:
-// //  *        description: Данные пользователя для входа
-// //  *        required: true
-// //  *        content:
-// //  *          application/json:
-// //  *            schema:
-// //  *              type: object
-// //  *              properties:
-// //  *                loginParam:
-// //  *                  type: string
-// //  *                  example: email@gmail.com
-// //  *                  description: Логин (email, телефон или pesel) пользователя
-// //  *                password:
-// //  *                  type: string
-// //  *                  example: 123456789
-// //  *                  description: Пароль пользователя
-// //  *      responses:
-// //  *        200:
-// //  *          description: Успешный вход и получение токена
-// //  *          content:
-// //  *            application/json:
-// //  *              schema:
-// //  *                type: string
-// //  *                example: "<access_token>"
-// //  *        404:
-// //  *          description: Пользователь не найден
-// //  */
-// router.post("/users/login", UserController.loginUser);
-
-/**
  * @swagger
  * /users/account:
  *   get:

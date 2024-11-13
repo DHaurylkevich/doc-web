@@ -5,52 +5,6 @@ const patientController = require("../controllers/patientController");
 /**
  * @swagger
  * /patients:
- *   post:
- *     summary: Регистрация пациента/Пользователя
- *     description: Регистрация нового пациента, только его пароль и email/phone/pesel и возврат токена доступа при успешной регистрации.
- *     tags:
- *       - Patients
- *     requestBody:
- *       description: Данные для регистрации пациента
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               userData:
- *                 type: object
- *                 properties:
- *                   email:
- *                     type: string
- *                     example: email@gmail.com
- *                   phone:
- *                     type: string
- *                     example: "+123456789"
- *                   gender:
- *                     type: string
- *                     example: "male"
- *               patientData:
- *                 type: object
- *                 properties:
- *                   market_inf:
- *                     type: boolean
- *                     example: false
- *     responses:
- *       201:
- *         description: Пациент успешно зарегистрирован
- *         content:
- *           application/json:
- *             schema:
- *               type: string
- *               example: "<access_token>"
- *       400:
- *         description: Неверные данные для регистрации
- */
-router.post("/patients", patientController.registrationPatient);
-/**
- * @swagger
- * /patients:
  *   get:
  *     summary: Получить пациентов по записям c фильтрацией 
  *     description: Возвращает список пациентов по записям в клинниках/докторах по указанным фильтрам. Эндпоинт для клиники/доктора, чтобы знать своих пациентов
