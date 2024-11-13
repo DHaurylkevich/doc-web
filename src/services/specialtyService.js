@@ -1,5 +1,5 @@
-// const TEST = require("../../tests/unit/services/doctorService.test");
 const db = require("../models");
+const AppError = require("../utils/appError");
 
 const SpecialtyService = {
     createSpecialty: async (specialtyData) => {
@@ -9,11 +9,11 @@ const SpecialtyService = {
             throw err;
         }
     },
-    getAllSpecialties: async (id) => {
+    getAllSpecialties: async () => {
         try {
             const specialties = await db.Specialties.findAll();
             if (!specialties) {
-                throw new Error("Specialty not found");
+                throw new AppError("Specialty not found", 404);
             }
 
             return specialties;
@@ -32,7 +32,7 @@ const SpecialtyService = {
                 ]
             });
             if (!specialties) {
-                throw new Error("Specialty not found");
+                throw new AppError("Specialty not found", 404);
             }
 
             return specialties;
@@ -44,7 +44,7 @@ const SpecialtyService = {
         try {
             const specialty = await db.Specialties.findByPk(id);
             if (!specialty) {
-                throw new Error("Specialty not found");
+                throw new AppError("Specialty not found", 404);
             }
 
             return specialty;
@@ -56,7 +56,7 @@ const SpecialtyService = {
         try {
             let specialty = await db.Specialties.findByPk(id);
             if (!specialty) {
-                throw new Error("Schedule not found");
+                throw new AppError("Schedule not found", 404);
             }
 
             specialty = await specialty.update(data);
@@ -70,7 +70,7 @@ const SpecialtyService = {
         try {
             let specialty = await db.Specialties.findByPk(id);
             if (!specialty) {
-                throw new Error("Schedule not found");
+                throw new AppError("Schedule not found", 404);
             }
 
             await specialty.destroy();

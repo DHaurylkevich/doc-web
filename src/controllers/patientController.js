@@ -1,4 +1,3 @@
-// const TEST = require("../../tests/unit/controllers/patientController.test.js");
 const PatientService = require("../services/patientService");
 
 const PatientController = {

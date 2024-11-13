@@ -1,6 +1,7 @@
 // const TEST = require("../../tests/unit/services/clinicService.test");
 const sequelize = require("../config/db");
 const db = require("../models");
+const AppError = require("../utils/appError");
 const AddressService = require("./addressService");
 
 const ClinicService = {
@@ -19,11 +20,11 @@ const ClinicService = {
             throw err;
         }
     },
-    getClinicById: async (id) => {
+    getClinicById: async (clinicId) => {
         try {
-            const clinic = await db.Clinics.findByPk(id);
+            const clinic = await db.Clinics.findByPk(clinicId);
             if (!clinic) {
-                throw new Error("Clinic not found");
+                throw new AppError("Clinic not found", 404);
             }
             return clinic;
         } catch (err) {
@@ -40,7 +41,7 @@ const ClinicService = {
                 }]
             });
             if (!clinic) {
-                throw new Error("Clinic not found");
+                throw new AppError("Clinic not found", 404);
             }
             return clinic;
         } catch (err) {
@@ -91,7 +92,7 @@ const ClinicService = {
         try {
             const clinic = await db.Clinics.findByPk(clinicId);
             if (!clinic) {
-                throw new Error("Clinics not found");
+                throw new AppError("Clinics not found", 404);
             }
             await clinic.update(clinicData, { transaction: t });
 
@@ -109,7 +110,7 @@ const ClinicService = {
         try {
             const clinic = await db.Clinics.findByPk(clinicId);
             if (!clinic) {
-                throw Error("Clinic not found");
+                throw AppError("Clinic not found", 404);
             }
 
             await clinic.destroy();

@@ -25,7 +25,7 @@ const clinicController = require("../controllers/clinicController");
  *                   properties:
  *                     name:
  *                       type: string
- *                       example: "Клиника Здоровье"
+ *                       example: "Durka"
  *                     nip:
  *                       type: string
  *                       example: "1234567890"
@@ -44,7 +44,7 @@ const clinicController = require("../controllers/clinicController");
  *                       example: "+123456789"
  *                     description:
  *                       type: string
- *                       example: "Описание клиники"
+ *                       example: "Descripcion clinic"
  *                     schedule:
  *                       type: string
  *                       example: "Пн-Пт: 8:00 - 17:00"
@@ -59,10 +59,13 @@ const clinicController = require("../controllers/clinicController");
  *                   properties:
  *                     city:
  *                       type: string
- *                       example: "Москва"
+ *                       example: "Novogrudok"
  *                     street:
  *                       type: string
- *                       example: "ул. Ленина"
+ *                       example: "st Lenina"
+ *                     province:
+ *                       type: string
+ *                       example: "Grodhno"
  *                     home:
  *                       type: string
  *                       example: "10"
@@ -81,9 +84,72 @@ const clinicController = require("../controllers/clinicController");
  *         201:
  *           description: Клиника успешно создана
  *           content:
- *             application/json:
- *               schema:
- *                 $ref: '#/components/schemas/Clinic'
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               clinicData:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     example: "Durka"
+ *                   nip:
+ *                     type: string
+ *                     example: "1234567890"
+ *                   registration_day:
+ *                     type: string
+ *                     format: date
+ *                     example: "2023-01-01"
+ *                   nr_license:
+ *                     type: string
+ *                     example: "NR-123456"
+ *                   email:
+ *                     type: string
+ *                     example: "clinic@example.com"
+ *                   phone:
+ *                     type: string
+ *                     example: "+123456789"
+ *                   description:
+ *                     type: string
+ *                     example: "Descripcion clinic"
+ *                   schedule:
+ *                     type: string
+ *                     example: "Пн-Пт: 8:00 - 17:00"
+ *                 required:
+ *                   - name
+ *                   - nip
+ *                   - registration_day
+ *                   - nr_license
+ *                   - email
+ *               addressData:
+ *                 type: object
+ *                 properties:
+ *                   city:
+ *                     type: string
+ *                     example: "Novogrudok"
+ *                   street:
+ *                     type: string
+ *                     example: "st Lenina"
+ *                   province:
+ *                     type: string
+ *                     example: "Grodhno"
+ *                   home:
+ *                     type: string
+ *                     example: "10"
+ *                   flat:
+ *                     type: string
+ *                     example: "5"
+ *                   post_index:
+ *                     type: string
+ *                     example: "123456"
+ *                 required:
+ *                   - name
+ *                   - nip
+ *                   - registration_day
+ *                   - nr_license
+ *                   - email
  *         400:
  *           description: Ошибка валидации данных
  */
@@ -103,28 +169,28 @@ router.post("/clinics", clinicController.createClinic);
  *         required: false
  *         schema:
  *           type: string
- *           example: "Дурка"
+ *           example: "Durka"
  *       - name: province
  *         in: query
  *         description: Провинция для фильтрации
  *         required: false
  *         schema:
  *           type: string
- *           example: "Гродненская область"
+ *           example: "Grodhno"
  *       - name: specialty
  *         in: query
  *         description: Специальность клиники для фильтрации
  *         required: false
  *         schema:
  *           type: string
- *           example: "Кардиология"
+ *           example: "Peper dr"
  *       - name: city
  *         in: query
  *         description: Город для фильтрации
  *         required: false
  *         schema:
  *           type: string
- *           example: "Новогрудок"
+ *           example: "Novogrudok"
  *     responses:
  *       200:
  *         description: Список клиник успешно получен
@@ -168,7 +234,7 @@ router.get("/clinics/:clinicId", clinicController.getFullClinic);
  *         description: ID клиники
  *         schema:
  *           type: integer
- *           example: 1
+ *           example: 3
  *     requestBody:
  *       description: Обновленные данные клиники
  *       required: true
@@ -177,15 +243,55 @@ router.get("/clinics/:clinicId", clinicController.getFullClinic);
  *           schema:
  *             type: object
  *             properties:
- *               name:
- *                 type: string
- *                 example: "Обновленное название клиники"
- *               province:
- *                 type: string
- *                 example: "Новая провинция"
- *             required:
- *               - name
- *               - province
+ *               clinicData:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     example: "Durka"
+ *                   nip:
+ *                     type: string
+ *                     example: "1234567890"
+ *                   registration_day:
+ *                     type: string
+ *                     format: date
+ *                     example: "2023-01-01"
+ *                   nr_license:
+ *                     type: string
+ *                     example: "NR-123456"
+ *                   email:
+ *                     type: string
+ *                     example: "clinic@example.com"
+ *                   phone:
+ *                     type: string
+ *                     example: "+123456789"
+ *                   description:
+ *                     type: string
+ *                     example: "Descripcion clinic"
+ *                   schedule:
+ *                     type: string
+ *                     example: "Пн-Пт: 8:00 - 17:00"
+ *               addressData:
+ *                 type: object
+ *                 properties:
+ *                   city:
+ *                     type: string
+ *                     example: "Novogrudok"
+ *                   street:
+ *                     type: string
+ *                     example: "st Lenina"
+ *                   province:
+ *                     type: string
+ *                     example: "Grodhno"
+ *                   home:
+ *                     type: string
+ *                     example: "10"
+ *                   flat:
+ *                     type: string
+ *                     example: "5"
+ *                   post_index:
+ *                     type: string
+ *                     example: "123456"
  *     responses:
  *       200:
  *         description: Клиника успешно обновлена

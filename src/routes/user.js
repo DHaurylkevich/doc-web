@@ -1,48 +1,48 @@
 const express = require("express");
 const router = express.Router();
 const UserController = require("../controllers/userController");
-const { auth } = require("../middleware/auth");
 const { passwordValidation } = require('../utils/validation/userValidation');
 const { validateRequest } = require('../middleware/errorHandler');
 
 /**
- * @swagger
- * paths:
- *  /users/login:
- *   post:
- *      summary: Получить токен доступа
- *      description: Возвращает токен доступа при корректных данных пользователя
- *      operationId: loginUser
- *      tags:
- *        - Users
- *      requestBody:
- *        description: Данные пользователя для входа
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                loginParam:
- *                  type: string
- *                  example: email@gmail.com
- *                  description: Логин (email, телефон или pesel) пользователя
- *                password:
- *                  type: string
- *                  example: 123456789
- *                  description: Пароль пользователя
- *      responses:
- *        200:
- *          description: Успешный вход и получение токена
- *          content:
- *            application/json:
- *              schema:
- *                type: string
- *                example: "<access_token>"
- *        404:
- *          description: Пользователь не найден
- */
-router.post("/users/login", UserController.loginUser);
+// //  * @swagger
+// //  * paths:
+// //  *  /users/login:
+// //  *   post:
+// //  *      summary: Получить токен доступа
+// //  *      description: Возвращает токен доступа при корректных данных пользователя
+// //  *      operationId: loginUser
+// //  *      tags:
+// //  *        - Users
+// //  *      requestBody:
+// //  *        description: Данные пользователя для входа
+// //  *        required: true
+// //  *        content:
+// //  *          application/json:
+// //  *            schema:
+// //  *              type: object
+// //  *              properties:
+// //  *                loginParam:
+// //  *                  type: string
+// //  *                  example: email@gmail.com
+// //  *                  description: Логин (email, телефон или pesel) пользователя
+// //  *                password:
+// //  *                  type: string
+// //  *                  example: 123456789
+// //  *                  description: Пароль пользователя
+// //  *      responses:
+// //  *        200:
+// //  *          description: Успешный вход и получение токена
+// //  *          content:
+// //  *            application/json:
+// //  *              schema:
+// //  *                type: string
+// //  *                example: "<access_token>"
+// //  *        404:
+// //  *          description: Пользователь не найден
+// //  */
+// router.post("/users/login", UserController.loginUser);
+
 /**
  * @swagger
  * /users/account:
@@ -72,7 +72,7 @@ router.post("/users/login", UserController.loginUser);
  *       404:
  *         description: Пользователь не найден
 */
-router.get("/users/account", auth, UserController.getUserAccount);
+router.get("/users/account", UserController.getUserAccount);
 /**
  * @swagger
  * /users/{userId}/password:
@@ -115,7 +115,7 @@ router.get("/users/account", auth, UserController.getUserAccount);
  *       404:
  *         description: Пользователь не найден
  */
-router.put("/users/:userId/password", passwordValidation, validateRequest, auth, UserController.updateUserPassword);
+router.put("/users/:userId/password", passwordValidation, validateRequest, UserController.updateUserPassword);
 /**
  * @swagger
  * /users/{userId}:
@@ -145,7 +145,7 @@ router.put("/users/:userId/password", passwordValidation, validateRequest, auth,
  *                   type: string
  *                   example: "Successful delete"
  */
-router.delete("/users/:userId", auth, UserController.deleteUser);
+router.delete("/users/:userId", UserController.deleteUser);
 /**
  * @swagger
  * paths:

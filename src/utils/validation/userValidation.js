@@ -1,5 +1,4 @@
 const { body } = require('express-validator');
-const { query } = require('express-validator');
 
 const passwordValidation = [
     body("newPassword")

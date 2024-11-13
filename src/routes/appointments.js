@@ -46,19 +46,22 @@ const AppointmentController = require("../controllers/appointmentController");
  *                   description: Временной интервал записи
  *                 firstVisit:
  *                   type: boolean
+ *                   enum: [true, false]
  *                   example: true
  *                   description: Первичный визит или нет
  *                 visitType:
  *                   type: string
- *                   example: "консультация"
+ *                   enum: ["prywatna", "NFZ"]
+ *                   example: "prywatna"
  *                   description: Тип визита
  *                 status:
  *                   type: string
- *                   example: "подтверждено"
+ *                   enum: ["active", "canceled", "completed"]
+ *                   example: "active"
  *                   description: Статус записи
  *                 description:
  *                   type: string
- *                   example: "Пациент жалуется на боли в спине"
+ *                   example: "Headache"
  *                   description: Описание визита
  *       responses:
  *         201:
@@ -94,6 +97,8 @@ const AppointmentController = require("../controllers/appointmentController");
 router.post("/appointments", AppointmentController.createAppointment);
 /**
  * @swagger
+ * paths:
+ *   /appointments:
  *      get:
  *       summary: Получить доступные слоты для записи
  *       description: Получает доступные слоты для записи с учетом фильтров.
@@ -107,7 +112,7 @@ router.post("/appointments", AppointmentController.createAppointment);
  *           description: Город для фильтрации
  *           schema:
  *             type: string
- *             example: "Москва"
+ *             example: "Novogrudok"
  *         - name: specialty
  *           in: query
  *           required: false
@@ -172,10 +177,10 @@ router.post("/appointments", AppointmentController.createAppointment);
  *                       properties:
  *                         city:
  *                           type: string
- *                           example: "Москва"
+ *                           example: "Новогрудок"
  *                         street:
  *                           type: string
- *                           example: "Ленина"
+ *                           example: "Мицкевича"
  *                         home:
  *                           type: string
  *                           example: "1"
@@ -196,11 +201,134 @@ router.post("/appointments", AppointmentController.createAppointment);
 router.get("/appointments", AppointmentController.getAvailableSlotsWithFilter);
 /**
  * @swagger
+ * paths:
+ *   /clinics/{clinicId}/appointments:
+ *      get:
+ *       summary: Получить записи для графика
+ *       description: Получает записи с учетом фильтров.
+ *       operationId: getAppointmentsWithFilter
+ *       tags:
+ *         - Appointment
+ *       parameters:
+ *         - name: clinicId
+ *           in: path
+ *           required: true
+ *           description: ID клиники
+ *           schema:
+ *             type: integer
+ *         - name: doctorId
+ *           in: query
+ *           required: false
+ *           description: ID Доктора  для фильтрации
+ *           schema:
+ *             type: integer
+ *             example: 1
+ *         - name: patientId
+ *           in: query
+ *           required: false
+ *           description: ID Пациента  для фильтрации
+ *           schema:
+ *             type: integer
+ *             example: 1
+ *         - name: date
+ *           in: query
+ *           required: false
+ *           description: Дата для фильтрации
+ *           schema:
+ *             type: string
+ *             format: date
+ *             example: "2024-11-05"
+ *         - name: specialty
+ *           in: query
+ *           required: false
+ *           description: Специальность доктора
+ *           schema:
+ *             type: string
+ *             example: "Raper"
+ *         - name: limit
+ *           in: query
+ *           required: false
+ *           description: Лимит на количество результатов
+ *           schema:
+ *             type: integer
+ *             example: 10
+ *         - name: offset
+ *           in: query
+ *           required: false
+ *           description: Смещение для пагинации
+ *           schema:
+ *             type: integer
+ *             example: 0
+ *       responses:
+ *         200:
+ *           description: Массив записей с информацией о врачах, пациентах, специальностях, услугах, дате и времени приёма
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     doctor:
+ *                       type: object
+ *                       properties:
+ *                         first_name:
+ *                           type: string
+ *                           example: "Adam"
+ *                         last_name:
+ *                           type: string
+ *                           example: "Mickevich"
+ *                     patient:
+ *                       type: object
+ *                       properties:
+ *                         first_name:
+ *                           type: string
+ *                           nullable: true
+ *                           example: "Nulle"
+ *                         last_name:
+ *                           type: string
+ *                           nullable: true
+ *                           example: "Nulovy"
+ *                     specialty:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                           example: "Dr Dre"
+ *                     service:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                           example: "Cut arm"
+ *                         price:
+ *                           type: string
+ *                           example: "10.20"
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                       example: "2024-11-10"
+ *                     start_time:
+ *                       type: string
+ *                       format: time
+ *                       example: "10:30"
+ *                     end_time:
+ *                       type: string
+ *                       format: time
+ *                       example: "11:00"
+ *         400:
+ *           description: Неверные данные запроса
+ *         500:
+ *           description: Внутренняя ошибка сервера
+ */
+router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointmentsWithFilter);
+/**
+ * @swagger
  *   /doctors/{doctorId}/appointments:
  *     get:
  *       summary: Получить все записи на прием
  *       description: Получает все записи для указанного врача.
- *       operationId: getAllAppointmentsByDoctor
+ *       operationId: getAppointmentsByDoctor
  *       tags:
  *         - Appointment
  *       parameters:
@@ -242,14 +370,14 @@ router.get("/appointments", AppointmentController.getAvailableSlotsWithFilter);
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/doctors/:doctorId/appointments", AppointmentController.getAllAppointmentsByDoctor);
+router.get("/doctors/:doctorId/appointments", AppointmentController.getAppointmentsByDoctor);
 /**
  * @swagger
  *   /patients/{patientId}/appointments:
  *     get:
  *       summary: Получить все записи пациента
  *       description: Получает все записи на прием для указанного пациента.
- *       operationId: getAllAppointmentsByPatient
+ *       operationId: getAppointmentsByPatient
  *       tags:
  *         - Appointment
  *       parameters:
@@ -291,7 +419,7 @@ router.get("/doctors/:doctorId/appointments", AppointmentController.getAllAppoin
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/patients/:patientId/appointments", AppointmentController.getAllAppointmentsByPatient);
+router.get("/patients/:patientId/appointments", AppointmentController.getAppointmentsByPatient);
 /**
  * @swagger
  *    /appointments/{id}:

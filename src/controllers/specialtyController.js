@@ -2,7 +2,7 @@ const SpecialtyService = require("../services/specialtyService");
 
 const SpecialtyController = {
     createSpecialty: async (req, res, next) => {
-        const { specialtyData } = req.body;
+        const specialtyData = req.body;
 
         try {
             const specialty = await SpecialtyService.createSpecialty(specialtyData);
@@ -43,7 +43,7 @@ const SpecialtyController = {
     },
     updateSpecialty: async (req, res, next) => {
         const { specialtyId } = req.params;
-        const { specialtyData } = req.body;
+        const specialtyData = req.body;
 
         try {
             const updateSpecialty = await SpecialtyService.updateSpecialty(specialtyId, specialtyData);

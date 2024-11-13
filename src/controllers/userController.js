@@ -1,35 +1,36 @@
 const UserService = require("../services/userService");
+const passport = require('passport');
 const { createJWT } = require("../middleware/auth");
 const passwordUtil = require("../utils/passwordUtil");
+const AppError = require("../utils/appError");
 
 const UserController = {
-    /**
-     * Вход пользователя
-     * @param {String} loginParam 
-     * @param {String} password
-     * @param {*} next 
-     */
-    loginUser: async (req, res, next) => {
-        const { loginParam, password } = req.body;
-
-        try {
-            const user = await UserService.findUserByParam(loginParam);
-
-            passwordUtil.checkingPassword(password, user.password);
-
-            const token = createJWT(user.id, user.role);
-
-            res.cookie("token", token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                maxAge: 24 * 60 * 60 * 1000
-            });
-            res.status(200).json(token);
-        } catch (err) {
-            console.log(err);
-            next(err);
-        }
-    },
+    // /**
+    //  * Вход пользователя
+    //  * @param {String} loginParam 
+    //  * @param {String} password
+    //  * @param {*} next 
+    //  */
+    // loginUser: async (req, res, next) => {
+    //     passport.authenticate('local', (err, user, info) => {
+    //         if (err) return next(err);
+    //         if (!user) return next(new AppError(info.message, 401));
+            
+    //         req.logIn(user, (err) => {
+    //             if (err) return next(err);
+    //             return res.status(200).json({
+    //                 message: 'Успешный вход',
+    //                 user: {
+    //                     id: user.id,
+    //                     email: user.email,
+    //                     role: user.role,
+    //                     first_name: user.first_name,
+    //                     last_name: user.last_name
+    //                 }
+    //             });
+    //         });
+    //     })(req, res, next);
+    // },
     /**
      * Получение объекта user и данных по его id и role
      * @param {*} req 

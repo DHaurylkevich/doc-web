@@ -19,14 +19,10 @@ const specialtyController = require("../controllers/specialtyController");
  *            schema:
  *              type: object
  *              properties:
- *                specialtyData:
- *                  type: object
- *                  description: Объект данных специальности
- *                  properties:
- *                    name:
- *                      type: string
- *                      example: "хирург"
- *                      description: Название специальности
+ *                 name:
+ *                   type: string
+ *                   example: "хирург"
+ *                   description: Название специальности
  *      responses:
  *        201:
  *          description: Успешное создание специальности

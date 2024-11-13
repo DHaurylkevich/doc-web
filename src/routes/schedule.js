@@ -4,12 +4,19 @@ const ScheduleController = require("../controllers/scheduleController");
 
 /**
  * @swagger
- * /schedules:
+ * /clinics/{clinicId}/schedules:
  *   post:
  *     summary: Создание нового расписания
  *     description: Создает новое расписание для указанного врача и клиники.
  *     tags:
  *       - Schedules
+ *     parameters:
+ *       - in: path
+ *         name: clinicId
+ *         description: ID клиники.
+ *         schema:
+ *           type: integer
+ *         example: 3
  *     requestBody:
  *       required: true
  *       content:
@@ -17,12 +24,15 @@ const ScheduleController = require("../controllers/scheduleController");
  *           schema:
  *             type: object
  *             properties:
- *               doctor_id:
+ *               doctorsIds:
+ *                 type: array
+ *                 description: Массив ID докторов
+ *                 items:
+ *                   type: integer
+ *                 example: [4]
+ *               interval:
  *                 type: integer
- *                 example: 1
- *               clinic_id:
- *                 type: integer
- *                 example: 2
+ *                 example: 30
  *               date:
  *                 type: string
  *                 format: date
@@ -41,10 +51,10 @@ const ScheduleController = require("../controllers/scheduleController");
  *       400:
  *         description: Ошибка создания расписания.
  */
-router.post("/schedules", ScheduleController.createSchedule)
+router.post("/clinics/:clinicId/schedules", ScheduleController.createSchedule)
 /**
  * @swagger
- * /schedules/{id}:
+ * /schedules/{scheduleId}:
  *   get:
  *     summary: Получить расписание по ID
  *     description: Возвращает информацию о расписании по его ID.
@@ -52,7 +62,7 @@ router.post("/schedules", ScheduleController.createSchedule)
  *       - Schedules
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: scheduleId
  *         required: true
  *         description: ID расписания.
  *         schema:
@@ -63,10 +73,10 @@ router.post("/schedules", ScheduleController.createSchedule)
  *       404:
  *         description: Расписание не найдено.
  */
-router.get("/schedules/:id", ScheduleController.getScheduleById);
+router.get("/schedules/:scheduleId", ScheduleController.getScheduleById);
 /**
  * @swagger
- * /schedules/{id}:
+ * /schedules/{scheduleId}:
  *   put:
  *     summary: Обновить расписание
  *     description: Обновляет существующее расписание по его ID.
@@ -74,7 +84,7 @@ router.get("/schedules/:id", ScheduleController.getScheduleById);
  *       - Schedules
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: scheduleId
  *         required: true
  *         description: ID расписания для обновления.
  *         schema:
@@ -106,10 +116,10 @@ router.get("/schedules/:id", ScheduleController.getScheduleById);
  *       400:
  *         description: Ошибка обновления расписания.
  */
-router.put("/schedules/:id", ScheduleController.updateSchedule);
+router.put("/schedules/:scheduleId", ScheduleController.updateSchedule);
 /**
  * @swagger
- * /schedules/{id}:
+ * /schedules/{scheduleId}:
  *   delete:
  *     summary: Удалить расписание
  *     description: Удаляет существующее расписание по его ID.
@@ -117,7 +127,7 @@ router.put("/schedules/:id", ScheduleController.updateSchedule);
  *       - Schedules
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: scheduleId
  *         required: true
  *         description: ID расписания для удаления.
  *         schema:
@@ -130,10 +140,10 @@ router.put("/schedules/:id", ScheduleController.updateSchedule);
  *       400:
  *         description: Ошибка удаления расписания.
  */
-router.delete("/schedules/:id", ScheduleController.deleteSchedule);
+router.delete("/schedules/:scheduleId", ScheduleController.deleteSchedule);
 /**
  * @swagger
- * /schedules/doctor/{doctor_id}:
+ * /doctors/{doctorId}/schedules:
  *   get:
  *     summary: Получить расписание по ID доктора
  *     description: Возвращает список расписаний для указанного доктора.
@@ -141,11 +151,12 @@ router.delete("/schedules/:id", ScheduleController.deleteSchedule);
  *       - Schedules
  *     parameters:
  *       - in: path
- *         name: doctor_id
+ *         name: doctorId
  *         required: true
  *         description: ID доктора.
  *         schema:
  *           type: integer
+ *         example: 4
  *     responses:
  *       200:
  *         description: Успешное получение расписания для доктора.
@@ -155,7 +166,7 @@ router.delete("/schedules/:id", ScheduleController.deleteSchedule);
 router.get("/doctors/:doctorId/schedules", ScheduleController.getScheduleByDoctor);
 /**
  * @swagger
- * /schedules/clinic/{clinic_id}:
+ * /clinics/{clinicId}/schedules:
  *   get:
  *     summary: Получить расписание по ID клиники
  *     description: Возвращает список расписаний для указанной клиники.
@@ -163,11 +174,11 @@ router.get("/doctors/:doctorId/schedules", ScheduleController.getScheduleByDocto
  *       - Schedules
  *     parameters:
  *       - in: path
- *         name: clinic_id
- *         required: true
+ *         name: clinicId
  *         description: ID клиники.
  *         schema:
  *           type: integer
+ *         example: 3
  *     responses:
  *       200:
  *         description: Успешное получение расписания для клиники.

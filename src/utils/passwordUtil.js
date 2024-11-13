@@ -7,9 +7,9 @@ exports.hashingPassword = async (password) => {
     return hash;
 }
 
-exports.checkingPassword = (password, hashPassword) => {
-    const match = bcrypt.compare(password, hashPassword);
-    if (!match) {
-        throw new Error("Password Error");
-    };
-}
+// exports.checkingPassword = (password, hashPassword) => {
+//     const match = bcrypt.compare(password, hashPassword);
+//     if (!match) {
+//         throw new Error("Password Error");
+//     };
+// }

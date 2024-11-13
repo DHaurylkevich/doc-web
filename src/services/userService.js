@@ -4,6 +4,7 @@ const db = require("../models");
 const passwordUtil = require("../utils/passwordUtil");
 const transporter = require("../utils/mail");
 const { createJWT } = require("../middleware/auth");
+const bcrypt = require("bcrypt");
 const AppError = require("../utils/appError");
 
 const UserService = {
@@ -102,10 +103,8 @@ const UserService = {
 
             if (!user) {
                 user = await db.Clinics.findOne({ where: { [Op.or]: [{ email: param }, { phone: param }] } });
-                if (!user) {
-                    throw new AppError("User not found", 404);
-                }
             }
+
             return user;
         } catch (err) {
             throw err;
@@ -122,7 +121,7 @@ const UserService = {
         try {
             const user = await db.Users.findByPk(userId);
             if (!user) {
-                throw AppError("User not found", 404);
+                throw new AppError("User not found", 404);
             }
             await user.update(updatedData, { transaction: t, returning: true })
 
@@ -141,12 +140,15 @@ const UserService = {
         try {
             const user = await db.Users.findByPk(userId);
             if (!user) {
-                throw AppError("User not found", 404);
+                throw new AppError("User not found", 404);
             }
+            
+            const match = bcrypt.compare(oldPassword, hashPassword);
+            if (!match) {
+                throw new AppError("Password Error", 400);
+            };
 
-            passwordUtil.checkingPassword(oldPassword, user.password);
             newPassword = await passwordUtil.hashingPassword(newPassword);
-
             return await user.update({ password: newPassword });
         } catch (err) {
             throw err;
@@ -162,7 +164,7 @@ const UserService = {
         try {
             const user = await db.Users.findByPk(userId)
             if (!user) {
-                throw AppError("User not found", 404);
+                throw new AppError("User not found", 404);
             }
 
             await user.destroy();

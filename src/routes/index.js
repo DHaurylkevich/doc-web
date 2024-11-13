@@ -15,8 +15,9 @@ const postRouter = require("./post");
 const notionRouter = require("./notion");
 const medicationRouter = require("./medication");
 const prescriptionRouter = require("./prescription");
+const authRouter = require("./auth");
+const { isAuthenticated, hasRole } = require('../middleware/auth');
 
-const { auth } = require("../middleware/auth");
 
 // const { checkAuth, refreshTokenAdmin } = require("../middleware/auth");
 
@@ -35,11 +36,9 @@ router.use("/api", postRouter);
 router.use("/api", notionRouter);
 router.use("/api", medicationRouter);
 router.use("/api", prescriptionRouter);
-// router.use("/image", imageRouter);
-// router.use("/menu", menuRouter);
 
-// router.get("/auth/check", checkAuth);
-// router.get("/auth/refresh", refreshTokenAdmin);
+
+router.use("/", authRouter);
 /**
  * @swagger
  * /api/protected:
@@ -62,7 +61,7 @@ router.use("/api", prescriptionRouter);
  *       200:
  *          description: Успешно
 */
-router.get("/api/protected", auth, (req, res) => {
+router.get("/api/protected", isAuthenticated, (req, res) => {
     res.status(200).json({ message: `You have accessed a protected route.` });
 });
 

@@ -11,7 +11,8 @@ const DoctorController = {
      * @param {*} next 
      */
     createDoctor: async (req, res, next) => {
-        const { userData, addressData, doctorData, specialtyId, clinicId, servicesIds } = req.body;
+        const { clinicId } = req.params;
+        const { userData, addressData, doctorData, specialtyId, servicesIds } = req.body;
 
         try {
             const createdDoctor = await DoctorService.createDoctor(userData, addressData, doctorData, specialtyId, clinicId, servicesIds);

@@ -1,0 +1,74 @@
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const db = require("../models");
+const bcrypt = require("bcrypt");
+const { Op } = require("sequelize");
+
+passport.use(new LocalStrategy({
+    usernameField: "loginParam",
+    passwordField: "password"
+}, async (loginParam, password, done) => {
+    try {
+        const user = await db.Users.findOne({
+            where: {
+                [Op.or]: [
+                    { email: loginParam },
+                    { phone: loginParam },
+                    { pesel: loginParam }
+                ]
+            }
+        });
+
+        if (!user) {
+            return done(null, false, { message: "Пользователь не найден" });
+        }
+
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) {
+            return done(null, false, { message: "Неверный пароль" });
+        }
+
+        return done(null, user);
+    } catch (err) {
+        return done(err);
+    }
+}));
+
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "/auth/google/callback"
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        let user = await db.Users.findOne({ where: { email: profile.emails[0].value } });
+
+        if (!user) {
+            user = await db.Users.create({
+                photo: profile.photos[0].value,
+                email: profile.emails[0].value,
+                first_name: profile.name.givenName,
+                last_name: profile.name.familyName,
+                role: "patient"
+            });
+        }
+
+        return done(null, user);
+    } catch (err) {
+        return done(err);
+    }
+}));
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await db.Users.findByPk(id);
+        done(null, user);
+    } catch (err) {
+        done(err);
+    }
+});
+module.exports = passport;

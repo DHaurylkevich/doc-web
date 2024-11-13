@@ -4,12 +4,12 @@ const serviceController = require("../controllers/serviceController");
 
 /**
  * @swagger
- * /clinic/{clinicId}/services:
+ * /clinics/{clinicId}/services:
  *   post:
  *     summary: Создать новую услугу
  *     description: Создает новую услугу связанную с специализанией для клиники.
  *     tags:
- *       - Notions
+ *       - Services
  *     parameters:
  *       - name: clinicId
  *         in: path
@@ -43,7 +43,7 @@ const serviceController = require("../controllers/serviceController");
  *       201:
  *         description: Успешно создана услуга
  */
-router.post("/clinic/:clinicId/services", serviceController.createService);
+router.post("/clinics/:clinicId/services", serviceController.createService);
 /**
  * @swagger
  * /services:

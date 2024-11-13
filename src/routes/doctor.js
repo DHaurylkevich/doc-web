@@ -5,12 +5,20 @@ const doctorController = require("../controllers/doctorController");
 /**
  * @swagger
  * paths:
- *   /doctors:
+ *   /clinic/{clinicId}/doctors:
  *     post:
  *       summary: Создание нового доктора
  *       operationId: createDoctor
  *       tags:
  *         - Doctors
+ *       parameters:
+ *         - name: clinicId
+ *           in: path
+ *           required: true
+ *           description: ID клиники для поиска
+ *           schema:
+ *             type: integer
+ *             example: 1
  *       requestBody:
  *         required: true
  *         content:
@@ -18,10 +26,6 @@ const doctorController = require("../controllers/doctorController");
  *             schema:
  *               type: object
  *               properties:
- *                 clinicId:
- *                   type: integer
- *                   description: Идентификатор клиники
- *                   example: 1
  *                 userData:
  *                   type: object
  *                   description: Данные пользователя
@@ -94,7 +98,7 @@ const doctorController = require("../controllers/doctorController");
  *                     description:
  *                       type: string
  *                       description: Описание доктора
- *                       example: "Специалист в области кардиологии"
+ *                       example: "Dr dre eeeee"
  *                 specialtyId:
  *                   type: integer
  *                   description: Идентификатор специальности
@@ -111,7 +115,7 @@ const doctorController = require("../controllers/doctorController");
  *         404:
  *           description: Пользователь не найден
  */
-router.post("/doctors/", doctorController.createDoctor);
+router.post("/clinic/:clinicId/doctors/", doctorController.createDoctor);
 
 // router.get("/doctors", doctorController);
 

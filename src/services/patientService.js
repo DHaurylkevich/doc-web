@@ -1,8 +1,8 @@
 const sequelize = require("../config/db");
 const db = require("../models");
+const AppError = require("../utils/appError");
 const UserService = require("../services/userService");
 const AddressService = require("../services/addressService");
-const authMiddleware = require("../middleware/auth");
 const passwordUtil = require("../utils/passwordUtil");
 
 const PatientService = {
@@ -32,7 +32,7 @@ const PatientService = {
                 transaction: t
             });
             if (foundUser) {
-                throw new Error("User already exist");
+                throw new AppError("User already exist", 400);
             }
 
             const hashedPassword = await passwordUtil.hashingPassword(userData.password);
@@ -41,27 +41,15 @@ const PatientService = {
                 ...filter,
                 password: hashedPassword,
                 role: "patient",
-            });
-            // const createdUser = await db.Users.create(
-            //     {
-            //         ...userData,
-            //         address: addressData
-            //     },
-            //     {
-            //         include: [{ model: db.Addresses, as: 'address' }],
-            //         transaction: t
-            //     }
-            // );
+            },
+                { transaction: t });
 
             await createdUser.createPatient(patientData, { transaction: t });
 
-            // await createdPatient.createAddress(addressData, { transaction: t });
-
             await t.commit();
-            return authMiddleware.createJWT(createdUser.id, createdUser.role);
+            return createdUser;
         } catch (err) {
             await t.rollback();
-            console.error("Error occurred", err);
             throw err;
         }
     },
@@ -116,7 +104,7 @@ const PatientService = {
             });
 
             if (!patient) {
-                throw new Error("Patient not found");
+                throw new AppError("Patient not found", 404);
             }
             return patient;
         } catch (err) {
@@ -139,7 +127,7 @@ const PatientService = {
 
             const patient = await user.getPatient();
             if (!patient) {
-                throw new Error("Patient not found");
+                throw new AppError("Patient not found", 404);
             }
             await patient.update(patientData, { transaction: t });
 
@@ -152,7 +140,6 @@ const PatientService = {
             return { user, patient, address };
         } catch (err) {
             await t.rollback();
-            console.error("Error occurred", err);
             throw err;
         }
     },

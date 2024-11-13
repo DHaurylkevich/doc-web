@@ -17,11 +17,11 @@ const DoctorService = {
         const t = await sequelize.transaction();
 
         try {
-            await ClinicService.getClinicById(clinicId, { transaction: t });
+            await ClinicService.getClinicById(clinicId);
 
-            const foundUser = await db.Users.findOne({ where: { pesel: userData.pesel } });
+            const foundUser = await db.Users.findOne({ where: { pesel: userData.pesel } }, { transaction: t });
             if (foundUser) {
-                throw new AppError("User already exist", 409);
+                throw new AppError("User already exist", 404);
             }
 
             const createdUser = await db.Users.create(
@@ -59,8 +59,6 @@ const DoctorService = {
     },
     getDoctorById: async (userId) => {
         try {
-            await ClinicService.getClinicById(clinicId);
-
             const doctor = await db.Doctors.findOne({
                 include: [
                     {
@@ -123,7 +121,6 @@ const DoctorService = {
     },
     getShortDoctorById: async (doctorId) => {
         try {
-            console.log(doctorId);
             const doctor = await db.Doctors.findByPk(doctorId, {
                 include: [
                     {

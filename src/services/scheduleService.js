@@ -1,50 +1,52 @@
 const { Op } = require("sequelize");
 const db = require("../models");
-// const DoctorService = require("../services/doctorService");
-// const ClinicService = require("../services/clinicService");
+const AppError = require("../utils/appError");
 
 const ScheduleService = {
-    createSchedule: async (scheduleData) => {
-        const transaction = await db.sequelize.transaction();
+    createSchedule: async (clinicId, scheduleData) => {
+        const t = await db.sequelize.transaction();
 
         try {
             const { doctorsIds, ...commonData } = scheduleData;
+
             const existingDoctors = await db.Doctors.findAll({
                 where: { id: { [Op.in]: doctorsIds } },
                 attributes: ['id'],
-                transaction
+                transaction: t
             });
             if (existingDoctors.length !== doctorsIds.length) {
-                throw new Error("One or more doctors do not exist.");
+                throw new AppError("One or more doctors not found", 404);
             }
-            const clinicId = scheduleData.clinic_id;
+
             const existingClinic = await db.Clinics.findByPk(clinicId, {
                 attributes: ['id'],
-                transaction
+                transaction: t
             });
             if (!existingClinic) {
-                throw new Error(`Clinic does not exist.`);
+                throw new AppError("Clinic not found", 404);
             }
+
             scheduleData = doctorsIds.map(doctorId => ({
                 ...commonData,
+                clinic_id: clinicId,
                 doctor_id: doctorId
             }));
-            console.log(scheduleData)
             const existingSchedules = await db.Schedules.findAll({
                 where: {
                     [Op.or]: scheduleData
                 },
-                transaction
+                transaction: t
             });
             if (existingSchedules.length > 0) {
-                throw new Error("One or more schedules already exist.");
+                throw new AppError("One or more schedules already exist", 400);
             }
-            const createdSchedules = await db.Schedules.bulkCreate(scheduleData, { transaction });
 
-            await transaction.commit();
+            const createdSchedules = await db.Schedules.bulkCreate(scheduleData, { transaction: t });
+
+            await t.commit();
             return createdSchedules;
         } catch (err) {
-            await transaction.rollback();
+            await t.rollback();
             throw err;
         }
     },
@@ -55,7 +57,7 @@ const ScheduleService = {
             });
 
             if (!schedule) {
-                throw new Error("Schedule not found");
+                throw new AppError("Schedule not found", 404);
             }
 
             return schedule;
@@ -68,7 +70,7 @@ const ScheduleService = {
             let schedule = await db.Schedules.findByPk(id);
 
             if (!schedule) {
-                throw new Error("Schedule not found");
+                throw new AppError("Schedule not found", 404);
             }
 
             schedule = await schedule.update(data);
@@ -83,7 +85,7 @@ const ScheduleService = {
             let schedule = await db.Schedules.findByPk(id);
 
             if (!schedule) {
-                throw new Error("Schedule not found");
+                throw new AppError("Schedule not found", 404);
             }
 
             await schedule.destroy();
@@ -91,10 +93,10 @@ const ScheduleService = {
             throw err;
         }
     },
-    getScheduleByDoctor: async (doctor_id) => {
+    getScheduleByDoctor: async (doctorId) => {
         try {
             const schedule = await db.Schedules.findAll({
-                where: { doctor_id: doctor_id },
+                where: { doctor_id: doctorId },
             });
 
             return schedule;
@@ -102,13 +104,13 @@ const ScheduleService = {
             throw err;
         }
     },
-    getScheduleByClinic: async (clinic_id) => {
+    getScheduleByClinic: async (clinicId) => {
         try {
             const schedule = await db.Schedules.findAll({
-                where: { clinic_id: clinic_id },
+                where: { clinic_id: clinicId },
                 include: [db.Doctors],
             });
-            
+
             return schedule;
         } catch (err) {
             throw err;

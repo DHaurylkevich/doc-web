@@ -1,10 +1,12 @@
 const db = require("../models");
+const ClinicService = require("../services/clinicService");
+const SpecialtyService = require("../services/specialtyService");
 
 const ServiceService = {
     createService: async (clinicId, name, specialtyId, price) => {
         try {
-            // Проверка существования клиники
-            // Проверка существования специальности
+            await ClinicService.getClinicById(clinicId);
+            await SpecialtyService.getSpecialtyById(specialtyId);
 
             const service = await db.Services.create({ name, price, clinic_id: clinicId, specialty_id: specialtyId });
             return service

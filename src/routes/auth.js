@@ -1,98 +1,94 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../models/user")
-const Patient = require("../models/patient");
-const Doctor = require("../models/doctor")
+const passport = require('passport');
+const AuthController = require('../controllers/authController');
 
-router.post("/register", async (req, res) => {
-    const { 
-        email, 
-        password,
-        role, 
-        name, 
-        contact, 
-        specialization, 
-        age, 
-        medicalHistory 
-    } = req.body;
-
-    try {
-        let user = await User.findOne({ email });
-        if (user) {
-            return res.status(400).json( {message: "Пользователь с таким email существует"} );
-        }
-        
-        user = new User({
-            email,
-            password: await bcrypt.hash(password, 10),
-            role
-        });
-        
-        const saveUser = await user.save();
-
-        if (roll == "doctor") {
-            const doctor = new Doctor({
-                name,
-                specialization,
-                contact,
-                userId: saveUser._id
-            });
-            const saveDoctor = await doctor.save();
-            res.status(201).json({ saveUser, saveDoctor})
-        } else if (role === "patient") {
-            const patient = new Patient({
-                name,
-                age,
-                contact,
-                medicalHistory,
-                userId: saveUser._id
-            });
-            const savePatient = await patient.save();
-            res.status(201).json( saveUser, savePatient);
-        } else {
-            res.status(400).json({ message: "Некорректная роль" });
-        }
-    } catch (err){
-        console.error(err);
-        res.status(500).json({ message: err.message });
-    }
-});
-
-router.post("/login", async (req, res) => {
-    const { email, password } = req.body;
-    
-    try{
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json( {message: "Неверный email или пароль"} );
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: "Неверный email или пароль" });
-        };
-
-        const payload = {
-            user: {
-                id: user._id,
-                role: user._role,
-            }
-        };
-        jwt.sign(
-            payload,
-            process.env.JST_SECRET,
-            { expiresIn: "1h" },
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-            }
-        );
-    } catch (err){
-        console.error(err);
-        res.status(500).json({ message: err.message });
-    }
-});
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Аутентификация пользователя
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               loginParam:
+ *                 type: string
+ *                 description: Email, телефон или PESEL пользователя
+ *               password:
+ *                 type: string
+ *                 description: Пароль пользователя
+ *     responses:
+ *       200:
+ *         description: Успешная аутентификация
+ *       401:
+ *         description: Неверные учетные данные
+ */
+router.post('/login', passport.authenticate('local', { failWithError: true, failureMessage: true, }), AuthController.login);
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: Регистрация нового пользователя
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userData:
+ *                 type: object
+ *               patientData:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Пользователь успешно зарегистрирован
+ *       400:
+ *         description: Ошибка валидации данных
+ */
+router.post('/register', AuthController.register);
+/**
+ * @swagger
+ * /logout:
+ *   get:
+ *     summary: Выход пользователя из системы
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Успешный выход из системы
+ *       500:
+ *         description: Ошибка сервера
+ */
+router.get('/logout', AuthController.logout);
+/**
+ * @swagger
+ * /auth/google:
+ *   get:
+ *     summary: Начало аутентификации через Google
+ *     tags: [Auth]
+ *     responses:
+ *       302:
+ *         description: Перенаправление на страницу аутентификации Google
+ */
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+/**
+ * @swagger
+ * /auth/google/callback:
+ *   get:
+ *     summary: Callback URL для аутентификации через Google
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Успешная аутентификация через Google
+ *       401:
+ *         description: Ошибка аутентификации
+ */
+router.get('/auth/google/callback', passport.authenticate('google', { failWithError: true, failureMessage: true, }), AuthController.login);
 
 module.exports = router;
