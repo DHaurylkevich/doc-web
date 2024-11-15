@@ -10,12 +10,12 @@ const AppError = require("./src/utils/appError");
 const swaggerDocs = require("./src/utils/swagger");
 const morgan = require("morgan");
 
-// const io = require("./src/controllers/websocketController");
+const io = require("./src/controllers/websocketController");
 
 require("./src/config/db");
 
 app.use(sessionConfig);
-// io(server, sessionConfig);
+io(server, sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
 require('./src/config/passport');
