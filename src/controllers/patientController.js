@@ -48,9 +48,10 @@ const PatientController = {
     updatePatientById: async (req, res, next) => {
         const { userId } = req.params;
         const { userData, patientData, addressData } = req.body;
+        const image = req.file ? req.file.path : null;
 
         try {
-            const updatePatient = await PatientService.updatePatient(userId, userData, patientData, addressData)
+            const updatePatient = await PatientService.updatePatient(image, userId, userData, patientData, addressData)
 
             res.status(200).json(updatePatient);
         } catch (err) {

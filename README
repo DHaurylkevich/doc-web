@@ -12,6 +12,7 @@
 - bcrypt
 - jsonwebtoken
 - cloudinary
+- multer-storage-cloudinary
 - multer
 - logger
 - dotenv
@@ -25,6 +26,8 @@
 - passport 
 - passport-google-oauth20
 - passport-local
+- socket.io
+- express-socket.io-session
 
 - morgan
 - mocha
@@ -33,6 +36,7 @@
 - supertest
 - sinon
 - faker
+- socket.io-client
 
 ## Установка и настройка 
 

@@ -1,44 +1,46 @@
 const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
+const cloudinary = require("../config/cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const { extractPublicId } = require("cloudinary-build-url");
 
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-const storagePackages = new CloudinaryStorage({
+const storageImages = new CloudinaryStorage({
     cloudinary,
     secure: true,
     params: {
-        folder: "packages",
+        folder: "uploads/images",
         allowedFormats: ["jpeg", "png", "jpg"],
+        transformation: [
+            { width: 1000, height: 1000, crop: "limit" },
+            { quality: "auto", fetch_format: "auto" }
+        ],
+        resource_type: "auto",
+        limits: {
+            fileSize: 5 * 1024 * 1024
+        }
     },
 });
 
-const storageImages = new CloudinaryStorage({
+const storageFiles = new CloudinaryStorage({
     cloudinary,
+    secure: true,
     params: {
-        folder: "images",
-        allowedFormats: ["jpeg", "png", "jpg"],
+        folder: "uploads/files",
+        allowedFormats: ["pdf", "doc", "docx"],
+        resource_type: "raw",
+        limits: {
+            fileSize: 10 * 1024 * 1024
+        }
     },
 });
-
 
 exports.deleteFromCloud = async (url) => {
     try {
         const publicId = extractPublicId(url);
-        console.log(publicId)
-        if (publicId !== "packages/standard") {
-            return await cloudinary.uploader.destroy(publicId);
-        }
-        return true;
-    } catch (error) {
-        console.error("Error deleting image:", error);
-        throw error;
+        return await cloudinary.uploader.destroy(publicId);
+    } catch (err) {
+        throw err;
     }
 };
-exports.uploadPackages = multer({ storage: storagePackages });
+
 exports.uploadImages = multer({ storage: storageImages });
+exports.uploadFiles = multer({ storage: storageFiles });

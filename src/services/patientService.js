@@ -119,11 +119,11 @@ const PatientService = {
      * @param {Object} addressData 
      * @returns {Object}
      */
-    updatePatient: async (userId, userData, patientData, addressData) => {
+    updatePatient: async (image, userId, userData, patientData, addressData) => {
         const t = await sequelize.transaction();
 
         try {
-            const user = await UserService.updateUser(userId, userData, t);
+            const user = await UserService.updateUser(image, userId, userData, t);
 
             const patient = await user.getPatient();
             if (!patient) {

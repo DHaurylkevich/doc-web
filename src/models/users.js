@@ -26,6 +26,22 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: 'CASCADE',
         as: "address"
       });
+      Users.hasMany(models.Chats, {
+        foreignKey: 'user_1_id',
+        constraints: false,
+        scope: {
+          user_1_type: 'user'
+        },
+        as: 'user1'
+      });
+      Users.hasMany(models.Chats, {
+        foreignKey: 'user_2_id',
+        constraints: false,
+        scope: {
+          user_2_type: 'user'
+        },
+        as: 'user2'
+      });
     }
   }
   Users.init({

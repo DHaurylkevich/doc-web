@@ -2,33 +2,24 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const db = require("../models");
+const userService = require("../services/userService");
 const bcrypt = require("bcrypt");
-const { Op } = require("sequelize");
 
 passport.use(new LocalStrategy({
     usernameField: "loginParam",
     passwordField: "password"
 }, async (loginParam, password, done) => {
     try {
-        const user = await db.Users.findOne({
-            where: {
-                [Op.or]: [
-                    { email: loginParam },
-                    { phone: loginParam },
-                    { pesel: loginParam }
-                ]
-            }
-        });
+        const user = await userService.findUserByParam(loginParam);
 
         if (!user) {
-            return done(null, false, { message: "Пользователь не найден" });
+            return done(null, false, { message: "User not found" });
         }
 
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) {
-            return done(null, false, { message: "Неверный пароль" });
+            return done(null, false, { message: "Incorrect password" });
         }
-
         return done(null, user);
     } catch (err) {
         return done(err);
@@ -59,14 +50,16 @@ passport.use(new GoogleStrategy({
     }
 }));
 
-passport.serializeUser((user, done) => {
-    done(null, user.id);
+passport.serializeUser((user, cb) => {
+    process.nextTick(function () {
+        return cb(null, { id: user.id, role: user.role });
+    });
 });
 
-passport.deserializeUser(async (id, done) => {
+passport.deserializeUser(async (user, done) => {
     try {
-        const user = await db.Users.findByPk(id);
-        done(null, user);
+        const foundUser = await db.Users.findByPk(user.id);
+        done(null, { id: foundUser.id, role: foundUser.role });
     } catch (err) {
         done(err);
     }

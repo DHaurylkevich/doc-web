@@ -5,6 +5,7 @@ const passwordUtil = require("../utils/passwordUtil");
 const transporter = require("../utils/mail");
 const { createJWT } = require("../middleware/auth");
 const bcrypt = require("bcrypt");
+const { deleteFromCloud } = require("../middleware/upload");
 const AppError = require("../utils/appError");
 
 const UserService = {
@@ -117,12 +118,18 @@ const UserService = {
      * @returns {Object}
      * @throws {Error} "User not found", "Error occurred"
      */
-    updateUser: async (userId, updatedData, t) => {
+    updateUser: async (image, userId, updatedData, t) => {
         try {
             const user = await db.Users.findByPk(userId);
             if (!user) {
                 throw new AppError("User not found", 404);
             }
+
+            if (image && image !== user.photo) {
+                updatedData.photo = image;
+                await deleteFromCloud(user.photo);
+            }
+
             await user.update(updatedData, { transaction: t, returning: true })
 
             return user;
@@ -142,7 +149,7 @@ const UserService = {
             if (!user) {
                 throw new AppError("User not found", 404);
             }
-            
+
             const match = bcrypt.compare(oldPassword, hashPassword);
             if (!match) {
                 throw new AppError("Password Error", 400);

@@ -16,10 +16,12 @@ const notionRouter = require("./notion");
 const medicationRouter = require("./medication");
 const prescriptionRouter = require("./prescription");
 const authRouter = require("./auth");
+const chatRouter = require("./chat");
+const messageRouter = require("./messages");
+
 const { isAuthenticated, hasRole } = require('../middleware/auth');
 
-
-// const { checkAuth, refreshTokenAdmin } = require("../middleware/auth");
+router.use("/", authRouter);
 
 router.use("/api", clinicRouter);
 router.use("/api", userRouter);
@@ -36,9 +38,9 @@ router.use("/api", postRouter);
 router.use("/api", notionRouter);
 router.use("/api", medicationRouter);
 router.use("/api", prescriptionRouter);
+router.use("/api", chatRouter);
+router.use("/api", messageRouter);
 
-
-router.use("/", authRouter);
 /**
  * @swagger
  * /api/protected:

@@ -1,29 +1,20 @@
-const db = require("../models");
 const AppError = require("../utils/appError");
 const PatientService = require("../services/patientService");
 
 const AuthController = {
-    login: (req, res, next) => {
-        try {
-            if (!req.user) {
-                throw new AppError("Пользователь не авторизован", 401);
-            }
+    login: (req, res) => {
+        const userResponse = {
+            id: req.user.id,
+            email: req.user.email,
+            role: req.user.role,
+            first_name: req.user.first_name,
+            last_name: req.user.last_name
+        };
 
-            const userResponse = {
-                id: req.user.id,
-                email: req.user.email,
-                role: req.user.role,
-                first_name: req.user.first_name,
-                last_name: req.user.last_name
-            };
-
-            res.status(200).json({
-                message: "Успешный вход",
-                user: userResponse
-            });
-        } catch (err) {
-            next(err);
-        }
+        res.status(200).json({
+            message: "Успешный вход",
+            user: userResponse
+        });
     },
     register: async (req, res, next) => {
         try {
@@ -40,8 +31,7 @@ const AuthController = {
             next(err);
         }
     },
-
-    logout: (req, res, next) => {
+    logout: (req, res) => {
         req.logout((err) => {
             if (err) throw new AppError("Ошибка при выходе", 500);
             res.json({ message: "Выход выполнен успешно" });

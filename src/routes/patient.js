@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const patientController = require("../controllers/patientController");
+const upload = require("../middleware/upload").uploadImages;
 
 /**
  * @swagger
@@ -171,6 +172,6 @@ router.get("/patients/:userId", patientController.getPatientById);
  *                   type: object
  *                   description: Обновленные данные адреса
  */
-router.put("/patients/:userId", patientController.updatePatientById);
+router.put("/patients/:userId", upload.single("image"), patientController.updatePatientById);
 
 module.exports = router;

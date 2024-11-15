@@ -1,31 +1,47 @@
-'use strict';
-const { Model } = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Clinics extends Model {
     static associate(models) {
       Clinics.hasOne(models.Addresses, {
-        foreignKey: 'clinic_id',
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-        as: 'address'
+        foreignKey: "clinic_id",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        as: "address"
       });
       Clinics.hasMany(models.Doctors, {
-        foreignKey: 'clinic_id',
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-        as: 'doctors'
+        foreignKey: "clinic_id",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        as: "doctors"
       });
       Clinics.hasMany(models.Schedules, {
         foreignKey: "clinic_id",
-        as: 'schedules'
+        as: "schedules"
       });
       Clinics.hasMany(models.Services, {
         foreignKey: "clinic_id",
-        as: 'services',
+        as: "services",
       });
       Clinics.hasMany(models.Appointments, {
         foreignKey: "clinic_id",
-        as: 'appointments'
+        as: "appointments"
+      });
+      Clinics.hasMany(models.Chats, {
+        foreignKey: 'user_1_id',
+        constraints: false,
+        scope: {
+          user_1_type: 'clinic'
+        },
+        as: 'clinic1'
+      });
+      Clinics.hasMany(models.Chats, {
+        foreignKey: 'user_2_id',
+        constraints: false,
+        scope: {
+          user_2_type: 'clinic'
+        },
+        as: 'clinic2'
       });
     }
   }
@@ -35,6 +51,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true
+    },
+    photo: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     name: {
       type: DataTypes.STRING,
@@ -61,11 +81,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(20),
       allowNull: true
     },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "clinic"
+    },
     description: DataTypes.STRING(255),
     schedule: DataTypes.STRING(255),
   }, {
     sequelize,
-    modelName: 'Clinics',
+    modelName: "Clinics",
     timestamps: true,
   });
   return Clinics;

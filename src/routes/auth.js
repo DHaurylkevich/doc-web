@@ -1,7 +1,8 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const passport = require('passport');
-const AuthController = require('../controllers/authController');
+const passport = require("passport");
+const AppError = require("../utils/appError");
+const AuthController = require("../controllers/authController");
 
 /**
  * @swagger
@@ -28,13 +29,30 @@ const AuthController = require('../controllers/authController');
  *       401:
  *         description: Неверные учетные данные
  */
-router.post('/login', passport.authenticate('local', { failWithError: true, failureMessage: true, }), AuthController.login);
-/**
+router.post("/login", (req, res, next) => {
+    passport.authenticate("local", (err, user, info) => {
+        if (err) {
+            return next(err);
+        }
+        if (!user) {
+            return next(new AppError(info.message || "Неверные учетные данные", 404));
+        }
+        req.logIn(user, (err) => {
+            if (err) {
+                return next(err);
+            }
+            return AuthController.login(req, res, next, info);
+        });
+    })(req, res, next);
+});/**
  * @swagger
  * /register:
  *   post:
  *     summary: Регистрация нового пользователя
  *     tags: [Auth]
+ *     servers:
+ *       - url: http://localhost:3000
+ *       - url: https://doc-web-rose.vercel.app
  *     requestBody:
  *       required: true
  *       content:
@@ -44,15 +62,20 @@ router.post('/login', passport.authenticate('local', { failWithError: true, fail
  *             properties:
  *               userData:
  *                 type: object
+ *                 example: 
+ *                   email: "test@gmail.com"
+ *                   password: "123456789"
  *               patientData:
  *                 type: object
+ *                 example: 
+ *                   market_inf: false
  *     responses:
  *       200:
  *         description: Пользователь успешно зарегистрирован
  *       400:
  *         description: Ошибка валидации данных
  */
-router.post('/register', AuthController.register);
+router.post("/register", AuthController.register);
 /**
  * @swagger
  * /logout:
@@ -65,7 +88,7 @@ router.post('/register', AuthController.register);
  *       500:
  *         description: Ошибка сервера
  */
-router.get('/logout', AuthController.logout);
+router.get("/logout", AuthController.logout);
 /**
  * @swagger
  * /auth/google:
@@ -76,7 +99,7 @@ router.get('/logout', AuthController.logout);
  *       302:
  *         description: Перенаправление на страницу аутентификации Google
  */
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 /**
  * @swagger
  * /auth/google/callback:
@@ -89,6 +112,6 @@ router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 
  *       401:
  *         description: Ошибка аутентификации
  */
-router.get('/auth/google/callback', passport.authenticate('google', { failWithError: true, failureMessage: true, }), AuthController.login);
+router.get("/auth/google/callback", passport.authenticate("google", { failWithError: true, failureMessage: true, }), AuthController.login);
 
 module.exports = router;

@@ -4,7 +4,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/medications:
+ * /medications:
  *   post:
  *     summary: Создать новое лекарство
  *     tags:
@@ -27,7 +27,7 @@ router.post("/medications", MedicationController.createMedication);
 
 /**
  * @swagger
- * /api/medications/{medicationsId}:
+ * /medications/{medicationsId}:
  *   get:
  *     summary: Получить лекарство по ID
  *     tags:
@@ -47,7 +47,7 @@ router.get("/medications/:medicationsId", MedicationController.getMedicationById
 
 /**
  * @swagger
- * /api/medications:
+ * /medications:
  *   get:
  *     summary: Получить все лекарства
  *     tags:
@@ -60,7 +60,7 @@ router.get("/medications", MedicationController.getAllMedications);
 
 /**
  * @swagger
- * /api/medications/{medicationsId}:
+ * /medications/{medicationsId}:
  *   put:
  *     summary: Обновить информацию о лекарстве
  *     tags:
@@ -96,7 +96,7 @@ router.put("/medications/:medicationsId", MedicationController.updateMedication)
 
 /**
  * @swagger
- * /api/medications/{medicationsId}:
+ * /medications/{medicationsId}:
  *   delete:
  *     summary: Удалить лекарство
  *     tags: 
