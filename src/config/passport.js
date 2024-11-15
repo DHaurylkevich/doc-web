@@ -51,9 +51,7 @@ passport.use(new GoogleStrategy({
 }));
 
 passport.serializeUser((user, cb) => {
-    process.nextTick(function () {
-        return cb(null, { id: user.id, role: user.role });
-    });
+    return cb(null, { id: user.id, role: user.role });
 });
 
 passport.deserializeUser(async (user, done) => {
