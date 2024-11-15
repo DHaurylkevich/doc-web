@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require("express");
-const https = require('https');
+const http = require('http');
 const app = express();
-const server = https.createServer(app);
+const server = http.createServer(app);
 const passport = require('passport');
 const sessionConfig = require('./src/config/session');
 const { errorHandler } = require("./src/middleware/errorHandler");

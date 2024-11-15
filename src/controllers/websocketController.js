@@ -9,20 +9,20 @@ module.exports = (server, sessionConfig) => {
 
     io.use(SharedSession(sessionConfig, { autoSave: true }));
 
-    // io.use((socket, next) => {
-    //     if (socket.request.session && socket.request.session.passport && socket.request.session.passport.user) {
-    //         next();
-    //     } else {
-    //         next(new Error('Unauthorized'));
-    //     }
-    // });
+    io.use((socket, next) => {
+        if (socket.request.session && socket.request.session.passport && socket.request.session.passport.user) {
+            next();
+        } else {
+            next(new Error('Unauthorized'));
+        }
+    });
 
     io.on('connection', (socket) => {
         // const userId = socket.request.session.passport.user;
         const userId = 1;
 
         onlineUsers.set(userId, socket.id);
-        
+
         socket.broadcast.emit('userStatus', { userId, status: 'online' });
         console.log('New connection:', socket.id);
 
