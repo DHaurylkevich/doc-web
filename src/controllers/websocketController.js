@@ -18,8 +18,7 @@ module.exports = (server, sessionConfig) => {
     });
 
     io.on('connection', (socket) => {
-        // const userId = socket.request.session.passport.user;
-        const userId = 1;
+        const userId = socket.request.session.passport.user;
 
         onlineUsers.set(userId, socket.id);
 
