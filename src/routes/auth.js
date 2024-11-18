@@ -10,6 +10,9 @@ const AuthController = require("../controllers/authController");
  *   post:
  *     summary: Аутентификация пользователя
  *     tags: [Auth]
+ *     servers:
+ *       - url: http://localhost:3000
+ *       - url: https://doc-web-rose.vercel.app
  *     requestBody:
  *       required: true
  *       content:
@@ -44,7 +47,8 @@ router.post("/login", (req, res, next) => {
             return AuthController.login(req, res, next, info);
         });
     })(req, res, next);
-});/**
+});
+/**
  * @swagger
  * /register:
  *   post:
@@ -82,6 +86,9 @@ router.post("/register", AuthController.register);
  *   get:
  *     summary: Выход пользователя из системы
  *     tags: [Auth]
+ *     servers:
+ *       - url: http://localhost:3000
+ *       - url: https://doc-web-rose.vercel.app
  *     responses:
  *       200:
  *         description: Успешный выход из системы
@@ -95,6 +102,9 @@ router.get("/logout", AuthController.logout);
  *   get:
  *     summary: Начало аутентификации через Google
  *     tags: [Auth]
+ *     servers:
+ *       - url: http://localhost:3000
+ *       - url: https://doc-web-rose.vercel.app
  *     responses:
  *       302:
  *         description: Перенаправление на страницу аутентификации Google
@@ -106,6 +116,9 @@ router.get("/auth/google", passport.authenticate("google", { scope: ["profile", 
  *   get:
  *     summary: Callback URL для аутентификации через Google
  *     tags: [Auth]
+ *     servers:
+ *       - url: http://localhost:3000
+ *       - url: https://doc-web-rose.vercel.app
  *     responses:
  *       200:
  *         description: Успешная аутентификация через Google
