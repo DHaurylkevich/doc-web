@@ -29,69 +29,69 @@ app.use(cors({
     credentials: true
 }));
 
-app.get('/login', (req, res) => {
-    res.send(`
-    <form action="/auth/login" method="POST" onsubmit="handleSubmit(event)">
-      <div>
-        <label>Email:</label>
-        <input type="email" name="loginParam" required>
-      </div>
-      <div>
-        <label>Пароль:</label>
-        <input type="password" name="password" value="123456789" required>      
-      </div>
-      <button type="submit">Войти</button>
-    </form>
-    <script>
-      async function handleSubmit(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        try {
-          const response = await fetch('/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              loginParam: formData.get('loginParam'),
-              password: formData.get('password')
-            })
-          });
-          if (response.ok) {
-            window.location.href = '/chat';
-          } else {
-            alert('Ошибка аутентификации');
-          }
-        } catch (error) {
-          console.error('Ошибка:', error);
-        }
-      }
-    </script>
-  `);
-});
+// app.get('/login', (req, res) => {
+//     res.send(`
+//     <form action="/auth/login" method="POST" onsubmit="handleSubmit(event)">
+//       <div>
+//         <label>Email:</label>
+//         <input type="email" name="loginParam" required>
+//       </div>
+//       <div>
+//         <label>Пароль:</label>
+//         <input type="password" name="password" value="123456789" required>      
+//       </div>
+//       <button type="submit">Войти</button>
+//     </form>
+//     <script>
+//       async function handleSubmit(e) {
+//         e.preventDefault();
+//         const formData = new FormData(e.target);
+//         try {
+//           const response = await fetch('/auth/login', {
+//             method: 'POST',
+//             headers: {
+//               'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//               loginParam: formData.get('loginParam'),
+//               password: formData.get('password')
+//             })
+//           });
+//           if (response.ok) {
+//             window.location.href = '/chat';
+//           } else {
+//             alert('Ошибка аутентификации');
+//           }
+//         } catch (error) {
+//           console.error('Ошибка:', error);
+//         }
+//       }
+//     </script>
+//   `);
+// });
 
-app.post('/auth/login', (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
-        if (err) {
-            return next(err);
-        }
-        if (!user) {
-            return next(new AppError(info.message || "Неверные учетные данные", 404));
-        }
-        req.logIn(user, (err) => {
-            if (err) {
-                return next(err);
-            }
-            res.redirect('/chat');
-        });
-    })(req, res, next);
-});
+// app.post('/auth/login', (req, res, next) => {
+//     passport.authenticate("local", (err, user, info) => {
+//         if (err) {
+//             return next(err);
+//         }
+//         if (!user) {
+//             return next(new AppError(info.message || "Неверные учетные данные", 404));
+//         }
+//         req.logIn(user, (err) => {
+//             if (err) {
+//                 return next(err);
+//             }
+//             res.redirect('/chat');
+//         });
+//     })(req, res, next);
+// });
 
-app.get('/chat', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-});
+// app.get('/chat', (req, res) => {
+//     res.sendFile(__dirname + '/index.html');
+// });
 
-// app.get("/", (req, res) => { res.send("Hello"); })
+app.get("/", (req, res) => { res.send("Hello"); })
 app.use("/", require("./src/routes"));
 
 app.use((req, res, next) => { next(new AppError("Not Found", 404)); });
