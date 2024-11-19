@@ -4,6 +4,7 @@ const messageService = require("../services/messageService");
 const AppError = require("../utils/appError");
 const logger = require("../utils/logger");
 const sessionStore = require("../config/store");
+const { createChat } = require("./chatController");
 
 function onlyForHandshake(middleware) {
     return (req, res, next) => {
@@ -58,10 +59,10 @@ module.exports = (server, sessionConfig, passport) => {
 
     io.on("connect", async (socket) => {
 
-        socket.on("channel:create", createChannel({ io, socket, db }));
-        socket.on("channel:join", joinChannel({ io, socket, db }));
-        socket.on("channel:list", listChannels({ io, socket, db }));
-        socket.on("channel:search", searchChannels({ io, socket, db }));
+        socket.on("chat:create", createChat({ io, socket, db }));
+        socket.on("chat:join", joinChat({ io, socket, db }));
+        socket.on("chat:list", listChats({ io, socket, db }));
+        socket.on("chat:search", searchChats({ io, socket, db }));
 
         socket.emit("user:get", users);
         socket.broadcast.emit("user:connect", {

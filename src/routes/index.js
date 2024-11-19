@@ -58,13 +58,6 @@ router.post("/api/upload/file", upload.single("file"), (req, res) => {
  *      - CookieAuth: []
  *     tags:
  *       - Users
- *     parameters:
- *       - name: userId
- *         in: path
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID пользователя
  *     responses:
  *       200:
  *          description: Успешно
