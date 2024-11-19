@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
         scope: {
           user_2_type: 'user'
         },
-        as: 'user2'
+        as: 'User2'
       });
     }
   }

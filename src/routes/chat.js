@@ -34,7 +34,7 @@ router.post("/chats", isAuthenticated, chatController.createChat);
 /**
  * @swagger
  * paths:
- *   /chats:
+ *   /users/chats:
  *     get:
  *       summary: Получить все чаты пользователя
  *       tags:
@@ -148,7 +148,7 @@ router.post("/chats", isAuthenticated, chatController.createChat);
  *         500:
  *           description: Внутренняя ошибка сервера.
  */
-router.get("/chats", isAuthenticated, chatController.getChats);
+router.get("/users/chats", isAuthenticated, chatController.getChats);
 /**
  * @swagger
  * paths:

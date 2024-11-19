@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         code: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
             unique: true,
             defaultValue: () => crypto.randomBytes(6).toString('hex'),
         },

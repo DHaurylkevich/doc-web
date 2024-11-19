@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const messageController = require("../controllers/messageController");
+const { uploadFiles } = require("../middleware/upload");
 
+router.post("/chats/:chatId/messages", uploadFiles.single("file"), messageController.createMessage);
 /**
  * @swagger
  * /chats/{chatId}/messages:
@@ -20,11 +22,10 @@ const messageController = require("../controllers/messageController");
  *       404:
  *         description: Чат не найден
  */
-router.get("/chats/:chatId/messages", messageController.getMessages);
-
+router.get("/users/chats/:chatId/messages", messageController.getMessages);
 /**
  * @swagger
- * /messages/{messageId}:
+ * /users/messages/{messageId}:
  *   delete:
  *     summary: Удалить сообщение
  *     tags: [Messages]
@@ -41,6 +42,6 @@ router.get("/chats/:chatId/messages", messageController.getMessages);
  *       404:
  *         description: Сообщение не найдено
  */
-router.delete("/messages/:messageId", messageController.deleteMessage);
+router.delete("/users/messages/:messageId", messageController.deleteMessage);
 
 module.exports = router;

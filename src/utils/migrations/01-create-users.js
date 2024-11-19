@@ -9,6 +9,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      photo: {
+        type: Sequelize.STRING(255),
+        allowNull: true
+      },
       first_name: {
         type: Sequelize.STRING(255),
         allowNull: true
@@ -17,14 +21,13 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: true
       },
-      photo: {
-        type: Sequelize.STRING(255),
-        allowNull: true
-      },
       email: {
         type: Sequelize.STRING(255),
-        allowNull: false,
-        unique: true
+        allowNull: true,
+        unique: true,
+        validate: {
+          isEmail: true
+        }
       },
       gender: {
         type: Sequelize.ENUM('male', 'female', 'other'),
@@ -33,7 +36,10 @@ module.exports = {
       pesel: {
         type: Sequelize.STRING(11),
         allowNull: true,
-        unique: true
+        unique: true,
+        validate: {
+          len: [11]
+        }
       },
       phone: {
         type: Sequelize.STRING(20),
@@ -42,7 +48,10 @@ module.exports = {
       },
       password: {
         type: Sequelize.STRING(255),
-        allowNull: false
+        allowNull: true,
+        validate: {
+          len: [8, 128]
+        }
       },
       role: {
         type: Sequelize.ENUM('patient', 'doctor', 'admin'),
@@ -56,16 +65,6 @@ module.exports = {
       resetToken: {
         type: Sequelize.STRING(11),
         allowNull: true
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     });
   },

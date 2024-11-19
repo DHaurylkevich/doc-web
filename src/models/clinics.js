@@ -60,6 +60,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "clinic"
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     nip: {
       type: DataTypes.STRING,
       allowNull: false,

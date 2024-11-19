@@ -1,5 +1,4 @@
 'use strict';
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Appointments', {
@@ -19,11 +18,11 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      clinic_id: {
+      doctor_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Clinics',
+          model: 'Doctors',
           key: 'id'
         },
         onDelete: 'CASCADE',
@@ -39,23 +38,13 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      doctor_service_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'DoctorServices',
-          key: 'id'
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
-      },
-      timeSlot: {
-        type: Sequelize.TIME,
+      date: {
+        type: Sequelize.DATEONLY,
         allowNull: false
       },
-      description: {
-        type: Sequelize.STRING,
-        allowNull: true
+      time: {
+        type: Sequelize.TIME,
+        allowNull: false
       },
       first_visit: {
         type: Sequelize.BOOLEAN,
@@ -67,17 +56,18 @@ module.exports = {
       },
       status: {
         type: Sequelize.ENUM('active', 'canceled', 'completed'),
-        allowNull: true
+        allowNull: true,
+        defaultValue: 'active'
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: new Date()
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+        defaultValue: new Date()
       }
     });
   },

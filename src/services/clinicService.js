@@ -1,12 +1,12 @@
-// const TEST = require("../../tests/unit/services/clinicService.test");
 const sequelize = require("../config/db");
 const db = require("../models");
 const AppError = require("../utils/appError");
 const AddressService = require("./addressService");
-
+const passwordUtil = require("../utils/passwordUtil");
 const ClinicService = {
     createClinic: async (clinicData, addressData) => {
         const t = await sequelize.transaction();
+        clinicData.password = passwordUtil.hashingPassword(clinicData.password);
 
         try {
             const clinic = await db.Clinics.create(clinicData, { transaction: t });

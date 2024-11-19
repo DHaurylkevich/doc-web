@@ -1,7 +1,6 @@
 const { Sequelize } = require("sequelize");
 const mysql2 = require("mysql2");
 // const NODE_ENV = process.env.NODE_ENV || "development";
-// const config = require("./sequelize.config.json")[env];
 
 const config = {
     url: process.env.DATABASE_URL || null,
@@ -34,7 +33,8 @@ if (config.url) {
 
         if (process.env.DB_SYNC === "true") {
             console.log("Добавление/Обноаление данных...");
-            await sequelize.sync({ alter: true });
+            // await sequelize.sync({ alter: true });
+            await sequelize.sync({ force: true });
             console.log("Начальные данные добавлены/обновлены");
         }
     } catch (err) {

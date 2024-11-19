@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -35,6 +35,10 @@
             outline: none;
         }
 
+        #fileInput {
+            margin: 0.25rem;
+        }
+
         #form>button {
             background: #333;
             border: none;
@@ -58,39 +62,266 @@
         #messages>li:nth-child(odd) {
             background: #efefef;
         }
+
+        #userForm {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
+        }
+
+        #userForm input {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        #userForm button {
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+        }
+
+        #userList {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+
+        #userList>li {
+            padding: 0.5rem 1rem;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
     </style>
 </head>
 
 <body>
 
+    <div id="userForm">
+        <input id="username" placeholder="Введите имя пользователя" />
+        <input id="userId" placeholder="Введите ID пользователя" />
+        <button id="connectButton">Подключиться</button>
+        <button id="disconnectButton">Отключиться</button>
+    </div>
+
+    <ul id="userList"></ul>
     <ul id="messages"></ul>
     <form id="form" action="">
-        <input id="input" autocomplete="off" /><button>Send</button>
+        <input id="input" autocomplete="off" />
+        <input type="file" id="fileInput" />
+        <button>Отправить</button>
     </form>
-    <button id="readButton">Mark as Read</button>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
+        const socket = io({
+            auth: {
+                sessionID: localStorage.getItem("sessionID"),
+                userID: localStorage.getItem("userID"),
+                username: localStorage.getItem("username")
+            },
+            autoConnect: true,
+            withCredentials: true,
+            transports: ['websocket']
+        });
 
+        const usernameInput = document.getElementById('username');
+        const userIdInput = document.getElementById('userId');
         const form = document.getElementById('form');
         const input = document.getElementById('input');
-        const readButton = document.getElementById('readButton');
+        const fileInput = document.getElementById('fileInput');
+        const messages = document.getElementById('messages');
+        const userList = document.getElementById('userList');
+        const disconnectButton = document.getElementById('disconnectButton');
+        disconnectButton.addEventListener('click', () => {
+            socket.emit("user:disconnect", socket.sessionID);
+            alert("Вы отключены");
+        });
 
-        form.addEventListener('submit', (e) => {
+
+        let usersList = [];
+        let selectedUser = null;
+        const initReactiveProperties = (user) => {
+            user.connected = true;
+            user.messages = [];
+            user.hasNewMessages = false;
+        };
+
+        form.addEventListener('submit', async (e) => {
+            // if (fileInput.files.length > 0) {
+            //     const file = fileInput.files[0];
+            //     const formData = new FormData();
+            //     formData.append('file', file);
+            //     const response = await fetch("/api/upload/file", {
+            //         method: "POST",
+            //         body: formData
+            //     });
+            //     if (!response.ok) {
+            //         throw new Error('Ошибка загрузки файла');
+            //     }
+            //     const { fileUrl } = await response.json();
+            //     messageData.fileUrl = fileUrl;
+            // }
             e.preventDefault();
-            if (input.value) {
-                socket.emit('sendMessage', { recipientId: 2, content: input.value });
-                input.value = '';
+            if (!selectedUser) {
+                alert("Пожалуйста, выберите пользователя для отправки сообщения");
+                return;
+            }
+            try {
+                const messageData = {
+                    to: selectedUser,
+                    content: input.value,
+                };
+                console.log("MESSAGE DATA", messageData);
+                if (input.value) {
+                    socket.emit('message:send', messageData);
+                    input.value = '';
+                    fileInput.value = '';
+                }
+            } catch (error) {
+                console.error('Ошибка при отправке сообщения:', error);
+                alert('Не удалось отправить сообщение');
             }
         });
 
-        readButton.addEventListener('click', () => {
-            const messageId = prompt("Введите ID сообщения для отметки как прочитанное:");
-            if (messageId) {
-                socket.emit('readMessage', { messageId: parseInt(messageId) });
+        function updateUserList() {
+            userList.innerHTML = '';
+            usersList.forEach(user => {
+                const userItem = document.createElement('li');
+                const status = user.connected ? '🟢' : '🔴';
+                userItem.textContent = `${user.username} ${status} ${user.self ? "(Вы)" : ""}`;
+                userItem.dataset.userId = user.userId;
+                userItem.addEventListener('click', () => {
+                    selectedUser = user.userId;
+                    alert(`Вы выбрали пользователя: ${user.userId}`);
+                });
+                userList.appendChild(userItem);
+            });
+        }
+
+        function addMessage(content, fromSelf) {
+            const item = document.createElement('li');
+            item.textContent = content;
+            item.style.textAlign = fromSelf ? 'right' : 'left';
+            messages.appendChild(item);
+        }
+
+        socket.onAny((event, ...args) => {
+            console.log(event, args);
+        });
+
+        socket.on("session", ({ sessionID, userID, username }) => {
+            socket.auth = { sessionID };
+            localStorage.setItem("sessionID", sessionID);
+            localStorage.setItem("userID", userID);
+            localStorage.setItem("username", username);
+
+            socket.userID = userID;
+            socket.username = username;
+        });
+
+        socket.on("connect_error", (err) => {
+            if (err.data?.code === 401) {
+                localStorage.removeItem("sessionID");
+                localStorage.removeItem("userID");
+                localStorage.removeItem("username");
             }
+        });
+
+        socket.on("connect", () => {
+            console.log('Подключено к серверу');
+            usersList.forEach((user) => {
+                if (user.self) {
+                    user.connected = true;
+                }
+            });
+            updateUserList();
+        });
+
+        socket.on("disconnect", () => {
+            usersList.forEach((user) => {
+                if (user.self) {
+                    user.connected = false;
+                }
+            });
+            updateUserList();
+        });
+
+        socket.on("user:list", (users) => {
+            try {
+                usersList = users.map(user => {
+                    user.self = user.userId === socket.userID;
+                    initReactiveProperties(user);
+                    return user;
+                });
+
+                usersList.sort((a, b) => {
+                    if (a.self) return -1;
+                    if (b.self) return 1;
+                    if (a.username < b.username) return -1;
+                    return a.username > b.username ? 1 : 0;
+                });
+
+                updateUserList();
+            } catch (error) {
+                console.error('Ошибка при обработке списка пользователей:', error);
+            }
+        });
+
+        socket.on("user:connect", (user) => {
+            for (let i = 0; i < usersList.length; i++) {
+                const existingUser = usersList[i];
+                if (existingUser.userId === user.userId) {
+                    existingUser.connected = true;
+                    updateUserList();
+                    return;
+                }
+            }
+            initReactiveProperties(user);
+            usersList.push(user);
+            updateUserList();
+        });
+
+        socket.on("user:disconnect", (id) => {
+            for (let i = 0; i < usersList.length; i++) {
+                const user = usersList[i];
+                if (user.userId === id) {
+                    user.connected = false;
+                    break;
+                }
+            }
+            updateUserList();
+        });
+
+        socket.on("user status", ({ userId, online }) => {
+            try {
+                const user = usersList.find(u => u.userId === userId);
+                if (user) {
+                    user.online = online;
+                    user.lastSeen = new Date();
+                    updateUserList();
+                }
+            } catch (error) {
+                console.error('Ошибка при обновлении статуса пользователя:', error);
+            }
+        });
+
+        socket.on('message:send', ({ content, from, to }) => {
+            try {
+                const fromSelf = socket.userID === from;
+                addMessage(content, fromSelf);
+            } catch (error) {
+                console.error('Ошибка при обработке сообщения:', error);
+            }
+        });
+
+        window.addEventListener('beforeunload', () => {
+            socket.off("connect_error");
         });
     </script>
 </body>
 
-</html> -->
+</html>

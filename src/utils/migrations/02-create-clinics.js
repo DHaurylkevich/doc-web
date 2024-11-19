@@ -31,8 +31,17 @@ module.exports = {
         unique: true
       },
       phone: {
-        type: Sequelize.STRING(20),
+        type: Sequelize.STRING(255),
         allowNull: true
+      },
+      password: {
+        type: Sequelize.STRING(255),
+        allowNull: false
+      },
+      role: {
+        type: Sequelize.STRING(6),
+        allowNull: false,
+        defaultValue: "clinic"
       },
       description: {
         type: Sequelize.STRING(255),
@@ -42,16 +51,10 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: true
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      photo: {
+        type: Sequelize.STRING(255),
+        allowNull: true
       },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      }
     });
   },
 

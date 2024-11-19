@@ -28,6 +28,7 @@
 - passport-local
 - socket.io
 - express-socket.io-session
+- redis
 
 - morgan
 - mocha
@@ -84,6 +85,9 @@
             - when user is in DB and has a valid data, expect to update user and get updated user data successfully
 
 ## Планы по разработке
+-         type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4
+
 - Нало разобраться с refreshToket 
 - Возможно надо добавить проверку center_id для Admina, если есть возможность привязать их к Мед центру
 - Наверное надо добавить хеш пароля при обновлении. Надо узнать обновляются ли все данные в Объекте или только новые с помощью update 

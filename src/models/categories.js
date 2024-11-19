@@ -19,12 +19,12 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
+            unique: false,
         }
     }, {
         sequelize,
         modelName: 'Categories',
-        timestamps: false,
+        timestamps: true,
     });
     return Categories;
 };

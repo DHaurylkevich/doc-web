@@ -42,6 +42,9 @@ const clinicController = require("../controllers/clinicController");
  *                     phone:
  *                       type: string
  *                       example: "+123456789"
+ *                     password:
+ *                       type: string
+ *                       example: "123456789"
  *                     description:
  *                       type: string
  *                       example: "Descripcion clinic"
@@ -54,6 +57,7 @@ const clinicController = require("../controllers/clinicController");
  *                     - registration_day
  *                     - nr_license
  *                     - email
+ *                     - password
  *                 addressData:
  *                   type: object
  *                   properties:

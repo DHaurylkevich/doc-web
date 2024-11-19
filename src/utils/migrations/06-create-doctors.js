@@ -11,15 +11,17 @@ module.exports = {
       },
       user_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Users',
           key: 'id'
         },
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
       clinic_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Clinics',
           key: 'id'
@@ -27,39 +29,18 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      specialty_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Specialties',
-          key: 'id'
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
-      },
-      schedules_id: {
-        type: Sequelize.INTEGER
-      },
-      reviews_id: {
-        type: Sequelize.INTEGER
-      },
       rating: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
+        allowNull: true,
+        defaultValue: 0
       },
       hired_at: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        allowNull: true
       },
       description: {
-        type: Sequelize.TEXT
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+        type: Sequelize.TEXT,
+        allowNull: true
       }
     });
   },

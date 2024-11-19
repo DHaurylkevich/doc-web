@@ -1,6 +1,15 @@
 const messageService = require("../services/messageService");
 
 const messageController = {
+    createMessage: async (req, res) => {
+        const { chatId } = req.params;
+        const messageData = req.body;
+        messageData.file_url = req.file ? req.file.path : null;
+        messageData.chat_id = chatId;
+
+        const message = await messageService.createMessage(messageData);
+        res.status(200).json(message);
+    },
     getMessages: async (req, res) => {
         const { chatId } = req.params;
         const { limit = 15, offset = 0 } = req.query;

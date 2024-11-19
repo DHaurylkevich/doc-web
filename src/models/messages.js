@@ -36,6 +36,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.ENUM('sent', 'delivered', 'read'),
             defaultValue: 'sent'
         },
+        file_url: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         created_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW

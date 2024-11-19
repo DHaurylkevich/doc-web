@@ -8,55 +8,41 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      clinic_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Clinics',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
       city: {
         type: Sequelize.STRING(255),
-        allowNull: false
-      },
-      province: {
-        type: Sequelize.STRING(20),
         allowNull: false
       },
       street: {
         type: Sequelize.STRING(255),
         allowNull: false
       },
-      home: {
+      building: {
         type: Sequelize.STRING(10),
         allowNull: false
       },
-      flat: {
-        type: Sequelize.STRING(10),
-        allowNull: true
-      },
-      post_index: {
-        type: Sequelize.STRING(10),
+      zip_code: {
+        type: Sequelize.STRING(6),
         allowNull: false
-      },
-      patient_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Patients',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      clinic_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Clinics',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: new Date()
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: new Date()
       }
     });
   },
