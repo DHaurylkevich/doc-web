@@ -24,10 +24,10 @@ require('./src/config/passport');
 app.use(express.json());
 app.use(morgan("dev"));
 swaggerDocs(app);
-app.use(cors());
+app.use(cors({ origin: '*' }));
 
-// app.get('/', (req, res) => { res.sendFile(__dirname + '/index.html') });
-app.get("/", (req, res) => { res.send("Hello"); })
+app.get('/', (req, res) => { res.sendFile(__dirname + '/index.html') });
+// app.get("/", (req, res) => { res.send("Hello"); })
 app.use("/", require("./src/routes"));
 
 app.use((req, res, next) => { next(new AppError("Not Found", 404)); });
