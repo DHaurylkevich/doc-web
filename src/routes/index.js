@@ -41,7 +41,6 @@ router.use("/api", prescriptionRouter);
 router.use("/api", chatRouter);
 router.use("/api", messageRouter);
 
-
 /**
  * @swagger
  * /api/user/role:
@@ -66,7 +65,10 @@ router.use("/api", messageRouter);
  *       403:
  *         description: Доступ запрещен
  */
-router.post("/api/user/role", hasRole(req.body.role), (req, res) => {
+router.post("/api/user/role", (req, res, next) => {
+    const role = req.body.role;
+    hasRole(role)(req, res, next);
+}, (req, res) => {
     res.status(201).json("Successful");
 });
 
