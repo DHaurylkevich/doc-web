@@ -42,6 +42,30 @@ router.use("/api", chatRouter);
 router.use("/api", messageRouter);
 
 
+/**
+ * @swagger
+ * /api/user/role:
+ *   post:
+ *     summary: Проверяет роль пользователя
+ *     description: Проверяет роль пользователя
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 example: admin
+ *     responses:
+ *       201:
+ *         description: Успешно
+ *       403:
+ *         description: Доступ запрещен
+ */
 router.post("/api/user/role", hasRole(req.body.role), (req, res) => {
     res.status(201).json("Successful");
 });
