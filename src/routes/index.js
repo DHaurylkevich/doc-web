@@ -41,6 +41,7 @@ router.use("/api", prescriptionRouter);
 router.use("/api", chatRouter);
 router.use("/api", messageRouter);
 
+
 router.post("/api/user/role", hasRole(req.body.role), (req, res) => {
     res.status(201).json("Successful");
 });
