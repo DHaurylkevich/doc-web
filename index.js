@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 swaggerDocs(app);
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app/"],
     credentials: true
 }));
 
