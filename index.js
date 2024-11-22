@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require("express");
-const http = require('http');
+// const http = require('http');
 const app = express();
-const server = http.createServer(app);
+// const server = http.createServer(app);
 const passport = require('passport');
 const sessionConfig = require('./src/config/session');
 const { errorHandler } = require("./src/middleware/errorHandler");
@@ -17,7 +17,7 @@ require("./src/config/db");
 app.use(sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
-io(server, sessionConfig, passport);
+// io(server, sessionConfig, passport);
 require('./src/config/passport');
 
 app.use(express.json());
@@ -100,7 +100,7 @@ const port = process.env.PORT || 5000;
 const link = process.env.LINK || "http://localhost";
 
 
-server.listen(port, () => {
+app.listen(port, () => {
     console.log(`The server start at: ${link}:${port}`)
     console.log(`The documentation is available at: ${link}:${port}/api-docs`);
 });
