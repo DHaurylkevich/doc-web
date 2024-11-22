@@ -18,7 +18,7 @@ app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app"],
   credentials: true
 }));
-app.set('trust proxy', 1)
+app.set('trust proxy', 1);
 
 app.use(sessionConfig);
 app.use(passport.initialize());
@@ -102,7 +102,7 @@ const port = process.env.PORT || 5000;
 const link = process.env.LINK || "http://localhost";
 
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`The server start at: ${link}:${port}`)
   console.log(`The documentation is available at: ${link}:${port}/api-docs`);
 });
