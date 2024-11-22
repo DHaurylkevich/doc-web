@@ -8,6 +8,7 @@ const sessionConfig = session({
     saveUninitialized: false,
     cookie: {
         // secure: process.env.NODE_ENV === "production",
+        secret: process.env.SESSION_SECRET,
         secure: true,
         httpOnly: true,
         sameSite: 'None',
