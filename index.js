@@ -14,6 +14,10 @@ const io = require("./src/controllers/websocketController");
 
 require("./src/config/db");
 
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app"],
+  credentials: true
+}));
 app.set('trust proxy', 1)
 
 app.use(sessionConfig);
@@ -25,10 +29,6 @@ require('./src/config/passport');
 app.use(express.json());
 app.use(morgan("dev"));
 swaggerDocs(app);
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app"],
-  credentials: true
-}));
 
 app.get('/auth/login', (req, res) => {
   res.send(`
