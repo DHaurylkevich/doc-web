@@ -4,7 +4,7 @@ const { faker } = require('@faker-js/faker');
 module.exports = {
     async up(queryInterface, Sequelize) {
         const users = await queryInterface.sequelize.query(
-            `SELECT id FROM Users WHERE role = 'patient';`,
+            `SELECT id FROM users WHERE role = 'patient';`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
@@ -15,7 +15,7 @@ module.exports = {
             updatedAt: new Date(),
         }));
 
-        await queryInterface.bulkInsert('Patients', patients, {});
+        await queryInterface.bulkInsert('patients', patients, {});
     },
 
     async down(queryInterface, Sequelize) {

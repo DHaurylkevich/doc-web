@@ -5,12 +5,12 @@ module.exports = {
     async up(queryInterface, Sequelize) {
         // Получаем существующих врачей и клиники
         const doctors = await queryInterface.sequelize.query(
-            `SELECT id FROM Doctors;`,
+            `SELECT id FROM doctors;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const clinics = await queryInterface.sequelize.query(
-            `SELECT id FROM Clinics;`,
+            `SELECT id FROM clinics;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
@@ -21,13 +21,15 @@ module.exports = {
             date: faker.date.future(),
             start_time: faker.date.future().toISOString().slice(11, 16),
             end_time: faker.date.future().toISOString().slice(11, 16),
+            createdAt: new Date(),
+            updatedAt: new Date()
         }));
 
 
-        await queryInterface.bulkInsert('Schedules', schedules, {});
+        await queryInterface.bulkInsert('schedules', schedules, {});
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.bulkDelete('Schedules', null, {});
+        await queryInterface.bulkDelete('schedules', null, {});
     }
 };

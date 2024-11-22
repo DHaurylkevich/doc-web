@@ -5,22 +5,22 @@ module.exports = {
     async up(queryInterface, Sequelize) {
         // Получаем существующие данные
         const patients = await queryInterface.sequelize.query(
-            `SELECT id FROM Patients;`,
+            `SELECT id FROM patients;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const schedules = await queryInterface.sequelize.query(
-            `SELECT id, start_time, end_time, \`interval\` FROM Schedules;`,
+            `SELECT id, start_time, end_time, interval FROM schedules;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const doctors = await queryInterface.sequelize.query(
-            `SELECT id FROM Doctors;`,
+            `SELECT id FROM doctors;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const doctorServices = await queryInterface.sequelize.query(
-            `SELECT id FROM DoctorServices;`,
+            `SELECT id FROM doctor_services;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
@@ -101,10 +101,10 @@ module.exports = {
             };
         });
 
-        await queryInterface.bulkInsert('Appointments', appointments, {});
+        await queryInterface.bulkInsert('appointments', appointments, {});
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.bulkDelete('Appointments', null, {});
+        await queryInterface.bulkDelete('appointments', null, {});
     }
 };

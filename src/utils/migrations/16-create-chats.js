@@ -1,25 +1,24 @@
 'use strict';
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('categories', {
+        await queryInterface.createTable('chats', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            name: {
-                type: Sequelize.STRING(255),
+            createdAt: {
                 allowNull: false,
-                unique: false    
+                type: Sequelize.DATE,
             },
-            description: {
-                type: Sequelize.TEXT,
-                allowNull: true
+            updatedAt: {
+                allowNull: false,
+                type: Sequelize.DATE,
             }
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('categories');
+        await queryInterface.dropTable('chats');
     }
 };

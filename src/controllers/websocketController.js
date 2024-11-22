@@ -1,10 +1,10 @@
 const { Server } = require("socket.io");
-const chatService = require("../services/chatService");
-const messageService = require("../services/messageService");
 const AppError = require("../utils/appError");
 const logger = require("../utils/logger");
 const sessionStore = require("../config/store");
-const { createChat } = require("./chatController");
+const { startChatWithMessage, listChats } = require("../socketHandlers/chat");
+const { sendMessage, listMessages, readMessage } = require("../socketHandlers/message");
+const { userList } = require("../socketHandlers/user");
 
 function onlyForHandshake(middleware) {
     return (req, res, next) => {
@@ -22,6 +22,7 @@ module.exports = (server, sessionConfig, passport) => {
         connectionStateRecovery: {},
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
+        maxHttpBufferSize: 1e8,
         cors: {
             origin: "*",
             credentials: true
@@ -40,114 +41,57 @@ module.exports = (server, sessionConfig, passport) => {
     });
 
     io.use(async (socket, next) => {
-        const sessionID = socket.request.session.id;
-        const user = socket.request.session.passport?.user;
-        console.log("Данные passport:", user);
-        console.log("Session ID:", sessionID);
-
-        let chats;
-        chats = await chatService.getChats(user);
-
-        chats.forEach((chat) => {
-            socket.join(`chat:${chat.id}`);
-        });
-        socket.join(`user:${socket.userID}`);
-        socket.join(`session:${sessionID}`);
+        socket.sessionID = socket.request.session.id;
+        socket.user = socket.request.session.passport?.user;
+        logger.info("Данные passport:", socket.user);
+        logger.info(`Session ID: ${socket.sessionID}`);
+        logger.info(`User Id ${socket.user.id}`);
+        logger.info(`Connection: ${socket.user.id} ${socket.id}`);
 
         next();
     });
 
     io.on("connect", async (socket) => {
 
-        socket.on("chat:create", createChat({ io, socket, db }));
-        socket.on("chat:join", joinChat({ io, socket, db }));
-        socket.on("chat:list", listChats({ io, socket, db }));
-        socket.on("chat:search", searchChats({ io, socket, db }));
+        await socket.join(`session:${socket.sessionID}`);//Конкретная разные сессии одно юзера
+        await socket.join(`user:${socket.user.id}`);//Для разных устройст одна комната у юзера
 
-        socket.emit("user:get", users);
-        socket.broadcast.emit("user:connect", {
-            userId: socket.userID, username: socket.username, connected: true,
-        });
-        logger.info(`Connection: ${socket.userID} ${socket.id}`);
 
-        socket.on("typing", ({ chatId, userId }) => {
-            socket.to(chatId).emit("user:typing", userId);
-        });
+        socket.emit("user:list", await userList({ io, socket }));
+        socket.broadcast.emit("user:connect", { userId: socket.user.id, username: socket.username, connected: true, });
 
-        // chatId, recipientId, content, fileUrl 
-        socket.on("message:send", async ({ to, content }) => {
-            // const message = {
-            //     // sender_id: user.id,
-            //     sender_id: 1,
-            //     chat_id: chatId,
-            //     // receiver_id: recipientId,
-            //     receiver_id: 2,
-            //     content,
-            //     file_url: fileUrl,
-            //     status: "delivered",
-            //     timestamp: new Date()
-            // };
-            // const recipientSocketId = onlineUsers.get(recipientId);
-            // if (recipientSocketId) {
-            //     io.to(recipientSocketId).emit("receiveMessage", message.content);
-            // }
-            // let result;
-            // try {
-            //     result = await messageService.createMessage(message);
-            //     console.log(result);
-            // } catch (err) {
-            //     socket.emit("error", { message: "Error saving message" });
-            // }
-            logger.info(`SEND MESSAGE ${to} ${socket.userID}`);
-            socket.to(to).to(socket.userID).emit("message:send", { content, from: socket.userID, to });
+
+        socket.on("chat:start:firstMessage", async ({ to, content }) => startChatWithMessage({ io, socket, to, content }));
+        socket.emit("chat:list", await listChats({ io, socket }));
+        // socket.on("chat:search", searchChats({ io, socket }));
+
+
+        socket.on("message:send", async ({ chatId, to, content }) => sendMessage({ io, socket, chatId, to, content }));
+        socket.on("message:read", async (messageId) => readMessage({ io, socket, messageId }));
+        socket.on("message:list", async ({ chatId, limit, offset }) => listMessages({ io, socket, chatId, limit, offset }));
+        // socket.on("message:typing", ({ chatId, userId }) => {    
+        //     socket.to(chatId).emit("user:typing", userId);
+        // });
+
+
+        socket.on('reconnect', (userId) => {
+            console.log(`Пользователь ${userId} переподключился`);
         });
 
         // if (!socket.recovered) {
-        //     try {
-        //         const { chatId } = socket.handshake.query;
-
-        //         const messages = await messageService.getMessagesRecoveredForChat(chatId, socket.handshake.auth.serverOffset || 0, 10, 0);
-        //         io.emit("chat message", messages.content, messages.id);
-        //     } catch (err) {
-        //         socket.emit("error", { message: "Error getting messages" });
-        //     }
         // }
 
-        // socket.on("readMessage", async ({ messageId }) => {
-        //     try {
-        //         const message = await messageService.updateMessageStatus(messageId, "read");
-
-        //         const senderSocketId = onlineUsers.get(message.sender_id);
-        //         if (senderSocketId) {
-        //             io.to(senderSocketId).emit("messageStatus", { messageId, status: "read" });
-        //         }
-        //     } catch (err) {
-        //         socket.emit("error", { message: "Error updating status" });
-        //     }
-        // });
-
-        // socket.on("user:disconnect", (sessionID) => {
-        //     onlineUsers.set(sessionID, {
-        //         id: socket.userID,
-        //         username: socket.username,
-        //         connected: false,
-        //     });
-        //     logger.info(`user disconnected ${socket.sessionID}`);
-        // });
-
         socket.on("disconnect", async () => {
-            const matchingSockets = await io.in(socket.userID).fetchSockets();
-            const isDisconnected = matchingSockets.size === 0;
+            try {
+                const matchingSockets = await io.in(`user:${socket.user.id}`).fetchSockets();
 
-            if (isDisconnected) {
-                // onlineUsers.set(socket.sessionID, {
-                //     id: socket.userID,
-                //     username: socket.username,
-                //     connected: false,
-                // });
-
-                socket.broadcast.emit("user:disconnect", socket.userID);
-                logger.info(`User ${socket.userID} disconnected`);
+                const isDisconnected = matchingSockets.length === 0;
+                if (isDisconnected) {
+                    socket.broadcast.emit("user:disconnect", socket.user.id);
+                    logger.info(`User ${socket.user.id} disconnected`)
+                }
+            } catch (error) {
+                logger.error(error);
             }
         });
     });

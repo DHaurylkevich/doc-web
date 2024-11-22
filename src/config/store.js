@@ -1,35 +1,34 @@
 const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session);
-const mysql2 = require("mysql2");
+const pgSession = require('connect-pg-simple')(session);
+// const MySQLStore = require('express-mysql-session')(session);
+// const mysql2 = require("mysql2");
+// const options = {
+//     url: process.env.DATABASE_URL || null,
+//     username: process.env.DB_USER || "root",
+//     password: process.env.DB_PASS || null,
+//     database: process.env.DB_NAME || "mylekarz",
+//     host: process.env.DB_HOST || "localhost",
+//     dialect: "mysql",
+//     dialectModule: mysql2,
+//     port: 3306,
+//     createDatabaseTable: true,
+//     schema: {
+//         tableName: 'Sessions',
+//         //     columnNames: {
+//         //         session_id: 'session_id',
+//         //         expires: 'expires',
+//         //         data: 'data'
+//         // }
+//     },
+//     clearExpired: true,
+//     checkExpirationInterval: 900000,
+//     expiration: 86400000,
+// };
+// const sessionStore = new MySQLStore(options);
 
-const options = {
-    host: process.env.DB_HOST || "localhost",
-    port: 3306,
-    user: process.env.DB_USER || "root",
-    url: process.env.DATABASE_URL || null,
-    password: process.env.DB_PASS || null,
-    database: process.env.DB_NAME || "mylekarz",
-    dialect: "mysql",
-    dialectModule: mysql2,
-    createDatabaseTable: true,
-    schema: {
-        tableName: 'Sessions',
-        //     columnNames: {
-        //         session_id: 'session_id',
-        //         expires: 'expires',
-        //         data: 'data'
-        // }
-    },
-    clearExpired: true,
-    checkExpirationInterval: 900000,
-    expiration: 86400000,
-};
-
-const sessionStore = new MySQLStore(options);
-
-sessionStore.onReady().catch(error => {
-    console.error("Failed to initialize MySQLStore:", error);
-    process.exit(1);
+const sessionStore = new pgSession({
+    conString: process.env.POSTGRES_PRISMA_URL || "postgres://postgres:password@localhost/mylekarz",
+    tableName: 'session'
 });
 
 module.exports = sessionStore;

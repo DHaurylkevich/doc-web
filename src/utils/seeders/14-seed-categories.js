@@ -8,13 +8,15 @@ module.exports = {
         for (let i = 0; i < 20; i++) {
             categories.push({
                 name: faker.commerce.department(),
+                createdAt: new Date(),
+                updatedAt: new Date()
             });
         }
 
-        await queryInterface.bulkInsert('Categories', categories, {});
+        await queryInterface.bulkInsert('categories', categories, {});
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.bulkDelete('Categories', null, {});
+        await queryInterface.bulkDelete('categories', null, {});
     }
 };

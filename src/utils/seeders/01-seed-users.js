@@ -13,7 +13,7 @@ module.exports = {
                 email: faker.internet.email(),
                 gender: faker.helpers.arrayElement(['male', 'female', 'other']),
                 pesel: faker.number.int({ min: 10000000000, max: 99999999999 }).toString(),
-                phone: faker.phone.number('+48 9## ### ###'),
+                phone: faker.phone.number({ style: 'international' }),
                 password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
                 role: faker.helpers.arrayElement(['patient', 'doctor', 'admin']),
                 birthday: faker.date.birthdate({ min: 18, max: 70, mode: 'age' }),
@@ -23,10 +23,10 @@ module.exports = {
             });
         }
 
-        await queryInterface.bulkInsert('Users', users, {});
+        await queryInterface.bulkInsert('users', users, {});
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.bulkDelete('Users', null, {});
+        await queryInterface.bulkDelete('users', null, {});
     }
 };

@@ -55,10 +55,10 @@ module.exports = {
             { name: 'Untrustworthy', positive: false }
         ];
 
-        await queryInterface.bulkInsert('Tags', tags, {});
+        await queryInterface.bulkInsert('tags', tags, {});
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.bulkDelete('Tags', null, {});
+        await queryInterface.bulkDelete('tags', null, {});
     }
 };

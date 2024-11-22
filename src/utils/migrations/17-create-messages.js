@@ -1,48 +1,44 @@
 'use strict';
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('Messages', {
+        await queryInterface.createTable('messages', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
+            chat_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+                references: {
+                    model: 'chats',
+                    key: 'id'
+                }
+            },
             sender_id: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
-                references: {
-                    model: 'Users',
-                    key: 'id'
-                },
-                onDelete: 'CASCADE',
-                onUpdate: 'CASCADE'
             },
-            receiver_id: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-                references: {
-                    model: 'Users',
-                    key: 'id'
-                },
-                onDelete: 'CASCADE',
-                onUpdate: 'CASCADE'
+            sender_type: {
+                type: Sequelize.ENUM('user', 'clinic'),
+                allowNull: false
             },
             content: {
                 type: Sequelize.TEXT,
                 allowNull: false
             },
-            file_url: {
-                type: Sequelize.STRING(255),
-                allowNull: true
-            },
             status: {
                 type: Sequelize.ENUM('sent', 'delivered', 'read'),
                 defaultValue: 'sent'
+            },
+            file_url: {
+                type: Sequelize.STRING(255),
+                allowNull: true
             }
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('Messages');
+        await queryInterface.dropTable('messages');
     }
 };

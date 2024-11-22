@@ -11,26 +11,27 @@ module.exports = (sequelize, DataTypes) => {
     }
     Posts.init({
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.BIGINT,
             allowNull: false,
             autoIncrement: true,
             primaryKey: true
         },
         photo: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(255),
             allowNull: false,
         },
         title: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(255),
             allowNull: false,
         },
         content: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: false,
         },
     }, {
         sequelize,
         modelName: 'Posts',
+        tableName: 'posts',
         timestamps: true,
     });
     return Posts;

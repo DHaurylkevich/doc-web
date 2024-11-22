@@ -14,7 +14,7 @@ module.exports = {
                 nr_license: faker.vehicle.vin(),
                 email: faker.internet.email(),
                 password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                phone: faker.phone.number('+48 9## ### ###'),
+                phone: faker.phone.number({ style: 'international' }),
                 description: faker.lorem.sentence(),
                 schedule: faker.lorem.words(3),
                 createdAt: new Date(),
@@ -22,10 +22,10 @@ module.exports = {
             });
         }
 
-        await queryInterface.bulkInsert('Clinics', clinics, {});
+        await queryInterface.bulkInsert('clinics', clinics, {});
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.bulkDelete('Clinics', null, {});
+        await queryInterface.bulkDelete('clinics', null, {});
     }
 };

@@ -5,12 +5,12 @@ module.exports = {
     async up(queryInterface, Sequelize) {
         // Получаем существующих врачей и сервисы
         const doctors = await queryInterface.sequelize.query(
-            `SELECT id FROM Doctors;`,
+            `SELECT id FROM doctors;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const services = await queryInterface.sequelize.query(
-            `SELECT id FROM Services;`,
+            `SELECT id FROM services;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
@@ -42,11 +42,11 @@ module.exports = {
         }
 
         if (doctorServices.length > 0) {
-            await queryInterface.bulkInsert('DoctorServices', doctorServices, {});
+            await queryInterface.bulkInsert('doctor_services', doctorServices, {});
         }
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.bulkDelete('DoctorServices', null, {});
+        await queryInterface.bulkDelete('doctor_services', null, {});
     }
 };

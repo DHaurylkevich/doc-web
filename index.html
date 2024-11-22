@@ -10,6 +10,12 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
+        .status {
+            margin-left: 10px;
+            font-size: 0.9rem;
+            color: gray;
+        }
+
         #form {
             background: rgba(0, 0, 0, 0.15);
             padding: 0.25rem;
@@ -102,45 +108,51 @@
 <body>
 
     <div id="userForm">
-        <input id="username" placeholder="Введите имя пользователя" />
-        <input id="userId" placeholder="Введите ID пользователя" />
-        <button id="connectButton">Подключиться</button>
         <button id="disconnectButton">Отключиться</button>
     </div>
 
     <ul id="userList"></ul>
+    <ul id="chatList"></ul>
     <ul id="messages"></ul>
     <form id="form" action="">
         <input id="input" autocomplete="off" />
         <input type="file" id="fileInput" />
         <button>Отправить</button>
     </form>
+    <form id="formFirstMessage" action="">
+        <input id="inputFirstMessage" autocomplete="off" />
+        <button>ОтправитьПервое</button>
+    </form>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io({
-            auth: {
-                sessionID: localStorage.getItem("sessionID"),
-                userID: localStorage.getItem("userID"),
-                username: localStorage.getItem("username")
-            },
+            auth: {},
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 2000,
             autoConnect: true,
             withCredentials: true,
             transports: ['websocket']
         });
 
-        const usernameInput = document.getElementById('username');
-        const userIdInput = document.getElementById('userId');
-        const form = document.getElementById('form');
-        const input = document.getElementById('input');
         const fileInput = document.getElementById('fileInput');
+        const form = document.getElementById('form');
+        const formFirstMessage = document.getElementById('formFirstMessage');
         const messages = document.getElementById('messages');
         const userList = document.getElementById('userList');
+        const chatList = document.getElementById('chatList');
         const disconnectButton = document.getElementById('disconnectButton');
-        disconnectButton.addEventListener('click', () => {
-            socket.emit("user:disconnect", socket.sessionID);
-            alert("Вы отключены");
-        });
 
+        disconnectButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (socket.connected) {
+                disconnectButton.innerText = 'Connect';
+                socket.disconnect();
+            } else {
+                disconnectButton.innerText = 'Disconnect';
+                socket.connect();
+            }
+        });
 
         let usersList = [];
         let selectedUser = null;
@@ -149,6 +161,133 @@
             user.messages = [];
             user.hasNewMessages = false;
         };
+        function displayMessage(message) {
+            if (message.length === 0) {
+                messages.textContent = "Нет новых сообщений";
+                return;
+            }
+            const item = document.createElement('li');
+            item.textContent = `${message.sender_id}: ${message.content}`;
+            item.style.textAlign = message.sender_id !== selectedUser ? 'right' : 'left';
+            item.dataset.messageId = message.id;
+            item.dataset.status = message.status;
+            item.innerHTML += `<span class="status"></span>`;
+
+            if (message.status === 'delivered' && message.sender_id === selectedUser) {
+                const readButton = document.createElement('button');
+                readButton.textContent = 'Прочитать';
+                readButton.addEventListener('click', () => {
+                    socket.emit('message:read', message.id);
+                });
+                item.appendChild(readButton);
+            }
+
+            switch (message.status) {
+                case 'delivered':
+                    item.querySelector('.status').textContent = '✓';
+                    item.querySelector('.status').style.color = 'blue';
+                    break;
+                case 'read':
+                    item.querySelector('.status').textContent = '✓✓';
+                    item.querySelector('.status').style.color = 'green';
+                    break;
+                default:
+                    item.querySelector('.status').textContent = '⏳';
+            }
+            messages.appendChild(item);
+        }
+
+        function addMessage(content, fromSelf) {
+            const item = document.createElement('li');
+
+            item.textContent = content;
+            item.style.textAlign = fromSelf ? 'right' : 'left';
+            messages.appendChild(item);
+        }
+        function updateMessageStatus(messageId, status) {
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageElement) {
+                const statusSpan = messageElement.querySelector('.status');
+                if (statusSpan) {
+                    switch (status) {
+                        case 'delivered':
+                            statusSpan.textContent = '✓';
+                            statusSpan.style.color = 'blue';
+                            break;
+                        case 'read':
+                            statusSpan.textContent = '✓✓';
+                            statusSpan.style.color = 'green';
+                            break;
+                        default:
+                            statusSpan.textContent = '⏳';
+                    }
+                }
+                messageElement.dataset.status = status;
+            }
+        }
+
+        function updateUserList() {
+            userList.innerHTML = '';
+            usersList.forEach(user => {
+                const userItem = document.createElement('li');
+                const status = user.connected ? '🟢' : '🔴';
+                userItem.textContent = `${user.username} ${status} ${user.myself ? "(Вы)" : ""}`;
+                userItem.dataset.userId = user.userId;
+                userItem.addEventListener('click', () => {
+                    selectedUser = { id: user.userId, role: user.role };
+                    alert(`Вы выбрали пользователя: ${user.userId}`);
+                });
+                userList.appendChild(userItem);
+            });
+        }
+
+        function updateChatList(chats) {
+            chatList.innerHTML = '';
+            if (chats.length === 0) {
+                chatList.textContent = "Нет активных чатов";
+                return;
+            }
+            chats.forEach(chat => {
+                const item = document.createElement('li');
+                const participant = chat.chatParticipants[0];
+                const name = participant.user ? `${participant.user.first_name} ${participant.user.last_name}` : participant.clinic.name;
+                item.textContent = name;
+
+                item.addEventListener('click', () => {
+                    selectedChat = chat.id;
+                    selectedUser = participant.user_id;
+                    socket.emit('message:list', {
+                        chatId: chat.id,
+                        userId: participant.user_id,
+                        limit: 10,
+                        offset: 0
+                    });
+                });
+
+                chatList.appendChild(item);
+            });
+        }
+
+        formFirstMessage.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!selectedUser) {
+                alert("Пожалуйста, выберите что-нибудь для отправки сообщения");
+                return;
+            }
+
+            const content = inputFirstMessage.value;
+            if (content) {
+                socket.emit("chat:start:firstMessage", { to: selectedUser, content }, (response) => {
+                    if (response.success) {
+                        const messageId = response.messageId;
+                        socket.on(`message:${messageId}:delivered`, () => {
+                            console.log(`Сообщение ${messageId} доставлено`);
+                        });
+                    }
+                });
+                inputFirstMessage.value = '';
+            }
+        });
 
         form.addEventListener('submit', async (e) => {
             // if (fileInput.files.length > 0) {
@@ -170,16 +309,24 @@
                 alert("Пожалуйста, выберите пользователя для отправки сообщения");
                 return;
             }
+            const content = input.value;
             try {
-                const messageData = {
-                    to: selectedUser,
-                    content: input.value,
-                };
-                console.log("MESSAGE DATA", messageData);
-                if (input.value) {
-                    socket.emit('message:send', messageData);
+                if (content) {
+                    socket.emit('message:send', { chatId: selectedChat, to: selectedUser, content }, (response) => {
+                        if (response.success) {
+                            const { messageId } = response;
+
+                            socket.on(`message:${messageId}:delivered`, () => {
+                                console.log("DELIVERED", messageId);
+                                updateMessageStatus(messageId, 'delivered');
+                            });
+                            socket.on(`message:${messageId}:read`, () => {
+                                console.log("READ", messageId);
+                                updateMessageStatus(messageId, 'read');
+                            });
+                        }
+                    });
                     input.value = '';
-                    fileInput.value = '';
                 }
             } catch (error) {
                 console.error('Ошибка при отправке сообщения:', error);
@@ -187,61 +334,50 @@
             }
         });
 
-        function updateUserList() {
-            userList.innerHTML = '';
-            usersList.forEach(user => {
-                const userItem = document.createElement('li');
-                const status = user.connected ? '🟢' : '🔴';
-                userItem.textContent = `${user.username} ${status} ${user.self ? "(Вы)" : ""}`;
-                userItem.dataset.userId = user.userId;
-                userItem.addEventListener('click', () => {
-                    selectedUser = user.userId;
-                    alert(`Вы выбрали пользователя: ${user.userId}`);
-                });
-                userList.appendChild(userItem);
-            });
-        }
+        // socket.on('message:sent', (message) => {
 
-        function addMessage(content, fromSelf) {
-            const item = document.createElement('li');
-            item.textContent = content;
-            item.style.textAlign = fromSelf ? 'right' : 'left';
-            messages.appendChild(item);
-        }
+        //     addMessage(message.content, true);
+        // });
+
+        socket.on("message:new", (message) => {
+            displayMessage(message);
+
+            socket.emit(`message:${message.id}:delivered`);
+        });
+
+        socket.on("message:list", (chat) => {
+            if (chat.messages.length === 0) {
+                displayMessage(chat.messages.length);
+            }
+            chat.messages.forEach(message => {
+                displayMessage(message);
+            });
+        });
+        socket.on("message:status", ({ messageId, status }) => {
+            console.log("MESSAGE STATUS", messageId);
+            updateMessageStatus(messageId, status);
+        });
+
+        socket.on("chat:list", (chats) => {
+            console.log("CHATS", chats);
+            updateChatList(chats);
+        });
 
         socket.onAny((event, ...args) => {
             console.log(event, args);
         });
 
-        socket.on("session", ({ sessionID, userID, username }) => {
-            socket.auth = { sessionID };
-            localStorage.setItem("sessionID", sessionID);
-            localStorage.setItem("userID", userID);
-            localStorage.setItem("username", username);
-
-            socket.userID = userID;
-            socket.username = username;
+        socket.on("connect", () => {
+            console.log('Подключено к серверу');
         });
 
         socket.on("connect_error", (err) => {
             if (err.data?.code === 401) {
-                localStorage.removeItem("sessionID");
-                localStorage.removeItem("userID");
-                localStorage.removeItem("username");
             }
         });
 
-        socket.on("connect", () => {
-            console.log('Подключено к серверу');
-            usersList.forEach((user) => {
-                if (user.self) {
-                    user.connected = true;
-                }
-            });
-            updateUserList();
-        });
-
         socket.on("disconnect", () => {
+            console.log("DISCONNECT");
             usersList.forEach((user) => {
                 if (user.self) {
                     user.connected = false;
@@ -250,10 +386,13 @@
             updateUserList();
         });
 
+        socket.on('reconnect_failed', () => {
+            console.log('Не удалось восстановить соединение');
+        });
+
         socket.on("user:list", (users) => {
             try {
                 usersList = users.map(user => {
-                    user.self = user.userId === socket.userID;
                     initReactiveProperties(user);
                     return user;
                 });
@@ -290,10 +429,10 @@
                 const user = usersList[i];
                 if (user.userId === id) {
                     user.connected = false;
-                    break;
+                    updateUserList();
+                    return;
                 }
             }
-            updateUserList();
         });
 
         socket.on("user status", ({ userId, online }) => {
@@ -306,15 +445,6 @@
                 }
             } catch (error) {
                 console.error('Ошибка при обновлении статуса пользователя:', error);
-            }
-        });
-
-        socket.on('message:send', ({ content, from, to }) => {
-            try {
-                const fromSelf = socket.userID === from;
-                addMessage(content, fromSelf);
-            } catch (error) {
-                console.error('Ошибка при обработке сообщения:', error);
             }
         });
 

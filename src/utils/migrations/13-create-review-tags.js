@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('ReviewTags', {
+        await queryInterface.createTable('review_tags', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -12,7 +12,7 @@ module.exports = {
                 type: Sequelize.INTEGER,
                 allowNull: false,
                 references: {
-                    model: 'Reviews',
+                    model: 'reviews',
                     key: 'id'
                 },
                 onDelete: 'CASCADE',
@@ -22,7 +22,7 @@ module.exports = {
                 type: Sequelize.INTEGER,
                 allowNull: false,
                 references: {
-                    model: 'Tags',
+                    model: 'tags',
                     key: 'id'
                 },
                 onDelete: 'CASCADE',
@@ -31,12 +31,12 @@ module.exports = {
         });
 
         // Добавляем уникальный составной индекс
-        await queryInterface.addIndex('ReviewTags', ['review_id', 'tag_id'], {
+        await queryInterface.addIndex('review_tags', ['review_id', 'tag_id'], {
             unique: true,
             name: 'review_tag_unique'
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('ReviewTags');
+        await queryInterface.dropTable('review_tags');
     }
 };

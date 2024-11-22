@@ -1,15 +1,27 @@
 const { Sequelize } = require("sequelize");
-const mysql2 = require("mysql2");
+// const mysql2 = require("mysql2");
 // const NODE_ENV = process.env.NODE_ENV || "development";
 
 const config = {
-    url: process.env.DATABASE_URL || null,
-    username: process.env.DB_USER || "root",
-    password: process.env.DB_PASS || null,
-    database: process.env.DB_NAME || "mylekarz",
-    host: process.env.DB_HOST || "localhost",
-    dialect: "mysql",
-    dialectModule: mysql2,
+    url: process.env.POSTGRES_PRISMA_URL || null,
+    username: process.env.POSTGRES_USER || "root",
+    password: process.env.POSTGRES_PASSWORD || null,
+    database: process.env.POSTGRES_DATABASE || "mylekarz",
+    host: process.env.POSTGRES_HOST || "localhost",
+    dialect: "postgres",
+    dialectOptions: {
+        ssl: {
+            require: true,
+            rejectUnauthorized: false
+        }
+    },
+    logging: (msg) => {
+        if (msg.includes('ERROR')) {
+            console.error(msg);
+        }
+    },
+    // dialect: "mysql",
+    // dialectModule: mysql2,
 };
 
 let sequelize
@@ -34,6 +46,7 @@ if (config.url) {
         if (process.env.DB_SYNC === "true") {
             console.log("Добавление/Обноаление данных...");
             // await sequelize.sync({ alter: true });
+
             await sequelize.sync({ force: true });
             console.log("Начальные данные добавлены/обновлены");
         }

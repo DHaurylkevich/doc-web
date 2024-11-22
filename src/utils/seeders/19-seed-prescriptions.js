@@ -10,12 +10,12 @@ module.exports = {
         );
 
         const doctors = await queryInterface.sequelize.query(
-            `SELECT id FROM Doctors;`,
+            `SELECT id FROM doctors;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const medications = await queryInterface.sequelize.query(
-            `SELECT id FROM Medications;`,
+            `SELECT id FROM medications;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
@@ -38,13 +38,15 @@ module.exports = {
                 medication_id: medications[faker.number.int({ min: 0, max: medications.length - 1 })].id,
                 code: generateUniqueCode(),
                 expiration_date: faker.date.future(),
+                createdAt: new Date(),
+                updatedAt: new Date()
             });
         }
 
-        await queryInterface.bulkInsert('Prescriptions', prescriptions, {});
+        await queryInterface.bulkInsert('prescriptions', prescriptions, {});
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.bulkDelete('Prescriptions', null, {});
+        await queryInterface.bulkDelete('prescriptions', null, {});
     }
 };

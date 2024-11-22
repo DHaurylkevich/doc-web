@@ -8,9 +8,6 @@ module.exports = (sequelize, DataTypes) => {
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE'
             });
-            Messages.belongsTo(models.Users, {
-                foreignKey: 'sender_id'
-            });
         }
     }
     Messages.init({
@@ -23,10 +20,10 @@ module.exports = (sequelize, DataTypes) => {
         sender_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: 'Users',
-                key: 'id'
-            }
+        },
+        sender_type: {
+            type: DataTypes.ENUM('user', 'clinic'),
+            allowNull: false
         },
         content: {
             type: DataTypes.STRING,
@@ -39,15 +36,12 @@ module.exports = (sequelize, DataTypes) => {
         file_url: {
             type: DataTypes.STRING,
             allowNull: true
-        },
-        created_at: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW
         }
     }, {
         sequelize,
         modelName: 'Messages',
-        timestamps: false,
+        tableName: 'messages',
+        timestamps: true,
     });
     return Messages;
 };

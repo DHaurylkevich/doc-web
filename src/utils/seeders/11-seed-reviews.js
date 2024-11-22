@@ -4,12 +4,12 @@ const { faker } = require('@faker-js/faker');
 module.exports = {
     async up(queryInterface, Sequelize) {
         const patients = await queryInterface.sequelize.query(
-            `SELECT id FROM Patients;`,
+            `SELECT id FROM patients;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const doctors = await queryInterface.sequelize.query(
-            `SELECT id FROM Doctors;`,
+            `SELECT id FROM doctors;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
@@ -26,10 +26,10 @@ module.exports = {
             });
         }
 
-        await queryInterface.bulkInsert('Reviews', reviews, {});
+        await queryInterface.bulkInsert('reviews', reviews, {});
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.bulkDelete('Reviews', null, {});
+        await queryInterface.bulkDelete('reviews', null, {});
     }
 };

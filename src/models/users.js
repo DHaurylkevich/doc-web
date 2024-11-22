@@ -26,21 +26,10 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: 'CASCADE',
         as: "address"
       });
-      Users.hasMany(models.Chats, {
-        foreignKey: 'user_1_id',
+      Users.hasMany(models.ChatParticipants, {
+        foreignKey: 'user_id',
         constraints: false,
-        scope: {
-          user_1_type: 'user'
-        },
-        as: 'user1'
-      });
-      Users.hasMany(models.Chats, {
-        foreignKey: 'user_2_id',
-        constraints: false,
-        scope: {
-          user_2_type: 'user'
-        },
-        as: 'User2'
+        as: 'chatParticipants',
       });
     }
   }
@@ -104,13 +93,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    resetToken: {
-      type: DataTypes.STRING(11),
-      allowNull: true,
-    }
   }, {
     sequelize,
     modelName: 'Users',
+    tableName: 'users',
     timestamps: true,
   });
   return Users;

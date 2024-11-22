@@ -1,23 +1,41 @@
 {
   "development": {
-    "username": "sql7745049",
-    "password": "cNjaM2JAkT",
-    "database": "sql7745049",
-    "host": "sql7.freesqldatabase.com",
-    "dialect": "mysql"
+    "username": "default",
+    "password": "f0DFnx2vwKeY",
+    "database": "verceldb",
+    "host": "ep-snowy-sunset-a4vm0d1c-pooler.us-east-1.aws.neon.tech",
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   },
   "test": {
-    "username": "sql7745049",
-    "password": "cNjaM2JAkT",
-    "database": "sql7745049",
-    "host": "sql7.freesqldatabase.com",
-    "dialect": "mysql"
+    "username": "default",
+    "password": "f0DFnx2vwKeY",
+    "database": "verceldb",
+    "host": "ep-snowy-sunset-a4vm0d1c-pooler.us-east-1.aws.neon.tech",
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   },
   "production": {
-    "username": "sql7745049",
-    "password": "cNjaM2JAkT",
-    "database": "sql7745049",
-    "host": "sql7.freesqldatabase.com",
-    "dialect": "mysql"
+    "username": "default",
+    "password": "f0DFnx2vwKeY",
+    "database": "verceldb",
+    "host": "ep-snowy-sunset-a4vm0d1c-pooler.us-east-1.aws.neon.tech",
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   }
 }

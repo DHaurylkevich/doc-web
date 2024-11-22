@@ -5,17 +5,17 @@ module.exports = {
     async up(queryInterface, Sequelize) {
         // Получаем существующие пользователей с ролью "doctor", клиники и специальности
         const users = await queryInterface.sequelize.query(
-            `SELECT id FROM Users WHERE role = 'doctor';`,
+            `SELECT id FROM users WHERE role = 'doctor';`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const clinics = await queryInterface.sequelize.query(
-            `SELECT id FROM Clinics;`,
+            `SELECT id FROM clinics;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const specialties = await queryInterface.sequelize.query(
-            `SELECT id FROM Specialties;`,
+            `SELECT id FROM specialties;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
@@ -30,10 +30,10 @@ module.exports = {
             updatedAt: new Date(),
         }));
 
-        await queryInterface.bulkInsert('Doctors', doctors, {});
+        await queryInterface.bulkInsert('doctors', doctors, {});
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.bulkDelete('Doctors', null, {});
+        await queryInterface.bulkDelete('doctors', null, {});
     }
 };

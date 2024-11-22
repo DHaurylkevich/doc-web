@@ -27,21 +27,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "clinic_id",
         as: "appointments"
       });
-      Clinics.hasMany(models.Chats, {
-        foreignKey: 'user_1_id',
+      Clinics.hasMany(models.ChatParticipants, {
+        foreignKey: 'user_id',
         constraints: false,
-        scope: {
-          user_1_type: 'clinic'
-        },
-        as: 'clinic1'
-      });
-      Clinics.hasMany(models.Chats, {
-        foreignKey: 'user_2_id',
-        constraints: false,
-        scope: {
-          user_2_type: 'clinic'
-        },
-        as: 'clinic2'
+        as: 'chatParticipants',
       });
     }
   }
@@ -100,6 +89,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: "Clinics",
+    tableName: 'clinics',
     timestamps: true,
   });
   return Clinics;

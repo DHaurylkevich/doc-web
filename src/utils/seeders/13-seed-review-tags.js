@@ -4,12 +4,12 @@ const { faker } = require('@faker-js/faker');
 module.exports = {
     async up(queryInterface, Sequelize) {
         const reviews = await queryInterface.sequelize.query(
-            `SELECT id FROM Reviews;`,
+            `SELECT id FROM reviews;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const tags = await queryInterface.sequelize.query(
-            `SELECT id FROM Tags;`,
+            `SELECT id FROM tags;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
@@ -22,10 +22,10 @@ module.exports = {
             });
         }
 
-        await queryInterface.bulkInsert('ReviewTags', reviewTags, {});
+        await queryInterface.bulkInsert('review_tags', reviewTags, {});
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.bulkDelete('ReviewTags', null, {});
+        await queryInterface.bulkDelete('review_tags', null, {});
     }
 };
