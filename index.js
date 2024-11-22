@@ -14,6 +14,8 @@ const io = require("./src/controllers/websocketController");
 
 require("./src/config/db");
 
+app.set('trust proxy', 1)
+
 app.use(sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
@@ -24,12 +26,12 @@ app.use(express.json());
 app.use(morgan("dev"));
 swaggerDocs(app);
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app"],
-    credentials: true
+  origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app"],
+  credentials: true
 }));
 
 app.get('/auth/login', (req, res) => {
-    res.send(`
+  res.send(`
     <form action="/auth/login" method="POST" onsubmit="handleSubmit(event)">
       <div>
         <label>Email:</label>
@@ -70,24 +72,24 @@ app.get('/auth/login', (req, res) => {
 });
 
 app.post('/auth/login', (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
-        if (err) {
-            return next(err);
-        }
-        if (!user) {
-            return next(new AppError(info.message || "Неверные учетные данные", 404));
-        }
-        req.logIn(user, (err) => {
-            if (err) {
-                return next(err);
-            }
-            res.redirect('/chat');
-        });
-    })(req, res, next);
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return next(new AppError(info.message || "Неверные учетные данные", 404));
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      res.redirect('/chat');
+    });
+  })(req, res, next);
 });
 
 app.get('/chat', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/index.html');
 });
 
 app.get("/", (req, res) => { res.send("Hello"); })
@@ -101,8 +103,8 @@ const link = process.env.LINK || "http://localhost";
 
 
 app.listen(port, () => {
-    console.log(`The server start at: ${link}:${port}`)
-    console.log(`The documentation is available at: ${link}:${port}/api-docs`);
+  console.log(`The server start at: ${link}:${port}`)
+  console.log(`The documentation is available at: ${link}:${port}/api-docs`);
 });
 
 // module.exports = server;
