@@ -11,7 +11,8 @@ const sessionConfig = session({
         // sameSite: process.env.NODE_ENV === 'production' ? 'None' : "Lax",
         sameSite: "Lax",
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000
+        maxAge: 24 * 60 * 60 * 1000,
+        path: "/",
     }
 });
 
