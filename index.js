@@ -32,7 +32,7 @@ swaggerDocs(app);
 
 app.get('/auth/login', (req, res) => {
   res.send(`
-    <form action="/auth/login" method="POST" onsubmit="handleSubmit(event)">
+    <form action="https://doc-web-rose.vercel.app/auth/login" method="POST" onsubmit="handleSubmit(event)">
       <div>
         <label>Email:</label>
         <input type="email" name="loginParam" required>
@@ -48,8 +48,9 @@ app.get('/auth/login', (req, res) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         try {
-          const response = await fetch('/auth/login', {
+          const response = await fetch('https://doc-web-rose.vercel.app/auth/login', {
             method: 'POST',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },

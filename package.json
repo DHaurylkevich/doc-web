@@ -14,6 +14,9 @@
     "socket.io-client": "^4.8.1",
     "supertest": "^7.0.0"
   },
+  "engines": {
+    "node": "v16.x"
+  },
   "scripts": {
     "test": "NODE_ENV=test mocha tests/integration/**.test.js",
     "dev": "nodemon index.js",
@@ -59,6 +62,7 @@
     "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "winston": "^3.16.0"
+    "winston": "^3.16.0",
+    "cors": "^2.8.5"
   }
 }
