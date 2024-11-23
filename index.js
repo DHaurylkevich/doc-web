@@ -14,17 +14,17 @@ const io = require("./src/controllers/websocketController");
 
 require("./src/config/db");
 
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app", "https://stellar-proximal-handspring.glitch.me"],
-  credentials: true
-}));
-app.set('trust proxy', 1);
-
 app.use(sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
 io(server, sessionConfig, passport);
 require('./src/config/passport');
+
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app", "https://stellar-proximal-handspring.glitch.me"],
+  credentials: true
+}));
+// app.set('trust proxy', 1);
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -32,7 +32,7 @@ swaggerDocs(app);
 
 app.get('/auth/login', (req, res) => {
   res.send(`
-    <form action="auth/login" method="POST" onsubmit="handleSubmit(event)">
+    <form action="https://doc-web-rose.vercel.app/login" method="POST" onsubmit="handleSubmit(event)">
       <div>
         <label>Email:</label>
         <input type="email" name="loginParam" required>
@@ -48,7 +48,7 @@ app.get('/auth/login', (req, res) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         try {
-          const response = await fetch('https://doc-web-rose.vercel.app/auth/login', {
+          const response = await fetch('https://doc-web-rose.vercel.app/login', {
             method: 'POST',
             credentials: 'include',
             headers: {

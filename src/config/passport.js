@@ -58,8 +58,8 @@ passport.serializeUser((user, cb) => {
 passport.deserializeUser(async (user, done) => {
     try {
         const foundUser = await db.Users.findByPk(user.id);
-        done(null, { id: foundUser.id, role: foundUser.role});
-        // firstName: foundUser.first_name, lastName: last_name 
+        console.log({ firstName: foundUser.first_name, lastName: foundUser.last_name });
+        done(null, { id: foundUser.id, role: foundUser.role });
     } catch (err) {
         done(err);
     }
