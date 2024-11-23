@@ -1,8 +1,18 @@
 require('dotenv').config();
 const express = require("express");
 const http = require('http');
+// const https = require('https');
 const app = express();
+
+// const fs = require('fs');
+// const path = require('path');
+// const options = {
+//   key: fs.readFileSync(path.join(__dirname, 'ssl/ssl.key')),
+//   cert: fs.readFileSync(path.join(__dirname, 'ssl/ssl.crt'))
+// };
+// const server = https.createServer(options, app);
 const server = http.createServer(app);
+
 const passport = require('passport');
 const sessionConfig = require('./src/config/session');
 const { errorHandler } = require("./src/middleware/errorHandler");
@@ -21,7 +31,7 @@ io(server, sessionConfig, passport);
 require('./src/config/passport');
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app", "https://stellar-proximal-handspring.glitch.me"],
+  origin: ['https://localhost:3000', 'http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app", "https://stellar-proximal-handspring.glitch.me"],
   credentials: true
 }));
 app.set('trust proxy', 1);
