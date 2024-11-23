@@ -15,7 +15,7 @@ const io = require("./src/controllers/websocketController");
 require("./src/config/db");
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app"],
+  origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app", "https://stellar-proximal-handspring.glitch.me"],
   credentials: true
 }));
 app.set('trust proxy', 1);
