@@ -110,6 +110,29 @@
     <div id="userForm">
         <button id="disconnectButton">Отключиться</button>
     </div>
+    <button id="getNameButton">Получить Имя</button>
+    <p id="userName"></p>
+    <script>
+        const getNameButton = document.getElementById('getNameButton');
+        const userName = document.getElementById('userName');
+
+        getNameButton.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/get-username', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    userName.innerText = `Имя пользователя: ${data.name}`;
+                } else {
+                    userName.innerText = 'Не удалось получить имя пользователя';
+                }
+            } catch (error) {
+                userName.innerText = 'Произошла ошибка при получении имени пользователя';
+            }
+        });
+    </script>
 
     <ul id="userList"></ul>
     <ul id="chatList"></ul>

@@ -32,7 +32,7 @@ swaggerDocs(app);
 
 app.get('/auth/login', (req, res) => {
   res.send(`
-    <form action="https://doc-web-rose.vercel.app/auth/login" method="POST" onsubmit="handleSubmit(event)">
+    <form action="https://doc-web-rose.vercel.app/auth/login" method="POST" onsubmit="handleSubmit(event)" enctype="multipart/form-data">
       <div>
         <label>Email:</label>
         <input type="email" name="loginParam" required>
