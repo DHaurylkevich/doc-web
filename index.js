@@ -14,17 +14,18 @@ const io = require("./src/controllers/websocketController");
 
 require("./src/config/db");
 
+app.use(cors({
+  origin: ['https://localhost:3000', 'http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app", "https://stellar-proximal-handspring.glitch.me"],
+  credentials: true
+}));
+app.set('trust proxy', 1);
+
 app.use(sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
 io(server, sessionConfig, passport);
 require('./src/config/passport');
 
-app.use(cors({
-  origin: ['https://localhost:3000', 'http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app", "https://stellar-proximal-handspring.glitch.me"],
-  credentials: true
-}));
-app.set('trust proxy', 1);
 
 app.use(express.json());
 app.use(morgan("dev"));
