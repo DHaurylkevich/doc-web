@@ -24,7 +24,7 @@ app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:5173', "https://doc-web-rose.vercel.app", "https://stellar-proximal-handspring.glitch.me"],
   credentials: true
 }));
-// app.set('trust proxy', 1);
+app.set('trust proxy', 1);
 
 app.use(express.json());
 app.use(morgan("dev"));
