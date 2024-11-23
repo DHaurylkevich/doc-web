@@ -7,11 +7,9 @@ const sessionConfig = session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        // secure: process.env.NODE_ENV === "production",
-        // sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : false,
         httpOnly: true,
-        sameSite: false,
         maxAge: 24 * 60 * 60 * 1000
     }
 });
