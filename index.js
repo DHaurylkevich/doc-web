@@ -32,43 +32,43 @@ swaggerDocs(app);
 
 app.get('/auth/login', (req, res) => {
   res.send(`
-    <form action="https://doc-web-rose.vercel.app/login" method="POST" onsubmit="handleSubmit(event)">
-      <div>
-        <label>Email:</label>
-        <input type="email" name="loginParam" value="admin@gmail.com" required>
-      </div>
-      <div>
-        <label>Пароль:</label>
-        <input type="password" name="password" value="123456789" required>      
-      </div>
-      <button type="submit">Войти</button>
-    </form>
-    <script>
-      async function handleSubmit(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        try {
-          const response = await fetch('/login', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              loginParam: formData.get('loginParam'),
-              password: formData.get('password')
-            })
-          });
-          if (response.ok) {
-            window.location.href = '/chat';
-          } else {
-            alert('Ошибка аутентификации');
-          }
-        } catch (error) {
-          console.error('Ошибка:', error);
-        }
+    <form id="login-form">
+  <div>
+    <label>Email:</label>
+    <input type="email" name="loginParam" value="admin@gmail.com" required>
+  </div>
+  <div>
+    <label>Пароль:</label>
+    <input type="password" name="password" value="123456789" required>      
+  </div>
+  <button type="submit">Войти</button>
+</form>
+<script>
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault(); // Остановить стандартное поведение формы
+    const formData = new FormData(e.target);
+    try {
+      const response = await fetch('https://doc-web-rose.vercel.app/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          loginParam: formData.get('loginParam'),
+          password: formData.get('password')
+        })
+      });
+      if (response.ok) {
+        window.location.href = '/chat';
+      } else {
+        alert('Ошибка аутентификации');
       }
-    </script>
+    } catch (error) {
+      console.error('Ошибка:', error);
+    }
+  });
+</script>
   `);
 });
 
