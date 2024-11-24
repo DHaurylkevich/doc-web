@@ -22,7 +22,8 @@ app.use(cors({
     'https://localhost:5173',
     "https://doc-web-rose.vercel.app",
     "https://mojlekarz.netlify.app",
-    "https://stellar-proximal-handspring.glitch.me"
+    "https://stellar-proximal-handspring.glitch.me",
+    "https://nimble-manatee-0b5260.netlify.app"
   ],
   credentials: true
 }));

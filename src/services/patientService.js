@@ -53,14 +53,10 @@ const PatientService = {
             throw err;
         }
     },
-    getPatientsByParam: async (sort, limit, offset, clinicId, doctorId) => {
+    getPatientsByParam: async ({ sort, limit, offset, doctorId, clinicId }) => {
         try {
-            const whereConditions = {};
-            if (doctorId) whereConditions.doctor_id = doctorId;
-            if (clinicId) whereConditions.clinic_id = clinicId;
-
             const appointments = await db.Appointments.findAll({
-                where: whereConditions,
+                where: clinicId ? { clinic_id: clinicId } : {},
                 order: [['createdAt', sort === 'asc' ? 'ASC' : 'DESC']],
                 limit: parseInt(limit),
                 offset: parseInt(offset),
@@ -76,6 +72,12 @@ const PatientService = {
                                 include: [{ model: db.Addresses, as: 'address' }],
                             }
                         ]
+                    },
+                    {
+                        model: db.DoctorService,
+                        as: 'doctorService',
+                        attributes: ['doctor_id'],
+                        where: doctorId ? { doctor_id: doctorId } : {}
                     }
                 ]
             });

@@ -3,21 +3,23 @@ const { faker } = require('@faker-js/faker');
 
 module.exports = {
     async up(queryInterface, Sequelize) {
-        // Получаем существующие данные
         const patients = await queryInterface.sequelize.query(
             `SELECT id FROM patients;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const schedules = await queryInterface.sequelize.query(
-            `SELECT id, start_time, end_time, interval FROM schedules;`,
+            `SELECT schedules.id, schedules.start_time, schedules.end_time, schedules.interval, 
+                    schedules.clinic_id, schedules.doctor_id, doctor_services.id AS doctor_service_id
+             FROM schedules
+             LEFT JOIN doctor_services ON schedules.doctor_id = doctor_services.doctor_id;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
-        const doctors = await queryInterface.sequelize.query(
-            `SELECT id FROM doctors;`,
-            { type: Sequelize.QueryTypes.SELECT }
-        );
+        // const doctors = await queryInterface.sequelize.query(
+        //     `SELECT id FROM doctors;`,
+        //     { type: Sequelize.QueryTypes.SELECT }
+        // );
 
         const doctorServices = await queryInterface.sequelize.query(
             `SELECT id FROM doctor_services;`,
@@ -77,21 +79,28 @@ module.exports = {
                 return '00:00';
             }
         };
+        const doctors = schedules.map((schedule) => {
+            return {
+                doctor_id: schedule.doctor_id,
+                doctorService: doctorServices.find((service) => service.doctor_id === schedule.doctor_id)
+            }
+        });
 
         const appointments = patients.map((patient) => {
             const scheduleIndex = faker.number.int({ min: 0, max: schedules.length - 1 });
-            const doctorIndex = faker.number.int({ min: 0, max: doctors.length - 1 });
-            const serviceIndex = faker.number.int({ min: 0, max: doctorServices.length - 1 });
-
             const schedule = schedules[scheduleIndex];
-            const doctor = doctors[doctorIndex];
-            const doctorService = doctorServices[serviceIndex];
+
+            if (!schedule.doctor_service_id) {
+                console.warn(`Doctor service not found for doctor_id: ${schedule.doctor_id}`);
+                return null; // или выберите другой способ обработки
+            }
 
             return {
                 patient_id: patient.id,
                 schedule_id: schedule.id,
-                doctor_service_id: doctorService.id,
-                timeSlot: getRandomTimeSlot(schedule), // Изменил timeSlot на time согласно миграции
+                clinic_id: schedule.clinic_id,
+                doctor_service_id: schedule.doctor_service_id,
+                timeSlot: getRandomTimeSlot(schedule),
                 description: faker.lorem.sentence(),
                 first_visit: faker.datatype.boolean(),
                 visit_type: faker.helpers.arrayElement(['prywatna', 'NFZ']),

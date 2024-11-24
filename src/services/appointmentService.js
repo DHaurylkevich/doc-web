@@ -153,7 +153,7 @@ const AppointmentService = {
         try {
             const offset = (filters.page - 1) * filters.limit;
             const appointments = await db.Appointments.findAll({
-                attributes: ["status", "timeSlot", "doctor_service_id", "schedule_id"],
+                attributes: ["status", "timeSlot", "doctor_service_id", "schedule_id", "patient_id"],
                 limit: filters.limit,
                 offset: offset >= 0 ? offset : 0,
                 where: appointmentWhere,
@@ -272,8 +272,16 @@ const AppointmentService = {
                         order: [['date', 'DESC']]
                     },
                     {
-                        model: db.Schedules,
-                        order: [['date', 'DESC']]
+                        model: db.Patients,
+                        attributes: ["user_id"],
+                        include: [
+                            {
+                                model: db.Users,
+                                as: "user",
+                                attributes: ["first_name", "last_name"],
+                            }
+                        ]
+                        // order: [['date', 'DESC']]
                     }
                 ],
             });
