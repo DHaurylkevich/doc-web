@@ -16,6 +16,7 @@ module.exports = {
                 phone: faker.phone.number({ style: 'international' }),
                 password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
                 role: faker.helpers.arrayElement(['patient', 'doctor', 'admin']),
+                role: faker.helpers.arrayElement(['patient', 'doctor', 'admin']),
                 birthday: faker.date.birthdate({ min: 18, max: 70, mode: 'age' }),
                 // resetToken: faker.datatype.uuid(),
                 createdAt: new Date(),

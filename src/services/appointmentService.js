@@ -73,8 +73,6 @@ const AppointmentService = {
                 include: [
                     {
                         model: db.Clinics,
-                        // as: 'clinic',
-                        // attributes: [],
                         include: [
                             {
                                 model: db.Addresses,
@@ -93,24 +91,12 @@ const AppointmentService = {
                     {
                         model: db.Schedules,
                         attributes: ["id", "date", "interval", "end_time", "start_time"],
+                        order: [['date', 'DESC']],
                         where: scheduleWhere,
                         include: [
                             {
                                 model: db.Appointments,
                                 attributes: ["timeSlot"]
-                                // include: [
-                                //     {
-                                //         model: db.DoctorService,
-                                //         as: "doctorService",
-                                //         include: [
-                                //             {
-                                //                 model: db.Services,
-                                //                 as: "service",
-                                //                 attributes: ["name", "price"]
-                                //             }
-                                //         ]
-                                //     }
-                                // ]
                             }
                         ]
                     },
@@ -119,6 +105,7 @@ const AppointmentService = {
             if (!doctors.length) {
                 return [];
             }
+            // return doctors;
 
             return doctors.map(doctor => {
                 const availableSlots = doctor.Schedules.map(schedule => {
@@ -178,7 +165,7 @@ const AppointmentService = {
                                     {
                                         model: db.Users,
                                         as: "user",
-                                        attributes: ["first_name", "last_name"],
+                                        attributes: ["first_name", "last_name", "photo"],
                                     },
                                 ]
                             },
@@ -196,13 +183,14 @@ const AppointmentService = {
                             {
                                 model: db.Users,
                                 as: "user",
-                                attributes: ["first_name", "last_name"],
+                                attributes: ["first_name", "last_name", "photo"],
                             },
                         ]
                     },
                     {
                         model: db.Schedules,
                         attributes: ["id", "date", "interval"],
+                        order: [['date', 'DESC']],
                         where: scheduleWhere,
                     },
                 ]
@@ -278,7 +266,7 @@ const AppointmentService = {
                             {
                                 model: db.Users,
                                 as: "user",
-                                attributes: ["first_name", "last_name"],
+                                attributes: ["first_name", "last_name", "photo"],
                             }
                         ]
                         // order: [['date', 'DESC']]
