@@ -339,6 +339,22 @@ router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointme
  *           schema:
  *             type: integer
  *             example: 1
+ *         - name: startDate
+ *           in: query
+ *           required: false
+ *           description: Начальная дата
+ *           schema:
+ *             type: string
+ *             format: date
+ *             example: "2024-11-05"
+ *         - name: endDate
+ *           in: query
+ *           required: false
+ *           description: Конечная дата
+ *           schema:
+ *             type: string
+ *             format: date
+ *             example: "2024-11-10"
  *       responses:
  *         200:
  *           description: Массив записей врача

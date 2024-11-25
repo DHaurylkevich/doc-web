@@ -11,16 +11,6 @@ const AppointmentController = {
             next(err);
         }
     },
-    // getSpecialty: async (req, res, next) => {
-    //     const { id } = req.params;
-
-    //     try {
-    //         const specialty = await SpecialtyService.getSpecialtyById(id);
-    //         res.status(200).json(specialty);
-    //     } catch (err) {
-    //         next(err);
-    //     }
-    // },
     getAvailableSlotsWithFilter: async (req, res, next) => {
         const { city, specialty, date, visitType, limit = 10, page = 1 } = req.query;
 
@@ -44,9 +34,9 @@ const AppointmentController = {
     },
     getAppointmentsByDoctor: async (req, res, next) => {
         const { doctorId } = req.params;
-        const { limit = 10, offset = 0 } = req.query;
-        try {
-            const appointments = await AppointmentService.getAllAppointmentsByDoctor(doctorId, parseInt(limit), parseInt(offset));
+        const { limit = 10, offset = 0, startDate, endDate } = req.query;
+        try {   
+            const appointments = await AppointmentService.getAllAppointmentsByDoctor(doctorId, parseInt(limit), parseInt(offset), startDate, endDate);
             res.status(200).json(appointments);
         } catch (err) {
             next(err);
@@ -64,17 +54,6 @@ const AppointmentController = {
             next(err);
         }
     },
-    // updateSpecialty: async (req, res, next) => {
-    //     const { id } = req.params;
-    //     const { specialtyData } = req.body;
-
-    //     try {
-    //         const updateSpecialty = await SpecialtyService.updateSpecialty(id, specialtyData);
-    //         res.status(200).json(updateSpecialty);
-    //     } catch (err) {
-    //         next(err);
-    //     }
-    // },
     deleteAppointment: async (req, res, next) => {
         const { id } = req.params;
 

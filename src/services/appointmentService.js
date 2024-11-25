@@ -7,9 +7,28 @@ const AppointmentService = {
     createAppointment: async (doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description) => {
         const schedule = await db.Schedules.findOne({
             where: { doctor_id: doctorId, date: date },
-        });
+            attributes: ["id", "date", "interval", "doctor_id", "start_time", "end_time"],
+            include: [
+                {
+                    model: db.Appointments,
+                    attributes: ["timeSlot"]
+                }
+            ]
+        })
         if (!schedule) {
             throw new AppError("This Schedule doesn't exist", 404);
+        }
+
+        const slots = AppointmentService.getAvailableSlots(schedule);
+        const isTimeSlotAvailable = slots.includes(timeSlot);
+        if (!isTimeSlotAvailable) {
+            throw new AppError("This time slot is not available", 400);
+        }
+
+        const occupiedSlots = schedule.Appointments.map(app => app.timeSlot.slice(0, -3));
+        const slot = occupiedSlots.includes(timeSlot);
+        if (slot) {
+            throw new AppError("This time slot is not free", 400);
         }
 
         await ClinicService.getClinicById(clinicId);
@@ -17,13 +36,6 @@ const AppointmentService = {
         const patient = await user.getPatient();
         if (!patient) {
             throw new AppError("Patient not found", 404);
-        }
-
-        const existingAppointment = await db.Appointments.findOne({
-            where: { schedule_id: schedule.id, timeSlot: timeSlot },
-        });
-        if (existingAppointment) {
-            throw new AppError("Appointment already exists", 400);
         }
 
         try {
@@ -43,7 +55,6 @@ const AppointmentService = {
             throw err;
         }
     },
-
     getAppointmentById: async (id) => {
         try {
             const appointment = await db.Appointments.findByPk(id, {
@@ -243,20 +254,26 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAllAppointmentsByDoctor: async (doctorId, limit, page) => {
+    getAllAppointmentsByDoctor: async (doctorId, limit, offset, startDate, endDate) => {
         try {
-            const offset = (page - 1) * limit;
+            const offsetValue = offset * limit;
             const appointments = await db.Appointments.findAll({
                 limit: limit,
-                offset: offset >= 0 ? offset : 0,
+                offset: offsetValue >= 0 ? offsetValue : 0,
                 order: [['timeSlot', 'DESC']],
                 include: [
                     {
-                        model: db.DoctorService, as: "doctorService",
+                        model: db.DoctorService,
+                        as: "doctorService",
                         where: { doctor_id: doctorId },
                     },
                     {
                         model: db.Schedules,
+                        where: {
+                            date: {
+                                [db.Sequelize.Op.between]: [startDate, endDate]
+                            }
+                        },
                         order: [['date', 'DESC']]
                     },
                     {
@@ -269,7 +286,6 @@ const AppointmentService = {
                                 attributes: ["first_name", "last_name", "photo"],
                             }
                         ]
-                        // order: [['date', 'DESC']]
                     }
                 ],
             });
@@ -282,14 +298,14 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAllAppointmentsByPatient: async (patientId, limit, page) => {
+    getAllAppointmentsByPatient: async (patientId, limit, offset) => {
         try {
-            const offset = (page - 1) * limit;
+            const offsetValue = offset * limit;
 
             const appointments = await db.Appointments.findAll({
                 where: { patient_id: patientId },
                 limit: limit,
-                offset: offset >= 0 ? offset : 0,
+                offset: offsetValue >= 0 ? offsetValue : 0,
                 order: [['timeSlot', 'DESC']],
                 include: [
                     {
