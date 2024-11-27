@@ -8,6 +8,16 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      clinic_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'clinics',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
       patient_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -18,11 +28,11 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      doctor_id: {
+      doctor_service_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'doctors',
+          model: 'doctor_services',
           key: 'id'
         },
         onDelete: 'CASCADE',
@@ -38,13 +48,13 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      date: {
-        type: Sequelize.DATEONLY,
-        allowNull: false
-      },
-      time: {
+      timeSlot: {
         type: Sequelize.TIME,
         allowNull: false
+      },
+      description: {
+        type: Sequelize.STRING(255),
+        allowNull: true
       },
       first_visit: {
         type: Sequelize.BOOLEAN,

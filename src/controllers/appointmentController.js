@@ -35,7 +35,7 @@ const AppointmentController = {
     getAppointmentsByDoctor: async (req, res, next) => {
         const { doctorId } = req.params;
         const { limit = 10, offset = 0, startDate, endDate } = req.query;
-        try {   
+        try {
             const appointments = await AppointmentService.getAllAppointmentsByDoctor(doctorId, parseInt(limit), parseInt(offset), startDate, endDate);
             res.status(200).json(appointments);
         } catch (err) {

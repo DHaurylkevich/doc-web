@@ -19,10 +19,6 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      city: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
       market_inf: {
         type: Sequelize.BOOLEAN,
         allowNull: true

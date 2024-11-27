@@ -9,7 +9,8 @@ const AuthController = require("../controllers/authController");
  * /login:
  *   post:
  *     summary: Аутентификация пользователя
- *     tags: [Auth]
+ *     tags: 
+ *       - Auth
  *     servers:
  *       - url: http://localhost:3000
  *       - url: https://doc-web-rose.vercel.app
@@ -27,9 +28,9 @@ const AuthController = require("../controllers/authController");
  *                 type: string
  *                 description: Пароль пользователя
  *     responses:
- *       200:
+ *       '200':
  *         description: Успешная аутентификация
- *       401:
+ *       '401':
  *         description: Неверные учетные данные
  */
 router.post("/login", (req, res, next) => {
@@ -126,5 +127,60 @@ router.get("/auth/google", passport.authenticate("google", { scope: ["profile", 
  *         description: Ошибка аутентификации
  */
 router.get("/auth/google/callback", passport.authenticate("google", { failWithError: true, failureMessage: true, }), AuthController.login);
-
+/**
+ * @swagger
+ * paths:
+ *  /forgot-password:
+ *    post:
+ *      summary: Отправляет ссылку для изменения пароля
+ *      description: Получая email существующего пользователя или клиники, отправляет запрос с токеном на изменение пароля на почту. Линк приходит кривой потому что нужен правильный адрес страницы для сброса пароля
+ *      operationId: requestPasswordReset
+ *      tags: [Auth]
+ *      servers:
+ *        - url: http://localhost:3000
+ *        - url: https://doc-web-rose.vercel.app
+ *      requestBody:
+ *        description: Email пользователя
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                email:
+ *                  type: string
+ *                  example: email@gmail.com
+ *                  description: Email
+ *      responses:
+ *        200:
+ *          description: Ссылка для сброса пароля была отправлена на ваш адрес электронной почты
+ *        404:
+ *          description: Пользователь не найден
+ */
+router.post("/forgot-password", AuthController.requestPasswordReset);
+/**
+ * @swagger
+ * /set-password:
+ *   post:
+ *     summary: Устанавливает новый пароль для пользователя или клиники
+ *     tags: [Auth]
+ *     servers:
+ *       - url: http://localhost:3000
+ *       - url: https://doc-web-rose.vercel.app
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Пароль был успешно сброшен
+ */
+router.post("/set-password", AuthController.setPassword);
 module.exports = router;

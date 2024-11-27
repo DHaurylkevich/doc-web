@@ -29,12 +29,6 @@ module.exports = {
                 onUpdate: 'CASCADE'
             }
         });
-
-        // Добавляем уникальный составной индекс
-        await queryInterface.addIndex('review_tags', ['review_id', 'tag_id'], {
-            unique: true,
-            name: 'review_tag_unique'
-        });
     },
     async down(queryInterface, Sequelize) {
         await queryInterface.dropTable('review_tags');

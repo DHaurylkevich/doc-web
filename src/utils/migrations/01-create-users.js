@@ -62,6 +62,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true
       },
+      resetToken: {
+        type: Sequelize.STRING(255),
+        allowNull: true
+      }
     });
   },
 

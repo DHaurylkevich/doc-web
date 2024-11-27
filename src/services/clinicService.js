@@ -3,20 +3,33 @@ const db = require("../models");
 const AppError = require("../utils/appError");
 const AddressService = require("./addressService");
 const passwordUtil = require("../utils/passwordUtil");
+const createJWT = require("../utils/createJWT");
+const { setPasswordMail } = require("../utils/mail");
+
 const ClinicService = {
     createClinic: async (clinicData, addressData) => {
         const t = await sequelize.transaction();
-        clinicData.password = passwordUtil.hashingPassword(clinicData.password);
+        clinicData.password = await passwordUtil.hashingPassword(clinicData.password);
 
         try {
             const clinic = await db.Clinics.create(clinicData, { transaction: t });
             await clinic.createAddress(addressData, { transaction: t });
 
+            const resetToken = createJWT(clinic.id, clinic.role);
+            await clinic.update({ resetToken }, { transaction: t });
+            setPasswordMail(clinic.email, resetToken);
+
             await t.commit();
-            return clinic;
+            await clinic.reload({
+                include: [{
+                    model: db.Addresses,
+                    as: 'address',
+                    attributes: { exclude: ['createdAt', 'updatedAt'] }
+                }]
+            });
+            return clinic.get({ plain: true });
         } catch (err) {
             await t.rollback();
-            console.log(err);
             throw err;
         }
     },
@@ -35,9 +48,11 @@ const ClinicService = {
         try {
             const clinic = await db.Clinics.findOne({
                 where: { id: clinicId },
+                attributes: { exclude: ['password', 'resetToken', "createdAt", "updatedAt"] },
                 include: [{
                     model: db.Addresses,
-                    as: "address"
+                    as: "address",
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'user_id', 'clinic_id'] }
                 }]
             });
             if (!clinic) {
@@ -100,7 +115,17 @@ const ClinicService = {
             await AddressService.updateAddress(address, addressData, t)
 
             await t.commit();
-            return clinic;
+            await clinic.reload({
+                include: [{
+                    model: db.Addresses,
+                    as: 'address',
+                    attributes: { exclude: ['createdAt', 'updatedAt', "clinic_id", "user_id"] }
+                }]
+            });
+
+            const plainClinic = clinic.get({ plain: true });
+            const { schedule, resetToken, createdAt, updatedAt, password, ...filteredClinic } = plainClinic;
+            return filteredClinic;
         } catch (err) {
             await t.rollback();
             throw err;
@@ -110,7 +135,7 @@ const ClinicService = {
         try {
             const clinic = await db.Clinics.findByPk(clinicId);
             if (!clinic) {
-                throw AppError("Clinic not found", 404);
+                throw new AppError("Clinic not found", 404);
             }
 
             await clinic.destroy();

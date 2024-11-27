@@ -39,21 +39,13 @@ module.exports = {
                 onUpdate: 'CASCADE',
                 onDelete: 'CASCADE'
             },
-            dosage: {
+            code: {
                 type: Sequelize.STRING(255),
                 allowNull: false
             },
-            frequency: {
-                type: Sequelize.STRING(255),
+            expiration_date: {
+                type: Sequelize.DATE,
                 allowNull: false
-            },
-            duration: {
-                type: Sequelize.STRING(255),
-                allowNull: false
-            },
-            instructions: {
-                type: Sequelize.TEXT,
-                allowNull: true
             },
             createdAt: {
                 allowNull: false,

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-// const { authenticateJWT } = require("../middleware/auth");
+const { isAuthenticated, hasRole } = require('../middleware/auth');
 const clinicController = require("../controllers/clinicController");
 
 /**
@@ -8,8 +8,8 @@ const clinicController = require("../controllers/clinicController");
  * paths:
  *   /clinics:
  *     post:
- *       summary: Создать клинику
- *       description: Создает новую клинику с привязкой к адресу.
+ *       summary: Создать клинику (только для администратора)
+ *       description: Создает новую клинику с привязкой к адресу. Линк приходит кривой потому что нужен правильный адрес страницы для сброса пароля
  *       tags:
  *         - Clinics
  *       requestBody:
@@ -38,7 +38,7 @@ const clinicController = require("../controllers/clinicController");
  *                       example: "NR-123456"
  *                     email:
  *                       type: string
- *                       example: "clinic@example.com"
+ *                       example: "clinic@gmail.com"
  *                     phone:
  *                       type: string
  *                       example: "+123456789"
@@ -82,7 +82,9 @@ const clinicController = require("../controllers/clinicController");
  *                   required:
  *                     - city
  *                     - street
+ *                     - province
  *                     - home
+ *                     - flat
  *                     - post_index
  *       responses:
  *         201:
@@ -93,43 +95,46 @@ const clinicController = require("../controllers/clinicController");
  *           schema:
  *             type: object
  *             properties:
- *               clinicData:
+ *               id:
+ *                 type: integer
+ *                 example: 1
+ *               name:
+ *                 type: string
+ *                 example: "Durka"
+ *               role:
+ *                 type: string
+ *                 example: "clinic"
+ *               nip:
+ *                 type: string
+ *                 example: "1234567890"
+ *               registration_day:
+ *                 type: string
+ *                 format: date
+ *                 example: "2023-01-01"
+ *               nr_license:
+ *                 type: string
+ *                 example: "NR-123456"
+ *               email:
+ *                 type: string
+ *                 example: "clinic@example.com"
+ *               phone:
+ *                 type: string
+ *                 example: "+123456789"
+ *               password:
+ *                 type: string
+ *                 example: "$2b$10$kPOajAH0s346FtVnHoD6W.U.7B236S2LOQJv.Xsd7/6e4pfqJE46O"
+ *               description:
+ *                 type: string
+ *                 example: "Descripcion clinic"
+ *               schedule:
+ *                 type: string
+ *                 example: "Pn-Pt: 8:00 - 17:00"
+ *               address:
  *                 type: object
  *                 properties:
- *                   name:
- *                     type: string
- *                     example: "Durka"
- *                   nip:
- *                     type: string
- *                     example: "1234567890"
- *                   registration_day:
- *                     type: string
- *                     format: date
- *                     example: "2023-01-01"
- *                   nr_license:
- *                     type: string
- *                     example: "NR-123456"
- *                   email:
- *                     type: string
- *                     example: "clinic@example.com"
- *                   phone:
- *                     type: string
- *                     example: "+123456789"
- *                   description:
- *                     type: string
- *                     example: "Descripcion clinic"
- *                   schedule:
- *                     type: string
- *                     example: "Пн-Пт: 8:00 - 17:00"
- *                 required:
- *                   - name
- *                   - nip
- *                   - registration_day
- *                   - nr_license
- *                   - email
- *               addressData:
- *                 type: object
- *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
  *                   city:
  *                     type: string
  *                     example: "Novogrudok"
@@ -148,12 +153,9 @@ const clinicController = require("../controllers/clinicController");
  *                   post_index:
  *                     type: string
  *                     example: "123456"
- *                 required:
- *                   - name
- *                   - nip
- *                   - registration_day
- *                   - nr_license
- *                   - email
+ *                   clinic_id:
+ *                     type: integer
+ *                     example: 1
  *         400:
  *           description: Ошибка валидации данных
  */
@@ -219,6 +221,69 @@ router.get("/clinics", clinicController.getAllClinicByParams);
  *     responses:
  *       200:
  *         description: Полная информация о клинике успешно получена
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 photo:
+ *                   type: string
+ *                   example: "url"
+ *                 name:
+ *                   type: string
+ *                   example: "Durka"
+ *                 role:
+ *                   type: string
+ *                   example: "clinic"
+ *                 nip:
+ *                   type: string
+ *                   example: "1234567890"
+ *                 registration_day:
+ *                   type: string
+ *                   format: date
+ *                   example: "2023-01-01"
+ *                 nr_license:
+ *                   type: string
+ *                   example: "NR-123456"
+ *                 email:
+ *                   type: string
+ *                   example: "clinic@example.com"
+ *                 phone:
+ *                   type: string
+ *                   example: "+123456789"
+ *                 description:
+ *                   type: string
+ *                   example: "Descripcion clinic"
+ *                 schedule:
+ *                   type: string
+ *                   example: "Пн-Пт: 8:00 - 17:00"
+ *                 address:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     city:
+ *                       type: string
+ *                       example: "Novogrudok"
+ *                     street:
+ *                       type: string
+ *                       example: "st Lenina"
+ *                     province:
+ *                       type: string
+ *                       example: "Grodhno"
+ *                     home:
+ *                       type: string
+ *                       example: "10"
+ *                     flat:
+ *                       type: string
+ *                       example: "5"
+ *                     post_index:
+ *                       type: string
+ *                       example: "123456"
  *       404:
  *         description: Клиника не найдена
  */
@@ -247,37 +312,43 @@ router.get("/clinics/:clinicId", clinicController.getFullClinic);
  *           schema:
  *             type: object
  *             properties:
- *               clinicData:
- *                 type: object
- *                 properties:
- *                   name:
- *                     type: string
- *                     example: "Durka"
- *                   nip:
- *                     type: string
- *                     example: "1234567890"
- *                   registration_day:
- *                     type: string
- *                     format: date
- *                     example: "2023-01-01"
- *                   nr_license:
- *                     type: string
- *                     example: "NR-123456"
- *                   email:
- *                     type: string
- *                     example: "clinic@example.com"
- *                   phone:
+ *               id:
+ *                 type: integer
+ *                 example: 1
+ *               photo:
+ *                 type: string
+ *                 example: "url"
+ *               name:
+ *                 type: string
+ *                 example: "Durka"
+ *               role:
+ *                 type: string
+ *                 example: "clinic"
+ *               nip:
+ *                 type: string
+ *                 example: "1234567890"
+ *               registration_day:
+ *                 type: string
+ *                 format: date
+ *                 example: "2023-01-01"
+ *               nr_license:
+ *                 type: string
+ *                 example: "NR-123456"
+ *               email:
+ *                 type: string
+ *                 example: "clinic@example.com"
+ *               phone:
  *                     type: string
  *                     example: "+123456789"
- *                   description:
- *                     type: string
- *                     example: "Descripcion clinic"
- *                   schedule:
- *                     type: string
- *                     example: "Пн-Пт: 8:00 - 17:00"
- *               addressData:
+ *               description:
+ *                 type: string
+ *                 example: "Descripcion clinic"
+ *               address:
  *                 type: object
  *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
  *                   city:
  *                     type: string
  *                     example: "Novogrudok"
@@ -319,7 +390,15 @@ router.put("/clinics/:clinicId", clinicController.updateClinicById);
  *           example: 1
  *     responses:
  *       200:
- *         description: Клиника успешно удалена
+ *         description: Successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Successful delete"
  */
 router.delete("/clinics/:clinicId", clinicController.deleteClinic);
 

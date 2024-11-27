@@ -13,16 +13,21 @@ module.exports = {
             { type: Sequelize.QueryTypes.SELECT }
         );
 
-        const reviewTags = [];
+        const reviewTags = new Set();
 
-        for (let i = 0; i < 100; i++) {
-            reviewTags.push({
-                review_id: reviews[faker.number.int({ min: 0, max: reviews.length - 1 })].id,
-                tag_id: tags[faker.number.int({ min: 0, max: tags.length - 1 })].id,
-            });
+        while (reviewTags.size < 100) {
+            const reviewId = reviews[faker.number.int({ min: 0, max: reviews.length - 1 })].id;
+            const tagId = tags[faker.number.int({ min: 0, max: tags.length - 1 })].id;
+
+            reviewTags.add(`${reviewId}-${tagId}`);
         }
 
-        await queryInterface.bulkInsert('review_tags', reviewTags, {});
+        const reviewTagsArray = Array.from(reviewTags).map(tag => {
+            const [review_id, tag_id] = tag.split('-');
+            return { review_id: parseInt(review_id), tag_id: parseInt(tag_id) };
+        });
+
+        await queryInterface.bulkInsert('review_tags', reviewTagsArray, {});
     },
 
     async down(queryInterface, Sequelize) {

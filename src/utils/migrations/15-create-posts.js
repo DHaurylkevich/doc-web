@@ -28,15 +28,6 @@ module.exports = {
                 },
                 onDelete: 'SET NULL',
                 onUpdate: 'CASCADE'
-            },
-            author_id: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: 'users',
-                    key: 'id'
-                },
-                onDelete: 'SET NULL',
-                onUpdate: 'CASCADE'
             }
         });
     },

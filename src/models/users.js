@@ -93,6 +93,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true,
     },
+    resetToken: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    }
   }, {
     sequelize,
     modelName: 'Users',

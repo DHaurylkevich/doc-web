@@ -86,6 +86,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     description: DataTypes.STRING(255),
     schedule: DataTypes.STRING(255),
+    resetToken: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
   }, {
     sequelize,
     modelName: "Clinics",

@@ -9,54 +9,54 @@ const db = require("../../src/models");
 const passwordUtil = require("../../src/utils/passwordUtil");
 
 describe("UserController API", () => {
-    let token, fakeUser, userId;
+    let fakeUser, userId, sessionCookies;
 
-    before(async () => {
-        await db.sequelize.sync({ force: true });
-    });
+    // before(async () => {
+    //     await db.sequelize.sync({ force: true });
+    // });
+
     beforeEach(async () => {
         fakeUser = {
             first_name: faker.person.firstName(),
             last_name: faker.person.lastName(),
             email: faker.internet.email(),
             phone: faker.phone.number({ style: 'international' }),
-            pesel: 12345678,
-            password: "Test@1234",
+            pesel: 12345678901,
+            password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
             role: "patient",
             birthday: faker.date.past(30)
         };
         const createdUser = await db.Users.create(fakeUser);
         userId = createdUser.id;
 
-        // token = authMiddleware.createJWT(userId, fakeUser.role);
+        const res = await request(app)
+            .post('/login')
+            .send({
+                loginParam: fakeUser.email,
+                password: "123456789"
+            })
+            .expect(200);
+
+        expect(res.body).to.have.property("user");
+
+        sessionCookies = res.headers['set-cookie']
     });
     afterEach(async () => {
         await db.Users.destroy({ where: {} });
     });
 
-    describe("POST /api/user/login", () => {
-        it("expect token, when user exists and data is valid", async () => {
-            const loginParam = fakeUser.email;
-            const password = "Test@1234";
-
+    describe("GET /api/users/account", () => {
+        it("expect to return user data", async () => {
             const response = await request(app)
-                .post("/api/users/login")
-                .send({ loginParam, password })
+                .get("/api/users/account")
+                .set('Cookie', sessionCookies)
                 .expect(200);
 
-            expect(response.body).that.is.a("string");
-        });
-    });
-    describe("GET /api/user/:id", () => {
-        it("expect user by id, when it exists", async () => {
-            const response = await request(app)
-                .get(`/api/users/${userId}`)
-                .expect(200);
-
-            expect(response.body).to.have.property("id", userId);
-            expect(response.body.first_name).to.equal(fakeUser.first_name);
-        });
-    });
+                expect(response.body).to.have.property("id", userId);
+                expect(response.body).to.have.property("first_name");
+                expect(response.body).to.have.property("last_name");            
+        })
+    })
     describe("PUT /api/user/:id/password", () => {
         it("expect to update user password, when data valid and it exists", async () => {
             const response = await request(app)

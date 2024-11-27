@@ -26,11 +26,15 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false
       },
-      building: {
+      province: {
+        type: Sequelize.STRING(255),
+        allowNull: false
+      },
+      home: {
         type: Sequelize.STRING(10),
         allowNull: false
       },
-      zip_code: {
+      post_index: {
         type: Sequelize.STRING(6),
         allowNull: false
       },

@@ -1,5 +1,6 @@
 const AppError = require("../utils/appError");
-const PatientService = require("../services/patientService");
+const AuthService = require("../services/authService");
+const createPatient = require("../services/patientService").createPatient;
 
 const AuthController = {
     login: (req, res) => {
@@ -12,20 +13,21 @@ const AuthController = {
         };
 
         res.status(200).json({
-            message: "Успешный вход",
+            message: "Login successful",
             user: userResponse
         });
     },
     register: async (req, res, next) => {
+        const { userData, patientData } = req.body;
+
         try {
-            const { userData, patientData } = req.body;
-            const user = await PatientService.createPatient(userData, patientData);
+            const user = await createPatient(userData, patientData);
 
             req.login(user, (err) => {
                 if (err) {
-                    throw new AppError("Ошибка во время входа", 500);
+                    throw new AppError("Error during login", 500);
                 }
-                res.json({ user, message: "Регистрация успешна" });
+                res.json({ user, message: "Registration successful" });
             });
         } catch (err) {
             next(err);
@@ -33,15 +35,15 @@ const AuthController = {
     },
     logout: (req, res) => {
         req.logout((err) => {
-            if (err) throw new AppError("Ошибка при выходе", 500);
-            res.json({ message: "Выход выполнен успешно" });
+            if (err) throw new AppError("Error during logout", 500);
+            res.json({ message: "Logout successful" });
         });
     },
 
     googleCallback: (req, res, next) => {
         try {
             if (!req.user) {
-                throw new AppError("Пользователь не авторизован", 401);
+                throw new AppError("User is not authorized", 401);
             }
 
             const userResponse = {
@@ -56,6 +58,26 @@ const AuthController = {
                 message: "Успешный вход",
                 user: userResponse
             });
+        } catch (err) {
+            next(err);
+        }
+    },
+    requestPasswordReset: async (req, res, next) => {
+        const { email } = req.body;
+
+        try {
+            await AuthService.requestPasswordReset(email);
+            res.status(200).json({ message: "Password reset link has been sent to your email address" });
+        } catch (err) {
+            next(err);
+        }
+    },
+    setPassword: async (req, res, next) => {
+        const { token, newPassword } = req.body;
+
+        try {
+            await AuthService.setPassword(token, newPassword);
+            res.status(201).json({ message: "Password has been reset" });
         } catch (err) {
             next(err);
         }
