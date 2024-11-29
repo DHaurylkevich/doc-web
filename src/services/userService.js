@@ -28,7 +28,16 @@ const UserService = {
     },
     getUserById: async (userId) => {
         try {
-            const user = await db.Users.findByPk(userId);
+            const user = await db.Users.findByPk(userId,
+                {
+                    attributes: { exclude: ['password', "createdAt", "updatedAt"] },
+                    include: [{
+                        model: db.Addresses,
+                        as: 'address',
+                        attributes: { exclude: ['createdAt', 'updatedAt', "clinic_id", "user_id"] }
+                    }]
+                }
+            );
             if (!user) {
                 throw new AppError("User not found", 404);
             }
@@ -89,12 +98,6 @@ const UserService = {
             throw err;
         }
     },
-    /**
-     * Удаляет существующего пользователя из базы данных
-     * @param {Number} id 
-     * @returns {Object} {message: "Successful delete"}
-     * @throws {Error}  "User not found", "Error occurred"
-     */
     deleteUser: async (userId) => {
         try {
             const user = await db.Users.findByPk(userId)

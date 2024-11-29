@@ -14,11 +14,11 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: 'CASCADE',
         as: "doctor"
       });
-      Users.hasMany(models.Notions, {
+      Users.hasOne(models.Admins, {
         foreignKey: 'user_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
-        as: "notions"
+        as: "admins"
       });
       Users.hasOne(models.Addresses, {
         foreignKey: 'user_id',

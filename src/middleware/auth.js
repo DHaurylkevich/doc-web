@@ -2,7 +2,7 @@ const isAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next();
     }
-    res.status(401).json({ message: 'Необходима аутентификация' });
+    res.status(401).json({ message: 'Unauthorized user' });
 };
 
 const hasRole = (role) => {
@@ -10,7 +10,7 @@ const hasRole = (role) => {
         if (req.user && req.user.role === role) {
             return next();
         }
-        res.status(403).json({ message: 'Доступ запрещен' });
+        res.status(403).json({ message: 'Access denied' });
     };
 };
 

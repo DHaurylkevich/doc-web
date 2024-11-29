@@ -9,7 +9,6 @@ const { faker } = require('@faker-js/faker');
 const db = require("../../../src/models");
 const sequelize = require("../../../src/config/db");
 const UserService = require("../../../src/services/userService");
-const passwordUtil = require("../../../src/utils/passwordUtil");
 const deleteFromCloud = require("../../../src/middleware/upload");
 
 use(chaiAsPromised);

@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const patientController = require("../controllers/patientController");
+const { isAuthenticated } = require("../middleware/auth");
+const { dataExistValidation } = require('../utils/validation/userValidation');
+const { validateRequest } = require('../middleware/errorHandler');
 const upload = require("../middleware/upload").uploadImages;
 
 /**
@@ -68,7 +71,7 @@ const upload = require("../middleware/upload").uploadImages;
  *                       last_name:
  *                         type: string
  */
-router.get("/patients", patientController.getPatientsFilter);
+router.get("/patients", isAuthenticated, patientController.getPatientsFilter);
 /**
  * @swagger
  * /patients/{userId}:
@@ -106,7 +109,7 @@ router.get("/patients", patientController.getPatientsFilter);
  *       404:
  *         description: Пациент не найден
  */
-router.get("/patients/:userId", patientController.getPatientById);
+router.get("/patients/:userId", isAuthenticated, patientController.getPatientById);
 /**
  * @swagger
  * /patients/{userId}:
@@ -172,6 +175,6 @@ router.get("/patients/:userId", patientController.getPatientById);
  *                   type: object
  *                   description: Обновленные данные адреса
  */
-router.put("/patients/:userId", upload.single("image"), patientController.updatePatientById);
+router.put("/users/:userId/patients", isAuthenticated, dataExistValidation, validateRequest, upload.single("image"), patientController.updatePatientById);
 
 module.exports = router;

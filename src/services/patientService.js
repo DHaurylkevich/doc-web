@@ -6,25 +6,14 @@ const AddressService = require("../services/addressService");
 const passwordUtil = require("../utils/passwordUtil");
 
 const PatientService = {
-    /**
-     * Регистрация пользователя и получение токена
-     * @param {Object} userData 
-     * @param {Object} patientData 
-     * @param {Object} addressData 
-     * @returns {String} token
-     */
-    createPatient: async (userData, patientData) => {
+    createPatient: async (userData) => {
         const t = await sequelize.transaction();
         try {
             const filter = {};
-            if (userData.pesel) {
-                filter.pesel = userData.pesel;
-            } else if (userData.phone) {
-                filter.phone = userData.phone;
-            } else if (userData.email) {
+            if (userData.email) {
                 filter.email = userData.email;
             } else {
-                throw new Error("Необходимо указать хотя бы один идентификатор: pesel, phone или email.");
+                throw new AppError("Need to enter the email");
             }
 
             const foundUser = await db.Users.findOne({
@@ -44,7 +33,7 @@ const PatientService = {
             },
                 { transaction: t });
 
-            await createdUser.createPatient(patientData, { transaction: t });
+            await createdUser.createPatient({ transaction: t });
 
             await t.commit();
             return createdUser;
@@ -54,15 +43,21 @@ const PatientService = {
         }
     },
     getPatientsByParam: async ({ sort, limit, offset, doctorId, clinicId }) => {
+        if (!doctorId && !clinicId) {
+            throw new AppError("Either doctorId or clinicId is required");
+        }
+
         try {
             const appointments = await db.Appointments.findAll({
                 where: clinicId ? { clinic_id: clinicId } : {},
-                order: [['createdAt', sort === 'asc' ? 'ASC' : 'DESC']],
                 limit: parseInt(limit),
                 offset: parseInt(offset),
+                attributes: ['id'],
                 include: [
                     {
                         model: db.Patients,
+                        as: 'patient',
+                        order: [['first_name', sort === 'asc' ? 'ASC' : 'DESC']],
                         attributes: ['id'],
                         include: [
                             {
@@ -87,11 +82,6 @@ const PatientService = {
             throw err;
         }
     },
-    /**
-     * Находит Пациента по id
-     * @param {Number} id 
-     * @returns {Object} Обьект patient
-     */
     getPatientById: async (userId) => {
         try {
             const patient = await db.Patients.findOne({
@@ -113,33 +103,21 @@ const PatientService = {
             throw err;
         }
     },
-    /**
-     * 
-     * @param {Number} id 
-     * @param {Object} userData 
-     * @param {Object} patientData 
-     * @param {Object} addressData 
-     * @returns {Object}
-     */
-    updatePatient: async (image, userId, userData, patientData, addressData) => {
+    updatePatient: async (image, userId, userData, addressData) => {
         const t = await sequelize.transaction();
 
         try {
             const user = await UserService.updateUser(image, userId, userData, t);
 
-            const patient = await user.getPatient();
-            if (!patient) {
-                throw new AppError("Patient not found", 404);
-            }
-            await patient.update(patientData, { transaction: t });
-
-            const address = await patient.getAddress();
+            let address = await user.getAddress();
             if (address) {
                 await AddressService.updateAddress(address, addressData, t);
+            } else if (addressData) {
+                address = await user.createAddress(addressData, t);
             }
 
             await t.commit();
-            return { user, patient, address };
+            return { user, address };
         } catch (err) {
             await t.rollback();
             throw err;

@@ -116,9 +116,6 @@ const doctorController = require("../controllers/doctorController");
  *           description: Пользователь не найден
  */
 router.post("/clinic/:clinicId/doctors/", doctorController.createDoctor);
-
-// router.get("/doctors", doctorController);
-
 /**
  * @swagger
  * /doctors/{doctorId}/short:

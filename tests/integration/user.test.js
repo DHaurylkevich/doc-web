@@ -6,14 +6,15 @@ const request = require("supertest");
 const { faker } = require('@faker-js/faker');
 const app = require("../../index");
 const db = require("../../src/models");
-const passwordUtil = require("../../src/utils/passwordUtil");
+const bcrypt = require("bcrypt");
 
 describe("UserController API", () => {
     let fakeUser, userId, sessionCookies;
 
-    // before(async () => {
-    //     await db.sequelize.sync({ force: true });
-    // });
+    after(async () => {
+        await db.sequelize.close();
+        app.close();
+    });
 
     beforeEach(async () => {
         fakeUser = {
@@ -39,44 +40,114 @@ describe("UserController API", () => {
 
         expect(res.body).to.have.property("user");
 
-        sessionCookies = res.headers['set-cookie']
+        sessionCookies = res.headers['set-cookie'];
     });
+
     afterEach(async () => {
         await db.Users.destroy({ where: {} });
     });
 
-    describe("GET /api/users/account", () => {
-        it("expect to return user data", async () => {
-            const response = await request(app)
-                .get("/api/users/account")
-                .set('Cookie', sessionCookies)
-                .expect(200);
+    describe("Positive tests", () => {
+        describe("GET /api/users/:userId", () => {
+            it("expect to return user data", async () => {
+                const response = await request(app)
+                    .get(`/api/users/${userId}`)
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
 
                 expect(response.body).to.have.property("id", userId);
                 expect(response.body).to.have.property("first_name");
-                expect(response.body).to.have.property("last_name");            
-        })
+                expect(response.body).to.have.property("last_name");
+            });
+        });
+        describe("PUT /api/users/password", () => {
+            it("expect to update user password and return 'Password changed successfully', when data valid and it exists", async () => {
+                const newPassword = faker.internet.password();
+
+                const response = await request(app)
+                    .put(`/api/users/password`)
+                    .send({ oldPassword: "123456789", newPassword })
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.deep.equals({ message: "Password changed successfully" });
+                const userInDb = await db.Users.findByPk(userId);
+                expect(bcrypt.compareSync(newPassword, userInDb.password)).to.be.true;
+            });
+        });
+        describe("DELETE /api/user/:id", () => {
+            it("expect delete user by id, when it exists", async () => {
+                const response = await request(app)
+                    .delete(`/api/users/${userId}`)
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("message", "Successful delete");
+                const userInDb = await db.Users.findByPk(userId);
+                expect(userInDb).to.be.null;
+            });
+        });
     })
-    describe("PUT /api/user/:id/password", () => {
-        it("expect to update user password, when data valid and it exists", async () => {
-            const response = await request(app)
-                .put(`/api/users/${userId}/password`)
-                .send({ oldPassword: "Test@1234", newPassword: "TEST" })
-                .expect(200);
+    describe("Negative tests", () => {
+        describe("GET /api/users/:userId", () => {
+            it("expect to return message: 'User not found', when user with id don't exist", async () => {
+                const response = await request(app)
+                    .get("/api/users/3")
+                    .set('Cookie', sessionCookies)
+                    .expect(404);
 
-            expect(response.body).to.deep.equals({ message: "Password changed successfully" });
-            const userInDb = await db.Users.findByPk(userId);
-            passwordUtil.checkingPassword("TEST", userInDb.password);
+                expect(response.body).to.have.property("message", "User not found");
+            });
         });
-    });
-    describe("DELETE /api/user/:id", () => {
-        it("expect delete user by id, when it exists", async () => {
-            await request(app)
-                .delete(`/api/users/${userId}`)
-                .expect(200);
+        describe("PUT /api/users/password", () => {
+            it("expect to return message: 'Unauthorized user', when user don't unauthorized", async () => {
+                const newPassword = "s";
 
-            const userInDb = await db.Users.findByPk(userId);
-            expect(userInDb).to.be.null;
+                const response = await request(app)
+                    .put(`/api/users/password`)
+                    .send({ oldPassword: "123456789", newPassword })
+                    .expect(401);
+
+                expect(response.body).to.have.property("message", "Unauthorized user");
+            });
+            it("expect to return message: 'Old password is required', when user with id don't exists", async () => {
+                const response = await request(app)
+                    .put(`/api/users/password`)
+                    .send()
+                    .set('Cookie', sessionCookies)
+                    .expect(400);
+
+                expect(response.body).to.have.property("message", "Old password is required");
+            });
+            it("expect to return message: 'New password is required', when user with id don't exists", async () => {
+                const response = await request(app)
+                    .put(`/api/users/password`)
+                    .send({ oldPassword: "123456789" })
+                    .set('Cookie', sessionCookies)
+                    .expect(400);
+
+                expect(response.body).to.have.property("message", "New password is required");
+            });
+            it("expect to return message: 'Password Error', when user with id don't exists", async () => {
+                const newPassword = "123456789";
+
+                const response = await request(app)
+                    .put(`/api/users/password`)
+                    .send({ oldPassword: "12345678", newPassword })
+                    .set('Cookie', sessionCookies)
+                    .expect(400);
+
+                expect(response.body).to.have.property("message", "Password Error");
+            });
         });
-    });
+        describe("DELETE /api/user/:id", () => {
+            it("expect to return message: 'Unauthorized user', when user don't unauthorized", async () => {
+                const response = await request(app)
+                    .delete(`/api/users/${userId}`)
+                    .expect(401);
+
+                expect(response.body).to.have.property("message", "Unauthorized user");
+            });
+        });
+    })
 });

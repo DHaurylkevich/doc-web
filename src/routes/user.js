@@ -7,7 +7,7 @@ const { validateRequest } = require('../middleware/errorHandler');
 
 /**
  * @swagger
- * /users/account:
+ * /users/{userId}:
  *   get:
  *     summary: Возвращает информацию о пользователе по ID работает для всех субъектов
  *     description: Возвращает данные пользователя, включая его роль, на основе идентификатора
@@ -18,7 +18,7 @@ const { validateRequest } = require('../middleware/errorHandler');
  *       - Users
  *     parameters:
  *       - name: userId
- *         in: path
+ *         in: query
  *         required: true
  *         schema:
  *           type: integer
@@ -30,11 +30,71 @@ const { validateRequest } = require('../middleware/errorHandler');
  *           application/json:
  *             schema:
  *               type: object
- *               description: Данные пользователя
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 16
+ *                 photo:
+ *                   type: string
+ *                   example: null
+ *                 first_name:
+ *                   type: string
+ *                   example: 'Buddy'
+ *                 last_name:
+ *                   type: string
+ *                   example: 'Graham'
+ *                 email:
+ *                   type: string
+ *                   example: 'Winnifred96@hotmail.com'
+ *                 gender:
+ *                   type: string
+ *                   example: null
+ *                 pesel:
+ *                   type: string
+ *                   example: '12345678901'
+ *                 phone:
+ *                   type: string
+ *                   example: '+17326402141'
+ *                 password:
+ *                   type: string
+ *                   example: '$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda'
+ *                 role:
+ *                   type: string
+ *                   example: 'patient'
+ *                 birthday:
+ *                   type: string
+ *                   format: date-time
+ *                   example: '2024-11-21T03:54:11.313Z'
+ *                 address:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     city:
+ *                       type: string
+ *                       example: "Novogrudok"
+ *                     street:
+ *                       type: string
+ *                       example: "st Lenina"
+ *                     province:
+ *                       type: string
+ *                       example: "Grodhno"
+ *                     home:
+ *                       type: string
+ *                       example: "10"
+ *                     flat:
+ *                       type: string
+ *                       example: "5"
+ *                     post_index:
+ *                       type: string
+ *                       example: "123456"
+ *       401:
+ *         description: Unauthorized user
  *       404:
  *         description: Пользователь не найден
 */
-router.get("/users/account", isAuthenticated, UserController.getUserAccount);
+router.get("/users/:userId", isAuthenticated, UserController.getUserAccount);
 /**
  * @swagger
  * /users/password:
@@ -67,10 +127,14 @@ router.get("/users/account", isAuthenticated, UserController.getUserAccount);
  *                 message:
  *                   type: string
  *                   example: "Password changed successfully"
+ *       401:
+ *         description: Unauthorized user
+ *       400:
+ *         description: Password Error, Old password is required, New password is required, Password must be at least 8 characters
  *       404:
- *         description: Пользователь не найден
+ *         description: User not found
  */
-router.put("/users/password", passwordValidation, validateRequest, UserController.updateUserPassword);
+router.put("/users/password", isAuthenticated, passwordValidation, validateRequest, UserController.updateUserPassword);
 /**
  * @swagger
  * /users/{userId}:
@@ -99,43 +163,9 @@ router.put("/users/password", passwordValidation, validateRequest, UserControlle
  *                 message:
  *                   type: string
  *                   example: "Successful delete"
+ *       401:
+ *         description: Unauthorized user
  */
-router.delete("/users/:userId", UserController.deleteUser);
-/**
- * @swagger
- * paths:
- *  /reset-password:
- *   post:
- *      summary: Обновление пароля
- *      description: Обновление пароля после перехода по ссылке
- *      operationId: resetPassword
- *      security:
- *        - CookieAuth: []
- *      tags:
- *        - Users
- *      requestBody:
- *        description: Новый пароль
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                newPassword:
- *                  type: string
- *                  example: 123456789
- *                  description: Пароль пользователя
- *      responses:
- *        200:
- *          description: Успешный вход и получение токена
- *          content:
- *            application/json:
- *              schema:
- *                type: string
- *                example: "<access_token>"
- *        404:
- *          description: Пользователь не найден
- */
-// router.post("/reset-password", passwordValidation, validateRequest, UserController.resetPassword);
+router.delete("/users/:userId", isAuthenticated, UserController.deleteUser);
 
 module.exports = router;

@@ -1,18 +1,12 @@
 const PatientService = require("../services/patientService");
 
 const PatientController = {
-    /**
-     * Вход пользователя
-     * @param {String} loginParam 
-     * @param {String} password
-     * @param {*} next 
-     */
     registrationPatient: async (req, res, next) => {
-        const { userData, patientData } = req.body;
+        const { userData, addressData } = req.body;
 
         try {
-            const userToken = await PatientService.createPatient(userData, patientData);
-            res.status(201).json(userToken);
+            const user = await PatientService.createPatient(userData, addressData);
+            res.status(201).json(user);
         } catch (err) {
             next(err);
         }
@@ -34,24 +28,17 @@ const PatientController = {
             const patient = await PatientService.getPatientById(userId);
             res.status(200).json(patient)
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },
-    /**
-     * id User
-     * @param {*} req 
-     * @param {*} res 
-     * @param {*} next 
-     * @returns 
-     */
     updatePatientById: async (req, res, next) => {
         const { userId } = req.params;
-        const { userData, patientData, addressData } = req.body;
+        const { userData, addressData } = req.body;
         const image = req.file ? req.file.path : null;
-
+        
         try {
-            const updatePatient = await PatientService.updatePatient(image, userId, userData, patientData, addressData)
+            console.log("userData:", req.body.userData);
+            const updatePatient = await PatientService.updatePatient(image, userId, userData, addressData)
 
             res.status(200).json(updatePatient);
         } catch (err) {

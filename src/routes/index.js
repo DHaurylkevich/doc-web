@@ -20,6 +20,7 @@ const chatRouter = require("./chat");
 const messageRouter = require("./messages");
 const { isAuthenticated, hasRole } = require('../middleware/auth');
 const upload = require("../middleware/upload").uploadFiles;
+const path = require('path');
 
 router.use("/", authRouter);
 

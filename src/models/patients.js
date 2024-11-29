@@ -7,13 +7,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
         as: 'user',
       });
-      // Patients.hasOne(models.Addresses, {
-      //   foreignKey: 'patient_id',
-      //   onDelete: 'CASCADE',
-      //   onUpdate: 'CASCADE'
-      // });
       Patients.hasMany(models.Appointments, {
         foreignKey: "patient_id",
+        as: 'appointments',
       });
       Patients.hasMany(models.Reviews, {
         foreignKey: "patient_id",
@@ -32,10 +28,6 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true
-    },
-    market_inf: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
     }
   }, {
     sequelize,

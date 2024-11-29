@@ -1,4 +1,5 @@
 const NODE_ENV = process.env.NODE_ENV;
+const AppError = require("../utils/appError");
 const logger = require("../utils/logger");
 const { validationResult } = require("express-validator");
 
@@ -6,13 +7,10 @@ const validateRequest = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const errorDetails = errors.array().map((err) => ({
-            field: err.param,
             message: err.msg,
         }));
-        return res.status(400).json({
-            status: "Validator Error",
-            errors: errorDetails,
-        });
+
+        next(new AppError(errorDetails[0].message, 400));
     }
     next();
 };

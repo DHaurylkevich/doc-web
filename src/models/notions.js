@@ -3,8 +3,8 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Notions extends Model {
         static associate(models) {
-            Notions.belongsTo(models.Users, {
-                foreignKey: 'user_id',
+            Notions.belongsTo(models.Admins, {
+                foreignKey: 'admin_id',
                 as: 'admin',
             });
         }
@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'Notions',
-        tableName: 'notions',   
+        tableName: 'notions',
         timestamps: true,
     });
     return Notions;

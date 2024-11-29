@@ -39,18 +39,6 @@ const UserController = {
             next(err);
         }
     },
-    // resetPassword: async (req, res) => {
-    //     const { newPassword } = req.body;
-    //     const userId = req.auth.id;
-    //     try {
-    //         const user = await UserService.getUserById(userId);
-    //         user.password = await passwordUtil.hashingPassword(newPassword);
-    //         await user.save();
-    //         res.status(200).json({ message: "Пароль успешно сброшен" });
-    //     } catch (err) {
-    //         next(err)
-    //     }
-    // },
 }
 
 module.exports = UserController;

@@ -37,6 +37,8 @@ io(server, sessionConfig, passport);
 require('./src/config/passport');
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(morgan("dev"));
 swaggerDocs(app);
 
@@ -122,4 +124,4 @@ server.listen(port, () => {
   console.log(`The documentation is available at: ${link}:${port}/api-docs`);
 });
 
-// module.exports = server;
+module.exports = server;
