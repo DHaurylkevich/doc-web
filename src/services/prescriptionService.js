@@ -1,6 +1,5 @@
 // services/prescriptionService.js
 const db = require('../models');
-const crypto = require('crypto');
 
 const prescriptionService = {
     createPrescription: async (patientId, doctorId, medicationId, expirationDate) => {
@@ -31,7 +30,7 @@ const prescriptionService = {
     getPrescriptionsByPatient: async (patientId) => {
         try {
             const patient = await db.Patients.findByPk(patientId);
-            if (patient) {
+            if (!patient) {
                 throw new Error("Patient not found");
             }
 
@@ -61,7 +60,7 @@ const prescriptionService = {
     getPrescriptionsByDoctor: async (doctorId) => {
         try {
             const doctor = await db.Doctors.findByPk(doctorId);
-            if (doctor) {
+            if (!doctor) {
                 throw new Error("Doctor not found");
             }
 

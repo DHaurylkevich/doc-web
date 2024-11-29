@@ -2,6 +2,7 @@ const db = require("../models");
 const AppError = require("../utils/appError");
 const ClinicService = require("../services/clinicService");
 const UserService = require("../services/userService");
+const DoctorService = require("../services/doctorService");
 
 const AppointmentService = {
     createAppointment: async (doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description) => {
@@ -18,20 +19,17 @@ const AppointmentService = {
         if (!schedule) {
             throw new AppError("This Schedule doesn't exist", 404);
         }
+        AppointmentService.checkTimeSlot(schedule, timeSlot);
 
-        const slots = AppointmentService.getAvailableSlots(schedule);
-        const isTimeSlotAvailable = slots.includes(timeSlot);
-        if (!isTimeSlotAvailable) {
-            throw new AppError("This time slot is not available", 400);
-        }
-
-        const occupiedSlots = schedule.Appointments.map(app => app.timeSlot.slice(0, -3));
-        const slot = occupiedSlots.includes(timeSlot);
-        if (slot) {
-            throw new AppError("This time slot is not free", 400);
+        const doctorService = await db.DoctorService.findByPk(doctorServiceId, {
+            include: [{ model: db.Services, as: "service", attributes: ["clinic_id"] }]
+        });
+        if (!doctorService || doctorService.doctor_id !== doctorId || doctorService.service.clinic_id !== clinicId) {
+            throw new AppError("This doctor service not exist", 404);
         }
 
         await ClinicService.getClinicById(clinicId);
+
         const user = await UserService.getUserById(userId);
         const patient = await user.getPatient();
         if (!patient) {
@@ -324,6 +322,19 @@ const AppointmentService = {
             return appointments;
         } catch (err) {
             throw err;
+        }
+    },
+    checkTimeSlot: (schedule, timeSlot) => {
+        const slots = AppointmentService.getAvailableSlots(schedule);
+        const isTimeSlotAvailable = slots.includes(timeSlot);
+        if (!isTimeSlotAvailable) {
+            throw new AppError("This time slot is not available", 400);
+        }
+
+        const occupiedSlots = schedule.Appointments.map(app => app.timeSlot.slice(0, -3));
+        const slot = occupiedSlots.includes(timeSlot);
+        if (slot) {
+            throw new AppError("This time slot is not free", 400);
         }
     },
     /**

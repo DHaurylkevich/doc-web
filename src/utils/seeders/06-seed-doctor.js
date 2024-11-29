@@ -3,7 +3,6 @@ const { faker } = require('@faker-js/faker');
 
 module.exports = {
     async up(queryInterface, Sequelize) {
-        // Получаем существующие пользователей с ролью "doctor", клиники и специальности
         const users = await queryInterface.sequelize.query(
             `SELECT id FROM users WHERE role = 'doctor';`,
             { type: Sequelize.QueryTypes.SELECT }

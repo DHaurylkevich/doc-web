@@ -3,39 +3,41 @@ const { faker } = require('@faker-js/faker');
 
 module.exports = {
     async up(queryInterface, Sequelize) {
-        // Получаем существующих врачей и сервисы
         const doctors = await queryInterface.sequelize.query(
-            `SELECT id FROM doctors;`,
+            `SELECT id, clinic_id FROM doctors;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const services = await queryInterface.sequelize.query(
-            `SELECT id FROM services;`,
+            `SELECT id, clinic_id FROM services;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
-        // Создаем Set для отслеживания уникальных комбинаций
         const usedPairs = new Set();
         const doctorServices = [];
 
-        // Пытаемся создать до 50 уникальных комбинаций
         let attempts = 0;
-        const maxAttempts = 100; // Предотвращаем бесконечный цикл
+        const maxAttempts = 100;
 
         while (doctorServices.length < 50 && attempts < maxAttempts) {
-            const doctorId = doctors[faker.number.int({ min: 0, max: doctors.length - 1 })].id;
-            const serviceId = services[faker.number.int({ min: 0, max: services.length - 1 })].id;
+            // Выбираем случайного врача и услугу
+            const doctor = doctors[faker.number.int({ min: 0, max: doctors.length - 1 })];
+            const service = services[faker.number.int({ min: 0, max: services.length - 1 })];
 
-            const pairKey = `${doctorId}-${serviceId}`;
+            // Проверяем совпадение clinic_id
+            if (doctor.clinic_id === service.clinic_id) {
+                const pairKey = `${doctor.id}-${service.id}`;
 
-            if (!usedPairs.has(pairKey)) {
-                usedPairs.add(pairKey);
-                doctorServices.push({
-                    doctor_id: doctorId,
-                    service_id: serviceId,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                });
+                // Проверяем, использовалась ли эта пара ранее
+                if (!usedPairs.has(pairKey)) {
+                    usedPairs.add(pairKey);
+                    doctorServices.push({
+                        doctor_id: doctor.id,
+                        service_id: service.id,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    });
+                }
             }
 
             attempts++;

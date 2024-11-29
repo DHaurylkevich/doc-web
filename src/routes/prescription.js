@@ -4,7 +4,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/prescriptions:
+ * /prescriptions:
  *   post:
  *     summary: Создание нового рецепта для пациента
  *     tags:
@@ -66,7 +66,7 @@ router.post("/prescriptions", prescriptionController.createPrescription);
 
 /**
  * @swagger
- * /api/patient/{patientId}/prescriptions:
+ * /patient/{patientId}/prescriptions:
  *   get:
  *     summary: Получение всех рецептов пациента
  *     tags:
@@ -114,7 +114,7 @@ router.get("/patient/:patientId/prescriptions", prescriptionController.getPrescr
 
 /**
  * @swagger
- * /api/doctors/{doctorId}/prescriptions:
+ * /doctors/{doctorId}/prescriptions:
  *   get:
  *     summary: Получение всех рецептов, назначенных доктором
  *     tags:
