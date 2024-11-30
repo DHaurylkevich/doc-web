@@ -339,6 +339,20 @@ router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointme
  *           schema:
  *             type: integer
  *             example: 1
+ *         - name: limit 
+ *           in: query
+ *           required: false
+ *           description: Limit
+ *           schema:
+ *             type: number
+ *             example: 1
+ *         - name: offset
+ *           in: query
+ *           required: false
+ *           description: Offset
+ *           schema:
+ *             type: number
+ *             example: 1
  *         - name: startDate
  *           in: query
  *           required: false
@@ -404,6 +418,33 @@ router.get("/doctors/:doctorId/appointments", AppointmentController.getAppointme
  *           schema:
  *             type: integer
  *             example: 1
+ *         - name: limit 
+ *           in: query
+ *           required: false
+ *           description: Limit
+ *           schema:
+ *             type: number
+ *             example: 10
+ *         - name: offset
+ *           in: query
+ *           required: false
+ *           description: Offset
+ *         - name: startDate
+ *           in: query
+ *           required: false
+ *           description: Начальная дата
+ *           schema:
+ *             type: string
+ *             format: date
+ *             example: "2024-11-05"
+ *         - name: endDate
+ *           in: query
+ *           required: false
+ *           description: Конечная дата
+ *           schema:
+ *             type: string
+ *             format: date
+ *             example: "2024-11-10"
  *       responses:
  *         200:
  *           description: Массив записей пациента

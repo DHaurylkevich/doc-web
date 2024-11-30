@@ -36,7 +36,7 @@ const AppointmentController = {
         const { doctorId } = req.params;
         const { limit = 10, offset = 0, startDate, endDate } = req.query;
         try {
-            const appointments = await AppointmentService.getAllAppointmentsByDoctor(doctorId, parseInt(limit), parseInt(offset), startDate, endDate);
+            const appointments = await AppointmentService.getAllAppointmentsByDoctor({ doctorId, limit: parseInt(limit), offset: parseInt(offset), startDate, endDate });
             res.status(200).json(appointments);
         } catch (err) {
             next(err);
@@ -44,10 +44,10 @@ const AppointmentController = {
     },
     getAppointmentsByPatient: async (req, res, next) => {
         const { patientId } = req.params;
-        const { limit = 10, offset = 0 } = req.query;
+        const { limit = 10, offset = 0, startDate, endDate } = req.query;
 
         try {
-            const appointments = await AppointmentService.getAllAppointmentsByPatient(patientId, parseInt(limit), parseInt(offset));
+            const appointments = await AppointmentService.getAllAppointmentsByPatient({ patientId, limit: parseInt(limit), offset: parseInt(offset), startDate, endDate });
             res.status(200).json(appointments);
         } catch (err) {
             console.log(err)

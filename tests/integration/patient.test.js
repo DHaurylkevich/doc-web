@@ -96,7 +96,7 @@ describe("PatientController API", () => {
                 });
 
                 appointment = await db.Appointments.create({
-                    timeSlot: "10:00",
+                    time_slot: "10:00",
                     patient_id: patient.id,
                     doctor_service_id: doctorService.id,
                     clinic_id: clinic.id,
@@ -110,7 +110,7 @@ describe("PatientController API", () => {
 
             it("should return patients filtered by doctorId", async () => {
                 await db.Appointments.create({
-                    timeSlot: "10:00",
+                    time_slot: "10:00",
                     patient_id: patient.id,
                     doctor_service_id: doctorService.id,
                     clinic_id: clinic.id,
@@ -141,7 +141,7 @@ describe("PatientController API", () => {
                     service_id: service.id
                 });
                 await db.Appointments.create({
-                    timeSlot: "10:00",
+                    time_slot: "10:00",
                     patient_id: patient.id,
                     doctor_service_id: doctorService2.id,
                     clinic_id: clinic.id,
@@ -169,7 +169,7 @@ describe("PatientController API", () => {
                 const anotherUser = await db.Users.create(fakeUser);
                 const anotherPatient = await anotherUser.createPatient();
                 await db.Appointments.create({
-                    timeSlot: "11:00",
+                    time_slot: "11:00",
                     patient_id: anotherPatient.id,
                     doctor_service_id: appointment.doctor_service_id,
                     clinic_id: clinic.id,

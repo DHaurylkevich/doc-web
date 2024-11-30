@@ -98,7 +98,7 @@ describe("AppointmentController API", () => {
             expect(response.body).that.is.a("object");
             expect(response.body.clinic_id).to.equals(fakeAppointment.clinicId);
             expect(response.body.doctor_service_id).to.equals(fakeAppointment.doctorServiceId);
-            expect(response.body.timeSlot).to.equals(fakeAppointment.timeSlot);
+            expect(response.body.time_slot).to.equals(fakeAppointment.timeSlot);
         });
     });
     describe("GET /api/appointments/", () => {
@@ -109,7 +109,7 @@ describe("AppointmentController API", () => {
                 schedule_id: testSchedule.id,
                 patient_id: testPatient.id,
                 doctor_service_id: testDoctorService.id,
-                timeSlot: "09:30",
+                time_slot: "09:30",
                 description: "Help me, pls",
                 first_visit: true,
                 visit_type: "NFZ",
@@ -135,7 +135,7 @@ describe("AppointmentController API", () => {
                 schedule_id: testSchedule.id,
                 patient_id: testPatient.id,
                 doctor_service_id: testDoctorService.id,
-                timeSlot: "09:30:00",
+                time_slot: "09:30:00",
                 description: "Help me, pls",
                 first_visit: true,
                 visit_type: "NFZ",
@@ -147,7 +147,7 @@ describe("AppointmentController API", () => {
                 .expect(200);
 
             expect(response.body).to.be.an("array").that.is.not.empty;
-            expect(response.body[0]).to.include({ timeSlot: testAppointment.timeSlot });
+            expect(response.body[0]).to.include({ time_slot: testAppointment.timeSlot });
             expect(response.body[0].doctorService.doctor_id).to.equal(testDoctor.id);
         });
     });
@@ -158,7 +158,7 @@ describe("AppointmentController API", () => {
                 schedule_id: testSchedule.id,
                 patient_id: testPatient.id,
                 doctor_service_id: testDoctorService.id,
-                timeSlot: "09:30:00",
+                time_slot: "09:30:00",
                 description: "Help me, pls",
                 first_visit: true,
                 visit_type: "NFZ",
@@ -170,7 +170,7 @@ describe("AppointmentController API", () => {
                 .expect(200);
 
             expect(response.body).to.be.an("array").that.is.not.empty;
-            expect(response.body[0]).to.include({ timeSlot: testAppointment.timeSlot });
+            expect(response.body[0]).to.include({ time_slot: testAppointment.timeSlot });
             expect(response.body[0].doctorService.doctor_id).to.equal(testDoctorService.doctor_id);
         });
     });
@@ -181,7 +181,7 @@ describe("AppointmentController API", () => {
                 schedule_id: testSchedule.id,
                 patients_id: testPatient.id,
                 doctor_service_id: testDoctorService.id,
-                timeSlot: "09:30",
+                time_slot: "09:30",
                 description: "Help me, pls",
                 first_visit: true,
                 visit_type: "NFZ",

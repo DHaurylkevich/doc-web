@@ -48,7 +48,7 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      timeSlot: {
+      time_slot: {
         type: Sequelize.TIME,
         allowNull: false
       },

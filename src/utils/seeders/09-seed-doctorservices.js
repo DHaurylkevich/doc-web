@@ -13,24 +13,16 @@ module.exports = {
             { type: Sequelize.QueryTypes.SELECT }
         );
 
-        const usedPairs = new Set();
         const doctorServices = [];
 
-        let attempts = 0;
-        const maxAttempts = 100;
+        for (const doctor of doctors) {
+            const clinicServices = services.filter(service => service.clinic_id === doctor.clinic_id);
 
-        while (doctorServices.length < 50 && attempts < maxAttempts) {
-            // Выбираем случайного врача и услугу
-            const doctor = doctors[faker.number.int({ min: 0, max: doctors.length - 1 })];
-            const service = services[faker.number.int({ min: 0, max: services.length - 1 })];
+            if (clinicServices.length > 0) {
+                const numServices = faker.number.int({ min: 1, max: clinicServices.length });
+                const selectedServices = faker.helpers.shuffle(clinicServices).slice(0, numServices);
 
-            // Проверяем совпадение clinic_id
-            if (doctor.clinic_id === service.clinic_id) {
-                const pairKey = `${doctor.id}-${service.id}`;
-
-                // Проверяем, использовалась ли эта пара ранее
-                if (!usedPairs.has(pairKey)) {
-                    usedPairs.add(pairKey);
+                for (const service of selectedServices) {
                     doctorServices.push({
                         doctor_id: doctor.id,
                         service_id: service.id,
@@ -38,13 +30,15 @@ module.exports = {
                         updatedAt: new Date(),
                     });
                 }
+            } else {
+                console.warn(`No services found for doctor ${doctor.id} in clinic ${doctor.clinic_id}`);
             }
-
-            attempts++;
         }
 
         if (doctorServices.length > 0) {
             await queryInterface.bulkInsert('doctor_services', doctorServices, {});
+        } else {
+            console.warn('No doctor services to insert');
         }
     },
 

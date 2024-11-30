@@ -7,28 +7,16 @@ module.exports = {
             `SELECT id FROM patients;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
-
         const schedules = await queryInterface.sequelize.query(
             `SELECT schedules.id, schedules.start_time, schedules.end_time, schedules.interval, 
                     schedules.clinic_id, schedules.doctor_id, doctor_services.id AS doctor_service_id
              FROM schedules
-             LEFT JOIN doctor_services ON schedules.doctor_id = doctor_services.doctor_id;`,
-            { type: Sequelize.QueryTypes.SELECT }
-        );
-
-        // const doctors = await queryInterface.sequelize.query(
-        //     `SELECT id FROM doctors;`,
-        //     { type: Sequelize.QueryTypes.SELECT }
-        // );
-
-        const doctorServices = await queryInterface.sequelize.query(
-            `SELECT id FROM doctor_services;`,
+             INNER JOIN doctor_services ON schedules.doctor_id = doctor_services.doctor_id;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const getRandomTimeSlot = (schedule) => {
             try {
-                // Устанавливаем фиксированные значения, если данные некорректны
                 const defaultStart = '09:00';
                 const defaultEnd = '17:00';
                 const defaultInterval = 30;
@@ -40,22 +28,19 @@ module.exports = {
                 const startMinutes = timeToMinutes(start_time);
                 const endMinutes = timeToMinutes(end_time);
 
-                // Создаем массив доступных слотов
                 const slots = [];
                 for (let time = startMinutes; time < endMinutes; time += interval) {
                     slots.push(minutesToTime(time));
                 }
 
-                // Если слоты есть, выбираем случайный
                 if (slots.length > 0) {
                     return slots[faker.number.int({ min: 0, max: slots.length - 1 })];
                 }
 
-                // Если что-то пошло не так, возвращаем значение по умолчанию
                 return defaultStart;
             } catch (error) {
                 console.log('Error in getRandomTimeSlot:', error);
-                return '09:00'; // Значение по умолчанию
+                return '09:00';
             }
         };
 
@@ -79,28 +64,23 @@ module.exports = {
                 return '00:00';
             }
         };
-        const doctors = schedules.map((schedule) => {
-            return {
-                doctor_id: schedule.doctor_id,
-                doctorService: doctorServices.find((service) => service.doctor_id === schedule.doctor_id)
-            }
-        });
 
-        const appointments = patients.map((patient) => {
-            const scheduleIndex = faker.number.int({ min: 0, max: schedules.length - 1 });
-            const schedule = schedules[scheduleIndex];
-
-            if (!schedule.doctor_service_id) {
-                console.warn(`Doctor service not found for doctor_id: ${schedule.doctor_id}`);
-                return null; // или выберите другой способ обработки
+        const appointments = patients.flatMap((patient) => {
+            const validSchedules = schedules.filter(schedule => schedule.doctor_service_id);
+            if (validSchedules.length === 0) {
+                console.warn('No valid schedules found with doctor services');
+                return [];
             }
+
+            const scheduleIndex = faker.number.int({ min: 0, max: validSchedules.length - 1 });
+            const schedule = validSchedules[scheduleIndex];
 
             return {
                 patient_id: patient.id,
                 schedule_id: schedule.id,
                 clinic_id: schedule.clinic_id,
                 doctor_service_id: schedule.doctor_service_id,
-                timeSlot: getRandomTimeSlot(schedule),
+                time_slot: getRandomTimeSlot(schedule),
                 description: faker.lorem.sentence(),
                 first_visit: faker.datatype.boolean(),
                 visit_type: faker.helpers.arrayElement(['prywatna', 'NFZ']),
@@ -109,6 +89,11 @@ module.exports = {
                 updatedAt: new Date(),
             };
         });
+
+        if (appointments.length === 0) {
+            console.warn('No appointments were generated');
+            return;
+        }
 
         await queryInterface.bulkInsert('appointments', appointments, {});
     },

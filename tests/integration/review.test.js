@@ -62,7 +62,7 @@ describe("ReviewController API", () => {
     //             schedule_id: testSchedule.id,
     //             patient_id: testPatient.id,
     //             doctor_service_id: testDoctorService.id,
-    //             timeSlot: "09:30",
+    //             time_slot: "09:30",
     //             description: "Help me, pls",
     //             first_visit: true,
     //             visit_type: "NFZ",

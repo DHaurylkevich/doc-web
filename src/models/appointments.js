@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Appointments.init({
-    timeSlot: {
+    time_slot: {
       type: DataTypes.TIME,
       allowNull: false
     },

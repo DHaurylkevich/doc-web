@@ -4,7 +4,7 @@ const { faker } = require('@faker-js/faker');
 module.exports = {
     async up(queryInterface, Sequelize) {
         const admins = await queryInterface.sequelize.query(
-            `SELECT id FROM users WHERE role = 'admin'`,
+            `SELECT id FROM admins`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
@@ -16,7 +16,7 @@ module.exports = {
 
         for (let i = 0; i < 50; i++) {
             notions.push({
-                user_id: admins[Math.floor(Math.random() * admins.length)].id,
+                admin_id: admins[Math.floor(Math.random() * admins.length)].id,
                 content: faker.lorem.sentences({ min: 1, max: 3 }),
                 createdAt: new Date(),
                 updatedAt: new Date()
