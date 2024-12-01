@@ -4,7 +4,7 @@ const SpecialtyService = require("../services/specialtyService");
 const AppError = require("../utils/appError");
 
 const ServiceService = {
-    createService: async (clinicId, name, specialtyId, price) => {
+    createService: async ({ clinicId, name, specialtyId, price }) => {
         try {
             await ClinicService.getClinicById(clinicId);
             await SpecialtyService.getSpecialtyById(specialtyId);
@@ -65,6 +65,6 @@ const ServiceService = {
             throw err;
         }
     }
-}
+};
 
 module.exports = ServiceService;

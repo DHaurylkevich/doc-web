@@ -5,7 +5,7 @@ const ServiceController = {
         const { clinicId } = req.params;
         const { name, specialtyId, price } = req.body;
         try {
-            const service = await ServiceService.createService(clinicId, name, specialtyId, price );
+            const service = await ServiceService.createService({ clinicId, name, specialtyId, price });
             res.status(201).json(service);
         } catch (err) {
             console.log(err);

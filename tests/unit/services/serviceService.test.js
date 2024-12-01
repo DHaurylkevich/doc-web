@@ -52,7 +52,7 @@ describe("Service Service", () => {
             beforeEach(() => {
                 findAllStub = sinon.stub(db.Services, "findAll")
             });
-            it("should return all services when getAllServices is called", async () => {
+            it("expect return all services when getAllServices is called", async () => {
                 const mockServices = [
                     { id: 1, name: "Service 1", price: 100 },
                     { id: 2, name: "Service 2", price: 200 }
