@@ -12,7 +12,6 @@ const morgan = require("morgan");
 const cors = require("cors");
 const io = require("./src/controllers/websocketController");
 
-// process.env.NODE_ENV = 'test';
 require("./src/config/db");
 
 app.use(cors({
@@ -123,4 +122,6 @@ server.listen(port, () => {
   console.log(`The documentation is available at: ${link}:${port}/api-docs`);
 });
 
-// module.exports = server;
+if (process.env.NODE_ENV = 'test') {
+  module.exports = server;
+}

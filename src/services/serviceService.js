@@ -1,6 +1,7 @@
 const db = require("../models");
 const ClinicService = require("../services/clinicService");
 const SpecialtyService = require("../services/specialtyService");
+const AppError = require("../utils/appError");
 
 const ServiceService = {
     createService: async (clinicId, name, specialtyId, price) => {
@@ -18,7 +19,7 @@ const ServiceService = {
         try {
             const service = await db.Services.findAll();
             if (!service) {
-                throw new Error("Specialties not found");
+                throw new AppError("Specialties not found");
             }
 
             return service;
@@ -30,7 +31,7 @@ const ServiceService = {
         try {
             const service = await db.Services.findByPk(serviceId);
             if (!service) {
-                throw new Error("Specialty not found");
+                throw new AppError("Specialty not found");
             }
 
             return service;
@@ -42,7 +43,7 @@ const ServiceService = {
         try {
             let service = await db.Services.findByPk(serviceId);
             if (!service) {
-                throw new Error("Specialty not found");
+                throw new AppError("Specialty not found");
             }
 
             service = await service.update(data);
@@ -56,7 +57,7 @@ const ServiceService = {
         try {
             let service = await db.Services.findByPk(serviceId);
             if (!service) {
-                throw new Error("Specialty not found");
+                throw new AppError("Specialty not found");
             }
 
             await service.destroy();
