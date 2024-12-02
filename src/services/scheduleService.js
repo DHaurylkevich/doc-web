@@ -7,7 +7,7 @@ const ScheduleService = {
         const t = await db.sequelize.transaction();
 
         try {
-            const { doctorsIds, ...commonData } = scheduleData;
+            const { doctorsIds, dates, ...commonData } = scheduleData;
 
             const existingDoctors = await db.Doctors.findAll({
                 where: { id: { [Op.in]: doctorsIds } },
@@ -26,11 +26,14 @@ const ScheduleService = {
                 throw new AppError("Clinic not found", 404);
             }
 
-            scheduleData = doctorsIds.map(doctorId => ({
-                ...commonData,
-                clinic_id: clinicId,
-                doctor_id: doctorId
-            }));
+            scheduleData = doctorsIds.flatMap(doctorId =>
+                dates.map(date => ({
+                    ...commonData,
+                    date: date,
+                    clinic_id: clinicId,
+                    doctor_id: doctorId
+                }))
+            );
             const existingSchedules = await db.Schedules.findAll({
                 where: {
                     [Op.or]: scheduleData
@@ -40,7 +43,7 @@ const ScheduleService = {
             if (existingSchedules.length > 0) {
                 throw new AppError("One or more schedules already exist", 400);
             }
-
+            // return existingSchedules;
             const createdSchedules = await db.Schedules.bulkCreate(scheduleData, { transaction: t });
 
             await t.commit();

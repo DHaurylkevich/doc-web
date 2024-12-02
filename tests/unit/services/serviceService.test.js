@@ -105,10 +105,9 @@ describe("Service Service", () => {
             });
         });
         describe("deleteService() =>:", () => {
-            let findByPkStub, updateStub;
+            let findByPkStub;
             beforeEach(() => {
                 findByPkStub = sinon.stub(db.Services, "findByPk");
-                updateStub = sinon.stub()
             });
             it("expect delete a service successfully when deleteService is called with a valid ID", async () => {
                 const serviceId = 1;
@@ -153,11 +152,11 @@ describe("Service Service", () => {
             beforeEach(() => {
                 findAllStub = sinon.stub(db.Services, "findAll")
             });
-            it("expect throw an error, when no services are found in getAllServices", async () => {
-                findAllStub.resolves(null);
+            it("expect throw an error, when Database error", async () => {
+                findAllStub.rejects(new Error("Database error"));
 
                 await expect(ServiceService.getAllServices())
-                    .to.be.rejectedWith("Specialties not found");
+                    .to.be.rejectedWith("Database error");
 
                 expect(findAllStub.calledOnce).to.be.true;
             });
@@ -172,7 +171,7 @@ describe("Service Service", () => {
                 findByPkStub.resolves(null);
 
                 await expect(ServiceService.getServiceById(nonExistentId))
-                    .to.be.rejectedWith("Specialty not found");
+                    .to.be.rejectedWith("Service not found");
 
                 expect(findByPkStub.calledOnceWith(nonExistentId)).to.be.true;
             });
@@ -188,7 +187,7 @@ describe("Service Service", () => {
                 findByPkStub.resolves(null);
 
                 await expect(ServiceService.updateService(nonExistentId, updateData))
-                    .to.be.rejectedWith("Specialty not found");
+                    .to.be.rejectedWith("Service not found");
 
                 expect(findByPkStub.calledOnceWith(nonExistentId)).to.be.true;
             });
@@ -203,7 +202,7 @@ describe("Service Service", () => {
                 findByPkStub.resolves(null);
 
                 await expect(ServiceService.deleteService(nonExistentId))
-                    .to.be.rejectedWith("Specialty not found");
+                    .to.be.rejectedWith("Service not found");
 
                 expect(findByPkStub.calledOnceWith(nonExistentId)).to.be.true;
             });

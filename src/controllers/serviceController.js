@@ -8,7 +8,6 @@ const ServiceController = {
             const service = await ServiceService.createService({ clinicId, name, specialtyId, price });
             res.status(201).json(service);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },

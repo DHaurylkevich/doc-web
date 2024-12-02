@@ -33,10 +33,13 @@ const ScheduleController = require("../controllers/scheduleController");
  *               interval:
  *                 type: integer
  *                 example: 30
- *               date:
- *                 type: string
- *                 format: date
- *                 example: "2024-11-10"
+ *               dates:
+ *                 type: array
+ *                 description: Массив ID докторов
+ *                 items:
+ *                   type: string
+ *                   format: date
+ *                   example: "2024-11-10"
  *               start_time:
  *                 type: string
  *                 format: time

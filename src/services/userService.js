@@ -48,7 +48,14 @@ const UserService = {
     },
     findUserByParam: async (param) => {
         try {
-            let user = await db.Users.findOne({ where: { [Op.or]: [{ email: param }, { phone: param }, { pesel: param }] } });
+            let user = await db.Users.findOne({
+                where: { [Op.or]: [{ email: param }, { phone: param }, { pesel: param }] },
+                include: {
+                    model: db.Doctors,
+                    as: "doctor",
+                    attributes: ["clinic_id"]
+                }
+            });
 
             if (!user) {
                 user = await db.Clinics.findOne({ where: { [Op.or]: [{ email: param }, { phone: param }] } });

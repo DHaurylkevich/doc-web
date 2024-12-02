@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const serviceController = require("../controllers/serviceController");
+const { isAuthenticated } = require("../middleware/auth");
+const { serviceCreateValidation } = require('../utils/validation');
+const { validateRequest } = require('../middleware/errorHandler');
 
 /**
  * @swagger
@@ -43,7 +46,7 @@ const serviceController = require("../controllers/serviceController");
  *       201:
  *         description: Успешно создана услуга
  */
-router.post("/clinics/:clinicId/services", serviceController.createService);
+router.post("/clinics/:clinicId/services", serviceCreateValidation, validateRequest, isAuthenticated, serviceController.createService);
 /**
  * @swagger
  * /services:
@@ -115,7 +118,7 @@ router.get("/services/:serviceId", serviceController.getService);
  *       200:
  *         description: Услуга успешно обновлена
  */
-router.put("/services/:serviceId", serviceController.updateService);
+router.put("/services/:serviceId", isAuthenticated, serviceController.updateService);
 /**
  * @swagger
  * /services/{serviceId}:
@@ -136,6 +139,6 @@ router.put("/services/:serviceId", serviceController.updateService);
  *       200:
  *         description: Услуга успешно удалена
  */
-router.delete("/services/:serviceId", serviceController.deleteService);
+router.delete("/services/:serviceId", isAuthenticated, serviceController.deleteService);
 
 module.exports = router;
