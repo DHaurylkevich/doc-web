@@ -122,6 +122,6 @@ server.listen(port, () => {
   console.log(`The documentation is available at: ${link}:${port}/api-docs`);
 });
 
-if (process.env.NODE_ENV = 'test') {
-  module.exports = server;
-}
+// if (process.env.NODE_ENV = 'test') {
+//   module.exports = server;
+// }
