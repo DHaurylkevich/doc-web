@@ -392,6 +392,15 @@ router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointme
  *                     description:
  *                       type: string
  *                       example: "Arbor cuius atqui viridis aduro censura."
+ *                     service:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                           example: "Gorgeous Wooden Table"
+ *                         price:
+ *                           type: number
+ *                           example: "10.66"
  *                     first_visit:
  *                       type: boolean
  *                       example: true
@@ -404,6 +413,9 @@ router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointme
  *                     patient:
  *                       type: object
  *                       properties:
+ *                         patientId:
+ *                           type: number
+ *                           example: "1"
  *                         first_name:
  *                           type: string
  *                           example: "Mariano"
@@ -486,6 +498,15 @@ router.get("/doctors/:doctorId/appointments", AppointmentController.getAppointme
  *                     description:
  *                       type: string
  *                       example: "Adipiscor comminor arx cibo arto combibo verto deputo atque demo."
+ *                     service:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                           example: "Gorgeous Wooden Table"
+ *                         price:
+ *                           type: number
+ *                           example: "10.66"
  *                     first_visit:
  *                       type: boolean
  *                       example: false
