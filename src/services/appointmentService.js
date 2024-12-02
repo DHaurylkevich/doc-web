@@ -268,7 +268,13 @@ const AppointmentService = {
                         model: db.DoctorService,
                         as: "doctorService",
                         where: { doctor_id: doctorId },
-                        attributes: { exclude: ["service_id", "id", "createdAt", "updatedAt"] },
+                        attributes: { exclude: ["id", "createdAt", "updatedAt"] },
+                        include: [
+                            {
+                                model: db.Services, as: "service",
+                                attributes: ["name", "price"]
+                            }
+                        ]
                     },
                     {
                         model: db.Schedules,
@@ -277,7 +283,7 @@ const AppointmentService = {
                                 [db.Sequelize.Op.between]: [startDate, endDate]
                             }
                         },
-                        attributes: ["date"],
+                        attributes: ["date", "interval"],
                         order: [['date', 'ASC']]
                     },
                     {
@@ -298,7 +304,20 @@ const AppointmentService = {
                 throw new AppError("Appointments not found", 404);
             }
 
-            return appointments.flat();
+            return appointments.map(appointment => {
+                const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
+                return {
+                    date: appointment.Schedule.date,
+                    start_time: appointment.time_slot.slice(0, -3),
+                    end_time: AppointmentService.minutesToTime(end_time + appointment.Schedule.interval),
+                    description: appointment.description,
+                    service: appointment.service,
+                    first_visit: appointment.first_visit,
+                    visit_type: appointment.visit_type,
+                    status: appointment.status,
+                    patient: appointment.patient.user,
+                }
+            }).flat();
         } catch (err) {
             throw err;
         }
@@ -319,7 +338,24 @@ const AppointmentService = {
                 include: [
                     {
                         model: db.DoctorService, as: "doctorService",
-                        attributes: { exclude: ["service_id", "id", "createdAt", "updatedAt"] },
+                        attributes: { exclude: ["id", "createdAt", "updatedAt"] },
+                        include: [
+                            {
+                                model: db.Doctors, as: "doctor",
+                                attributes: ["user_id"],
+                                include: [
+                                    {
+                                        model: db.Users,
+                                        as: "user",
+                                        attributes: ["first_name", "last_name", "photo"],
+                                    }
+                                ]
+                            },
+                            {
+                                model: db.Services, as: "service",
+                                attributes: ["name", "price"]
+                            }
+                        ]
                     },
                     {
                         model: db.Schedules,
@@ -328,7 +364,7 @@ const AppointmentService = {
                                 [db.Sequelize.Op.between]: [startDate, endDate]
                             }
                         },
-                        attributes: ["date"],
+                        attributes: ["date", "interval"],
                         order: [['date', 'DESC']]
                     }
                 ]
@@ -337,7 +373,20 @@ const AppointmentService = {
                 throw new AppError("Appointments not found", 404);
             }
 
-            return appointments;
+            return appointments.map(appointment => {
+                const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
+                return {
+                    date: appointment.Schedule.date,
+                    start_time: appointment.time_slot.slice(0, -3),
+                    end_time: AppointmentService.minutesToTime(end_time + appointment.Schedule.interval),
+                    description: appointment.description,
+                    service: appointment.service,
+                    first_visit: appointment.first_visit,
+                    visit_type: appointment.visit_type,
+                    status: appointment.status,
+                    doctor: appointment.doctorService.doctor.user,
+                }
+            }).flat();
         } catch (err) {
             throw err;
         }

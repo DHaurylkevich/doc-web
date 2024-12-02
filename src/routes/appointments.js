@@ -379,22 +379,40 @@ router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointme
  *                 items:
  *                   type: object
  *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
- *                     userId:
- *                       type: integer
- *                       example: 1
  *                     date:
  *                       type: string
  *                       format: date
- *                       example: "2024-11-05"
- *                     timeSlot:
+ *                       example: "2025-02-11"
+ *                     start_time:
  *                       type: string
- *                       example: "10:00"
+ *                       example: "06:02"
+ *                     end_time:
+ *                       type: string
+ *                       example: "06:58"
+ *                     description:
+ *                       type: string
+ *                       example: "Arbor cuius atqui viridis aduro censura."
+ *                     first_visit:
+ *                       type: boolean
+ *                       example: true
+ *                     visit_type:
+ *                       type: string
+ *                       example: "NFZ"
  *                     status:
  *                       type: string
- *                       example: "подтверждено"
+ *                       example: "completed"
+ *                     patient:
+ *                       type: object
+ *                       properties:
+ *                         first_name:
+ *                           type: string
+ *                           example: "Mariano"
+ *                         last_name:
+ *                           type: string
+ *                           example: "Schulist"
+ *                         photo:
+ *                           type: string
+ *                           example: "https://avatars.githubusercontent.com/u/6199909"
  *         404:
  *           description: Записи не найдены
  *         500:
@@ -455,22 +473,40 @@ router.get("/doctors/:doctorId/appointments", AppointmentController.getAppointme
  *                 items:
  *                   type: object
  *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
- *                     doctorId:
- *                       type: integer
- *                       example: 1
  *                     date:
  *                       type: string
  *                       format: date
- *                       example: "2024-11-05"
- *                     timeSlot:
+ *                       example: "2025-09-25"
+ *                     start_time:
  *                       type: string
- *                       example: "10:00"
+ *                       example: "20:53"
+ *                     end_time:
+ *                       type: string
+ *                       example: "21:52"
+ *                     description:
+ *                       type: string
+ *                       example: "Adipiscor comminor arx cibo arto combibo verto deputo atque demo."
+ *                     first_visit:
+ *                       type: boolean
+ *                       example: false
+ *                     visit_type:
+ *                       type: string
+ *                       example: "prywatna"
  *                     status:
  *                       type: string
- *                       example: "подтверждено"
+ *                       example: "active"
+ *                     doctor:
+ *                       type: object
+ *                       properties:
+ *                         first_name:
+ *                           type: string
+ *                           example: "Helmer"
+ *                         last_name:
+ *                           type: string
+ *                           example: "MacGyver"
+ *                         photo:
+ *                           type: string
+ *                           example: "https://avatars.githubusercontent.com/u/80491811"
  *         404:
  *           description: Записи не найдены
  *         500:
