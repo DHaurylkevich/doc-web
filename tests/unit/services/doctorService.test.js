@@ -26,14 +26,17 @@ describe("Doctor Service", () => {
                     rollback: sinon.stub(),
                 };
                 sinon.stub(sequelize, "transaction").resolves(transactionStub);
-                findClinicStub = sinon.stub(ClinicService, "getClinicById").resolves(); // Возвращаем промис
-                findSpecialtyStub = sinon.stub(SpecialtyService, "getSpecialtyById").resolves(); // Возвращаем промис
+                findClinicStub = sinon.stub(ClinicService, "getClinicById").resolves();
+                findSpecialtyStub = sinon.stub(SpecialtyService, "getSpecialtyById").resolves();
                 createUserStub = sinon.stub(UserService, "createUser");
                 createDoctorStub = sinon.stub();
                 addSpecialtiesStub = sinon.stub();
             });
 
-            it("expect to create a doctor associated with the clinic and specialties", async () => {
+            it("expect successfully create a doctor, when data valid", async () => {
+                const userData = { name: 'John Doe' };
+                const specialtyIds = [2];
+                const clinicId = 1;
                 const doctorData = { name: "Doctor Name" };
                 const newDoctor = { clinic_id: 1, ...doctorData };
 

@@ -5,14 +5,6 @@ const UserService = require("../services/userService");
 const ClinicService = require("./clinicService");
 
 const DoctorService = {
-    /**
-     * Регистрация пользователя и получение токена
-     * @param {Object} userData 
-     * @param {Object} doctorData 
-     * @param {Number} specialty_id  //Надо сделать, чтобы получал id
-     * @param {Object} clinic_id 
-     * @returns {String} token
-     */
     createDoctor: async (userData, addressData, doctorData, specialtyId, clinicId, servicesIds) => {
         const t = await sequelize.transaction();
 
@@ -65,7 +57,7 @@ const DoctorService = {
                         model: db.Users,
                         where: { id: userId },
                         as: "user",
-                        exclude: ["password"],
+                        attributes: { exclude: ["password"] },
                         include: [
                             {
                                 model: db.Addresses,
@@ -89,14 +81,6 @@ const DoctorService = {
             throw err;
         }
     },
-    /**
-     * 
-     * @param {Number} id 
-     * @param {Object} userData 
-     * @param {Object} patientData 
-     * @param {Object} addressData 
-     * @returns {Object}
-     */
     updateDoctorById: async (userId, userData, addressData, doctorData, servicesIds) => {
         const t = await sequelize.transaction();
 
