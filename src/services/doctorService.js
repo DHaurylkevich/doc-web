@@ -76,6 +76,9 @@ const DoctorService = {
                     {
                         model: db.Specialties, as: 'specialty'
                     },
+                    {
+                        model: db.Clinics, attributes: ["name"]
+                    }
                 ]
             });
             if (!doctor) {
