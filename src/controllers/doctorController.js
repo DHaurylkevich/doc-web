@@ -1,24 +1,14 @@
-// const TEST = require("../../tests/unit/controllers/patientController.test.js");
 const DoctorService = require("../services/doctorService");
 
 const DoctorController = {
-    /**
-     * Вход пользователя
-     * @param {Object} userData 
-     * @param {Object} patientData
-     * @param {Object} specialty_id
-     * @param {Number} clinic_id
-     * @param {*} next 
-     */
     createDoctor: async (req, res, next) => {
         const { clinicId } = req.params;
         const { userData, addressData, doctorData, specialtyId, servicesIds } = req.body;
 
         try {
-            const createdDoctor = await DoctorService.createDoctor(userData, addressData, doctorData, specialtyId, clinicId, servicesIds);
+            const createdDoctor = await DoctorService.createDoctor({ userData, addressData, doctorData, specialtyId, clinicId, servicesIds });
             res.status(201).json(createdDoctor);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },
@@ -37,7 +27,7 @@ const DoctorController = {
         const { userData, addressData, doctorData, servicesIds } = req.body;
 
         try {
-            const updateDoctor = await DoctorService.updateDoctorById(userId, userData, addressData, doctorData, servicesIds);
+            const updateDoctor = await DoctorService.updateDoctorById({ userId, userData, addressData, doctorData, servicesIds });
             res.status(200).json(updateDoctor);
         } catch (err) {
             next(err);

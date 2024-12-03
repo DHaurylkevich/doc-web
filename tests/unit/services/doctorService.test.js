@@ -10,6 +10,8 @@ const DoctorService = require("../../../src/services/doctorService");
 const ClinicService = require("../../../src/services/clinicService");
 const SpecialtyService = require("../../../src/services/specialtyService");
 const UserService = require("../../../src/services/userService");
+const AppError = require("../../../src/utils/appError");
+const { Op } = require("sequelize");
 
 use(chaiAsPromised);
 
@@ -18,7 +20,7 @@ describe("Doctor Service", () => {
         sinon.restore();
     });
     describe("Positive test", () => {
-        let transactionStub, findClinicStub, findSpecialtyStub, createUserStub, createDoctorStub, addSpecialtiesStub;
+        let transactionStub, getClinicByIdStub, findOneUserStub, createUserStub, createDoctorStub, setServicesStub;
         describe("createDoctor() =>:", () => {
             beforeEach(async () => {
                 transactionStub = {
@@ -26,54 +28,80 @@ describe("Doctor Service", () => {
                     rollback: sinon.stub(),
                 };
                 sinon.stub(sequelize, "transaction").resolves(transactionStub);
-                findClinicStub = sinon.stub(ClinicService, "getClinicById").resolves();
-                findSpecialtyStub = sinon.stub(SpecialtyService, "getSpecialtyById").resolves();
-                createUserStub = sinon.stub(UserService, "createUser");
+                getClinicByIdStub = sinon.stub(ClinicService, "getClinicById");
+                findOneUserStub = sinon.stub(db.Users, "findOne");
+                createUserStub = sinon.stub(db.Users, "create");
                 createDoctorStub = sinon.stub();
-                addSpecialtiesStub = sinon.stub();
+                createDoctorStub = sinon.stub();
+                setServicesStub = sinon.stub();
             });
 
             it("expect successfully create a doctor, when data valid", async () => {
-                const userData = { name: 'John Doe' };
-                const specialtyIds = [2];
+                const userData = { name: 'John Doe', };
+                const specialtyId = 2;
+                const servicesIds = [2];
                 const clinicId = 1;
                 const doctorData = { name: "Doctor Name" };
                 const newDoctor = { clinic_id: 1, ...doctorData };
 
-                createUserStub.resolves({ createDoctor: createDoctorStub });
-                createDoctorStub.resolves({ addSpecialties: addSpecialtiesStub });
+                getClinicByIdStub.resolves();
+                findOneUserStub.resolves();
+                createUserStub.resolves({ newDoctor, createDoctor: createDoctorStub });
+                createDoctorStub.resolves({ setServices: setServicesStub });
 
-                await DoctorService.createDoctor("user", doctorData, [2, 3], 1);
+                await DoctorService.createDoctor({ userData, doctorData, specialtyId, servicesIds, clinicId });
 
-                expect(findClinicStub.calledOnceWith(1)).to.be.true;
-                expect(findSpecialtyStub.calledTwice).to.be.true; // Теперь ожидаем, что вызов будет дважды
-                expect(createUserStub.calledOnceWith("user", transactionStub)).to.be.true;
-                expect(createDoctorStub.calledOnceWith(
-                    { clinic_id: 1, ...doctorData },
+                expect(getClinicByIdStub.calledOnceWith(clinicId)).to.be.true;
+                expect(findOneUserStub.calledOnceWith(
+                    {
+                        where: { [Op.or]: userData }
+                    },
                     { transaction: transactionStub }
                 )).to.be.true;
-                expect(addSpecialtiesStub.calledOnceWith([2, 3])).to.be.true; // Изменяем, чтобы ожидать оба ID
+                expect(createDoctorStub.calledOnceWith(
+                    { clinic_id: clinicId, ...doctorData, specialty_id: specialtyId },
+                    { transaction: transactionStub }
+                )).to.be.true;
+                expect(setServicesStub.calledOnceWith(servicesIds)).to.be.true;
                 expect(transactionStub.commit.calledOnce).to.be.true;
-                expect(transactionStub.rollback.calledOnce).to.be.false;
+                expect(transactionStub.rollback.called).to.be.false;
             });
         });
         describe("getDoctorById() =>:", () => {
-            let findByPkStub;
+            let findOneStub;
+
             beforeEach(async () => {
-                findByPkStub = sinon.stub(db.Doctors, "findByPk");
+                findOneStub = sinon.stub(db.Doctors, "findOne");
             })
             it("expect get doctor by id, when it is in db", async () => {
-                const doctor = { id: 1, name: "House" };
-                findByPkStub.resolves(doctor);
+                const mockDoctor = {
+                    id: 1,
+                    user: {
+                        id: 1,
+                        first_name: 'John',
+                        last_name: 'Doe',
+                        address: {
+                            city: 'New York'
+                        }
+                    },
+                    specialty: {
+                        id: 1,
+                        name: 'Cardiology'
+                    },
+                    clinic: {
+                        name: 'City Hospital'
+                    }
+                };
+                findOneStub.resolves(mockDoctor);
 
                 const result = await DoctorService.getDoctorById(1);
 
-                expect(findByPkStub.calledOnceWith(1)).to.be.true;
-                expect(result).to.deep.equal(doctor);
+                expect(findOneStub.calledOnce).to.be.true;
+                expect(result).to.deep.equal(mockDoctor);
             });
         });
-        describe("updateDoctor() => :", () => {
-            let getDoctorsStub, updateDoctorStub, updateUserStub, transactionStub;
+        describe("updateDoctorById() => :", () => {
+            let getDoctorStub, updateDoctorStub, updateUserStub, transactionStub;
 
             beforeEach(async () => {
                 transactionStub = {
@@ -82,21 +110,30 @@ describe("Doctor Service", () => {
                 };
                 sinon.stub(sequelize, "transaction").resolves(transactionStub);
                 updateUserStub = sinon.stub(UserService, "updateUser");
-                getDoctorsStub = sinon.stub();
-                updateDoctorStub = sinon.stub(db.Doctors, "update");
+                getDoctorStub = sinon.stub();
+                getAddressStub = sinon.stub();
+                updateAddressStub = sinon.stub();
+                updateDoctorStub = sinon.stub();
+                setServicesStub = sinon.stub();
             })
             it("expect update user data, when is valid data'", async () => {
-                let doctor = "doctor";
-                updateUserStub.resolves({ getDoctors: getDoctorsStub });
-                getDoctorsStub.resolves({ update: updateDoctorStub });
+                const userId = 1;
+                const userData = "user data";
+                const addressData = "address data";
+                const doctorData = "doctor data";
+                const servicesIds = [1];
+                updateUserStub.resolves({ getDoctor: getDoctorStub, getAddress: getAddressStub });
+                getDoctorStub.resolves({ update: updateDoctorStub, setServices: setServicesStub });
+                getAddressStub.resolves({ update: updateAddressStub });
                 updateDoctorStub.resolves(doctor = "updatedDoctor");
 
-                await DoctorService.updateDoctor(1, "user", doctor);
+                await DoctorService.updateDoctorById({ userId, userData, addressData, doctorData, servicesIds });
 
                 expect(sequelize.transaction.calledOnce).to.be.true;
-                expect(updateUserStub.calledOnceWith(1, "user", transactionStub)).to.be.true;
-                expect(getDoctorsStub.calledOnce).to.be.true;
-                expect(updateDoctorStub.calledOnceWith(doctor, { transaction: transactionStub })).to.be.true;
+                expect(updateUserStub.calledOnceWith(userId, userData, transactionStub)).to.be.true;
+                expect(getDoctorStub.calledOnce).to.be.true;
+                expect(updateDoctorStub.calledOnceWith(doctorData, { transaction: transactionStub })).to.be.true;
+                expect(setServicesStub.calledOnceWith(servicesIds, { transaction: transactionStub })).to.be.true;
                 expect(doctor).to.be.equal("updatedDoctor");
             });
         });
@@ -175,67 +212,82 @@ describe("Doctor Service", () => {
             });
         });
         describe("getDoctorById() =>:", () => {
-            let findByPkStub;
+            let findOneStub;
+
             beforeEach(async () => {
-                findByPkStub = sinon.stub(db.Doctors, "findByPk");
+                findOneStub = sinon.stub(db.Doctors, "findOne");
             })
-            it("expect error('Doctor not found'), when it isn't in db", async () => {
-                findByPkStub.resolves(false);
+            it('expect throw AppError when doctor is not found', async () => {
+                findOneStub.resolves(null);
 
-                await expect(DoctorService.getDoctorById(1)).to.be.rejectedWith(Error, "Doctor not found");
-
-                expect(findByPkStub.calledOnceWith(1)).to.be.true;
+                try {
+                    await DoctorService.getDoctorById(1);
+                    expect.fail('Expected an error to be thrown');
+                } catch (error) {
+                    expect(error).to.be.instanceOf(AppError);
+                    expect(error.message).to.equal('Doctor not found');
+                    expect(error.statusCode).to.equal(404);
+                }
             });
-            it("expect error('Doctor error'), when error db", async () => {
-                findByPkStub.rejects(new Error("Doctor error"));
 
-                await expect(DoctorService.getDoctorById(1)).to.be.rejectedWith(Error, "Doctor error");
+            it('expect throw an error when database query fails', async () => {
+                const dbError = new Error('Database error');
+                findOneStub.rejects(dbError);
 
-                expect(findByPkStub.calledOnceWith(1)).to.be.true;
+                try {
+                    await DoctorService.getDoctorById(1);
+                    expect.fail('Expected an error to be thrown');
+                } catch (error) {
+                    expect(error).to.equal(dbError);
+                }
             });
         });
         describe("updateDoctor() => :", () => {
-            let getDoctorsStub, updateDoctorStub, updateUserStub, transactionStub;
+            let userId, userData, addressData, doctorData, servicesIds, getDoctorStub, updateDoctorStub, getAddressStub, updateUserStub, transactionStub;
 
             beforeEach(async () => {
+                userId = 1;
+                userData = "user data";
+                addressData = "address data";
+                doctorData = "doctor data";
+                servicesIds = [1];
                 transactionStub = {
                     commit: sinon.stub(),
                     rollback: sinon.stub(),
                 };
                 sinon.stub(sequelize, "transaction").resolves(transactionStub);
                 updateUserStub = sinon.stub(UserService, "updateUser");
-                getDoctorsStub = sinon.stub();
-                updateDoctorStub = sinon.stub(db.Doctors, "update");
+                getDoctorStub = sinon.stub();
+                getAddressStub = sinon.stub();
+                updateDoctorStub = sinon.stub();
             })
-            it("expect throw error('Update User error') and transaction to rollback", async () => {
-                updateUserStub.throws(new Error("Update User error"));
+            it("expect throw AppError('Update User error') and transaction to rollback", async () => {
+                updateUserStub.throws(new AppError("Update User error"));
 
-                await expect(DoctorService.updateDoctor(1, "user", "doctor")).to.be.rejectedWith(Error, "Update User error");
+                await expect(DoctorService.updateDoctorById({ userId, userData, addressData, doctorData, servicesIds })).to.be.rejectedWith("Update User error");
 
-                expect(updateUserStub.calledOnceWith(1, "user", transactionStub)).to.be.true;
-                expect(getDoctorsStub.calledOnce).to.be.false;
-                expect(updateDoctorStub.calledOnce).to.be.false;
+                expect(updateUserStub.calledOnceWith(userId, userData, transactionStub)).to.be.true;
+                expect(getDoctorStub.calledOnce).to.be.false;
             });
             it("expect throw error('Doctor not found') and transaction to rollback", async () => {
-                updateUserStub.resolves({ getDoctors: getDoctorsStub })
-                getDoctorsStub.resolves(false);
+                updateUserStub.resolves({ getDoctor: getDoctorStub, getAddress: getAddressStub });
+                getAddressStub.resolves({ update: updateDoctorStub });
+                getDoctorStub.resolves(null);
 
-                await expect(DoctorService.updateDoctor(1, "user", "doctor")).to.be.rejectedWith(Error, "Doctor not found");
 
-                expect(updateUserStub.calledOnceWith(1, "user", transactionStub)).to.be.true;
-                expect(getDoctorsStub.calledOnce).to.be.true;
-                expect(updateDoctorStub.calledOnce).to.be.false;
+                await expect(DoctorService.updateDoctorById({ userId, userData, addressData, doctorData, servicesIds })).to.be.rejectedWith("Doctor not found");
+
+                expect(updateUserStub.calledOnceWith(userId, userData, transactionStub)).to.be.true;
+                expect(getDoctorStub.calledOnce).to.be.true;
             });
             it("expect throw error('Update error') and transaction to rollback", async () => {
-                updateUserStub.resolves({ getDoctors: getDoctorsStub })
-                getDoctorsStub.resolves({ update: updateDoctorStub });
-                updateDoctorStub.rejects(new Error("Update error"))
+                updateUserStub.resolves({ getAddress: getAddressStub, getDoctor: getDoctorStub });
+                getAddressStub.rejects(new Error("Update error"))
 
-                await expect(DoctorService.updateDoctor(1, "user", "doctor")).to.be.rejectedWith(Error, "Update error");
+                await expect(DoctorService.updateDoctorById({ userId, userData, addressData, doctorData, servicesIds })).to.be.rejectedWith("Update error");
 
-                expect(updateUserStub.calledOnceWith(1, "user", transactionStub)).to.be.true;
-                expect(getDoctorsStub.calledOnce).to.be.true;
-                expect(updateDoctorStub.calledOnceWith("doctor", { transaction: transactionStub })).to.be.true;
+                expect(updateUserStub.calledOnceWith(userId, userData, transactionStub)).to.be.true;
+                expect(getDoctorStub.calledOnce).to.be.false;
             });
         });
     });

@@ -3,15 +3,20 @@ const AppError = require("../utils/appError");
 const db = require("../models");
 const UserService = require("../services/userService");
 const ClinicService = require("./clinicService");
+const { Op } = require("sequelize");
 
 const DoctorService = {
-    createDoctor: async (userData, addressData, doctorData, specialtyId, clinicId, servicesIds) => {
+    createDoctor: async ({ userData, addressData, doctorData, specialtyId, clinicId, servicesIds }) => {
         const t = await sequelize.transaction();
 
         try {
             await ClinicService.getClinicById(clinicId);
 
-            const foundUser = await db.Users.findOne({ where: { pesel: userData.pesel } }, { transaction: t });
+            const foundUser = await db.Users.findOne({
+                where: {
+                    [Op.or]: userData
+                },
+            }, { transaction: t });
             if (foundUser) {
                 throw new AppError("User already exist", 404);
             }
@@ -81,7 +86,7 @@ const DoctorService = {
             throw err;
         }
     },
-    updateDoctorById: async (userId, userData, addressData, doctorData, servicesIds) => {
+    updateDoctorById: async ({ userId, userData, addressData, doctorData, servicesIds }) => {
         const t = await sequelize.transaction();
 
         try {
@@ -102,7 +107,6 @@ const DoctorService = {
             return doctor;
         } catch (err) {
             await t.rollback();
-            console.log(err);
             throw err;
         }
     },
