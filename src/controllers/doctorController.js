@@ -54,7 +54,7 @@ const DoctorController = {
             next(err);
         }
     },
-    getDoctorsByClinicWithSorting: async (req, res) => {
+    getDoctorsByClinicWithSorting: async (req, res, next) => {
         const { clinicId } = req.params;
         const { gender, sort } = req.query;
 
