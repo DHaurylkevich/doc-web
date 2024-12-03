@@ -13,10 +13,10 @@ const DoctorController = {
         }
     },
     getDoctorById: async (req, res, next) => {
-        const { userId } = req.params;
+        const { doctorId } = req.params;
 
         try {
-            const createdDoctor = await DoctorService.getDoctorById(userId);
+            const createdDoctor = await DoctorService.getDoctorById(doctorId);
             res.status(200).json(createdDoctor);
         } catch (err) {
             next(err);

@@ -54,15 +54,16 @@ const DoctorService = {
             throw err;
         }
     },
-    getDoctorById: async (userId) => {
+    getDoctorById: async (doctorId) => {
         try {
             const doctor = await db.Doctors.findOne({
+                where: { id: doctorId },
+                attributes: ["id", "description", "rating"],
                 include: [
                     {
                         model: db.Users,
-                        where: { id: userId },
                         as: "user",
-                        attributes: { exclude: ["password"] },
+                        attributes: ["first_name", "last_name", "gender", "photo", "email"],
                         include: [
                             {
                                 model: db.Addresses,
@@ -71,16 +72,21 @@ const DoctorService = {
                         ],
                     },
                     {
-                        model: db.Specialties, as: 'specialty'
+                        model: db.Specialties,
+                        as: 'specialty',
+                        attributes: ["name", "id"]
                     },
                     {
-                        model: db.Clinics, attributes: ["name"]
+                        model: db.Clinics,
+                        as: 'clinic',
+                        attributes: ["name"]
                     }
                 ]
             });
             if (!doctor) {
                 throw new AppError("Doctor not found", 404);
             }
+
             return doctor;
         } catch (err) {
             throw err;

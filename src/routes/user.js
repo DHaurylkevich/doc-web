@@ -7,25 +7,18 @@ const { validateRequest } = require('../middleware/errorHandler');
 
 /**
  * @swagger
- * /users/{userId}:
+ * /users/account:
  *   get:
- *     summary: Возвращает информацию о пользователе по ID работает для всех субъектов
+ *     summary: Возвращает информацию о пользователе для всех субъектов
  *     description: Возвращает данные пользователя, включая его роль, на основе идентификатора
  *     operationId: getUserAccount
  *     security:
  *      - CookieAuth: []
  *     tags:
  *       - Users
- *     parameters:
- *       - name: userId
- *         in: query
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID пользователя
  *     responses:
  *       200:
- *         description: Информация о пользователе
+ *         description: Информация о пользователе НЕ ТОЧНАЯ, там просто еще клиника 
  *         content:
  *           application/json:
  *             schema:
@@ -94,7 +87,7 @@ const { validateRequest } = require('../middleware/errorHandler');
  *       404:
  *         description: Пользователь не найден
 */
-router.get("/users/:userId", isAuthenticated, UserController.getUserAccount);
+router.get("/users/account", isAuthenticated, UserController.getUserAccount);
 /**
  * @swagger
  * /users/password:

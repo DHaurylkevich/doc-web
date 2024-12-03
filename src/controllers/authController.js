@@ -4,7 +4,6 @@ const createPatient = require("../services/patientService").createPatient;
 
 const AuthController = {
     login: (req, res) => {
-        console.log(req.user);
         const userResponse = {
             id: req.user.id,
             email: req.user.email,
@@ -12,7 +11,8 @@ const AuthController = {
             first_name: req.user.first_name,
             last_name: req.user.last_name
         };
-        if (req.user.doctor.clinic_id) {
+
+        if (req.user.doctor) {
             userResponse.clinic_id = req.user.doctor.clinic_id;
         }
 

@@ -1,15 +1,22 @@
 const UserService = require("../services/userService");
+const ClinicService = require("../services/clinicService");
 const passwordUtil = require("../utils/passwordUtil");
 const AppError = require("../utils/appError");
 
 const UserController = {
-    /** Get user/clinic and his data by id and role */
     getUserAccount: async (req, res, next) => {
-        const { userId } = req.params;
+        const user = req.user;
 
         try {
-            const user = await UserService.getUserById(userId);
-            res.status(200).json(user);
+            let userInDb;
+
+            if (user.role === "clinic") {
+                userInDb = await ClinicService.getClinicById(user.id);
+            } else {
+                userInDb = await UserService.getUserById(user.id);
+            }
+
+            res.status(200).json(userInDb);
         } catch (err) {
             next(err);
         }

@@ -30,7 +30,7 @@ const UserService = {
         try {
             const user = await db.Users.findByPk(userId,
                 {
-                    attributes: { exclude: ['password', "createdAt", "updatedAt"] },
+                    attributes: { exclude: ['password', "createdAt", "updatedAt", "resetToken", "role"] },
                     include: [{
                         model: db.Addresses,
                         as: 'address',
@@ -41,6 +41,7 @@ const UserService = {
             if (!user) {
                 throw new AppError("User not found", 404);
             }
+
             return user;
         } catch (err) {
             throw err;

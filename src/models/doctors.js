@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Doctors.belongsTo(models.Clinics, {
         foreignKey: 'clinic_id',
-        // as: 'clinic'
+        as: 'clinic'
       });
       Doctors.belongsTo(models.Specialties, {
         foreignKey: 'specialty_id',

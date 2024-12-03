@@ -23,8 +23,8 @@ const ClinicService = {
             await clinic.reload({
                 include: [{
                     model: db.Addresses,
-                    as: 'address',
-                    attributes: { exclude: ['createdAt', 'updatedAt'] }
+                    as: "address",
+                    attributes: { exclude: ["createdAt", "updatedAt"] }
                 }]
             });
             return clinic.get({ plain: true });
@@ -35,7 +35,16 @@ const ClinicService = {
     },
     getClinicById: async (clinicId) => {
         try {
-            const clinic = await db.Clinics.findByPk(clinicId);
+            const clinic = await db.Clinics.findByPk(clinicId,
+                {
+                    attributes: { exclude: ["password", "createdAt", "updatedAt", "resetToken", "role"] },
+                    include: [{
+                        model: db.Addresses,
+                        as: "address",
+                        attributes: { exclude: ["id", "createdAt", "updatedAt", "clinic_id", "user_id"] }
+                    }]
+                }
+            );
             if (!clinic) {
                 throw new AppError("Clinic not found", 404);
             }
@@ -48,11 +57,11 @@ const ClinicService = {
         try {
             const clinic = await db.Clinics.findOne({
                 where: { id: clinicId },
-                attributes: { exclude: ['password', 'resetToken', "createdAt", "updatedAt"] },
+                attributes: { exclude: ["password", "resetToken", "createdAt", "updatedAt"] },
                 include: [{
                     model: db.Addresses,
                     as: "address",
-                    attributes: { exclude: ['createdAt', 'updatedAt', 'user_id', 'clinic_id'] }
+                    attributes: { exclude: ["createdAt", "updatedAt", "user_id", "clinic_id"] }
                 }]
             });
             if (!clinic) {
@@ -118,8 +127,8 @@ const ClinicService = {
             await clinic.reload({
                 include: [{
                     model: db.Addresses,
-                    as: 'address',
-                    attributes: { exclude: ['createdAt', 'updatedAt', "clinic_id", "user_id"] }
+                    as: "address",
+                    attributes: { exclude: ["createdAt", "updatedAt", "clinic_id", "user_id"] }
                 }]
             });
 

@@ -172,14 +172,14 @@ router.post("/clinic/:clinicId/doctors/", doctorController.createDoctor);
 router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
 /**
  * @swagger
- * /doctors/{userId}:
+ * /doctors/{doctorId}:
  *   get:
  *     summary: Получить полную информацию о враче
- *     description: Возвращает полные данные о враче по указанному ID пользователя, включая адрес и специальность.
+ *     description: Возвращает полные данные о враче по указанному ID доктора, включая адрес и специальность.
  *     tags:
  *       - Doctors
  *     parameters:
- *       - name: userId
+ *       - name: doctorId
  *         in: path
  *         required: true
  *         schema:
@@ -196,25 +196,32 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
  *                 id:
  *                   type: integer
  *                   description: Уникальный идентификатор врача
- *                   example: 1
+ *                   example: 18
+ *                 description:
+ *                   type: string
+ *                   example: "Tabella ager ventus cupiditate demulceo."
+ *                 rating:
+ *                   type: number
+ *                   format: float
+ *                   example: 3.4528073983690954
  *                 user:
  *                   type: object
  *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
  *                     first_name:
  *                       type: string
- *                       example: "Адам"
+ *                       example: "Jarret"
  *                     last_name:
  *                       type: string
- *                       example: "Яблочный"
+ *                       example: "Douglas"
+ *                     gender:
+ *                       type: string
+ *                       example: "female"
+ *                     photo:
+ *                       type: string
+ *                       example: "https://avatars.githubusercontent.com/u/99708230"
  *                     email:
  *                       type: string
- *                       example: "doctor@example.com"
- *                     phone:
- *                       type: string
- *                       example: "+1234567890"
+ *                       example: "doctor@gmail.com"
  *                     address:
  *                       type: object
  *                       properties:
@@ -241,16 +248,22 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
  *                   properties:
  *                     id:
  *                       type: integer
- *                       example: 2
+ *                       example: 43
  *                     name:
  *                       type: string
- *                       example: "Кардиология"
+ *                       example: "Agent"
+ *                 clinic:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                       example: "Larson - Schmidt"
  *       404:
  *         description: Врач не найден
  *       500:
  *         description: Внутренняя ошибка сервера
  */
-router.get("/doctors/:userId", doctorController.getDoctorById);
+router.get("/doctors/:doctorId", doctorController.getDoctorById);
 /**
  * @swagger
  * /users/{userId}/doctors:

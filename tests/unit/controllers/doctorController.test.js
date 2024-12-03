@@ -19,14 +19,50 @@ describe("Doctor Controller", () => {
         sinon.restore();
     });
     describe("Positive test", () => {
-        describe("CreateDoctor() =>:", () => {
-            it("Expect to create a doctor associated with the clinic.", async () => {
-                const req = { body: { userData: "user", doctorData: "doctor", specialty_id: 1, clinic_id: 1 } };
+        describe("createDoctor() =>:", () => {
+            it("expect to create a doctor associated with the clinic.", async () => {
+                const req = {
+                    body: {
+                        userData: "user",
+                        addressData: "address",
+                        doctorData: "doctor",
+                        specialtyId: 1,
+                        servicesIds: [1, 2]
+                    },
+                    params: { clinicId: 1 }
+                };
                 const createDoctorServiceStub = sinon.stub(DoctorService, "createDoctor").resolves({ id: 1, ...req.body });
 
                 await DoctorController.createDoctor(req, res, next);
 
-                expect(createDoctorServiceStub.calledOnceWith("user", "doctor", 1, 1)).to.be.true;
+                expect(createDoctorServiceStub.calledOnce).to.be.true;
+                expect(createDoctorServiceStub.firstCall.args[0]).to.deep.include({
+                    userData: req.body.userData,
+                    addressData: req.body.addressData,
+                    doctorData: req.body.doctorData,
+                    specialtyId: req.body.specialtyId,
+                    clinicId: req.params.clinicId,
+                    servicesIds: req.body.servicesIds
+                });
+                expect(res.status.calledOnceWith(201)).to.be.true;
+                expect(res.json.calledOnceWith({ id: 1, ...req.body })).to.be.true;
+            });
+        });
+        describe("getDoctorById() =>:", () => {
+            it("expect to get a doctor, when doctor exists.", async () => {
+                const req = { params: { userId: 1 } };
+                const createDoctorServiceStub = sinon.stub(DoctorService, "createDoctor").resolves({ id: 1, ...req.body });
+                await DoctorController.createDoctor(req, res, next);
+
+                expect(createDoctorServiceStub.calledOnce).to.be.true;
+                expect(createDoctorServiceStub.firstCall.args[0]).to.deep.include({
+                    userData: req.body.userData,
+                    addressData: req.body.addressData,
+                    doctorData: req.body.doctorData,
+                    specialtyId: req.body.specialtyId,
+                    clinicId: req.params.clinicId,
+                    servicesIds: req.body.servicesIds
+                });
                 expect(res.status.calledOnceWith(201)).to.be.true;
                 expect(res.json.calledOnceWith({ id: 1, ...req.body })).to.be.true;
             });
