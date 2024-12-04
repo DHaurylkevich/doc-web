@@ -13,7 +13,7 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: process.env.NODE_ENV === "development"
+                url: process.env.NODE_ENV !== "production"
                     ? "http://localhost:3000/api"
                     : "https://doc-web-rose.vercel.app/api",
                 description: "Сюда запросы"

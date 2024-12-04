@@ -4,17 +4,20 @@ const AppError = require("../utils/appError");
 const SpecialtyService = {
     createSpecialty: async (specialtyData) => {
         try {
-            return await db.Specialties.create(specialtyData);
+            const specialtyExist = await db.Specialties.findOne({ where: { name: specialtyData.name } });
+            if (specialtyExist) {
+                throw new AppError("Specialty already exists", 409);
+            }
+
+            const specialty = await db.Specialties.create(specialtyData);
+            return { id: specialty.id, name: specialty.name }
         } catch (err) {
             throw err;
         }
     },
     getAllSpecialties: async () => {
         try {
-            const specialties = await db.Specialties.findAll();
-            if (!specialties) {
-                throw new AppError("Specialty not found", 404);
-            }
+            const specialties = await db.Specialties.findAll({ attributes: ["id", "name"] });
 
             return specialties;
         } catch (err) {
@@ -24,16 +27,15 @@ const SpecialtyService = {
     getAllSpecialtiesByClinic: async (clinicId) => {
         try {
             const specialties = await db.Specialties.findAll({
+                attributes: ["id", "name"],
                 include: [
                     {
                         model: db.Services, as: "services",
+                        attributes: ["id", "name", "price"],
                         where: { clinic_id: clinicId },
                     }
                 ]
             });
-            if (!specialties) {
-                throw new AppError("Specialty not found", 404);
-            }
 
             return specialties;
         } catch (err) {
@@ -56,7 +58,7 @@ const SpecialtyService = {
         try {
             let specialty = await db.Specialties.findByPk(id);
             if (!specialty) {
-                throw new AppError("Schedule not found", 404);
+                throw new AppError("Specialty not found", 404);
             }
 
             specialty = await specialty.update(data);
@@ -70,7 +72,7 @@ const SpecialtyService = {
         try {
             let specialty = await db.Specialties.findByPk(id);
             if (!specialty) {
-                throw new AppError("Schedule not found", 404);
+                throw new AppError("Specialty not found", 404);
             }
 
             await specialty.destroy();

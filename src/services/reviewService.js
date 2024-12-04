@@ -87,14 +87,14 @@ const ReviewService = {
             throw err;
         }
     },
-    getSpecialtyById: async (id) => {
+    getReviewsById: async (id) => {
         try {
-            const specialty = await db.Specialties.findByPk(id);
-            if (!specialty) {
-                throw new Error("Specialty not found");
+            const reviews = await db.Reviews.findByPk(id);
+            if (!reviews) {
+                throw new Error("Reviews not found");
             }
 
-            return specialty;
+            return reviews;
         } catch (err) {
             throw err;
         }

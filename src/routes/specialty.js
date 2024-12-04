@@ -1,15 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const specialtyController = require("../controllers/specialtyController");
+const { isAuthenticated, hasRole } = require("../middleware/auth");
 
 /**
  * @swagger
  * paths:
  *  /specialties:
  *    post:
- *      summary: Создает специальность
+ *      summary: Создает специальность, делает только админ
  *      description: Создает новую специальность при корректных данных и роли администратора
  *      operationId: createSpecialty
+ *      security:
+ *        - CookieAuth: []
  *      tags:
  *        - Specialties
  *      requestBody:
@@ -38,8 +41,14 @@ const specialtyController = require("../controllers/specialtyController");
  *                  name:
  *                    type: string
  *                    example: "Хирург"
+ *        401:
+ *          description: "Unauthorized user"
+ *        403:
+ *          description: "Access denied"
+ *        409:
+ *          description: "Specialty already exists"
  */
-router.post("/specialties", specialtyController.createSpecialty);
+router.post("/specialties", isAuthenticated, hasRole('admin'), specialtyController.createSpecialty);
 /**
  * @swagger
  * paths:
@@ -65,14 +74,6 @@ router.post("/specialties", specialtyController.createSpecialty);
  *                    name:
  *                      type: string
  *                      example: "Хирург"
- *                    createdAt:
- *                      type: string
- *                      format: date-time
- *                      example: "2024-10-31T20:29:46.000Z"
- *                    updatedAt:
- *                      type: string
- *                      format: date-time
- *                      example: "2024-10-31T20:29:46.000Z"
  */
 router.get("/specialties", specialtyController.getAllSpecialties);
 /**
@@ -94,7 +95,7 @@ router.get("/specialties", specialtyController.getAllSpecialties);
  *           example: 1
  *      responses:
  *        200:
- *          description: Массив всех специальностей
+ *          description: Массив всех специальностей и сервисов
  *          content:
  *            application/json:
  *              schema:
@@ -172,7 +173,7 @@ router.get("/specialties/:specialtyId", specialtyController.getSpecialty);
  *       200:
  *         description: Специальность успешно обновлена
  */
-router.put("/specialties/:specialtyId", specialtyController.updateSpecialty);
+router.put("/specialties/:specialtyId", isAuthenticated, hasRole('admin'), specialtyController.updateSpecialty);
 /**
  * @swagger
  * /specialties/{specialtyId}:
@@ -192,7 +193,15 @@ router.put("/specialties/:specialtyId", specialtyController.updateSpecialty);
  *     responses:
  *       200:
  *         description: Специальность успешно удалена
+ *         content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: "Successful delete"
  */
-router.delete("/specialties/:specialtyId", specialtyController.deleteSpecialty);
+router.delete("/specialties/:specialtyId", isAuthenticated, hasRole('admin'), specialtyController.deleteSpecialty);
 
 module.exports = router;
