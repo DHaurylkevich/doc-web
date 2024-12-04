@@ -67,7 +67,7 @@ const UserService = {
             throw err;
         }
     },
-    updateUser: async (image, userId, updatedData, t) => {
+    updateUser: async ({ image, userId, updatedData, t }) => {
         try {
             const user = await db.Users.findByPk(userId);
             if (!user) {

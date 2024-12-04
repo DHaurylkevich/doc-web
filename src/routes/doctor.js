@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const doctorController = require("../controllers/doctorController");
+// const upload = require("../middleware/upload").uploadImages;
 
 /**
  * @swagger
@@ -15,7 +16,7 @@ const doctorController = require("../controllers/doctorController");
  *         - name: clinicId
  *           in: path
  *           required: true
- *           description: ID клиники для поиска
+ *           description: ID клиники
  *           schema:
  *             type: integer
  *             example: 1
@@ -26,92 +27,88 @@ const doctorController = require("../controllers/doctorController");
  *             schema:
  *               type: object
  *               properties:
- *                 userData:
- *                   type: object
- *                   description: Данные пользователя
- *                   properties:
- *                     first_name:
- *                       type: string
- *                       description: Имя пользователя
- *                       example: "Серега"
- *                     last_name:
- *                       type: string
- *                       description: Фамилия пользователя
- *                       example: "Фамильный"
- *                     email:
- *                       type: string
- *                       description: Электронная почта пользователя
- *                       example: "mail@example.com"
- *                     gender:
- *                       type: string
- *                       description: Пол пользователя
- *                       enum: ["male", "female", "other"]
- *                       example: "male"
- *                     pesel:
- *                       type: string
- *                       description: PESEL пользователя
- *                       example: "12345678901"
- *                     phone:
- *                       type: string
- *                       description: Телефон пользователя
- *                       example: "+48123123123"
- *                     password:
- *                       type: string
- *                       description: Пароль пользователя
- *                       example: "securepassword123"
- *                     birthday:
- *                       type: string
- *                       format: date
- *                       description: Дата рождения пользователя
- *                       example: "1980-01-01"
- *                 addressData:
- *                   type: object
- *                   description: Адрес доктора
- *                   properties:
- *                     city:
- *                       type: string
- *                       example: "Effertzhaven"
- *                     province:
- *                       type: string
- *                       example: "Ohio"
- *                     street:
- *                       type: string
- *                       example: "N Chestnut Street"
- *                     home:
- *                       type: string
- *                       example: "7903"
- *                     flat:
- *                       type: string
- *                       example: "495"
- *                     post_index:
- *                       type: string
- *                       example: "37428-7078"
- *                 doctorData:
- *                   type: object
- *                   description: Данные доктора
- *                   properties:
- *                     hired_at:
- *                       type: string
- *                       format: date
- *                       description: Дата найма доктора
- *                       example: "2023-01-01"
- *                     description:
- *                       type: string
- *                       description: Описание доктора
- *                       example: "Dr dre eeeee"
- *                 specialtyId:
- *                   type: integer
- *                   description: Идентификатор специальности
- *                   example: 5
- *                 servicesIds:
- *                   type: array
- *                   description: Массив идентификаторов услуг
- *                   items:
- *                     type: integer
- *                   example: [1, 2, 3]
+ *                     userData:
+ *                       type: object
+ *                       description: Данные пользователя
+ *                       properties:
+ *                         first_name:
+ *                           type: string
+ *                           description: Имя пользователя
+ *                           example: "Серега"
+ *                         last_name:
+ *                           type: string
+ *                           description: Фамилия пользователя
+ *                           example: "Фамильный"
+ *                         email:
+ *                           type: string
+ *                           description: Электронная почта пользователя
+ *                           example: "mail@example.com"
+ *                         gender:
+ *                           type: string
+ *                           description: Пол пользователя
+ *                           enum: ["male", "female", "other"]
+ *                           example: "male"
+ *                         pesel:
+ *                           type: string
+ *                           description: PESEL пользователя
+ *                           example: "12345678901"
+ *                         phone:
+ *                           type: string
+ *                           description: Телефон пользователя
+ *                           example: "+48123123123"
+ *                         birthday:
+ *                           type: string
+ *                           format: date
+ *                           description: Дата рождения пользователя
+ *                           example: "1980-01-01"
+ *                     addressData:
+ *                       type: object
+ *                       description: Адрес доктора
+ *                       properties:
+ *                         city:
+ *                           type: string
+ *                           example: "Effertzhaven"
+ *                         province:
+ *                           type: string
+ *                           example: "Ohio"
+ *                         street:
+ *                           type: string
+ *                           example: "N Chestnut Street"
+ *                         home:
+ *                           type: string
+ *                           example: "7903"
+ *                         flat:
+ *                           type: string
+ *                           example: "495"
+ *                         post_index:
+ *                           type: string
+ *                           example: "37428-7078"
+ *                     doctorData:
+ *                       type: object
+ *                       description: Данные доктора
+ *                       properties:
+ *                         hired_at:
+ *                           type: string
+ *                           format: date
+ *                           description: Дата найма доктора
+ *                           example: "2023-01-01"
+ *                         description:
+ *                           type: string
+ *                           description: Описание доктора
+ *                           example: "Dr dre eeeee"
+ *                     specialtyId:
+ *                       type: integer
+ *                       description: Идентификатор специальности
+ *                       example: 5
+ *                     servicesIds:
+ *                       type: array
+ *                       description: Массив идентификаторов услуг
+ *                       items:
+ *                         type: integer
+ *                       example: [1, 2, 3]
  *       responses:
  *         200:
- *           description: Успешный вход и получение токена
+ *           description: Успешное создание
  *         404:
  *           description: Пользователь не найден
  */
@@ -143,27 +140,32 @@ router.post("/clinic/:clinicId/doctors/", doctorController.createDoctor);
  *                   type: integer
  *                   description: Уникальный идентификатор врача
  *                   example: 1
+ *                 description:
+ *                   type: string
+ *                   description: Описание врача
+ *                   example: "loren longer"
+ *                 rating:
+ *                   type: float
+ *                   description: Рейтинг доктора
+ *                   example: 0.5
  *                 user:
  *                   type: object
  *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
  *                     first_name:
  *                       type: string
- *                       example: "Адам"
+ *                       example: "Name"
  *                     last_name:
  *                       type: string
- *                       example: "Мицкевич"
+ *                       example: "Last Name"
+ *                     photo:
+ *                       type: string
+ *                       example: "https://example.com/"
  *                 specialty:
  *                   type: object
  *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 2
  *                     name:
  *                       type: string
- *                       example: "Кардиология"
+ *                       example: "Special Name"
  *       404:
  *         description: Врач не найден
  *       500:
@@ -218,7 +220,7 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
  *                       example: "female"
  *                     photo:
  *                       type: string
- *                       example: "https://avatars.githubusercontent.com/u/99708230"
+ *                       example: "https://exapmle.com"
  *                     email:
  *                       type: string
  *                       example: "doctor@gmail.com"
@@ -227,13 +229,13 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
  *                       properties:
  *                         city:
  *                           type: string
- *                           example: "Новогрудок"
+ *                           example: "Novogrudek"
  *                         province:
  *                           type: string
- *                           example: "Гродненская область"
+ *                           example: "Ghrodnenska"
  *                         street:
  *                           type: string
- *                           example: "ул. Мицкевича"
+ *                           example: "st. Mickiewicha"
  *                         home:
  *                           type: string
  *                           example: "69"
@@ -246,9 +248,6 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
  *                 specialty:
  *                   type: object
  *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 43
  *                     name:
  *                       type: string
  *                       example: "Agent"
@@ -393,6 +392,34 @@ router.put("/users/:userId/doctors", doctorController.updateDoctorById);
  *     responses:
  *       200:
  *         description: Массив всех докторов
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 18
+ *                   user:
+ *                     type: object
+ *                     properties:
+ *                       first_name:
+ *                         type: string
+ *                         example: "Janiya"
+ *                       last_name:
+ *                         type: string
+ *                         example: "Ward"
+ *                       gender:
+ *                         type: string
+ *                         example: "female"
+ *                   specialty:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                         example: "Associate"
  */
 router.get("/clinics/:clinicId/doctors", doctorController.getDoctorsByClinicWithSorting);
 

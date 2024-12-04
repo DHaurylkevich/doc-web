@@ -11,23 +11,20 @@ const AuthService = {
         const t = await sequelize.transaction();
 
         try {
-            const user = await db.Users.findOne({ where: { email: email, transaction: t } });
-            if (user) {
-                const resetToken = createJWT(user.id, user.role);
-                await user.update({ resetToken }, { transaction: t });
-            } else {
-                const clinic = await db.Clinics.findOne({ where: { email: email, transaction: t } });
-                if (clinic) {
-                    throw new AppError("User not found", 404);
-                }
-                const resetToken = createJWT(clinic.id, clinic.role);
-                await clinic.update({ resetToken }, { transaction: t });
+            let userOrClinic = await db.Users.findOne({ where: { email: email }, transaction: t });
+            if (!userOrClinic) {
+                userOrClinic = await db.Clinics.findOne({ where: { email: email }, transaction: t });
             }
 
-            await t.commit();
-
-            await resetMail(email, resetToken);
-            return;
+            if (userOrClinic) {
+                const resetToken = createJWT(userOrClinic.id, userOrClinic.role);
+                await userOrClinic.update({ resetToken }, { transaction: t });
+                await resetMail(email, resetToken);
+                await t.commit();
+                return;
+            } else {
+                throw new AppError("User or clinic not found", 404);
+            }
         } catch (err) {
             await t.rollback();
             throw err;

@@ -4,9 +4,11 @@ const db = require("../models");
 const UserService = require("../services/userService");
 const ClinicService = require("./clinicService");
 const { Op } = require("sequelize");
+const createJWT = require("../utils/createJWT");
+const { setPasswordMail } = require("../utils/mail");
 
 const DoctorService = {
-    createDoctor: async ({ userData, addressData, doctorData, specialtyId, clinicId, servicesIds }) => {
+    createDoctor: async ({ clinicId, userData, addressData, doctorData, specialtyId, servicesIds }) => {
         const t = await sequelize.transaction();
 
         try {
@@ -14,11 +16,16 @@ const DoctorService = {
 
             const foundUser = await db.Users.findOne({
                 where: {
-                    [Op.or]: userData
-                },
-            }, { transaction: t });
+                    [Op.or]: [
+                        userData.email && { email: userData.email },
+                        userData.phone && { phone: userData.phone },
+                        userData.pesel && { pesel: userData.pesel },
+                    ].filter(Boolean)
+                }
+            });
+
             if (foundUser) {
-                throw new AppError("User already exist", 404);
+                throw new AppError("User already exist", 400);
             }
 
             const createdUser = await db.Users.create(
@@ -42,13 +49,17 @@ const DoctorService = {
                 { transaction: t }
             );
 
+            const resetToken = createJWT(createdUser.id, createdUser.role);
+            await createdUser.update({ resetToken }, { transaction: t });
+
             createdDoctor.specialties_id = specialtyId;
             if (servicesIds && servicesIds.length) {
                 await createdDoctor.setServices(servicesIds, { transaction: t });
             }
 
             await t.commit();
-            return createdDoctor;
+            await setPasswordMail(createdUser.email, resetToken);
+            return;
         } catch (err) {
             await t.rollback();
             throw err;
@@ -74,7 +85,7 @@ const DoctorService = {
                     {
                         model: db.Specialties,
                         as: 'specialty',
-                        attributes: ["name", "id"]
+                        attributes: ["name"]
                     },
                     {
                         model: db.Clinics,
@@ -92,11 +103,11 @@ const DoctorService = {
             throw err;
         }
     },
-    updateDoctorById: async ({ userId, userData, addressData, doctorData, servicesIds }) => {
+    updateDoctorById: async ({ image, userId, userData, addressData, doctorData, servicesIds }) => {
         const t = await sequelize.transaction();
 
         try {
-            const user = await UserService.updateUser(userId, userData, t);
+            const user = await UserService.updateUser({ image, userId, updatedData: userData, t });
 
             const address = await user.getAddress();
             await address.update(addressData, t);
@@ -119,13 +130,15 @@ const DoctorService = {
     getShortDoctorById: async (doctorId) => {
         try {
             const doctor = await db.Doctors.findByPk(doctorId, {
+                attributes: ["id", "description", "rating"],
                 include: [
                     {
                         model: db.Users, as: "user",
-                        attributes: ["id", "first_name", "last_name"],
+                        attributes: ["first_name", "last_name", "photo"],
                     },
                     {
-                        model: db.Specialties, as: 'specialty'
+                        model: db.Specialties, as: 'specialty',
+                        attributes: ["name"]
                     }
                 ]
             });
@@ -161,6 +174,7 @@ const DoctorService = {
                     {
                         model: db.Specialties,
                         as: "specialty",
+                        attributes: ["name"],
                     }
                 ],
                 order: sortOptions,

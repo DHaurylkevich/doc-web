@@ -90,8 +90,7 @@ router.post("/api/upload/file", upload.single("file"), (req, res) => {
  *     operationId: getUserAccount
  *     security:
  *      - CookieAuth: []
- *     tags:
- *       - Users
+ *     tags: [Utils]
  *     responses:
  *       200:
  *          description: Успешно

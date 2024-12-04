@@ -35,7 +35,7 @@ const PatientController = {
         const { userId } = req.params;
         const { userData, addressData } = req.body;
         const image = req.file ? req.file.path : null;
-        
+
         try {
             console.log("userData:", req.body.userData);
             const updatePatient = await PatientService.updatePatient(image, userId, userData, addressData)
