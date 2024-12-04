@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const ScheduleController = require("../controllers/scheduleController");
+const { isAuthenticated, hasRole } = require("../middleware/auth");
 
 /**
  * @swagger
@@ -54,7 +55,7 @@ const ScheduleController = require("../controllers/scheduleController");
  *       400:
  *         description: Ошибка создания расписания.
  */
-router.post("/clinics/:clinicId/schedules", ScheduleController.createSchedule)
+router.post("/clinics/:clinicId/schedules", isAuthenticated, hasRole("clinic"), ScheduleController.createSchedule)
 /**
  * @swagger
  * /schedules/{scheduleId}:
@@ -119,7 +120,7 @@ router.get("/schedules/:scheduleId", ScheduleController.getScheduleById);
  *       400:
  *         description: Ошибка обновления расписания.
  */
-router.put("/schedules/:scheduleId", ScheduleController.updateSchedule);
+router.put("/schedules/:scheduleId", isAuthenticated, hasRole("clinic"), ScheduleController.updateSchedule);
 /**
  * @swagger
  * /schedules/{scheduleId}:

@@ -1,3 +1,4 @@
+require("dotenv").config();
 process.env.NODE_ENV = 'test';
 
 const { expect } = require("chai");
@@ -21,7 +22,7 @@ describe("ServiceController API", () => {
 
     describe("Positive tests", () => {
         describe("POST /api/clinics/:id/services", () => {
-            let fakeClinic;
+            let fakeClinic, sessionCookies;
 
             before(async () => {
                 const fakeUser = {

@@ -10,7 +10,10 @@ const ScheduleService = {
             const { doctorsIds, dates, ...commonData } = scheduleData;
 
             const existingDoctors = await db.Doctors.findAll({
-                where: { id: { [Op.in]: doctorsIds } },
+                where: {
+                    id: { [Op.in]: doctorsIds },
+                    clinic_id: clinicId
+                },
                 attributes: ['id'],
                 transaction: t
             });
@@ -18,13 +21,6 @@ const ScheduleService = {
                 throw new AppError("One or more doctors not found", 404);
             }
 
-            const existingClinic = await db.Clinics.findByPk(clinicId, {
-                attributes: ['id'],
-                transaction: t
-            });
-            if (!existingClinic) {
-                throw new AppError("Clinic not found", 404);
-            }
 
             scheduleData = doctorsIds.flatMap(doctorId =>
                 dates.map(date => ({
@@ -43,7 +39,7 @@ const ScheduleService = {
             if (existingSchedules.length > 0) {
                 throw new AppError("One or more schedules already exist", 400);
             }
-            // return existingSchedules;
+
             const createdSchedules = await db.Schedules.bulkCreate(scheduleData, { transaction: t });
 
             await t.commit();
@@ -56,7 +52,16 @@ const ScheduleService = {
     getScheduleById: async (id) => {
         try {
             const schedule = await db.Schedules.findByPk(id, {
-                include: [db.Doctors, db.Clinics]
+                include: [
+                    {
+                        model: db.Doctors,
+                        as: "doctor"
+                    },
+                    {
+                        model: db.Clinics,
+                        as: "clinic"
+                    }
+                ]
             });
 
             if (!schedule) {
@@ -99,6 +104,7 @@ const ScheduleService = {
     getScheduleByDoctor: async (doctorId) => {
         try {
             const schedule = await db.Schedules.findAll({
+                attributes: { exclude: ["createdAt", "updatedAt", "clinic_id"] },
                 where: { doctor_id: doctorId },
             });
 
@@ -110,8 +116,22 @@ const ScheduleService = {
     getScheduleByClinic: async (clinicId) => {
         try {
             const schedule = await db.Schedules.findAll({
+                attributes: { exclude: ["createdAt", "updatedAt", "doctor_id"] },
                 where: { clinic_id: clinicId },
-                include: [db.Doctors],
+                include: [
+                    {
+                        model: db.Doctors,
+                        as: "doctor",
+                        attributes: ["rating", "description"],
+                        include: [
+                            {
+                                model: db.Users,
+                                as: "user",
+                                attributes: ["first_name", "last_name", "photo"]
+                            }
+                        ]
+                    }
+                ],
             });
 
             return schedule;
