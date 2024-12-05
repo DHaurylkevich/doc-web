@@ -89,6 +89,8 @@ router.get("/services/:serviceId", serviceController.getService);
  *     description: Обновляет существующую услугу по ее ID.
  *     tags:
  *       - Services
+ *     security:
+ *       - CookieAuth: []
  *     parameters:
  *       - name: serviceId
  *         in: path
@@ -127,6 +129,8 @@ router.put("/services/:serviceId", isAuthenticated, serviceController.updateServ
  *     description: Удаляет услугу по заданному ID.
  *     tags:
  *       - Services
+ *     security:
+ *       - CookieAuth: []
  *     parameters:
  *       - name: serviceId
  *         in: path

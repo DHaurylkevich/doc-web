@@ -1,16 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const AppointmentController = require("../controllers/appointmentController");
+const { isAuthenticated } = require("../middleware/auth");
+
 /**
  * @swagger
  * paths:
  *   /appointments:
  *     post:
- *       summary: Создает запись к врачу
- *       description: Создает новую запись к врачу с заданными параметрами.
+ *       summary: Создает запись к врачу юзером
+ *       description: Создает новую запись к врачу с заданными параметрами по id пациента из куки.
  *       operationId: createAppointment
  *       tags:
  *         - Appointment
+ *       security:
+ *         - CookieAuth: []
  *       requestBody:
  *         description: Данные для создания записи
  *         required: true
@@ -31,10 +35,6 @@ const AppointmentController = require("../controllers/appointmentController");
  *                   type: integer
  *                   example: 1
  *                   description: ID клиники
- *                 userId:
- *                   type: integer
- *                   example: 1
- *                   description: ID пользователя (пациента)
  *                 date:
  *                   type: string
  *                   format: date
@@ -94,7 +94,7 @@ const AppointmentController = require("../controllers/appointmentController");
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.post("/appointments", AppointmentController.createAppointment);
+router.post("/appointments", isAuthenticated, AppointmentController.createAppointment);
 /**
  * @swagger
  * paths:
@@ -199,6 +199,34 @@ router.post("/appointments", AppointmentController.createAppointment);
  *           description: Внутренняя ошибка сервера
  */
 router.get("/appointments", AppointmentController.getAvailableSlotsWithFilter);
+/**
+ * @swagger
+ *    /appointments/{id}:
+ *     delete:
+ *       summary: Удаляет запись
+ *       description: Удаляет запись по указанному ID.
+ *       operationId: deleteAppointment
+ *       tags:
+ *         - Appointment
+ *       security:
+ *         - CookieAuth: []
+ *       parameters:
+ *         - name: id
+ *           in: path
+ *           required: true
+ *           description: ID записи
+ *           schema:
+ *             type: integer
+ *             example: 1
+ *       responses:
+ *         200:
+ *           description: Запись успешно удалена
+ *         404:
+ *           description: Запись не найдена
+ *         500:
+ *           description: Внутренняя ошибка сервера
+ */
+router.delete("/appointments/:id", isAuthenticated, AppointmentController.deleteAppointment);
 /**
  * @swagger
  * paths:
@@ -534,31 +562,5 @@ router.get("/doctors/:doctorId/appointments", AppointmentController.getAppointme
  *           description: Внутренняя ошибка сервера
  */
 router.get("/patients/:patientId/appointments", AppointmentController.getAppointmentsByPatient);
-/**
- * @swagger
- *    /appointments/{id}:
- *     delete:
- *       summary: Удаляет запись
- *       description: Удаляет запись по указанному ID.
- *       operationId: deleteAppointment
- *       tags:
- *         - Appointment
- *       parameters:
- *         - name: id
- *           in: path
- *           required: true
- *           description: ID записи
- *           schema:
- *             type: integer
- *             example: 1
- *       responses:
- *         200:
- *           description: Запись успешно удалена
- *         404:
- *           description: Запись не найдена
- *         500:
- *           description: Внутренняя ошибка сервера
- */
-router.delete("/appointments/:id", AppointmentController.deleteAppointment);
 
 module.exports = router;

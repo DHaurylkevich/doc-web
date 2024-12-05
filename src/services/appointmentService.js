@@ -2,10 +2,10 @@ const db = require("../models");
 const AppError = require("../utils/appError");
 const ClinicService = require("../services/clinicService");
 const UserService = require("../services/userService");
-const DoctorService = require("../services/doctorService");
+const { Op } = require("sequelize");
 
 const AppointmentService = {
-    createAppointment: async (doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description) => {
+    createAppointment: async ({ doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description }) => {
         const schedule = await db.Schedules.findOne({
             where: { doctor_id: doctorId, date: date },
             attributes: ["id", "date", "interval", "doctor_id", "start_time", "end_time"],
@@ -19,18 +19,20 @@ const AppointmentService = {
         if (!schedule) {
             throw new AppError("This Schedule doesn't exist", 404);
         }
+
         AppointmentService.checkTimeSlot(schedule, timeSlot);
 
         const doctorService = await db.DoctorService.findByPk(doctorServiceId, {
             include: [{ model: db.Services, as: "service", attributes: ["clinic_id"] }]
         });
         if (!doctorService || doctorService.doctor_id !== doctorId || doctorService.service.clinic_id !== clinicId) {
-            throw new AppError("This doctor service not exist", 404);
+            throw new AppError("This doctor service doesn't exist", 404);
         }
 
         await ClinicService.getClinicById(clinicId);
 
         const user = await UserService.getUserById(userId);
+
         const patient = await user.getPatient();
         if (!patient) {
             throw new AppError("Patient not found", 404);
@@ -82,6 +84,7 @@ const AppointmentService = {
                 include: [
                     {
                         model: db.Clinics,
+                        as: "clinic",
                         include: [
                             {
                                 model: db.Addresses,
@@ -114,11 +117,10 @@ const AppointmentService = {
             if (!doctors.length) {
                 return [];
             }
-            // return doctors;
 
             return doctors.map(doctor => {
                 const availableSlots = doctor.Schedules.map(schedule => {
-                    const occupiedSlots = schedule.Appointments.map(app => app.timeSlot.slice(0, -3));
+                    const occupiedSlots = schedule.Appointments.map(app => app.time_slot.slice(0, -3));
                     const slots = AppointmentService.getAvailableSlots(schedule);
                     const freeSlots = slots.filter(slot => !occupiedSlots.includes(slot));
                     return {
@@ -126,7 +128,7 @@ const AppointmentService = {
                         description: doctor.description,
                         rating: doctor.rating,
                         specialty: doctor.specialty.name,
-                        address: doctor.Clinic.address,
+                        address: doctor.clinic.address,
                         date: schedule.date,
                         slots: freeSlots
                     };
@@ -158,7 +160,7 @@ const AppointmentService = {
                         model: db.DoctorService,
                         as: "doctorService",
                         where: doctorServiceWhere,
-                        attributes: ["doctor_id", "service_id"],
+                        attributes: ["doctor_id", "service_id", "id"],
                         include: [
                             {
                                 model: db.Doctors,
@@ -187,6 +189,7 @@ const AppointmentService = {
                     },
                     {
                         model: db.Patients,
+                        as: "patient",
                         attributes: ["user_id"],
                         include: [
                             {
@@ -212,7 +215,7 @@ const AppointmentService = {
                 const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
                 return {
                     doctor: appointment.doctorService.doctor.user,
-                    patient: appointment.Patient.user,
+                    patient: appointment.patient.user,
                     specialty: appointment.doctorService.doctor.specialty,
                     service: appointment.doctorService.service,
                     date: appointment.Schedule.date,
@@ -224,21 +227,21 @@ const AppointmentService = {
             throw err;
         }
     },
-    updateAppointment: async (id, data) => {
-        try {
-            let appointment = await db.Appointments.findByPk(id);
+    // updateAppointment: async (id, data) => {
+    //     try {
+    //         let appointment = await db.Appointments.findByPk(id);
 
-            if (!appointment) {
-                throw new AppError("Appointment not found", 404);
-            }
+    //         if (!appointment) {
+    //             throw new AppError("Appointment not found", 404);
+    //         }
 
-            appointment = await appointment.update(data);
+    //         appointment = await appointment.update(data);
 
-            return appointment;
-        } catch (err) {
-            throw err;
-        }
-    },
+    //         return appointment;
+    //     } catch (err) {
+    //         throw err;
+    //     }
+    // },
     deleteAppointment: async (id) => {
         try {
             const appointment = await db.Appointments.findByPk(id);
@@ -252,12 +255,19 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAllAppointmentsByDoctor: async ({ doctorId, limit, offset, startDate, endDate }) => {
+    getAllAppointmentsByDoctor: async ({ doctorId, limit, offset, startDate, endDate, status }) => {
         try {
+            const scheduleWhere = startDate && endDate ? {
+                date: {
+                    [Op.between]: [startDate, endDate]
+                }
+            } : {}
             const offsetValue = offset * limit;
+
             const appointments = await db.Appointments.findAll({
                 limit: limit,
                 offset: offsetValue >= 0 ? offsetValue : 0,
+                where: status ? { status } : {},
                 order: [
                     [db.Schedules, 'date', 'ASC'],
                     ['time_slot', 'ASC']
@@ -278,11 +288,7 @@ const AppointmentService = {
                     },
                     {
                         model: db.Schedules,
-                        where: {
-                            date: {
-                                [db.Sequelize.Op.between]: [startDate, endDate]
-                            }
-                        },
+                        where: scheduleWhere,
                         attributes: ["date", "interval"],
                         order: [['date', 'ASC']]
                     },
@@ -300,8 +306,8 @@ const AppointmentService = {
                     }
                 ],
             });
-            if (!appointments) {
-                throw new AppError("Appointments not found", 404);
+            if (!appointments.length) {
+                return [];
             }
 
             return appointments.flatMap(appointment => {
@@ -328,6 +334,11 @@ const AppointmentService = {
     getAllAppointmentsByPatient: async ({ patientId, limit, offset, startDate, endDate }) => {
         try {
             const offsetValue = offset * limit;
+            const scheduleWhere = startDate && endDate ? {
+                date: {
+                    [Op.between]: [startDate, endDate]
+                }
+            } : {}
 
             const appointments = await db.Appointments.findAll({
                 where: { patient_id: patientId },
@@ -362,20 +373,15 @@ const AppointmentService = {
                     },
                     {
                         model: db.Schedules,
-                        where: {
-                            date: {
-                                [db.Sequelize.Op.between]: [startDate, endDate]
-                            }
-                        },
+                        where: scheduleWhere,
                         attributes: ["date", "interval"],
                         order: [['date', 'DESC']]
                     }
                 ]
             });
-            if (!appointments) {
-                throw new AppError("Appointments not found", 404);
+            if (!appointments.length) {
+                return [];
             }
-
             return appointments.map(appointment => {
                 const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
                 return {
@@ -394,6 +400,11 @@ const AppointmentService = {
             throw err;
         }
     },
+    /**
+     * Проверка существует ли слот в графике и не занят ли слот 
+     * @param {*} schedule 
+     * @returns 
+     */
     checkTimeSlot: (schedule, timeSlot) => {
         const slots = AppointmentService.getAvailableSlots(schedule);
         const isTimeSlotAvailable = slots.includes(timeSlot);

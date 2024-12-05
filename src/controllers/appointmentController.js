@@ -1,11 +1,17 @@
 const AppointmentService = require("../services/appointmentService");
+const AppError = require("../utils/appError");
 
 const AppointmentController = {
     createAppointment: async (req, res, next) => {
-        const { doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description } = req.body;
+        const { doctorId, doctorServiceId, clinicId, date, timeSlot, firstVisit, visitType, status, description } = req.body;
+        const userId = req.user.id;
 
+        if (req.user.role !== "patient") {
+            throw new AppError("User is not a patient", 400);
+
+        }
         try {
-            const appointment = await AppointmentService.createAppointment(doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description);
+            const appointment = await AppointmentService.createAppointment({ doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description });
             res.status(201).json(appointment);
         } catch (err) {
             next(err);
@@ -34,9 +40,9 @@ const AppointmentController = {
     },
     getAppointmentsByDoctor: async (req, res, next) => {
         const { doctorId } = req.params;
-        const { limit = 10, offset = 0, startDate, endDate } = req.query;
+        const { limit = 10, offset = 0, startDate, endDate, status } = req.query;
         try {
-            const appointments = await AppointmentService.getAllAppointmentsByDoctor({ doctorId, limit: parseInt(limit), offset: parseInt(offset), startDate, endDate });
+            const appointments = await AppointmentService.getAllAppointmentsByDoctor({ doctorId, limit: parseInt(limit), offset: parseInt(offset), startDate, endDate, status });
             res.status(200).json(appointments);
         } catch (err) {
             next(err);

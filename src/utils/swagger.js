@@ -19,7 +19,7 @@ const swaggerOptions = {
                 description: "Сюда запросы"
             },
             {
-                url: "https://doc-web-rose.vercel.app",
+                url: "https://doc-web-rose.vercel.app/api",
                 description: "Основной сервер"
             }
         ],
