@@ -18,10 +18,10 @@ const AppointmentController = {
         }
     },
     getAvailableSlotsWithFilter: async (req, res, next) => {
-        const { city, specialty, date, visitType, limit = 10, page = 1 } = req.query;
+        const { city, specialty, date, visitType, limit = 10, offset = 1 } = req.query;
 
         try {
-            const availableSlot = await AppointmentService.getAvailableSlotsWithFilter({ city, specialty, date, visitType, limit: parseInt(limit), page: parseInt(page) });
+            const availableSlot = await AppointmentService.getAvailableSlotsWithFilter({ city, specialty, date, visitType, limit: parseInt(limit), page: parseInt(offset) });
             res.status(200).json(availableSlot);
         } catch (err) {
             next(err);

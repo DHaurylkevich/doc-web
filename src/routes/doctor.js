@@ -206,6 +206,9 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
  *                   type: number
  *                   format: float
  *                   example: 3.4528073983690954
+ *                 hired_at:
+ *                   type: string
+ *                   example: "2024-10-04T17:41:40.320Z"
  *                 user:
  *                   type: object
  *                   properties:

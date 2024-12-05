@@ -1,5 +1,5 @@
 // services/prescriptionService.js
-const db = require('../models');
+const db = require("../models");
 
 const prescriptionService = {
     createPrescription: async (patientId, doctorId, medicationId, expirationDate) => {
@@ -38,17 +38,17 @@ const prescriptionService = {
                 where: { patient_id: patientId },
                 include: [
                     {
-                        model: db.Doctors, as: 'doctor',
-                        attributes: ['id'],
+                        model: db.Doctors, as: "doctor",
+                        attributes: ["id"],
                         include: [
                             {
                                 model: db.Users,
                                 as: "user",
-                                attributes: ['id', 'first_name', 'last_name'],
+                                attributes: ["id", "first_name", "last_name"],
                             }
                         ]
                     },
-                    { model: db.Medications, as: 'medications', attributes: ['id', 'name', 'dosage', 'description'] },
+                    { model: db.Medications, as: "medications", attributes: ["id", "name", "dosage", "description"] },
                 ],
             });
 
@@ -66,19 +66,20 @@ const prescriptionService = {
 
             const prescriptions = await db.Prescriptions.findAll({
                 where: { doctor_id: doctorId },
+                attributes: { exclude: ["createdAt", "updatedAt", "doctor_id", "medication_id", "patient_id"] },
                 include: [
                     {
-                        model: db.Patients, as: 'patient',
-                        attributes: ['id'],
+                        model: db.Patients, as: "patient",
+                        attributes: ["id"],
                         include: [
                             {
                                 model: db.Users,
                                 as: "user",
-                                attributes: ['id', 'first_name', 'last_name'],
+                                attributes: ["id", "first_name", "last_name", "photo"],
                             }
                         ]
                     },
-                    { model: db.Medications, as: 'medications', attributes: ['id', 'name'] },
+                    { model: db.Medications, as: "medications", attributes: ["id", "name"] },
                 ],
             });
 

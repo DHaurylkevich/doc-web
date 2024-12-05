@@ -119,7 +119,7 @@ router.post("/appointments", isAuthenticated, AppointmentController.createAppoin
  *           description: Специальность врача
  *           schema:
  *             type: string
- *             example: "хирург"
+ *             example: "Associate"
  *         - name: date
  *           in: query
  *           required: false
@@ -164,14 +164,14 @@ router.post("/appointments", isAuthenticated, AppointmentController.createAppoin
  *                       example: 1
  *                     description:
  *                       type: string
- *                       example: "Хирург"
+ *                       example: "Ascisco caritas minima surgo patrocinor crustulum"
  *                     rating:
  *                       type: number
  *                       format: float
  *                       example: 4.5
  *                     specialty:
  *                       type: string
- *                       example: "хирург"
+ *                       example: "Associate"
  *                     address:
  *                       type: object
  *                       properties:
@@ -184,10 +184,25 @@ router.post("/appointments", isAuthenticated, AppointmentController.createAppoin
  *                         home:
  *                           type: string
  *                           example: "1"
+ *                         flat:
+ *                           type: string
+ *                           example: "1"
+ *                         post_index:
+ *                           type: string
+ *                           example: "1"
  *                     date:
  *                       type: string
  *                       format: date
  *                       example: "2024-11-05"
+ *                     service:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                           example: "Table"
+ *                         price:
+ *                           type: number
+ *                           example: "258.66"
  *                     slots:
  *                       type: array
  *                       items:
@@ -317,6 +332,9 @@ router.delete("/appointments/:id", isAuthenticated, AppointmentController.delete
  *                           type: string
  *                           nullable: true
  *                           example: "Nulovy"
+ *                         photo:
+ *                           type: string
+ *                           example: "https://example.com"
  *                     specialty:
  *                       type: object
  *                       properties:
@@ -397,6 +415,14 @@ router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointme
  *             type: string
  *             format: date
  *             example: "2024-11-10"
+ *         - name: status
+ *           in: query
+ *           required: false
+ *           description: Статус
+ *           schema:
+ *             type: string
+ *             enum: ['active', 'canceled', 'completed']
+ *             example: "active"
  *       responses:
  *         200:
  *           description: Массив записей врача

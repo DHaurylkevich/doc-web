@@ -69,7 +69,7 @@ const DoctorService = {
         try {
             const doctor = await db.Doctors.findOne({
                 where: { id: doctorId },
-                attributes: ["id", "description", "rating"],
+                attributes: ["id", "description", "rating", "hired_at"],
                 include: [
                     {
                         model: db.Users,

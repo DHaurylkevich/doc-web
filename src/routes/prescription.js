@@ -149,12 +149,36 @@ router.get("/patient/:patientId/prescriptions", prescriptionController.getPrescr
  *                   patient_id:
  *                     type: integer
  *                     example: 5
- *                   doctor_id:
- *                     type: integer
- *                     example: 3
- *                   medication_id:
- *                     type: integer
- *                     example: 2
+ *                   patient:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: number
+ *                         example: 1
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: number
+ *                             example: 1
+ *                           first_name:
+ *                             type: string
+ *                             example: "Zora"
+ *                           last_name:
+ *                             type: string
+ *                             example: "Lemke"
+ *                           photo:
+ *                             type: string
+ *                             example: "https://example.com"
+ *                   medications:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: number
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "Luxurious Metal Ball"
  *       400:
  *         description: Ошибка получения рецептов
  */
