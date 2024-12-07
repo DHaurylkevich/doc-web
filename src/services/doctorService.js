@@ -139,8 +139,16 @@ const DoctorService = {
                     {
                         model: db.Specialties, as: 'specialty',
                         attributes: ["name"]
+                    },
+                    {
+                        model: db.Clinics, as: 'clinic',
+                        attributes: [],
+                        include: [
+                            { model: db.Addresses, as: "address" }
+                        ]
                     }
-                ]
+                ],
+                raw: true
             });
             if (!doctor) {
                 throw new AppError("Doctor not found", 404);

@@ -2,43 +2,34 @@ const ReviewService = require("../services/reviewService");
 
 const ReviewController = {
     createReview: async (req, res, next) => {
-        const { patientId, doctorId, rating, comment, tagsIds } = req.body;
+        const { doctorId, rating, comment, tagsIds } = req.body;
 
         try {
-            const review = await ReviewService.createReview(patientId, doctorId, rating, comment, tagsIds);
+            const userId = req.user.id;
+
+            const review = await ReviewService.createReview({ userId, doctorId, rating, comment, tagsIds });
+
             res.status(201).json(review);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },
-    // getSpecialty: async (req, res, next) => {
-    //     const { id } = req.params;
-
-    //     try {
-    //         const specialty = await ReviewService.getSpecialtyById(id);
-    //         res.status(200).json(specialty);
-    //     } catch (err) {
-    //         next(err);
-    //     }
-    // },
-    // getAllSpecialties: async (req, res, next) => {
-    //     try {
-    //         const specialties = await ReviewService.getAllSpecialties();
-    //         res.status(200).json(specialties);
-    //     } catch (err) {
-    //         console.log(err)
-    //         next(err);
-    //     }
-    // },
+    getAllReviews: async (req, res, next) => {
+        try {
+            const specialties = await ReviewService.getAllReviews();
+            res.status(200).json(specialties);
+        } catch (err) {
+            next(err);
+        }
+    },
     getAllReviewsByClinic: async (req, res, next) => {
         const { clinicId } = req.params;
+        const { sortDate = 'ASC', sortRating = 'ASC', limit = 10, offset = 0 } = req.query;
 
         try {
-            const reviews = await ReviewService.getAllReviewsByClinic(clinicId);
+            const reviews = await ReviewService.getAllReviewsByClinic(clinicId, { sortDate, sortRating, limit, offset });
             res.status(200).json(reviews);
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },
@@ -49,7 +40,6 @@ const ReviewController = {
             const reviews = await ReviewService.getAllReviewsByDoctor(doctorId);
             res.status(200).json(reviews);
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },

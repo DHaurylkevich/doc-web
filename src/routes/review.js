@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const ReviewController = require("../controllers/reviewController");
+const { isAuthenticated, hasRole } = require("../middleware/auth")
 
 /**
  * @swagger
@@ -18,9 +19,6 @@ const ReviewController = require("../controllers/reviewController");
  *           schema:
  *             type: object
  *             properties:
- *               patientId:
- *                 type: number
- *                 example: 1
  *               doctorId:
  *                 type: string
  *                 example: 1
@@ -34,7 +32,6 @@ const ReviewController = require("../controllers/reviewController");
  *                 type: array
  *                 example: [1,2,3]
  *             required:
- *               - patientId
  *               - doctorId
  *               - rating
  *               - comment
@@ -42,8 +39,45 @@ const ReviewController = require("../controllers/reviewController");
  *     responses:
  *       201:
  *         description: Успешно созданый комментарий
+ *         schema:
+ *           type: object
+ *           properties:
+ *             averageRating:
+ *               type: string
+ *               example: 1.23
+ *             totalReviews:
+ *               type: string
+ *               example: 2
  */
-router.post("/reviews/", ReviewController.createReview);
+router.post("/reviews/", isAuthenticated, hasRole("patient"), ReviewController.createReview);
+/**
+ * @swagger
+ * /reviews:
+ *   get:
+ *     summary: Получить все комментарии
+ */
+router.get("/reviews", isAuthenticated, hasRole("admin"), ReviewController.getAllReviews);
+/**
+ * @swagger
+ * /reviews/{reviewId}:
+ *   delete:
+ *     summary: Удалить комментарий
+ *     description: Удаляет комментарий по заданному ID.
+ *     tags:
+ *       - Reviews
+ *     parameters:
+ *       - name: reviewId
+ *         in: path
+ *         required: true
+ *         description: ID комментария для удаления
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         description: Комментарий успешно удален
+ */
+router.delete("/reviews/:reviewId", isAuthenticated, hasRole("admin"), ReviewController.deleteReview);
 /**
  * @swagger
  * /clinics/{clinicId}/reviews:
@@ -86,28 +120,5 @@ router.get("/clinics/:clinicId/reviews", ReviewController.getAllReviewsByClinic)
  *         description: Массив всех комментариев
  */
 router.get("/doctors/:doctorId/reviews", ReviewController.getAllReviewsByDoctor);
-
-// router.put("/patients/:id", ReviewController.updatePatientById);
-/**
- * @swagger
- * /reviews/{reviewId}:
- *   delete:
- *     summary: Удалить комментарий
- *     description: Удаляет комментарий по заданному ID.
- *     tags:
- *       - Reviews
- *     parameters:
- *       - name: reviewId
- *         in: path
- *         required: true
- *         description: ID комментария для удаления
- *         schema:
- *           type: integer
- *           example: 1
- *     responses:
- *       200:
- *         description: Комментарий успешно удален
- */
-router.delete("/reviews/:reviewId", ReviewController.deleteReview);
 
 module.exports = router;

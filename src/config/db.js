@@ -1,7 +1,7 @@
 const { Sequelize } = require("sequelize");
+const logger = require("../utils/logger");
 const NODE_ENV = process.env.NODE_ENV || "development";
-// const NODE_ENV = process.env.NODE_ENV = 'test';
-console.log(NODE_ENV);
+logger.info(NODE_ENV);
 
 const config = {
     url: NODE_ENV === "test" ? process.env.POSTGRES_URL_TEST : process.env.POSTGRES_PRISMA_URL || null,
@@ -40,17 +40,17 @@ if (config.url) {
 (async () => {
     try {
         await sequelize.authenticate()
-        console.log("Database connected");
+        logger.info("Database connected");
 
         if (process.env.DB_SYNC === "true") {
-            console.log("Добавление/Обноаление данных...");
+            logger.info("Добавление/Обноаление данных...");
             await sequelize.sync({ alter: true });
 
             // await sequelize.sync({ force: true });
-            console.log("Начальные данные добавлены/обновлены");
+            logger.info("Начальные данные добавлены/обновлены");
         }
     } catch (err) {
-        console.error("Error database connect:", err);
+        logger.error("Error database connect:", err);
     }
 })();
 
