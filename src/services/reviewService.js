@@ -49,10 +49,7 @@ const ReviewService = {
 
             await doctor.update({ rating: result.averageRating })
 
-            return {
-                averageRating: result.averageRating,
-                totalReviews: result.totalReviews
-            };
+            return;
         } catch (err) {
             await t.rollback();
             throw err;
@@ -60,45 +57,41 @@ const ReviewService = {
     },
     getAllReviews: async () => {
         try {
-            return await db.ReviewTags.findAll({
+            return await db.Reviews.findAll({
+                model: db.Reviews,
+                attributes: ["comment", "rating"],
                 include: [
                     {
-                        model: db.Reviews,
-                        as: "review",
-                        attributes: ["comment", "rating"],
+                        model: db.Doctors,
+                        as: "doctor",
+                        attributes: ["id", "description", "rating"],
                         include: [
                             {
-                                model: db.Doctors,
-                                as: "doctor",
-                                attributes: ["id", "description", "rating"],
-                                include: [
-                                    {
-                                        model: db.Users,
-                                        as: "user",
-                                        attributes: ["first_name", "last_name"]
-                                    }
-                                ]
-                            },
-                            {
-                                model: db.Patients,
-                                as: "patient",
-                                attributes: ["id"],
-                                include: [
-                                    {
-                                        model: db.Users,
-                                        as: "user",
-                                        attributes: ["first_name", "last_name", "photo"]
-                                    }
-                                ]
+                                model: db.Users,
+                                as: "user",
+                                attributes: ["first_name", "last_name"]
                             }
-                        ],
+                        ]
+                    },
+                    {
+                        model: db.Patients,
+                        as: "patient",
+                        attributes: ["id"],
+                        include: [
+                            {
+                                model: db.Users,
+                                as: "user",
+                                attributes: ["first_name", "last_name", "photo"]
+                            }
+                        ]
                     },
                     {
                         model: db.Tags,
-                        as: "tag",
-                        attributes: ["id", "name"]
+                        as: "tags",
+                        attributes: ["id", "name"],
+                        through: { attributes: [] },
                     }
-                ]
+                ],
             });
         } catch (err) {
             throw err;
@@ -106,92 +99,80 @@ const ReviewService = {
     },
     getAllReviewsByClinic: async (clinicId, { sortDate, sortRating, limit, offset }) => {
         try {
-            const reviews = await db.ReviewTags.findAll({
+            return await db.Reviews.findAll({
                 limit: limit,
                 offset: offset < 0 ? 0 : offset,
+                attributes: ["id", "comment", "rating", "createdAt"],
                 include: [
                     {
-                        model: db.Reviews,
-                        as: "review",
-                        attributes: ["comment", "rating", "createdAt"],
+                        model: db.Doctors,
+                        as: "doctor",
+                        where: { clinic_id: clinicId },
+                        attributes: ["id", "description", "rating", "user_id"],
                         include: [
                             {
-                                model: db.Doctors,
-                                as: "doctor",
-                                where: { clinic_id: clinicId },
-                                attributes: ["id", "description", "rating"],
-                                include: [
-                                    {
-                                        model: db.Users,
-                                        as: "user",
-                                        attributes: ["first_name", "last_name"]
-                                    }
-                                ]
-                            },
-                            {
-                                model: db.Patients,
-                                as: "patient",
-                                attributes: ["id"],
-                                include: [
-                                    {
-                                        model: db.Users,
-                                        as: "user",
-                                        attributes: ["first_name", "last_name", "photo"]
-                                    }
-                                ]
+                                model: db.Users,
+                                as: "user",
+                                attributes: ["first_name", "last_name"]
                             }
-                        ],
+                        ]
+                    },
+                    {
+                        model: db.Patients,
+                        as: "patient",
+                        attributes: ["id"],
+                        include: [
+                            {
+                                model: db.Users,
+                                as: "user",
+                                attributes: ["first_name", "last_name", "photo"]
+                            }
+                        ]
                     },
                     {
                         model: db.Tags,
-                        as: "tag",
-                        attributes: ["id", "name"]
+                        as: "tags",
+                        attributes: ["id", "name"],
+                        through: { attributes: [] }
                     }
                 ],
                 order: [
-                    [{ model: db.Reviews, as: "review" }, 'rating', sortRating === 'DESC' ? 'DESC' : 'ASC'],
-                    [{ model: db.Reviews, as: "review" }, 'createdAt', sortDate === 'DESC' ? 'DESC' : 'ASC']
+                    ['rating', sortRating === 'DESC' ? 'DESC' : 'ASC'],
+                    ['createdAt', sortDate === 'DESC' ? 'DESC' : 'ASC']
                 ]
             });
-
-            return reviews;
         } catch (err) {
             throw err;
         }
     },
-    getAllReviewsByDoctor: async (doctorId) => {
+    getAllReviewsByDoctor: async (doctorId, offset, limit) => {
         try {
-            const reviews = await db.ReviewTags.findAll({
+            return await db.Reviews.findAll({
+                limit: limit,
+                offset: offset < 0 ? 0 : offset,
+                where: { doctor_id: doctorId },
+                attributes: ["comment", "rating"],
                 include: [
                     {
-                        model: db.Reviews,
-                        as: "review",
-                        where: { doctor_id: doctorId },
-                        attributes: ["comment", "rating", "createdAt"],
+                        model: db.Patients,
+                        as: "patient",
+                        attributes: ["id"],
                         include: [
                             {
-                                model: db.Patients,
-                                as: "patient",
-                                attributes: ["id"],
-                                include: [
-                                    {
-                                        model: db.Users,
-                                        as: "user",
-                                        attributes: ["first_name", "last_name", "photo"]
-                                    }
-                                ]
+                                model: db.Users,
+                                as: "user",
+                                attributes: ["first_name", "last_name", "photo"]
                             }
-                        ],
+                        ]
                     },
                     {
                         model: db.Tags,
-                        as: "tag",
-                        attributes: ["id", "name"]
+                        as: "tags",
+                        attributes: ["id", "name"],
+                        through: { attributes: [] }
                     }
                 ]
             });
-
-            return reviews;
         } catch (err) {
             throw err;
         }
@@ -204,7 +185,7 @@ const ReviewService = {
             }
 
             await review.destroy();
-            return { message: "Review deleted successfully" };
+            return;
         } catch (err) {
             throw err;
         }

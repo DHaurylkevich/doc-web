@@ -11,7 +11,6 @@ module.exports = (sequelize, DataTypes) => {
             });
             ReviewTags.belongsTo(models.Tags, {
                 foreignKey: 'tag_id',
-                onDelete: 'CASCADE',
                 onUpdate: 'CASCADE',
                 as: 'tag',
             });

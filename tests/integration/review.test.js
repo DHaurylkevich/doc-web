@@ -20,7 +20,8 @@ describe("ReviewController API", () => {
     beforeEach(async () => {
         testPatient = await db.Patients.create({ gender: "male", market_inf: false });
         testDoctor = await createTestDoctor();
-        testTag = await db.Tags.create({ name: faker.lorem.paragraph(), positive: true });
+        const createdTag = await db.Tags.bulkCreate([{ name: faker.lorem.paragraph(), positive: true }, { name: faker.lorem.paragraph(), positive: true }]);
+        testTag = [createdTag[0].id, createdTag[1].id]
     });
     afterEach(async () => {
         await db.Users.destroy({ where: {} });
@@ -74,10 +75,7 @@ describe("ReviewController API", () => {
                     .expect(201);
 
                 expect(response.body).to.be.an("object");
-                expect(response.body).to.have.property("averageRating");
-                expect(response.body).to.have.property("totalReviews");
-                expect(response.body.averageRating).to.equal(expectedAverageRating);
-                expect(response.body.totalReviews).to.equal(String(existingReviews.length + 1));
+                expect(response.body).to.have.property("message", "Review created successfully");
                 const doctor = await db.Doctors.findOne({
                     where: { id: testDoctor.id }, attributes: ["rating"], raw: true
                 });
@@ -90,30 +88,29 @@ describe("ReviewController API", () => {
                 const testClinic = await db.Clinics.create({ name: faker.company.buzzAdjective(), password: faker.internet.password(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date" });
                 await testClinic.addDoctor(testDoctor);
                 const existingReviews = [
-                    { patient_id: testPatient.id, doctor_id: testDoctor.id, rating: 4, comment: "Good doctor", tag_id: testTag.id },
-                    { patient_id: testPatient.id, doctor_id: testDoctor.id, rating: 5, comment: "Excellent service", tag_id: testTag.id },
-                    { patient_id: testPatient.id, doctor_id: testDoctor.id, rating: 3, comment: "Average experience", tag_id: testTag.id }
+                    { patient_id: testPatient.id, doctor_id: testDoctor.id, rating: 4, comment: "Good doctor" },
+                    { patient_id: testPatient.id, doctor_id: testDoctor.id, rating: 5, comment: "Excellent service" },
+                    { patient_id: testPatient.id, doctor_id: testDoctor.id, rating: 3, comment: "Average experience" }
                 ];
                 const testReviews = await db.Reviews.bulkCreate(existingReviews);
                 for (const review of testReviews) {
-                    await review.addTag(testTag);
+                    await review.addTags(testTag);
                 }
                 testClinicId = testClinic.id;
             });
             it("expect return reviews sorted by rating in descending order for a given clinicId, when the query has sortRating = 'DESC'", async () => {
-
                 const response = await request(app)
                     .get(`/api/clinics/${testClinicId}/reviews`)
                     .query({ sortDate: 'ASC', sortRating: 'DESC', limit: 10, offset: 0 })
                     .expect(200);
-
+                console.log(response.body)
                 expect(response.body).to.be.an("array").that.is.not.empty;
-                expect(response.body[0]).to.have.property("review");
-                expect(response.body[0].review).to.have.property("doctor");
-                expect(response.body[0].review.rating).to.be.greaterThan(response.body[1].review.rating);
-                expect(response.body[0].review.doctor).to.have.property("user");
-                expect(response.body[0].review.patient).to.have.property("user");
-                expect(response.body[0]).to.have.property("tag");
+                expect(response.body[0]).to.have.property("rating");
+                expect(response.body[0]).to.have.property("doctor");
+                expect(response.body[0].rating).to.be.greaterThan(response.body[1].rating);
+                expect(response.body[0].doctor).to.have.property("user");
+                expect(response.body[0].patient).to.have.property("user");
+                expect(response.body[0]).to.have.property("tags");
             });
             it("expect return reviews sorted by rating in ascending order for a given clinicId, when the query has not sortRating", async () => {
                 const response = await request(app)
@@ -122,12 +119,12 @@ describe("ReviewController API", () => {
                     .expect(200);
 
                 expect(response.body).to.be.an("array").that.is.not.empty;
-                expect(response.body[0]).to.have.property("review");
-                expect(response.body[0].review).to.have.property("doctor");
-                expect(response.body[0].review.rating).to.be.lessThan(response.body[1].review.rating);
-                expect(response.body[0].review.doctor).to.have.property("user");
-                expect(response.body[0].review.patient).to.have.property("user");
-                expect(response.body[0]).to.have.property("tag");
+                expect(response.body[0]).to.have.property("rating");
+                expect(response.body[0]).to.have.property("doctor");
+                expect(response.body[0].rating).to.be.lessThan(response.body[1].rating);
+                expect(response.body[0].doctor).to.have.property("user");
+                expect(response.body[0].patient).to.have.property("user");
+                expect(response.body[0]).to.have.property("tags");
             });
         });
         describe("GET /api/doctors/:doctorId/reviews", () => {
@@ -152,10 +149,10 @@ describe("ReviewController API", () => {
                     .expect(200);
 
                 expect(response.body).to.be.an("array").that.is.not.empty;
-                expect(response.body[0]).to.have.property("review");
-                expect(response.body[0].review.rating).to.be.lessThan(response.body[1].review.rating);
-                expect(response.body[0].review.patient).to.have.property("user");
-                expect(response.body[0]).to.have.property("tag");
+                expect(response.body[0]).to.have.property("rating");
+                expect(response.body[0].rating).to.be.lessThan(response.body[1].rating);
+                expect(response.body[0].patient).to.have.property("user");
+                expect(response.body[0]).to.have.property("tags");
             });
         });
         describe("GET /api/reviews", () => {
@@ -198,10 +195,10 @@ describe("ReviewController API", () => {
                     .expect(200);
                 console.log(response.body);
                 expect(response.body).to.be.an("array");
-                expect(response.body[0]).to.have.property("review");
-                expect(response.body[0].review).to.have.property("doctor");
-                expect(response.body[0].review).to.have.property("patient");
-                expect(response.body[0]).to.have.property("tag");
+                expect(response.body[0]).to.have.property("rating");
+                expect(response.body[0]).to.have.property("doctor");
+                expect(response.body[0]).to.have.property("patient");
+                expect(response.body[0]).to.have.property("tags");
             });
         });
         describe("DELETE /api/reviews/:id", () => {

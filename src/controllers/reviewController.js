@@ -9,7 +9,7 @@ const ReviewController = {
 
             const review = await ReviewService.createReview({ userId, doctorId, rating, comment, tagsIds });
 
-            res.status(201).json(review);
+            res.status(201).json({ message: "Review created successfully" });
         } catch (err) {
             next(err);
         }
@@ -35,9 +35,10 @@ const ReviewController = {
     },
     getAllReviewsByDoctor: async (req, res, next) => {
         const { doctorId } = req.params;
+        const { limit = 10, offset = 0 } = req.query;
 
         try {
-            const reviews = await ReviewService.getAllReviewsByDoctor(doctorId);
+            const reviews = await ReviewService.getAllReviewsByDoctor(doctorId, offset, limit);
             res.status(200).json(reviews);
         } catch (err) {
             next(err);
@@ -58,8 +59,8 @@ const ReviewController = {
         const { reviewId } = req.params;
 
         try {
-            const message = await ReviewService.deleteReview(reviewId);
-            res.status(200).json(message);
+            await ReviewService.deleteReview(reviewId);
+            res.status(200).json({ message: "Review deleted successfully" });
         } catch (err) {
             next(err);
         }
