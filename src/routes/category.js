@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const CategoryController = require("../controllers/categoryController");
+const { isAuthenticated, hasRole } = require("../middleware/auth");
+
 
 /**
  * @swagger
@@ -27,7 +29,7 @@ const CategoryController = require("../controllers/categoryController");
  *       201:
  *         description: Успешно создана запись
  */
-router.post("/categories", CategoryController.createCategory);
+router.post("/categories", isAuthenticated, hasRole("admin"), CategoryController.createCategory);
 /**
  * @swagger
  * /categories:
@@ -74,7 +76,7 @@ router.get("/categories", CategoryController.getAllCategories);
  *       200:
  *         description: Категория успешно обновлена
  */
-router.put("/categories/:categoryId", CategoryController.updateCategory);
+router.put("/categories/:categoryId", isAuthenticated, hasRole("admin"), CategoryController.updateCategory);
 /**
  * @swagger
  * /categories/{categoryId}:
@@ -95,6 +97,6 @@ router.put("/categories/:categoryId", CategoryController.updateCategory);
  *       200:
  *         description: Категория успешно удалена
  */
-router.delete("/categories/:categoryId", CategoryController.deleteCategory);
+router.delete("/categories/:categoryId", isAuthenticated, hasRole("admin"), CategoryController.deleteCategory);
 
 module.exports = router; 

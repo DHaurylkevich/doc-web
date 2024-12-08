@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const TagController = require("../controllers/tagController");
+const { isAuthenticated, hasRole } = require("../middleware/auth");
+
 /**
  * @swagger
  * /tags:
@@ -26,7 +28,7 @@ const TagController = require("../controllers/tagController");
  *       201:
  *         description: Успешно создана тэга
  */
-router.post("/tags", TagController.createTag);
+router.post("/tags", isAuthenticated, hasRole("admin"), TagController.createTag);
 /**
  * @swagger
  * /tags:
@@ -39,7 +41,7 @@ router.post("/tags", TagController.createTag);
  *       200:
  *         description: Массив всех тэгов
  */
-router.get("/tags", TagController.getAllTags);
+router.get("/tags", isAuthenticated, TagController.getAllTags);
 /**
  * @swagger
  * /tags/{tagId}:
@@ -73,7 +75,7 @@ router.get("/tags", TagController.getAllTags);
  *       200:
  *         description: Тэг успешно обновлен
  */
-router.put("/tags/:tagId", TagController.updateTag);
+router.put("/tags/:tagId", isAuthenticated, hasRole("admin"), TagController.updateTag);
 /**
  * @swagger
  * /tags/{tagId}:
@@ -94,6 +96,6 @@ router.put("/tags/:tagId", TagController.updateTag);
  *       200:
  *         description: Таг успешно удален
  */
-router.delete("/tags/:tagId", TagController.deleteTag);
+router.delete("/tags/:tagId", isAuthenticated, hasRole("admin"), TagController.deleteTag);
 
 module.exports = router;

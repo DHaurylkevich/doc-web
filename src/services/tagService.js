@@ -1,22 +1,18 @@
 const db = require("../models");
+const AppError = require("../utils/appError");
+
 
 const tagService = {
     createTag: async (tagData) => {
         try {
-            const tag = await db.Tags.create(tagData);
-            return tag
+            return await db.Tags.create(tagData);
         } catch (err) {
             throw err;
         }
     },
     getAllTags: async () => {
         try {
-            const tags = await db.Tags.findAll();
-            if (!tags) {
-                throw new Error("Tags not found");
-            }
-
-            return tags;
+            return await db.Tags.findAll();
         } catch (err) {
             throw err;
         }
@@ -25,7 +21,7 @@ const tagService = {
         try {
             let tag = await db.Tags.findByPk(tagId);
             if (!tag) {
-                throw new Error("Tag not found");
+                throw new AppError("Tag not found", 404);
             }
 
             tag = await tag.update(tagData);
@@ -39,7 +35,7 @@ const tagService = {
         try {
             let tag = await db.Tags.findByPk(tagId);
             if (!tag) {
-                throw new Error("Tag not found");
+                throw new AppError("Tag not found", 404);
             }
 
             await tag.destroy();

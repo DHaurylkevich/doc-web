@@ -1,18 +1,17 @@
 const db = require("../models");
+const AppError = require("../utils/appError");
 
 const CategoryService = {
     createCategory: async (categoryData) => {
         try {
-            const category = await db.Categories.create(categoryData);
-            return category
+            return await db.Categories.create(categoryData);
         } catch (err) {
             throw err;
         }
     },
     getAllCategories: async () => {
         try {
-            const category = await db.Categories.findAll();
-            return category;
+            return await db.Categories.findAll();
         } catch (err) {
             throw err;
         }
@@ -21,7 +20,7 @@ const CategoryService = {
         try {
             let category = await db.Categories.findByPk(categoryId);
             if (!category) {
-                throw new Error("Category not found");
+                throw new AppError("Category not found", 404);
             }
 
             category = await category.update(data);
@@ -36,7 +35,7 @@ const CategoryService = {
         try {
             let category = await db.Categories.findByPk(categoryId);
             if (!category) {
-                throw new Error("Category not found");
+                throw new AppError("Category not found", 404);
             }
 
             await category.destroy();

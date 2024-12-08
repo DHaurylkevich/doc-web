@@ -47,8 +47,7 @@ router.use("/api", messageRouter);
  *   post:
  *     summary: Проверяет роль пользователя
  *     description: Проверяет роль пользователя
- *     tags:
- *       - Users
+ *     tags: [Utils]
  *     requestBody:
  *       required: true
  *       content:

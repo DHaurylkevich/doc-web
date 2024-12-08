@@ -1,4 +1,3 @@
-const tagService = require("../services/tagService");
 const TagService = require("../services/tagService");
 
 const TagController = {
@@ -15,7 +14,7 @@ const TagController = {
     },
     getAllTags: async (req, res, next) => {
         try {
-            const tags = await tagService.getAllTags()
+            const tags = await TagService.getAllTags()
             res.status(200).json(tags);
         } catch (err) {
             console.log(err)
@@ -27,7 +26,7 @@ const TagController = {
         const tagData = req.body;
 
         try {
-            const updateTag = await tagService.updateTag(tagId, tagData);
+            const updateTag = await TagService.updateTag(tagId, tagData);
             res.status(200).json(updateTag);
         } catch (err) {
             console.log(err)
