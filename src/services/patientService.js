@@ -89,9 +89,8 @@ const PatientService = {
             if (!rows.length) {
                 return [];
             }
-            rows.push({ pages: totalPages });
 
-            return rows;
+            return { pages: totalPages, slots: appointments };
         } catch (err) {
             throw err;
         }

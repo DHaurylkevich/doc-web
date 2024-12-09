@@ -437,8 +437,11 @@ router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointme
  *           content:
  *             application/json:
  *               schema:
- *                 type: array
+ *                 type: object
  *                 properties:
+ *                     pages:
+ *                        type: object
+ *                        example: 32
  *                     slots:
  *                        type: object
  *                        properties:

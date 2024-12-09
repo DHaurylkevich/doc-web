@@ -109,9 +109,7 @@ const ReviewService = {
                 return [];
             }
 
-            rows.push({ pages: totalPages });
-
-            return rows;
+            return { pages: totalPages, reviews: rows };
         } catch (err) {
             throw err;
         }
@@ -173,9 +171,8 @@ const ReviewService = {
             if (!rows.length) {
                 return [];
             }
-            rows.push({ pages: totalPages });
 
-            return rows;
+            return { pages: totalPages, reviews: rows };
         } catch (err) {
             throw err;
         }
@@ -222,9 +219,7 @@ const ReviewService = {
                 return [];
             }
 
-            rows.push({ pages: totalPages });
-
-            return rows;
+            return { pages: totalPages, reviews: rows };
         } catch (err) {
             throw err;
         }

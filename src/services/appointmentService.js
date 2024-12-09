@@ -165,9 +165,7 @@ const AppointmentService = {
                 };
             });
 
-            availableSlots.push({ pages: totalPages });
-
-            return availableSlots;
+            return { pages: totalPages, slots: availableSlots };
         } catch (err) {
             throw err;
         }
@@ -259,10 +257,7 @@ const AppointmentService = {
                 const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
                 return {
                     doctor: appointment.doctorService.doctor.user,
-                    patient: {
-                        patientId: appointment.patient.id,
-                        ...appointment.patient.user
-                    },
+                    patient: appointment.patient.user,
                     specialty: appointment.doctorService.doctor.specialty,
                     service: appointment.doctorService.service,
                     date: appointment.Schedule.date,
@@ -271,9 +266,7 @@ const AppointmentService = {
                 }
             });
 
-            availableSlots.push({ pages: totalPages });
-
-            return availableSlots;
+            return { pages: totalPages, slots: availableSlots };
         } catch (err) {
             throw err;
         }
@@ -356,7 +349,7 @@ const AppointmentService = {
             }
 
             // return rows.flatMap(appointment => {
-            let availableSlots = rows.map(appointment => {
+            const availableSlots = rows.map(appointment => {
                 const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
                 return {
                     date: appointment.Schedule.date,
@@ -368,15 +361,13 @@ const AppointmentService = {
                     visit_type: appointment.visit_type,
                     status: appointment.status,
                     patient: {
-                        patientId: appointment.patient.id,
+                        patientId: appointment.patient.user_id,
                         ...appointment.patient.user.dataValues
                     },
                 }
             });
 
-            availableSlots.push({ pages: totalPages });
-
-            return availableSlots;
+            return { pages: totalPages, slots: availableSlots };
         } catch (err) {
             throw err;
         }
@@ -457,9 +448,7 @@ const AppointmentService = {
                 }
             });
 
-            availableSlots.push({ pages: totalPages });
-
-            return availableSlots;
+            return { pages: totalPages, slots: availableSlots };
         } catch (err) {
             throw err;
         }
