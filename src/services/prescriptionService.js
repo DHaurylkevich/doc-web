@@ -1,5 +1,6 @@
 // services/prescriptionService.js
 const db = require("../models");
+const AppError = require("../utils/appError");
 
 const prescriptionService = {
     createPrescription: async (patientId, doctorId, medicationId, expirationDate) => {
@@ -10,7 +11,7 @@ const prescriptionService = {
             const medication = await db.Medications.findByPk(medicationId);
 
             if (!patient || !doctor || !medication) {
-                throw new Error("Пациент, доктор или лекарство не найдены");
+                throw new AppError("Пациент, доктор или лекарство не найдены", 404);
             }
 
             const prescription = await db.Prescriptions.create({
@@ -31,7 +32,7 @@ const prescriptionService = {
         try {
             const patient = await db.Patients.findByPk(patientId);
             if (!patient) {
-                throw new Error("Patient not found");
+                throw new AppError("Patient not found", 404);
             }
 
             const prescriptions = await db.Prescriptions.findAll({
@@ -57,15 +58,16 @@ const prescriptionService = {
             throw err;
         }
     },
-    getPrescriptionsByDoctor: async (doctorId) => {
+    getPrescriptionsByDoctor: async (doctorId, sort) => {
         try {
             const doctor = await db.Doctors.findByPk(doctorId);
             if (!doctor) {
-                throw new Error("Doctor not found");
+                throw new AppError("Doctor not found", 404);
             }
 
             const prescriptions = await db.Prescriptions.findAll({
                 where: { doctor_id: doctorId },
+                order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
                 attributes: { exclude: ["createdAt", "updatedAt", "doctor_id", "medication_id", "patient_id"] },
                 include: [
                     {
