@@ -299,7 +299,7 @@ const AppointmentService = {
             const { rows, count } = await db.Appointments.findAndCountAll({
                 limit: parsedLimit,
                 offset: offset,
-                offset: offsetValue >= 0 ? offsetValue : 0,
+                offset: offset,
                 where: status ? { status } : {},
                 order: [
                     [db.Schedules, 'date', 'ASC'],
