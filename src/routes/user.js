@@ -4,6 +4,7 @@ const UserController = require("../controllers/userController");
 const { isAuthenticated } = require("../middleware/auth");
 const { passwordValidation } = require('../utils/validation/userValidation');
 const { validateRequest } = require('../middleware/errorHandler');
+const upload = require("../middleware/upload").uploadImages;
 
 /**
  * @swagger
@@ -160,5 +161,70 @@ router.put("/users/password", isAuthenticated, passwordValidation, validateReque
  *         description: Unauthorized user
  */
 router.delete("/users/:userId", isAuthenticated, UserController.deleteUser);
+/**
+ * @swagger
+ * /api/users/{userId}/photo:
+ *   post:
+ *     summary: Обновляет аватарку пользователя
+ *     description: Загружает новую фотографию профиля для аутентифицированного пользователя
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID пользователя
+ *     security:
+ *       - CookieAuth: []
+ *     consumes:
+ *       - multipart/form-data
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Файл изображения для загрузки
+ *     responses:
+ *       200:
+ *         description: Фотография профиля успешно обновлена
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Profile photo updated successfully"
+ *       400:
+ *         description: Ошибка валидации или отсутствие файла
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "No file uploaded or invalid file format"
+ *       401:
+ *         description: Пользователь не аутентифицирован
+ *       500:
+ *         description: Внутренняя ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Internal server error"
+ */
+router.post("/api/users/:userId/photo", isAuthenticated, upload.single("image"), UserController.updateImage);
 
 module.exports = router;

@@ -67,7 +67,7 @@ const UserService = {
             throw err;
         }
     },
-    updateUser: async ({ image, userId, updatedData, t }) => {
+    updateUser: async ({ userId, updatedData, t }) => {
         try {
             const user = await db.Users.findByPk(userId);
             if (!user) {
@@ -84,6 +84,25 @@ const UserService = {
             await user.update(updatedData, { transaction: t, returning: true })
 
             return user;
+        } catch (err) {
+            throw err;
+        }
+    },
+    updateImage: async (userId, image) => {
+        try {
+            let user = await db.Users.findByPk(userId);
+            if (!user) {
+                user = await db.Clinics.findByPk(userId);
+            }
+            if (!user) {
+                throw new AppError("User not found", 404);
+            }
+
+            await cloudinary.deleteFromCloud(user.photo);
+
+            await user.update({ photo: image }, { returning: true });
+
+            return;
         } catch (err) {
             throw err;
         }

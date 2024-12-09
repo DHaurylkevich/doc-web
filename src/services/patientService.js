@@ -103,11 +103,11 @@ const PatientService = {
             throw err;
         }
     },
-    updatePatient: async (image, userId, userData, addressData) => {
+    updatePatient: async ({ userId, userData, addressData }) => {
         const t = await sequelize.transaction();
 
         try {
-            const user = await UserService.updateUser(image, userId, userData, t);
+            const user = await UserService.updateUser(userId, userData, t);
 
             let address = await user.getAddress();
             if (address) {

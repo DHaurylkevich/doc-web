@@ -46,6 +46,17 @@ const UserController = {
             next(err);
         }
     },
+    updateImage: async (req, res, next) => {
+        const { userId } = req.params;
+        const image = req.file ? req.file.path : null;
+
+        try {
+            await UserService.updateImage(userId, image);
+            res.status(200).json("Image uploaded successfully");
+        } catch (err) {
+            next(err);
+        }
+    }
 }
 
 module.exports = UserController;

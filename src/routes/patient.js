@@ -4,7 +4,6 @@ const patientController = require("../controllers/patientController");
 const { isAuthenticated } = require("../middleware/auth");
 const { dataExistValidation } = require('../utils/validation/userValidation');
 const { validateRequest } = require('../middleware/errorHandler');
-const upload = require("../middleware/upload").uploadImages;
 
 /**
  * @swagger
@@ -175,6 +174,6 @@ router.get("/patients/:userId", isAuthenticated, patientController.getPatientByI
  *                   type: object
  *                   description: Обновленные данные адреса
  */
-router.put("/users/:userId/patients", isAuthenticated, dataExistValidation, validateRequest, upload.single("image"), patientController.updatePatientById);
+router.put("/users/:userId/patients", isAuthenticated, dataExistValidation, validateRequest, patientController.updatePatientById);
 
 module.exports = router;
