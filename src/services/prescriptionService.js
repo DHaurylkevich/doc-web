@@ -68,8 +68,9 @@ const prescriptionService = {
             if (!rows.length) {
                 return [];
             }
+            rows.push({ pages: totalPages });
 
-            return { pages: totalPages, prescriptions: rows };
+            return rows;
         } catch (err) {
             throw err;
         }
@@ -116,7 +117,9 @@ const prescriptionService = {
                 return [];
             }
 
-            return { pages: totalPages, prescriptions: rows };
+            rows.push({ pages: totalPages });
+
+            return rows;
         } catch (err) {
             throw err;
         }
