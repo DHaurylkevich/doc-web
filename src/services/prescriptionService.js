@@ -40,7 +40,7 @@ const prescriptionService = {
 
             const prescriptions = await db.Prescriptions.findAll({
                 where: { patient_id: patientId },
-                attributes: { exclude: ["createdAt", "updatedAt", "doctor_id", "medication_id", "patient_id"] },
+                attributes: { exclude: ["updatedAt", "doctor_id", "medication_id", "patient_id"] },
                 limit: parsedLimit,
                 offset: parsedOffset,
                 include: [
@@ -79,7 +79,7 @@ const prescriptionService = {
                 order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
                 limit: parsedLimit,
                 offset: parsedOffset,
-                attributes: { exclude: ["createdAt", "updatedAt", "doctor_id", "medication_id", "patient_id"] },
+                attributes: { exclude: ["updatedAt", "doctor_id", "medication_id", "patient_id"] },
                 include: [
                     {
                         model: db.Patients, as: "patient",
