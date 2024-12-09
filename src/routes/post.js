@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const PostController = require("../controllers/postController");
+const { isAuthenticated, hasRole } = require("../middleware/auth");
 
 /**
  * @swagger
@@ -35,7 +36,7 @@ const PostController = require("../controllers/postController");
  *       201:
  *         description: Успешное создана поста
  */
-router.post("/posts/categories/:categoryId", PostController.createPost);
+router.post("/posts/categories/:categoryId", isAuthenticated, hasRole("admin"), PostController.createPost);
 /**
  * @swagger
  * /posts:
@@ -111,7 +112,7 @@ router.get("/posts/categories/:categoryId", PostController.getPostsByCategory);
  *       200:
  *         description: Пост успешно обновлена
  */
-router.put("/posts/:postId", PostController.updatePost);
+router.put("/posts/:postId", isAuthenticated, hasRole("admin"), PostController.updatePost);
 /**
  * @swagger
  *  /post/{postId}:
@@ -132,6 +133,6 @@ router.put("/posts/:postId", PostController.updatePost);
  *       200:
  *         description: Пост успешно удалена
  */
-router.delete("/posts/:postId", PostController.deletePost);
+router.delete("/posts/:postId", isAuthenticated, hasRole("admin"), PostController.deletePost);
 
 module.exports = router; 

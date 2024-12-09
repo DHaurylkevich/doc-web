@@ -245,7 +245,7 @@ describe("ReviewController API", () => {
     });
     describe("Negative tests", () => {
         describe("POST /api/reviews", () => {
-            it("expect AppError('Unauthorized user'), when data is valid", async () => {
+            it("expect AppError('Unauthorized user'), when user is unauthorized", async () => {
                 const response = await request(app)
                     .post("/api/reviews")
                     .send({})
@@ -253,7 +253,7 @@ describe("ReviewController API", () => {
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
             });
-            it("expect AppError('Access denied'), when data is valid", async () => {
+            it("expect AppError('Access denied'), when user isn't patient", async () => {
                 const fakeUser = {
                     email: faker.internet.email(),
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
@@ -310,14 +310,14 @@ describe("ReviewController API", () => {
             });
         });
         describe("GET /api/reviews", () => {
-            it("expect AppError('Unauthorized user'), when data is valid", async () => {
+            it("expect AppError('Unauthorized user'), when user is unauthorized", async () => {
                 const response = await request(app)
                     .get("/api/reviews")
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
             });
-            it("expect AppError('Access denied'), when data is valid", async () => {
+            it("expect AppError('Access denied'), user isn't admin", async () => {
                 const fakeUser = {
                     email: faker.internet.email(),
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
@@ -345,14 +345,14 @@ describe("ReviewController API", () => {
             });
         });
         describe("DELETE /api/reviews/:id", () => {
-            it("expect AppError('Unauthorized user'), when data is valid", async () => {
+            it("expect AppError('Unauthorized user'), when user is unauthorized", async () => {
                 const response = await request(app)
                     .delete("/api/reviews/1")
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
             });
-            it("expect AppError('Access denied'), when data is valid", async () => {
+            it("expect AppError('Access denied'), user isn't admin", async () => {
                 const fakeUser = {
                     email: faker.internet.email(),
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",

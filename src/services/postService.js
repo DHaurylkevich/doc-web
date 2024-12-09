@@ -1,11 +1,12 @@
 const db = require("../models");
+const AppError = require("../utils/appError");
 
 const PostService = {
     createPost: async (categoryId, postData) => {
         try {
             const category = await db.Categories.findByPk(categoryId);
             if (!category) {
-                throw new Error("Category not found");
+                throw new AppError("Category not found", 404);
             }
 
             const post = await db.Posts.create({ ...postData, category_id: categoryId });
@@ -16,19 +17,14 @@ const PostService = {
     },
     getAllPosts: async () => {
         try {
-            const posts = await db.Posts.findAll();
-            if (!posts) {
-                throw new Error("Posts not found");
-            }
-
-            return posts;
+            return await db.Posts.findAll();
         } catch (err) {
             throw err;
         }
     },
     getPostsByCategory: async (categoryId) => {
         try {
-            const posts = await db.Posts.findAll({
+            return await db.Posts.findAll({
                 include: [
                     {
                         model: db.Categories,
@@ -39,8 +35,6 @@ const PostService = {
                 ],
                 attributes: ["id", "photo", "title", "content", "createdAt"]
             });
-
-            return posts;
         } catch (err) {
             throw err;
         }
@@ -49,12 +43,10 @@ const PostService = {
         try {
             let post = await db.Posts.findByPk(postId);
             if (!post) {
-                throw new Error("Post not found");
+                throw new AppError("Post not found", 404);
             }
 
-            post = await post.update(data);
-
-            return post;
+            return await post.update(data);
         } catch (err) {
             throw err;
         }
@@ -63,7 +55,7 @@ const PostService = {
         try {
             let post = await db.Posts.findByPk(postId);
             if (!post) {
-                throw new Error("Post not found");
+                throw new AppError("Post not found", 404);
             }
 
             await post.destroy();

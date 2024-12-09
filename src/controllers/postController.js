@@ -4,6 +4,7 @@ const PostController = {
     createPost: async (req, res, next) => {
         const { categoryId } = req.params;
         const postData = req.body;
+
         try {
             const post = await PostService.createPost(categoryId, postData);
             res.status(201).json(post);
@@ -35,7 +36,6 @@ const PostController = {
 
         try {
             const updatedPost = await PostService.updatePost(postId, postData);
-
             res.status(200).json(updatedPost);
         } catch (err) {
             next(err);
