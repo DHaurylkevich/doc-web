@@ -173,6 +173,36 @@ router.delete("/reviews/:reviewId", isAuthenticated, hasRole("admin"), ReviewCon
  *         schema:
  *           type: integer
  *           example: 1
+ *       - name: sortDate
+ *         in: query
+ *         required: false
+ *         description: Сортировка по дате (ASC или DESC)
+ *         schema:
+ *           type: string
+ *           enum: [ASC, DESC]
+ *           default: ASC
+ *       - name: sortRating
+ *         in: query
+ *         required: false
+ *         description: Сортировка по рейтингу (ASC или DESC)
+ *         schema:
+ *           type: string
+ *           enum: [ASC, DESC]
+ *           default: ASC
+ *       - name: limit
+ *         in: query
+ *         required: false
+ *         description: количество элементов в запросе
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - name: offset
+ *         in: query
+ *         required: false
+ *         description: номер страницы
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: Массив всех комментариев для клиники
@@ -268,6 +298,20 @@ router.get("/clinics/:clinicId/reviews", ReviewController.getAllReviewsByClinic)
  *         schema:
  *           type: integer
  *           example: 1
+ *       - name: limit
+ *         in: query
+ *         required: false
+ *         description: количество элементов в запросе
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - name: offset
+ *         in: query
+ *         required: false
+ *         description: номер страницы
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: Массив всех комментариев для клиники

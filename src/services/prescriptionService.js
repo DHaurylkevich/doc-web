@@ -28,15 +28,21 @@ const prescriptionService = {
             throw error;
         }
     },
-    getPrescriptionsByPatient: async (patientId) => {
+    getPrescriptionsByPatient: async ({ patientId, limit, offset }) => {
         try {
             const patient = await db.Patients.findByPk(patientId);
             if (!patient) {
                 throw new AppError("Patient not found", 404);
             }
 
+            const parsedLimit = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
+            const parsedOffset = Math.max(parseInt(offset) || 0, 0);
+
             const prescriptions = await db.Prescriptions.findAll({
                 where: { patient_id: patientId },
+                attributes: { exclude: ["createdAt", "updatedAt", "doctor_id", "medication_id", "patient_id"] },
+                limit: parsedLimit,
+                offset: parsedOffset,
                 include: [
                     {
                         model: db.Doctors, as: "doctor",
@@ -49,7 +55,7 @@ const prescriptionService = {
                             }
                         ]
                     },
-                    { model: db.Medications, as: "medications", attributes: ["id", "name", "dosage", "description"] },
+                    { model: db.Medications, as: "medications", attributes: ["id", "name"] },
                 ],
             });
 
@@ -58,16 +64,21 @@ const prescriptionService = {
             throw err;
         }
     },
-    getPrescriptionsByDoctor: async (doctorId, sort) => {
+    getPrescriptionsByDoctor: async ({ doctorId, sort, limit, offset }) => {
         try {
             const doctor = await db.Doctors.findByPk(doctorId);
             if (!doctor) {
                 throw new AppError("Doctor not found", 404);
             }
 
+            const parsedLimit = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
+            const parsedOffset = Math.max(parseInt(offset) || 0, 0);
+
             const prescriptions = await db.Prescriptions.findAll({
                 where: { doctor_id: doctorId },
                 order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
+                limit: parsedLimit,
+                offset: parsedOffset,
                 attributes: { exclude: ["createdAt", "updatedAt", "doctor_id", "medication_id", "patient_id"] },
                 include: [
                     {

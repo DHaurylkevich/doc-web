@@ -7,7 +7,7 @@ const ReviewController = {
         try {
             const userId = req.user.id;
 
-            const review = await ReviewService.createReview({ userId, doctorId, rating, comment, tagsIds });
+            await ReviewService.createReview({ userId, doctorId, rating, comment, tagsIds });
 
             res.status(201).json({ message: "Review created successfully" });
         } catch (err) {

@@ -63,7 +63,6 @@ const router = express.Router();
  *         description: Ошибка валидации данных
  */
 router.post("/prescriptions", prescriptionController.createPrescription);
-
 /**
  * @swagger
  * /patient/{patientId}/prescriptions:
@@ -78,6 +77,20 @@ router.post("/prescriptions", prescriptionController.createPrescription);
  *         schema:
  *           type: integer
  *         description: ID пациента
+ *       - name: limit
+ *         in: path
+ *         required: false
+ *         description: количество элементов в запросе
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - name: offset
+ *         in: path
+ *         required: false
+ *         description: номер страницы
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: Список рецептов пациента
@@ -111,7 +124,6 @@ router.post("/prescriptions", prescriptionController.createPrescription);
  *         description: Ошибка получения рецептов
  */
 router.get("/patient/:patientId/prescriptions", prescriptionController.getPrescriptionsByPatient);
-
 /**
  * @swagger
  * /doctors/{doctorId}/prescriptions:
@@ -126,6 +138,28 @@ router.get("/patient/:patientId/prescriptions", prescriptionController.getPrescr
  *         schema:
  *           type: integer
  *         description: ID доктора
+ *       - name: sort
+ *         in: query
+ *         required: false
+ *         description: Сортировка по рейтингу (ASC или DESC)
+ *         schema:
+ *           type: string
+ *           enum: [ASC, DESC]
+ *           default: ASC
+ *       - name: limit
+ *         in: query
+ *         required: false
+ *         description: количество элементов в запросе
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - name: offset
+ *         in: query
+ *         required: false
+ *         description: номер страницы
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: Список рецептов, назначенных доктором

@@ -99,10 +99,17 @@ const ReviewService = {
     },
     getAllReviewsByClinic: async (clinicId, { sortDate, sortRating, limit, offset }) => {
         try {
+            const parsedLimit = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
+            const parsedOffset = Math.max(parseInt(offset) || 0, 0);
+
             return await db.Reviews.findAll({
-                limit: limit,
-                offset: offset < 0 ? 0 : offset,
-                attributes: ["id", "comment", "rating", "createdAt"],
+                limit: parsedLimit,
+                offset: parsedOffset,
+                order: [
+                    ['rating', sortRating === 'DESC' ? 'DESC' : 'ASC'],
+                    ['createdAt', sortDate === 'DESC' ? 'DESC' : 'ASC']
+                ],
+                attributes: ["id", "comment", "rating"],
                 include: [
                     {
                         model: db.Doctors,
@@ -136,10 +143,7 @@ const ReviewService = {
                         through: { attributes: [] }
                     }
                 ],
-                order: [
-                    ['rating', sortRating === 'DESC' ? 'DESC' : 'ASC'],
-                    ['createdAt', sortDate === 'DESC' ? 'DESC' : 'ASC']
-                ]
+
             });
         } catch (err) {
             throw err;
@@ -147,9 +151,12 @@ const ReviewService = {
     },
     getAllReviewsByDoctor: async (doctorId, offset, limit) => {
         try {
+            const parsedLimit = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
+            const parsedOffset = Math.max(parseInt(offset) || 0, 0);
+
             return await db.Reviews.findAll({
-                limit: limit,
-                offset: offset < 0 ? 0 : offset,
+                limit: parsedLimit,
+                offset: parsedOffset,
                 where: { doctor_id: doctorId },
                 attributes: ["comment", "rating"],
                 include: [
