@@ -48,7 +48,7 @@ describe("Patient Controller", () => {
             });
             it("expect handle missing query parameters for getPatientsFilter", async () => {
                 const req = { query: {} };
-                const expectedParams = { sort: 'asc', limit: 10, offset: 0, doctorId: undefined, clinicId: undefined };
+                const expectedParams = { sort: 'asc', limit: 10, pages: 0, doctorId: undefined, clinicId: undefined };
                 const fakePatients = [{ id: 1, name: 'John Doe' }];
                 getPatientsByParamStub.resolves(fakePatients);
 
@@ -61,7 +61,7 @@ describe("Patient Controller", () => {
             });
             it("expect return array patients, when data is valid", async () => {
                 const req = { query: {} };
-                const expectedParams = { sort: 'asc', limit: 10, offset: 0, doctorId: undefined, clinicId: undefined };
+                const expectedParams = { sort: 'asc', limit: 10, pages: 0, doctorId: undefined, clinicId: undefined };
                 getPatientsByParamStub.resolves([{ id: 1, first_name: 'John' }, { id: 2, first_name: 'Jane' }]);
 
                 await PatientController.getPatientsFilter(req, res, next);

@@ -101,7 +101,7 @@ describe("ReviewController API", () => {
             it("expect return reviews sorted by rating in descending order for a given clinicId, when the query has sortRating = 'DESC'", async () => {
                 const response = await request(app)
                     .get(`/api/clinics/${testClinicId}/reviews`)
-                    .query({ sortDate: 'ASC', sortRating: 'DESC', limit: 10, offset: 0 })
+                    .query({ sortDate: 'ASC', sortRating: 'DESC', limit: 10, pages: 0 })
                     .expect(200);
                 console.log(response.body)
                 expect(response.body).to.be.an("array").that.is.not.empty;
@@ -115,7 +115,7 @@ describe("ReviewController API", () => {
             it("expect return reviews sorted by rating in ascending order for a given clinicId, when the query has not sortRating", async () => {
                 const response = await request(app)
                     .get(`/api/clinics/${testClinicId}/reviews`)
-                    .query({ sortDate: 'ASC', limit: 10, offset: 0 })
+                    .query({ sortDate: 'ASC', limit: 10, pages: 0 })
                     .expect(200);
 
                 expect(response.body).to.be.an("array").that.is.not.empty;

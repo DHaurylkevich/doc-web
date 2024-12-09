@@ -18,10 +18,10 @@ const AppointmentController = {
         }
     },
     getAvailableSlotsWithFilter: async (req, res, next) => {
-        const { city, specialty, date, visitType, limit = 10, offset = 1 } = req.query;
+        const { city, specialty, date, visitType, limit, page } = req.query;
 
         try {
-            const availableSlot = await AppointmentService.getAvailableSlotsWithFilter({ city, specialty, date, visitType, limit: parseInt(limit), page: parseInt(offset) });
+            const availableSlot = await AppointmentService.getAvailableSlotsWithFilter({ city, specialty, date, limit, page });
             res.status(200).json(availableSlot);
         } catch (err) {
             next(err);
@@ -29,10 +29,10 @@ const AppointmentController = {
     },
     getAppointmentsWithFilter: async (req, res, next) => {
         const { clinicId } = req.params;
-        const { doctorId, patientId, date, limit = 10, page = 1 } = req.query;
+        const { doctorId, patientId, date, limit, page } = req.query;
 
         try {
-            const appointments = await AppointmentService.getAppointmentsWithFilter(clinicId, { doctorId, patientId, date, limit: parseInt(limit), page: parseInt(page) });
+            const appointments = await AppointmentService.getAppointmentsWithFilter({ clinicId, doctorId, patientId, date, limit, page });
             res.status(200).json(appointments);
         } catch (err) {
             next(err);
@@ -40,9 +40,9 @@ const AppointmentController = {
     },
     getAppointmentsByDoctor: async (req, res, next) => {
         const { doctorId } = req.params;
-        const { limit = 10, offset = 0, startDate, endDate, status } = req.query;
+        const { limit, page, startDate, endDate, status } = req.query;
         try {
-            const appointments = await AppointmentService.getAllAppointmentsByDoctor({ doctorId, limit: parseInt(limit), offset: parseInt(offset), startDate, endDate, status });
+            const appointments = await AppointmentService.getAllAppointmentsByDoctor({ doctorId, limit, page, startDate, endDate, status });
             res.status(200).json(appointments);
         } catch (err) {
             next(err);
@@ -50,10 +50,10 @@ const AppointmentController = {
     },
     getAppointmentsByPatient: async (req, res, next) => {
         const { patientId } = req.params;
-        const { limit = 10, offset = 0, startDate, endDate } = req.query;
+        const { limit, page, startDate, endDate } = req.query;
 
         try {
-            const appointments = await AppointmentService.getAllAppointmentsByPatient({ patientId, limit: parseInt(limit), offset: parseInt(offset), startDate, endDate });
+            const appointments = await AppointmentService.getAllAppointmentsByPatient({ patientId, limit, page, startDate, endDate });
             res.status(200).json(appointments);
         } catch (err) {
             console.log(err)

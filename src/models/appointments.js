@@ -10,10 +10,12 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: 'CASCADE',
       });
       Appointments.belongsTo(models.Clinics, {
-        foreignKey: "clinic_id"
+        foreignKey: "clinic_id",
+        as: "clinic"
       });
       Appointments.belongsTo(models.Schedules, {
         foreignKey: "schedule_id",
+
       });
       Appointments.belongsTo(models.DoctorService, {
         foreignKey: 'doctor_service_id',

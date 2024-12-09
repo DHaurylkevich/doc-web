@@ -28,21 +28,22 @@ const prescriptionService = {
             throw error;
         }
     },
-    getPrescriptionsByPatient: async ({ patientId, limit, offset }) => {
+    getPrescriptionsByPatient: async ({ patientId, limit, page }) => {
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
+
         try {
             const patient = await db.Patients.findByPk(patientId);
             if (!patient) {
                 throw new AppError("Patient not found", 404);
             }
 
-            const parsedLimit = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
-            const parsedOffset = Math.max(parseInt(offset) || 0, 0);
-
-            const prescriptions = await db.Prescriptions.findAll({
+            const { rows, count } = await db.Prescriptions.findAndCountAll({
                 where: { patient_id: patientId },
                 attributes: { exclude: ["updatedAt", "doctor_id", "medication_id", "patient_id"] },
                 limit: parsedLimit,
-                offset: parsedOffset,
+                offset: offset,
                 include: [
                     {
                         model: db.Doctors, as: "doctor",
@@ -59,26 +60,36 @@ const prescriptionService = {
                 ],
             });
 
-            return prescriptions;
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, prescriptions: rows };
         } catch (err) {
             throw err;
         }
     },
-    getPrescriptionsByDoctor: async ({ doctorId, sort, limit, offset }) => {
+    getPrescriptionsByDoctor: async ({ doctorId, sort, limit, page }) => {
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
+
         try {
             const doctor = await db.Doctors.findByPk(doctorId);
             if (!doctor) {
                 throw new AppError("Doctor not found", 404);
             }
 
-            const parsedLimit = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
-            const parsedOffset = Math.max(parseInt(offset) || 0, 0);
-
-            const prescriptions = await db.Prescriptions.findAll({
+            const { rows, count } = await db.Prescriptions.findAndCountAll({
                 where: { doctor_id: doctorId },
                 order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
                 limit: parsedLimit,
-                offset: parsedOffset,
+                offset: offset,
                 attributes: { exclude: ["updatedAt", "doctor_id", "medication_id", "patient_id"] },
                 include: [
                     {
@@ -96,7 +107,16 @@ const prescriptionService = {
                 ],
             });
 
-            return prescriptions;
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, prescriptions: rows };
         } catch (err) {
             throw err;
         }

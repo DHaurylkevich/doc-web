@@ -17,9 +17,9 @@ const prescriptionController = {
     getPrescriptionsByPatient: async (req, res, next) => {
         try {
             const { patientId } = req.params;
-            const { limit = 10, offset = 0 } = req.query;
+            const { limit, page } = req.query;
 
-            const prescriptions = await prescriptionService.getPrescriptionsByPatient({ patientId, limit, offset });
+            const prescriptions = await prescriptionService.getPrescriptionsByPatient({ patientId, limit, page });
             return res.status(200).json(prescriptions);
         } catch (err) {
             next(err);
@@ -28,9 +28,9 @@ const prescriptionController = {
     getPrescriptionsByDoctor: async (req, res, next) => {
         try {
             const { doctorId } = req.params;
-            const { sort = 'ASC', limit = 10, offset = 0 } = req.query;
+            const { sort = 'ASC', limit, page } = req.query;
 
-            const prescriptions = await prescriptionService.getPrescriptionsByDoctor({ doctorId, sort, limit, offset });
+            const prescriptions = await prescriptionService.getPrescriptionsByDoctor({ doctorId, sort, limit, page });
             return res.status(200).json(prescriptions);
         } catch (err) {
             next(err);

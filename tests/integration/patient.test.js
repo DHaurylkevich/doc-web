@@ -122,7 +122,7 @@ describe("PatientController API", () => {
                     .query({
                         sort: 'asc',
                         limit: 10,
-                        offset: 0,
+                        pages: 0,
                         doctorId: doctor.id
                     })
                     .set('Cookie', sessionCookies)
@@ -153,7 +153,7 @@ describe("PatientController API", () => {
                     .query({
                         sort: 'asc',
                         limit: 10,
-                        offset: 0,
+                        pages: 0,
                         clinicId: clinic.id
                     })
                     .set('Cookie', sessionCookies)
@@ -181,7 +181,7 @@ describe("PatientController API", () => {
                     .query({
                         sort: 'desc',
                         limit: 10,
-                        offset: 0,
+                        pages: 0,
                         clinicId: clinic.id
                     })
                     .set('Cookie', sessionCookies)

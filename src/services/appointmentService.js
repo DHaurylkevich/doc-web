@@ -32,7 +32,6 @@ const AppointmentService = {
         await ClinicService.getClinicById(clinicId);
 
         const user = await UserService.getUserById(userId);
-
         const patient = await user.getPatient();
         if (!patient) {
             throw new AppError("Patient not found", 404);
@@ -76,17 +75,20 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAvailableSlotsWithFilter: async (filters) => {
-        const clinicWhere = filters.city ? { city: filters.city } : {};
-        const specialtyWhere = filters.specialty ? { name: filters.specialty } : {};
-        const scheduleWhere = filters.date ? { date: filters.date } : {};
+    getAvailableSlotsWithFilter: async ({ city, specialty, date, limit, page }) => {
+        const clinicWhere = city ? { city: city } : {};
+        const specialtyWhere = specialty ? { name: specialty } : {};
+        const scheduleWhere = date ? { date: date } : {};
+
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
 
         try {
-            const offset = (filters.page - 1) * filters.limit;
-            const appointments = await db.Appointments.findAll({
+            const { rows, count } = await db.Appointments.findAndCountAll({
+                limit: parsedLimit,
+                offset: offset,
                 attributes: ["time_slot"],
-                limit: filters.limit,
-                offset: offset >= 0 ? offset : 0,
                 include: [
                     {
                         model: db.Schedules,
@@ -109,13 +111,13 @@ const AppointmentService = {
                             {
                                 model: db.Clinics,
                                 as: "clinic",
-                                attributes: ["name", "photo"],
+                                attributes: ["id", "name", "photo"],
                                 include: [
                                     {
                                         model: db.Addresses,
                                         where: clinicWhere,
                                         as: "address",
-                                        attributes: ["city", "street", "home", "flat", "post_index"],
+                                        attributes: ["id", "city", "street", "home", "flat", "post_index"],
                                     }
                                 ]
                             },
@@ -129,18 +131,23 @@ const AppointmentService = {
                             {
                                 model: db.Services,
                                 as: "service",
-                                attributes: ["name", "price"]
+                                attributes: ["id", "name", "price"]
                             }
                         ]
                     }
                 ]
             });
 
-            if (!appointments.length) {
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
                 return [];
             }
-            // return appointments;
-            const availableSlots = appointments.map(appointment => {
+            // return rows;
+            const availableSlots = rows.map(appointment => {
                 const schedule = appointment.Schedule;
                 const doctor = schedule.doctor;
                 const slots = AppointmentService.getAvailableSlots(schedule);
@@ -151,33 +158,37 @@ const AppointmentService = {
                     description: doctor.description,
                     rating: doctor.rating,
                     specialty: doctor.specialty.name,
-                    address: schedule.clinic.address,
+                    address: schedule.clinic.address || null,
                     date: schedule.date,
                     service: appointment.doctorService.service,
                     slots: freeSlots,
                 };
             });
 
-            return availableSlots.flat();
+            return { pages: totalPages, slots: availableSlots };
         } catch (err) {
             throw err;
         }
     },
-    getAppointmentsWithFilter: async (clinicId, filters) => {
+    getAppointmentsWithFilter: async ({ clinicId, doctorId, patientId, date, limit, page }) => {
         let appointmentWhere = { clinic_id: clinicId };
-        if (filters.patientId) {
-            appointmentWhere.patient_id = filters.patientId;
+        if (patientId) {
+            appointmentWhere.patient_id = patientId;
         }
-        const doctorServiceWhere = filters.doctorId ? { doctor_id: filters.doctorId } : {};
-        const specialtyWhere = filters.specialty ? { name: filters.specialty } : {};
-        const scheduleWhere = filters.date ? { date: filters.date } : {};
+
+        const doctorServiceWhere = doctorId ? { doctor_id: doctorId } : {};
+        const specialtyWhere = specialty ? { name: specialty } : {};
+        const scheduleWhere = date ? { date: date } : {};
+
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
 
         try {
-            const offset = (filters.page - 1) * filters.limit;
-            const appointments = await db.Appointments.findAll({
+            const { rows, count } = await db.Appointments.findAndCountAll({
                 attributes: ["status", "time_slot", "doctor_service_id", "schedule_id", "patient_id"],
-                limit: filters.limit,
-                offset: offset >= 0 ? offset : 0,
+                limit: parsedLimit,
+                offset: offset,
                 where: appointmentWhere,
                 include: [
                     {
@@ -225,17 +236,24 @@ const AppointmentService = {
                     },
                     {
                         model: db.Schedules,
+                        as: "schedule",
                         attributes: ["id", "date", "interval"],
                         order: [['date', 'DESC']],
                         where: scheduleWhere,
                     },
                 ]
             });
-            if (!appointments.length) {
+
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
                 return [];
             }
 
-            return appointments.map(appointment => {
+            const availableSlots = rows.map(appointment => {
                 const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
                 return {
                     doctor: appointment.doctorService.doctor.user,
@@ -246,26 +264,13 @@ const AppointmentService = {
                     start_time: appointment.time_slot.slice(0, -3),
                     end_time: AppointmentService.minutesToTime(end_time + appointment.Schedule.interval),
                 }
-            }).flat();
+            });
+
+            return { pages: totalPages, slots: availableSlots };
         } catch (err) {
             throw err;
         }
     },
-    // updateAppointment: async (id, data) => {
-    //     try {
-    //         let appointment = await db.Appointments.findByPk(id);
-
-    //         if (!appointment) {
-    //             throw new AppError("Appointment not found", 404);
-    //         }
-
-    //         appointment = await appointment.update(data);
-
-    //         return appointment;
-    //     } catch (err) {
-    //         throw err;
-    //     }
-    // },
     deleteAppointment: async (id) => {
         try {
             const appointment = await db.Appointments.findByPk(id);
@@ -279,17 +284,21 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAllAppointmentsByDoctor: async ({ doctorId, limit, offset, startDate, endDate, status }) => {
-        try {
-            const scheduleWhere = startDate && endDate ? {
-                date: {
-                    [Op.between]: [startDate, endDate]
-                }
-            } : {}
-            const offsetValue = offset * limit;
+    getAllAppointmentsByDoctor: async ({ doctorId, limit, page, startDate, endDate, status }) => {
+        const scheduleWhere = startDate && endDate ? {
+            date: {
+                [Op.between]: [startDate, endDate]
+            }
+        } : {}
 
-            const appointments = await db.Appointments.findAll({
-                limit: limit,
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
+
+        try {
+            const { rows, count } = await db.Appointments.findAndCountAll({
+                limit: parsedLimit,
+                offset: offset,
                 offset: offsetValue >= 0 ? offsetValue : 0,
                 where: status ? { status } : {},
                 order: [
@@ -330,11 +339,17 @@ const AppointmentService = {
                     }
                 ],
             });
-            if (!appointments.length) {
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
                 return [];
             }
 
-            return appointments.flatMap(appointment => {
+            // return rows.flatMap(appointment => {
+            const availableSlots = rows.map(appointment => {
                 const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
                 return {
                     date: appointment.Schedule.date,
@@ -351,23 +366,28 @@ const AppointmentService = {
                     },
                 }
             });
+
+            return { pages: totalPages, slots: availableSlots };
         } catch (err) {
             throw err;
         }
     },
-    getAllAppointmentsByPatient: async ({ patientId, limit, offset, startDate, endDate }) => {
-        try {
-            const offsetValue = offset * limit;
-            const scheduleWhere = startDate && endDate ? {
-                date: {
-                    [Op.between]: [startDate, endDate]
-                }
-            } : {}
+    getAllAppointmentsByPatient: async ({ patientId, limit, page, startDate, endDate }) => {
+        const scheduleWhere = startDate && endDate ? {
+            date: {
+                [Op.between]: [startDate, endDate]
+            }
+        } : {}
 
-            const appointments = await db.Appointments.findAll({
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
+
+        try {
+            const { rows, count } = await db.Appointments.findAndCountAll({
                 where: { patient_id: patientId },
-                limit: limit,
-                offset: offsetValue >= 0 ? offsetValue : 0,
+                limit: parsedLimit,
+                offset: offset,
                 attributes: { exclude: ["createdAt", "updatedAt", "doctor_service_id"] },
                 order: [
                     [db.Schedules, 'date', 'ASC'],
@@ -403,10 +423,17 @@ const AppointmentService = {
                     }
                 ]
             });
-            if (!appointments.length) {
+
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
                 return [];
             }
-            return appointments.map(appointment => {
+
+            const availableSlots = rows.map(appointment => {
                 const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
                 return {
                     date: appointment.Schedule.date,
@@ -419,7 +446,9 @@ const AppointmentService = {
                     status: appointment.status,
                     doctor: appointment.doctorService.doctor.user,
                 }
-            }).flat();
+            });
+
+            return { pages: totalPages, slots: availableSlots };
         } catch (err) {
             throw err;
         }

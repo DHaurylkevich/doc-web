@@ -42,16 +42,20 @@ const PatientService = {
             throw err;
         }
     },
-    getPatientsByParam: async ({ sort, limit, offset, doctorId, clinicId }) => {
+    getPatientsByParam: async ({ sort, limit, page, doctorId, clinicId }) => {
         if (!doctorId && !clinicId) {
             throw new AppError("Either doctorId or clinicId is required");
         }
 
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
+
         try {
-            const appointments = await db.Appointments.findAll({
+            const { rows, count } = await db.Appointments.findAndCountAll({
+                limit: parsedLimit,
+                offset: offset,
                 where: clinicId ? { clinic_id: clinicId } : {},
-                limit: parseInt(limit),
-                offset: parseInt(offset),
                 attributes: ['id'],
                 include: [
                     {
@@ -77,7 +81,16 @@ const PatientService = {
                 ]
             });
 
-            return appointments;
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, slots: appointments };
         } catch (err) {
             throw err;
         }

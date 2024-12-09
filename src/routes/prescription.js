@@ -78,19 +78,19 @@ router.post("/prescriptions", prescriptionController.createPrescription);
  *           type: integer
  *         description: ID пациента
  *       - name: limit
- *         in: path
+ *         in: query
  *         required: false
- *         description: количество элементов в запросе
+ *         description: Лимит на количество результатов
  *         schema:
  *           type: integer
  *           default: 10
- *       - name: offset
- *         in: path
+ *       - name: page
+ *         in: query
  *         required: false
- *         description: номер страницы
+ *         description: Номер страницы
  *         schema:
  *           type: integer
- *           default: 0
+ *           default: 1
  *     responses:
  *       200:
  *         description: Список рецептов пациента
@@ -149,17 +149,17 @@ router.get("/patient/:patientId/prescriptions", prescriptionController.getPrescr
  *       - name: limit
  *         in: query
  *         required: false
- *         description: количество элементов в запросе
+ *         description: Лимит на количество результатов
  *         schema:
  *           type: integer
  *           default: 10
- *       - name: offset
+ *       - name: page
  *         in: query
  *         required: false
- *         description: номер страницы
+ *         description: Номер страницы
  *         schema:
  *           type: integer
- *           default: 0
+ *           default: 1
  *     responses:
  *       200:
  *         description: Список рецептов, назначенных доктором

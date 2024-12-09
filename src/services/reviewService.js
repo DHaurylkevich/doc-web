@@ -55,11 +55,17 @@ const ReviewService = {
             throw err;
         }
     },
-    getAllReviews: async () => {
+    getAllReviews: async ({ limit, page }) => {
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
+
         try {
-            return await db.Reviews.findAll({
+            const { rows, count } = await db.Reviews.findAndCountAll({
                 model: db.Reviews,
                 attributes: ["comment", "rating"],
+                limit: parsedLimit,
+                offset: offset,
                 include: [
                     {
                         model: db.Doctors,
@@ -93,18 +99,30 @@ const ReviewService = {
                     }
                 ],
             });
+
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, reviews: rows };
         } catch (err) {
             throw err;
         }
     },
-    getAllReviewsByClinic: async (clinicId, { sortDate, sortRating, limit, offset }) => {
-        try {
-            const parsedLimit = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
-            const parsedOffset = Math.max(parseInt(offset) || 0, 0);
+    getAllReviewsByClinic: async (clinicId, { sortDate, sortRating, limit, page }) => {
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
 
-            return await db.Reviews.findAll({
+        try {
+            const { rows, count } = await db.Reviews.findAndCountAll({
                 limit: parsedLimit,
-                offset: parsedOffset,
+                offset: offset,
                 order: [
                     ['rating', sortRating === 'DESC' ? 'DESC' : 'ASC'],
                     ['createdAt', sortDate === 'DESC' ? 'DESC' : 'ASC']
@@ -143,20 +161,31 @@ const ReviewService = {
                         through: { attributes: [] }
                     }
                 ],
-
             });
+
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, reviews: rows };
         } catch (err) {
             throw err;
         }
     },
-    getAllReviewsByDoctor: async (doctorId, offset, limit) => {
-        try {
-            const parsedLimit = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
-            const parsedOffset = Math.max(parseInt(offset) || 0, 0);
+    getAllReviewsByDoctor: async ({ doctorId, page, limit }) => {
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
 
-            return await db.Reviews.findAll({
+        try {
+            const { rows, count } = await db.Reviews.findAndCountAll({
                 limit: parsedLimit,
-                offset: parsedOffset,
+                offset: offset,
                 where: { doctor_id: doctorId },
                 attributes: ["comment", "rating"],
                 include: [
@@ -180,6 +209,17 @@ const ReviewService = {
                     }
                 ]
             });
+
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, reviews: rows };
         } catch (err) {
             throw err;
         }

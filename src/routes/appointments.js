@@ -131,7 +131,7 @@ router.post("/appointments", isAuthenticated, AppointmentController.createAppoin
  *         - name: visitType
  *           in: query
  *           required: false
- *           description: Тип визита
+ *           description: Какой-то тупой фильтр, потому что у нас нигде не обозначается что график или клиника(А если есть то это тупо и не нужно)), только для этого визита
  *           schema:
  *             type: string
  *             example: "консультация"
@@ -141,73 +141,77 @@ router.post("/appointments", isAuthenticated, AppointmentController.createAppoin
  *           description: Лимит на количество результатов
  *           schema:
  *             type: integer
- *             example: 10
- *         - name: offset
+ *             default: 10
+ *         - name: page
  *           in: query
  *           required: false
- *           description: Смещение для пагинации
+ *           description: Номер страницы
  *           schema:
  *             type: integer
- *             example: 0
+ *             default: 1
  *       responses:
  *         200:
  *           description: Массив доступных слотов
  *           content:
  *             application/json:
  *               schema:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     doctor_id:
- *                       type: integer
- *                       example: 1
- *                     description:
- *                       type: string
- *                       example: "Ascisco caritas minima surgo patrocinor crustulum"
- *                     rating:
- *                       type: number
- *                       format: float
- *                       example: 4.5
- *                     specialty:
- *                       type: string
- *                       example: "Associate"
- *                     address:
- *                       type: object
- *                       properties:
- *                         city:
- *                           type: string
- *                           example: "Новогрудок"
- *                         street:
- *                           type: string
- *                           example: "Мицкевича"
- *                         home:
- *                           type: string
- *                           example: "1"
- *                         flat:
- *                           type: string
- *                           example: "1"
- *                         post_index:
- *                           type: string
- *                           example: "1"
- *                     date:
- *                       type: string
- *                       format: date
- *                       example: "2024-11-05"
- *                     service:
- *                       type: object
- *                       properties:
- *                         name:
- *                           type: string
- *                           example: "Table"
- *                         price:
- *                           type: number
- *                           example: "258.66"
- *                     slots:
- *                       type: array
- *                       items:
- *                         type: string
- *                         example: "10:00"
+ *                 type: object
+ *                 properties:
+ *                   pages:
+ *                      type: object
+ *                      example: 32
+ *                   slots:
+ *                      type: object
+ *                      properties:
+ *                        doctor_id:
+ *                          type: integer
+ *                          example: 1
+ *                        description:
+ *                          type: string
+ *                          example: "Ascisco caritas minima surgo patrocinor crustulum"
+ *                        rating:
+ *                          type: number
+ *                          format: float
+ *                          example: 4.5
+ *                        specialty:
+ *                          type: string
+ *                          example: "Associate"
+ *                        address:
+ *                          type: object
+ *                          properties:
+ *                            city:
+ *                              type: string
+ *                              example: "Новогрудок"
+ *                            street:
+ *                              type: string
+ *                              example: "Мицкевича"
+ *                            home:
+ *                              type: string
+ *                              example: "1"
+ *                            flat:
+ *                              type: string
+ *                              example: "1"
+ *                            post_index:
+ *                              type: string
+ *                              example: "1"
+ *                        date:
+ *                          type: string
+ *                          format: date
+ *                          example: "2024-11-05"
+ *                        service:
+ *                          type: object
+ *                          properties:
+ *                            name:
+ *                              type: string
+ *                              example: "Table"
+ *                            price:
+ *                              type: number
+ *                              example: "258.66"
+ *                        slots:
+ *                          type: array
+ *                          items:
+ *                            type: string
+ *                            example: "10:00"
  *         400:
  *           description: Неверные данные запроса
  *         500:
@@ -294,74 +298,78 @@ router.delete("/appointments/:id", isAuthenticated, AppointmentController.delete
  *           description: Лимит на количество результатов
  *           schema:
  *             type: integer
- *             example: 10
- *         - name: offset
+ *             default: 10
+ *         - name: page
  *           in: query
  *           required: false
- *           description: Смещение для пагинации
+ *           description: Номер страницы
  *           schema:
  *             type: integer
- *             example: 0
+ *             default: 1
  *       responses:
  *         200:
  *           description: Массив записей с информацией о врачах, пациентах, специальностях, услугах, дате и времени приёма
  *           content:
  *             application/json:
  *               schema:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     doctor:
- *                       type: object
- *                       properties:
- *                         first_name:
- *                           type: string
- *                           example: "Adam"
- *                         last_name:
- *                           type: string
- *                           example: "Mickevich"
- *                     patient:
- *                       type: object
- *                       properties:
- *                         first_name:
- *                           type: string
- *                           nullable: true
- *                           example: "Nulle"
- *                         last_name:
- *                           type: string
- *                           nullable: true
- *                           example: "Nulovy"
- *                         photo:
- *                           type: string
- *                           example: "https://example.com"
- *                     specialty:
- *                       type: object
- *                       properties:
- *                         name:
- *                           type: string
- *                           example: "Dr Dre"
- *                     service:
- *                       type: object
- *                       properties:
- *                         name:
- *                           type: string
- *                           example: "Cut arm"
- *                         price:
- *                           type: string
- *                           example: "10.20"
- *                     date:
- *                       type: string
- *                       format: date
- *                       example: "2024-11-10"
- *                     start_time:
- *                       type: string
- *                       format: time
- *                       example: "10:30"
- *                     end_time:
- *                       type: string
- *                       format: time
- *                       example: "11:00"
+ *                 type: object
+ *                 properties:
+ *                     pages:
+ *                        type: object
+ *                        example: 32
+ *                     slots:
+ *                        type: object
+ *                        properties:
+ *                           doctor:
+ *                             type: object
+ *                             properties:
+ *                               first_name:
+ *                                 type: string
+ *                                 example: "Adam"
+ *                               last_name:
+ *                                 type: string
+ *                                 example: "Mickevich"
+ *                           patient:
+ *                             type: object
+ *                             properties:
+ *                               first_name:
+ *                                 type: string
+ *                                 nullable: true
+ *                                 example: "Nulle"
+ *                               last_name:
+ *                                 type: string
+ *                                 nullable: true
+ *                                 example: "Nulovy"
+ *                               photo:
+ *                                 type: string
+ *                                 example: "https://example.com"
+ *                           specialty:
+ *                             type: object
+ *                             properties:
+ *                               name:
+ *                                 type: string
+ *                                 example: "Dr Dre"
+ *                           service:
+ *                             type: object
+ *                             properties:
+ *                               name:
+ *                                 type: string
+ *                                 example: "Cut arm"
+ *                               price:
+ *                                 type: string
+ *                                 example: "10.20"
+ *                           date:
+ *                             type: string
+ *                             format: date
+ *                             example: "2024-11-10"
+ *                           start_time:
+ *                             type: string
+ *                             format: time
+ *                             example: "10:30"
+ *                           end_time:
+ *                             type: string
+ *                             format: time
+ *                             example: "11:00"
  *         400:
  *           description: Неверные данные запроса
  *         500:
@@ -385,20 +393,20 @@ router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointme
  *           schema:
  *             type: integer
  *             example: 1
- *         - name: limit 
+ *         - name: limit
  *           in: query
  *           required: false
- *           description: Limit
+ *           description: Лимит на количество результатов
  *           schema:
- *             type: number
- *             example: 1
- *         - name: offset
+ *             type: integer
+ *             default: 10
+ *         - name: page
  *           in: query
  *           required: false
- *           description: Offset
+ *           description: Номер страницы
  *           schema:
- *             type: number
- *             example: 1
+ *             type: integer
+ *             default: 1
  *         - name: startDate
  *           in: query
  *           required: false
@@ -429,56 +437,60 @@ router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointme
  *           content:
  *             application/json:
  *               schema:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     date:
- *                       type: string
- *                       format: date
- *                       example: "2025-02-11"
- *                     start_time:
- *                       type: string
- *                       example: "06:02"
- *                     end_time:
- *                       type: string
- *                       example: "06:58"
- *                     description:
- *                       type: string
- *                       example: "Arbor cuius atqui viridis aduro censura."
- *                     service:
- *                       type: object
- *                       properties:
- *                         name:
- *                           type: string
- *                           example: "Gorgeous Wooden Table"
- *                         price:
- *                           type: number
- *                           example: "10.66"
- *                     first_visit:
- *                       type: boolean
- *                       example: true
- *                     visit_type:
- *                       type: string
- *                       example: "NFZ"
- *                     status:
- *                       type: string
- *                       example: "completed"
- *                     patient:
- *                       type: object
- *                       properties:
- *                         patientId:
- *                           type: number
- *                           example: "1"
- *                         first_name:
- *                           type: string
- *                           example: "Mariano"
- *                         last_name:
- *                           type: string
- *                           example: "Schulist"
- *                         photo:
- *                           type: string
- *                           example: "https://avatars.githubusercontent.com/u/6199909"
+ *                 type: object
+ *                 properties:
+ *                     pages:
+ *                        type: object
+ *                        example: 32
+ *                     slots:
+ *                        type: object
+ *                        properties:
+ *                           date:
+ *                             type: string
+ *                             format: date
+ *                             example: "2025-02-11"
+ *                           start_time:
+ *                             type: string
+ *                             example: "06:02"
+ *                           end_time:
+ *                             type: string
+ *                             example: "06:58"
+ *                           description:
+ *                             type: string
+ *                             example: "Arbor cuius atqui viridis aduro censura."
+ *                           service:
+ *                             type: object
+ *                             properties:
+ *                               name:
+ *                                 type: string
+ *                                 example: "Gorgeous Wooden Table"
+ *                               price:
+ *                                 type: number
+ *                                 example: "10.66"
+ *                           first_visit:
+ *                             type: boolean
+ *                             example: true
+ *                           visit_type:
+ *                             type: string
+ *                             example: "NFZ"
+ *                           status:
+ *                             type: string
+ *                             example: "completed"
+ *                           patient:
+ *                             type: object
+ *                             properties:
+ *                               patientId:
+ *                                 type: number
+ *                                 example: "1"
+ *                               first_name:
+ *                                 type: string
+ *                                 example: "Mariano"
+ *                               last_name:
+ *                                 type: string
+ *                                 example: "Schulist"
+ *                               photo:
+ *                                 type: string
+ *                                 example: "https://avatars.githubusercontent.com/u/6199909"
  *         404:
  *           description: Записи не найдены
  *         500:
@@ -502,17 +514,20 @@ router.get("/doctors/:doctorId/appointments", AppointmentController.getAppointme
  *           schema:
  *             type: integer
  *             example: 1
- *         - name: limit 
+ *         - name: limit
  *           in: query
  *           required: false
- *           description: Limit
+ *           description: Лимит на количество результатов
  *           schema:
- *             type: number
- *             example: 10
- *         - name: offset
+ *             type: integer
+ *             default: 10
+ *         - name: page
  *           in: query
  *           required: false
- *           description: Offset
+ *           description: Номер страницы
+ *           schema:
+ *             type: integer
+ *             default: 1
  *         - name: startDate
  *           in: query
  *           required: false
@@ -535,53 +550,57 @@ router.get("/doctors/:doctorId/appointments", AppointmentController.getAppointme
  *           content:
  *             application/json:
  *               schema:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     date:
- *                       type: string
- *                       format: date
- *                       example: "2025-09-25"
- *                     start_time:
- *                       type: string
- *                       example: "20:53"
- *                     end_time:
- *                       type: string
- *                       example: "21:52"
- *                     description:
- *                       type: string
- *                       example: "Adipiscor comminor arx cibo arto combibo verto deputo atque demo."
- *                     service:
- *                       type: object
- *                       properties:
- *                         name:
- *                           type: string
- *                           example: "Gorgeous Wooden Table"
- *                         price:
- *                           type: number
- *                           example: "10.66"
- *                     first_visit:
- *                       type: boolean
- *                       example: false
- *                     visit_type:
- *                       type: string
- *                       example: "prywatna"
- *                     status:
- *                       type: string
- *                       example: "active"
- *                     doctor:
- *                       type: object
- *                       properties:
- *                         first_name:
- *                           type: string
- *                           example: "Helmer"
- *                         last_name:
- *                           type: string
- *                           example: "MacGyver"
- *                         photo:
- *                           type: string
- *                           example: "https://avatars.githubusercontent.com/u/80491811"
+ *                 type: object
+ *                 properties:
+ *                     pages:
+ *                        type: object
+ *                        example: 32
+ *                     slots:
+ *                        type: object
+ *                        properties:
+ *                           date:
+ *                             type: string
+ *                             format: date
+ *                             example: "2025-09-25"
+ *                           start_time:
+ *                             type: string
+ *                             example: "20:53"
+ *                           end_time:
+ *                             type: string
+ *                             example: "21:52"
+ *                           description:
+ *                             type: string
+ *                             example: "Adipiscor comminor arx cibo arto combibo verto deputo atque demo."
+ *                           service:
+ *                             type: object
+ *                             properties:
+ *                               name:
+ *                                 type: string
+ *                                 example: "Gorgeous Wooden Table"
+ *                               price:
+ *                                 type: number
+ *                                 example: "10.66"
+ *                           first_visit:
+ *                             type: boolean
+ *                             example: false
+ *                           visit_type:
+ *                             type: string
+ *                             example: "prywatna"
+ *                           status:
+ *                             type: string
+ *                             example: "active"
+ *                           doctor:
+ *                             type: object
+ *                             properties:
+ *                               first_name:
+ *                                 type: string
+ *                                 example: "Helmer"
+ *                               last_name:
+ *                                 type: string
+ *                                 example: "MacGyver"
+ *                               photo:
+ *                                 type: string
+ *                                 example: "https://avatars.githubusercontent.com/u/80491811"
  *         404:
  *           description: Записи не найдены
  *         500:

@@ -67,7 +67,7 @@ describe("Patient Service", () => {
                 const result = await PatientService.getPatientsByParam({
                     sort: 'asc',
                     limit: 10,
-                    offset: 0,
+                    pages: 0,
                     doctorId: 1
                 });
 
@@ -86,7 +86,7 @@ describe("Patient Service", () => {
                 const result = await PatientService.getPatientsByParam({
                     sort: 'desc',
                     limit: 10,
-                    offset: 0,
+                    pages: 0,
                     doctorId: 1
                 });
 
@@ -104,7 +104,7 @@ describe("Patient Service", () => {
                 const result = await PatientService.getPatientsByParam({
                     sort: 'asc',
                     limit: limit,
-                    offset: 0,
+                    pages: 0,
                     doctorId: 1
                 });
 
@@ -113,7 +113,7 @@ describe("Patient Service", () => {
                 expect(result.length).to.equal(limit);
             });
 
-            it("expect correctly apply the offset parameter to restrict the number of results", async () => {
+            it("expect correctly apply the pages parameter to restrict the number of results", async () => {
                 const fakePatients = [
                     { id: 1, first_name: 'Alice' },
                     { id: 2, first_name: 'Bob' },
@@ -126,13 +126,13 @@ describe("Patient Service", () => {
                 const result = await PatientService.getPatientsByParam({
                     sort: 'asc',
                     limit: 3,
-                    offset: 2,
+                    pages: 2,
                     doctorId: 1
                 });
 
                 expect(findAllStub.calledOnce).to.be.true;
                 expect(findAllStub.firstCall.args[0].limit).to.equal(3);
-                expect(findAllStub.firstCall.args[0].offset).to.equal(2);
+                expect(findAllStub.firstCall.args[0].pages).to.equal(2);
                 expect(result).to.have.lengthOf(3);
                 expect(result[0].id).to.equal(3);
                 expect(result[1].id).to.equal(4);
@@ -165,7 +165,7 @@ describe("Patient Service", () => {
                 const result = await PatientService.getPatientsByParam({
                     sort: 'asc',
                     limit: 10,
-                    offset: 0,
+                    pages: 0,
                     doctorId: doctorId
                 });
 
@@ -199,14 +199,14 @@ describe("Patient Service", () => {
                 const result = await PatientService.getPatientsByParam({
                     sort: 'asc',
                     limit: 10,
-                    offset: 0,
+                    pages: 0,
                     clinicId: clinicId
                 });
 
                 expect(findAllStub.calledOnce).to.be.true;
                 expect(findAllStub.firstCall.args[0].where).to.deep.equal({ clinic_id: clinicId });
                 expect(findAllStub.firstCall.args[0].limit).to.equal(10);
-                expect(findAllStub.firstCall.args[0].offset).to.equal(0);
+                expect(findAllStub.firstCall.args[0].pages).to.equal(0);
                 expect(findAllStub.firstCall.args[0].include[0].order).to.deep.equal([['first_name', 'ASC']]);
                 expect(result).to.deep.equal(fakePatients);
             });
@@ -347,13 +347,13 @@ describe("Patient Service", () => {
                 findAllStub = sinon.stub(db.Appointments, "findAll");
             });
             it("expect throw an error 'Either doctorId or clinicId is required', when neither doctorId nor clinicId is provided", async () => {
-                const params = { sort: 'asc', limit: 10, offset: 0 };
+                const params = { sort: 'asc', limit: 10, pages: 0 };
 
                 await expect(PatientService.getPatientsByParam(params))
                     .to.be.rejectedWith(AppError, "Either doctorId or clinicId is required");
             });
             it("expect throw an error'Either doctorId or clinicId is required', when neither doctorId nor clinicId is provided", async () => {
-                const params = { sort: 'asc', limit: 10, offset: 0 };
+                const params = { sort: 'asc', limit: 10, pages: 0 };
 
                 await expect(PatientService.getPatientsByParam(params))
                     .to.be.rejectedWith(AppError, "Either doctorId or clinicId is required");
@@ -366,7 +366,7 @@ describe("Patient Service", () => {
                 const params = {
                     sort: 'asc',
                     limit: 10,
-                    offset: 0,
+                    pages: 0,
                     clinicId: clinicId
                 };
 

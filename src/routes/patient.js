@@ -25,17 +25,17 @@ const { validateRequest } = require('../middleware/errorHandler');
  *       - name: limit
  *         in: query
  *         required: false
+ *         description: Лимит на количество результатов
  *         schema:
  *           type: integer
- *           example: 10
- *         description: Максимальное количество записей
- *       - name: offset
+ *           default: 10
+ *       - name: page
  *         in: query
  *         required: false
+ *         description: Номер страницы
  *         schema:
  *           type: integer
- *           example: 0
- *         description: Сдвиг для пагинации
+ *           default: 1
  *       - name: doctorId
  *         in: query
  *         required: false

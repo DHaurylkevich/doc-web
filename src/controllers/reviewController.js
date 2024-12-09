@@ -15,8 +15,10 @@ const ReviewController = {
         }
     },
     getAllReviews: async (req, res, next) => {
+        const { limit, page } = req.query;
+
         try {
-            const specialties = await ReviewService.getAllReviews();
+            const specialties = await ReviewService.getAllReviews({ page, limit });
             res.status(200).json(specialties);
         } catch (err) {
             next(err);
@@ -24,10 +26,10 @@ const ReviewController = {
     },
     getAllReviewsByClinic: async (req, res, next) => {
         const { clinicId } = req.params;
-        const { sortDate = 'ASC', sortRating = 'ASC', limit = 10, offset = 0 } = req.query;
+        const { sortDate = 'ASC', sortRating = 'ASC', limit, page } = req.query;
 
         try {
-            const reviews = await ReviewService.getAllReviewsByClinic(clinicId, { sortDate, sortRating, limit, offset });
+            const reviews = await ReviewService.getAllReviewsByClinic(clinicId, { sortDate, sortRating, limit, page });
             res.status(200).json(reviews);
         } catch (err) {
             next(err);
@@ -35,10 +37,10 @@ const ReviewController = {
     },
     getAllReviewsByDoctor: async (req, res, next) => {
         const { doctorId } = req.params;
-        const { limit = 10, offset = 0 } = req.query;
+        const { limit, page } = req.query;
 
         try {
-            const reviews = await ReviewService.getAllReviewsByDoctor(doctorId, offset, limit);
+            const reviews = await ReviewService.getAllReviewsByDoctor({ doctorId, page, limit });
             res.status(200).json(reviews);
         } catch (err) {
             next(err);

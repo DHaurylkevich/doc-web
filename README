@@ -49,6 +49,8 @@
     - Включение mysql brew services start mysql
     sequelize-auto -o "./models" -d my_database -h localhost -u root -p 3306 -x my_password --dialect mysql
 
+DELETE FROM Appointments
+WHERE id >= 21 AND id <= 31;
 
 npx sequelize-cli db:seed --seed 10-seed-appointment.js
 ## Использование 
