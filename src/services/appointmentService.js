@@ -367,7 +367,7 @@ const AppointmentService = {
                 }
             });
 
-            return { pages: totalPages, slots: availableSlots };
+            return { pages: totalPages, slots: availableSlots.flat() };
         } catch (err) {
             throw err;
         }
