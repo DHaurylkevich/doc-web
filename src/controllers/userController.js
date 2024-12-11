@@ -13,7 +13,7 @@ const UserController = {
             if (user.role === "clinic") {
                 userInDb = await ClinicService.getClinicById(user.id);
             } else {
-                userInDb = await UserService.getUserById(user.id);
+                userInDb = await UserService.getUserById(user.id, user.role);
             }
 
             res.status(200).json(userInDb);

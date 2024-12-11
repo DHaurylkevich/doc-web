@@ -22,10 +22,10 @@ const AuthController = {
         });
     },
     register: async (req, res, next) => {
-        const { userData, patientData } = req.body;
+        const { email, password } = req.body;
 
         try {
-            const user = await createPatient(userData, patientData);
+            const user = await createPatient({ email, password });
 
             req.login(user, (err) => {
                 if (err) {

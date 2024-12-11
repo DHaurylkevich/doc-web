@@ -26,7 +26,7 @@ const UserService = {
             throw err;
         }
     },
-    getUserById: async (userId) => {
+    getUserById: async (userId, role) => {
         try {
             const user = await db.Users.findByPk(userId,
                 {
@@ -38,10 +38,26 @@ const UserService = {
                     }]
                 }
             );
+
             if (!user) {
                 throw new AppError("User not found", 404);
             }
 
+            if (role === "doctor") {
+                const doctor = await user.getDoctor({
+                    attributes: ["rating", "hired_at", "description"],
+                    include: [
+                        { model: db.Specialties, as: "specialty", attributes: ["name"] },
+                        { model: db.Clinics, as: "clinic", attributes: ["name"] },
+                    ]
+                });
+
+                if (!doctor) {
+                    doctor = null;
+                }
+
+                return { ...user.dataValues, ...doctor.dataValues };
+            }
             return user;
         } catch (err) {
             throw err;

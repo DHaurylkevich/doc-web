@@ -65,15 +65,12 @@ router.post("/login", (req, res, next) => {
  *           schema:
  *             type: object
  *             properties:
- *               userData:
- *                 type: object
- *                 example: 
- *                   email: "test@gmail.com"
- *                   password: "123456789"
- *               patientData:
- *                 type: object
- *                 example: 
- *                   market_inf: false
+ *               email:
+ *                  type: string
+ *                  example: "test@gmail.com"
+ *               password:
+ *                  type: string
+ *                  example: "123456789"
  *     responses:
  *       200:
  *         description: Пользователь успешно зарегистрирован

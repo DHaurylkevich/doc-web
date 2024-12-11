@@ -31,11 +31,13 @@ const PatientService = {
                 password: hashedPassword,
                 role: "patient",
             },
-                { transaction: t });
+                { transaction: t }
+            );
 
-            await createdUser.createPatient({ transaction: t });
+            await createdUser.createPatient({}, { transaction: t });
 
             await t.commit();
+
             return createdUser;
         } catch (err) {
             await t.rollback();
