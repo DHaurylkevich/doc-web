@@ -257,7 +257,7 @@ const AppointmentService = {
                 const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
                 return {
                     doctor: appointment.doctorService.doctor.user,
-                    patient: appointment.patient.user,
+                    patient: appointment.patient,
                     specialty: appointment.doctorService.doctor.specialty,
                     service: appointment.doctorService.service,
                     date: appointment.Schedule.date,
@@ -361,7 +361,7 @@ const AppointmentService = {
                     visit_type: appointment.visit_type,
                     status: appointment.status,
                     patient: {
-                        patientId: appointment.patient.user_id,
+                        patientId: appointment.patient.id,
                         ...appointment.patient.user.dataValues
                     },
                 }

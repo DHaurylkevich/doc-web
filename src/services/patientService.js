@@ -90,7 +90,7 @@ const PatientService = {
                 return [];
             }
 
-            return { pages: totalPages, slots: appointments };
+            return { pages: totalPages, slots: rows };
         } catch (err) {
             throw err;
         }
