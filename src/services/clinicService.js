@@ -72,38 +72,70 @@ const ClinicService = {
             throw err;
         }
     },
-    getAllClinicsFullData: async (filters) => {
+    getAllClinicsFullData: async ({ name, province, specialty, city, doctorCount, limit, page }) => {
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
+
+        const query = {};
+        if (name) query.name = name;
+        if (province) query.province = province;
+
+        const queryAddress = city ? { city } : {};
+        const querySpecialty = specialty ? { name: specialty } : {};
+
+        let includeDoctorCount = {};
+        if (doctorCount === 'true') {
+            includeDoctorCount = {
+                include: [
+                    [
+                        sequelize.literal(`(
+                            SELECT COUNT(*)
+                            FROM "doctors" AS doctors
+                            WHERE doctors.clinic_id = "Clinics".id
+                        )`),
+                        'doctorCount'
+                    ]
+                ]
+            };
+        }
+
         try {
-            const query = {};
-            if (filters.name) query.name = filters.name;
-            if (filters.province) query.province = filters.province;
-
-            const queryAddress = {};
-            if (filters.city) queryAddress.city = filters.city;
-
-            const querySpecialty = {};
-            if (filters.specialty) querySpecialty.specialty = filters.specialty;
-
             const clinics = await db.Clinics.findAll({
+                limit: parsedLimit,
+                offset: offset,
                 where: query,
+                attributes: {
+                    exclude: ["password", "resetToken", "updatedAt", "role"],
+                    ...includeDoctorCount,
+                },
                 include: [
                     {
                         model: db.Addresses,
                         as: "address",
-                        ...(Object.keys(queryAddress).length > 0 && { where: queryAddress }),
+                        attributes: {
+                            exclude: ["id", "user_id", "clinic_id", "createdAt", "updatedAt"],
+                        },
+                        where: queryAddress,
                     },
                     {
                         model: db.Services,
                         as: "services",
+                        attributes: {
+                            exclude: ["id", "specialty_id", "clinic_id", "createdAt", "updatedAt"],
+                        },
                         include: [
                             {
                                 model: db.Specialties,
                                 as: "specialty",
+                                attributes: {
+                                    exclude: ["id", , "createdAt", "updatedAt"],
+                                },
                                 where: querySpecialty
                             }
                         ]
-                    }
-                ]
+                    },
+                ],
             });
 
             return clinics;

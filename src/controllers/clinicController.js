@@ -34,9 +34,9 @@ const ClinicController = {
         }
     },
     getAllClinicByParams: async (req, res, next) => {
-        const { name, province, specialty, city } = req.query;
+        const { name, province, specialty, city, doctorCount, limit, page } = req.query;
         try {
-            const clinicData = await ClinicService.getAllClinicsFullData({name, province, specialty, city});
+            const clinicData = await ClinicService.getAllClinicsFullData({ name, province, specialty, city, doctorCount, limit, page });
 
             res.status(200).json(clinicData);
         } catch (err) {

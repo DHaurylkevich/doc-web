@@ -71,6 +71,8 @@ router.post("/api/user/role", (req, res, next) => {
     res.status(201).json("Successful");
 });
 
+//TODO: удалить при завершении
+
 router.get("/api/get-username", isAuthenticated, (req, res) => {
     res.status(200).json({ name: req.user.name });
 });

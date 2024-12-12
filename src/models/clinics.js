@@ -62,10 +62,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    registration_day: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
     nr_license: {
       type: DataTypes.STRING,
       allowNull: false,
