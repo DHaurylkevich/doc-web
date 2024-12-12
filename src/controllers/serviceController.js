@@ -22,8 +22,10 @@ const ServiceController = {
         }
     },
     getAllServices: async (req, res, next) => {
+        const { clinicId } = req.params;
+
         try {
-            const service = await ServiceService.getAllServices();
+            const service = await ServiceService.getAllServices(clinicId);
             res.status(200).json(service)
         } catch (err) {
             next(err);

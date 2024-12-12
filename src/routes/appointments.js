@@ -4,6 +4,7 @@ const AppointmentController = require("../controllers/appointmentController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
 const { validateRequest } = require('../middleware/errorHandler');;
 const validation = require('../utils/validation/appointmentValidation');
+const { validateParam } = require('../utils/validation');
 
 /**
  * @swagger
@@ -242,7 +243,7 @@ router.get("/appointments", AppointmentController.getAvailableSlotsWithFilter);
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.delete("/appointments/:id", isAuthenticated, validation.paramExist("id"), AppointmentController.deleteAppointment);
+router.delete("/appointments/:id", isAuthenticated, validateParam("id"), validateRequest, AppointmentController.deleteAppointment);
 /**
  * @swagger
  * paths:
@@ -374,7 +375,7 @@ router.delete("/appointments/:id", isAuthenticated, validation.paramExist("id"),
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/clinics/:clinicId/appointments", isAuthenticated, validation.paramExist("clinicId"), AppointmentController.getAppointmentsByClinic);
+router.get("/clinics/:clinicId/appointments", isAuthenticated, validateParam("clinicId"), validateRequest, AppointmentController.getAppointmentsByClinic);
 /**
  * @swagger
  *   /doctors/{doctorId}/appointments:
@@ -497,7 +498,7 @@ router.get("/clinics/:clinicId/appointments", isAuthenticated, validation.paramE
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/doctors/:doctorId/appointments", isAuthenticated, validation.filterDateExist, AppointmentController.getAppointmentsByDoctor);
+router.get("/doctors/:doctorId/appointments", isAuthenticated, validation.filterDateExist, validateRequest, AppointmentController.getAppointmentsByDoctor);
 /**
  * @swagger
  *   /patients/{patientId}/appointments:
@@ -609,6 +610,6 @@ router.get("/doctors/:doctorId/appointments", isAuthenticated, validation.filter
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/patients/:patientId/appointments", isAuthenticated, validation.paramExist("patientId"), AppointmentController.getAppointmentsByPatient);
+router.get("/patients/:patientId/appointments", isAuthenticated, validateParam("patientId"), validateRequest, AppointmentController.getAppointmentsByPatient);
 
 module.exports = router;

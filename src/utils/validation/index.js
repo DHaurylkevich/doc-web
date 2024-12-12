@@ -1,4 +1,22 @@
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
+
+
+const validateParam = (paramName, options = {}) => {
+    const { matchUser = false } = options;
+    return [
+        param(paramName)
+            .exists().withMessage(`${paramName} is required`)
+            .bail()
+            .custom((value, { req }) => {
+                if (matchUser) {
+                    if (!req.user || req.user.id !== value) {
+                        throw new Error(`${paramName} must match the authenticated user's ID`);
+                    }
+                }
+                return true;
+            }),
+    ];
+};
 
 const serviceCreateValidation = [
     body("name")
@@ -12,5 +30,6 @@ const serviceCreateValidation = [
 ];
 
 module.exports = {
+    validateParam,
     serviceCreateValidation,
 };

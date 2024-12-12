@@ -49,17 +49,25 @@ const { validateRequest } = require('../middleware/errorHandler');
 router.post("/clinics/:clinicId/services", serviceCreateValidation, validateRequest, isAuthenticated, serviceController.createService);
 /**
  * @swagger
- * /services:
+ * /clinics/{clinicId}/services:
  *   get:
- *     summary: Получить все услуги
+ *     summary: Получить все услуги определенной клиники
  *     description: Возвращает список всех услуг.
  *     tags:
  *       - Services
+ *     parameters:
+ *       - name: clinicId
+ *         in: path
+ *         required: true
+ *         description: ID клиник
+ *         schema:
+ *           type: integer
+ *           example: 1
  *     responses:
  *       200:
  *         description: Массив всех услуг
  */
-router.get("/services", serviceController.getAllServices);
+router.get("/clinics/:clinicId/services", serviceController.getAllServices);
 /**
  * @swagger
  * /services/{serviceId}:

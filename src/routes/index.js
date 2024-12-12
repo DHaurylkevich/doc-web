@@ -18,6 +18,7 @@ const prescriptionRouter = require("./prescription");
 const authRouter = require("./auth");
 const chatRouter = require("./chat");
 const messageRouter = require("./messages");
+const timetableRouter = require("./timetables");
 const { isAuthenticated, hasRole } = require('../middleware/auth');
 const upload = require("../middleware/upload").uploadFiles;
 
@@ -40,6 +41,7 @@ router.use("/api", medicationRouter);
 router.use("/api", prescriptionRouter);
 router.use("/api", chatRouter);
 router.use("/api", messageRouter);
+router.use("/api", timetableRouter);
 
 /**
  * @swagger

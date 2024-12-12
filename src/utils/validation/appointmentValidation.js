@@ -1,12 +1,5 @@
 const { body, query, param } = require('express-validator');
 
-const paramExist = (paramName) => {
-    return [
-        param(paramName)
-            .exists().withMessage(`${paramName} is required`)
-    ]
-};
-
 const filterDateExist = [
     param("doctorId")
         .exists().withMessage("Doctor is required"),
@@ -32,7 +25,6 @@ const createDataExist = [
 ];
 
 module.exports = {
-    paramExist,
     filterDateExist,
     createDataExist
 };

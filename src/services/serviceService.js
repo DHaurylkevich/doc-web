@@ -22,11 +22,14 @@ const ServiceService = {
             throw err;
         }
     },
-    getAllServices: async () => {
+    getAllServices: async (clinicId) => {
         try {
-            const service = await db.Services.findAll();
-
-            return service;
+            return await db.Services.findAll(
+                {
+                    where: { clinic_id: clinicId },
+                    attributes: { exclude: ["createdAt", "updatedAt", "clinic_id"] }
+                }
+            );
         } catch (err) {
             throw err;
         }

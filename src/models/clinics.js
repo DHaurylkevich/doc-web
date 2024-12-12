@@ -19,6 +19,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "clinic_id",
         as: "schedules"
       });
+      Clinics.hasMany(models.Timetables, {
+        foreignKey: "clinic_id",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        as: "timetable"
+      });
       Clinics.hasMany(models.Services, {
         foreignKey: "clinic_id",
         as: "services",
@@ -73,7 +79,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     phone: {
       type: DataTypes.STRING(20),
-      allowNull: true
+      allowNull: false
     },
     role: {
       type: DataTypes.STRING,
@@ -81,7 +87,6 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: "clinic"
     },
     description: DataTypes.STRING(255),
-    schedule: DataTypes.STRING(255),
     resetToken: {
       type: DataTypes.STRING(255),
       allowNull: true,

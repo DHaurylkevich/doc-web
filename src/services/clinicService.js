@@ -5,6 +5,8 @@ const AddressService = require("./addressService");
 const passwordUtil = require("../utils/passwordUtil");
 const createJWT = require("../utils/createJWT");
 const { setPasswordMail } = require("../utils/mail");
+const TimetableService = require("./timetableService");
+const { Op } = require("sequelize");
 
 const ClinicService = {
     createClinic: async (clinicData, addressData) => {
@@ -12,22 +14,34 @@ const ClinicService = {
         clinicData.password = await passwordUtil.hashingPassword(clinicData.password);
 
         try {
-            const clinic = await db.Clinics.create(clinicData, { transaction: t });
+            let clinic = await db.Clinics.findAll({
+                where: {
+                    [Op.or]: [
+                        clinicData.email && { email: clinicData.email },
+                        clinicData.phone && { phone: clinicData.phone },
+                        clinicData.pesel && { pesel: clinicData.pesel },
+                        clinicData.name && { name: clinicData.name },
+                        clinicData.nip && { nip: clinicData.nip },
+                        clinicData.nr_license && { nr_license: clinicData.nr_license },
+                    ]
+                },
+                transaction: t
+            });
+
+            if (clinic.length > 0) {
+                throw new AppError("Clinic already exist", 400);
+            }
+
+            clinic = await db.Clinics.create(clinicData, { transaction: t });
             await clinic.createAddress(addressData, { transaction: t });
+            await TimetableService.createTimetable(clinicData.id, t);
 
             const resetToken = createJWT(clinic.id, clinic.role);
             await clinic.update({ resetToken }, { transaction: t });
             setPasswordMail(clinic.email, resetToken);
 
             await t.commit();
-            await clinic.reload({
-                include: [{
-                    model: db.Addresses,
-                    as: "address",
-                    attributes: { exclude: ["createdAt", "updatedAt"] }
-                }]
-            });
-            return clinic.get({ plain: true });
+            return;
         } catch (err) {
             await t.rollback();
             throw err;
@@ -58,11 +72,18 @@ const ClinicService = {
             const clinic = await db.Clinics.findOne({
                 where: { id: clinicId },
                 attributes: { exclude: ["password", "resetToken", "createdAt", "updatedAt"] },
-                include: [{
-                    model: db.Addresses,
-                    as: "address",
-                    attributes: { exclude: ["createdAt", "updatedAt", "user_id", "clinic_id"] }
-                }]
+                include: [
+                    {
+                        model: db.Addresses,
+                        as: "address",
+                        attributes: { exclude: ["createdAt", "updatedAt", "user_id", "clinic_id"] }
+                    },
+                    {
+                        model: db.Timetables,
+                        as: "timetable",
+                        attributes: { exclude: ["createdAt", "updatedAt", "clinic_id"] }
+                    },
+                ]
             });
             if (!clinic) {
                 throw new AppError("Clinic not found", 404);
@@ -168,6 +189,13 @@ const ClinicService = {
                         as: "address",
                         attributes: {
                             exclude: ["id", "user_id", "clinic_id", "createdAt", "updatedAt"],
+                        }
+                    },
+                    {
+                        model: db.Timetables,
+                        as: "timetables",
+                        attributes: {
+                            exclude: ["id", "clinic_id", "createdAt", "updatedAt"],
                         }
                     }
                 ],
