@@ -47,7 +47,7 @@ const AppointmentService = {
                 description: description,
                 first_visit: firstVisit,
                 visit_type: visitType,
-                status: status
+                status: "active"
             });
             return {
                 time_slot: newAppointment.time_slot,
@@ -170,7 +170,7 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAppointmentsWithFilter: async ({ clinicId, doctorId, patientId, date, limit, page }) => {
+    getAppointmentsByClinic: async ({ clinicId, doctorId, patientId, date, limit, page }) => {
         let appointmentWhere = { clinic_id: clinicId };
         if (patientId) {
             appointmentWhere.patient_id = patientId;
@@ -288,11 +288,17 @@ const AppointmentService = {
         }
     },
     getAllAppointmentsByDoctor: async ({ doctorId, limit, page, startDate, endDate, status }) => {
-        const scheduleWhere = startDate && endDate ? {
-            date: {
+        let scheduleWhere = {};
+
+        if (startDate && endDate) {
+            scheduleWhere.date = {
                 [Op.between]: [startDate, endDate]
-            }
-        } : {}
+            };
+        } else if (startDate) {
+            scheduleWhere.date = {
+                [Op.gte]: startDate
+            };
+        }
 
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
         const pageNumber = Math.max(parseInt(page) || 1, 1);

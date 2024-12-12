@@ -1,24 +1,19 @@
 const AppointmentService = require("../services/appointmentService");
-const AppError = require("../utils/appError");
 
 const AppointmentController = {
     createAppointment: async (req, res, next) => {
-        const { doctorId, doctorServiceId, clinicId, date, timeSlot, firstVisit, visitType, status, description } = req.body;
+        const { doctorId, doctorServiceId, clinicId, date, timeSlot, firstVisit, visitType, description } = req.body;
         const userId = req.user.id;
 
-        if (req.user.role !== "patient") {
-            throw new AppError("User is not a patient", 400);
-
-        }
         try {
-            const appointment = await AppointmentService.createAppointment({ doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description });
+            const appointment = await AppointmentService.createAppointment({ doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, description });
             res.status(201).json(appointment);
         } catch (err) {
             next(err);
         }
     },
     getAvailableSlotsWithFilter: async (req, res, next) => {
-        const { city, specialty, date, visitType, limit, page } = req.query;
+        const { city, specialty, date, limit, page } = req.query;
 
         try {
             const availableSlot = await AppointmentService.getAvailableSlotsWithFilter({ city, specialty, date, limit, page });
@@ -27,12 +22,12 @@ const AppointmentController = {
             next(err);
         }
     },
-    getAppointmentsWithFilter: async (req, res, next) => {
+    getAppointmentsByClinic: async (req, res, next) => {
         const { clinicId } = req.params;
         const { doctorId, patientId, date, limit, page } = req.query;
 
         try {
-            const appointments = await AppointmentService.getAppointmentsWithFilter({ clinicId, doctorId, patientId, date, limit, page });
+            const appointments = await AppointmentService.getAppointmentsByClinic({ clinicId, doctorId, patientId, date, limit, page });
             res.status(200).json(appointments);
         } catch (err) {
             next(err);
@@ -40,7 +35,7 @@ const AppointmentController = {
     },
     getAppointmentsByDoctor: async (req, res, next) => {
         const { doctorId } = req.params;
-        const { limit, page, startDate, endDate, status } = req.query;
+        const { startDate, endDate, status, limit, page } = req.query;
         try {
             const appointments = await AppointmentService.getAllAppointmentsByDoctor({ doctorId, limit, page, startDate, endDate, status });
             res.status(200).json(appointments);

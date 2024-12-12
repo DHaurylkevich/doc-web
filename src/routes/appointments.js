@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const AppointmentController = require("../controllers/appointmentController");
-const { isAuthenticated } = require("../middleware/auth");
+const { isAuthenticated, hasRole } = require("../middleware/auth");
+const { validateRequest } = require('../middleware/errorHandler');;
+const validation = require('../utils/validation/appointmentValidation');
 
 /**
  * @swagger
@@ -54,11 +56,6 @@ const { isAuthenticated } = require("../middleware/auth");
  *                   enum: ["prywatna", "NFZ"]
  *                   example: "prywatna"
  *                   description: Тип визита
- *                 status:
- *                   type: string
- *                   enum: ["active", "canceled", "completed"]
- *                   example: "active"
- *                   description: Статус записи
  *                 description:
  *                   type: string
  *                   example: "Headache"
@@ -94,7 +91,7 @@ const { isAuthenticated } = require("../middleware/auth");
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.post("/appointments", isAuthenticated, AppointmentController.createAppointment);
+router.post("/appointments", isAuthenticated, hasRole("patient"), validation.createDataExist, validateRequest, AppointmentController.createAppointment);
 /**
  * @swagger
  * paths:
@@ -245,7 +242,7 @@ router.get("/appointments", AppointmentController.getAvailableSlotsWithFilter);
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.delete("/appointments/:id", isAuthenticated, AppointmentController.deleteAppointment);
+router.delete("/appointments/:id", isAuthenticated, validation.paramExist("id"), AppointmentController.deleteAppointment);
 /**
  * @swagger
  * paths:
@@ -256,6 +253,8 @@ router.delete("/appointments/:id", isAuthenticated, AppointmentController.delete
  *       operationId: getAppointmentsWithFilter
  *       tags:
  *         - Appointment
+ *       security:
+ *         - CookieAuth: []
  *       parameters:
  *         - name: clinicId
  *           in: path
@@ -375,7 +374,7 @@ router.delete("/appointments/:id", isAuthenticated, AppointmentController.delete
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointmentsWithFilter);
+router.get("/clinics/:clinicId/appointments", isAuthenticated, validation.paramExist("clinicId"), AppointmentController.getAppointmentsByClinic);
 /**
  * @swagger
  *   /doctors/{doctorId}/appointments:
@@ -385,6 +384,8 @@ router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointme
  *       operationId: getAppointmentsByDoctor
  *       tags:
  *         - Appointment
+ *       security:
+ *         - CookieAuth: []
  *       parameters:
  *         - name: doctorId
  *           in: path
@@ -496,7 +497,7 @@ router.get("/clinics/:clinicId/appointments", AppointmentController.getAppointme
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/doctors/:doctorId/appointments", AppointmentController.getAppointmentsByDoctor);
+router.get("/doctors/:doctorId/appointments", isAuthenticated, validation.filterDateExist, AppointmentController.getAppointmentsByDoctor);
 /**
  * @swagger
  *   /patients/{patientId}/appointments:
@@ -506,6 +507,8 @@ router.get("/doctors/:doctorId/appointments", AppointmentController.getAppointme
  *       operationId: getAppointmentsByPatient
  *       tags:
  *         - Appointment
+ *       security:
+ *         - CookieAuth: []
  *       parameters:
  *         - name: patientId
  *           in: path
@@ -606,6 +609,6 @@ router.get("/doctors/:doctorId/appointments", AppointmentController.getAppointme
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/patients/:patientId/appointments", AppointmentController.getAppointmentsByPatient);
+router.get("/patients/:patientId/appointments", isAuthenticated, validation.paramExist("patientId"), AppointmentController.getAppointmentsByPatient);
 
 module.exports = router;
