@@ -225,6 +225,42 @@ router.post("/clinics", clinicController.createClinic);
 router.get("/clinics", clinicController.getAllClinicByParams);
 /**
  * @swagger
+ * /admins/clinics:
+ *   get:
+ *     summary: Получить все киники для админа (НЕПОНЯТНО ЗАЧЕМ ТАКАЯ ИНФА АДМИНУ)
+ *     description: Возвращает допустимые данные о клинике для админа.
+ *     tags:
+ *       - Clinics
+ *     parameters:
+ *       - name: sort
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [ASC, DESC]
+ *           example: "asc"
+ *         description: Сортировка по имени
+ *       - name: limit
+ *         in: query
+ *         required: false
+ *         description: Лимит на количество результатов
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - name: page
+ *         in: query
+ *         required: false
+ *         description: Номер страницы
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *     responses:
+ *       200:
+ *         description: Список клиник успешно получен
+ */
+router.get("/admins/clinics", clinicController.getAllClinicsForAdmin);
+/**
+ * @swagger
  * /clinics/{clinicId}:
  *   get:
  *     summary: Получить полную информацию о клинике

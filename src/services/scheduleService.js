@@ -115,7 +115,7 @@ const ScheduleService = {
     },
     getScheduleByClinic: async (clinicId) => {
         try {
-            const schedule = await db.Schedules.findAll({
+            const { rows, count } = await db.Schedules.findAndCountAll({
                 attributes: { exclude: ["createdAt", "updatedAt", "doctor_id"] },
                 where: { clinic_id: clinicId },
                 include: [
@@ -134,7 +134,16 @@ const ScheduleService = {
                 ],
             });
 
-            return schedule;
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, schedule: rows };
         } catch (err) {
             throw err;
         }

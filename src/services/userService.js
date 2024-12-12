@@ -19,13 +19,13 @@ const UserService = {
             throw err;
         }
     },
-    findAllUsers: async () => {
-        try {
-            return await db.Users.findAll();
-        } catch (err) {
-            throw err;
-        }
-    },
+    // findAllUsers: async () => {
+    //     try {
+    //         return await db.Users.findAll();
+    //     } catch (err) {
+    //         throw err;
+    //     }
+    // },
     getUserById: async (userId, role) => {
         try {
             const user = await db.Users.findByPk(userId,

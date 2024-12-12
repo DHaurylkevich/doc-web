@@ -72,11 +72,7 @@ const ClinicService = {
             throw err;
         }
     },
-    getAllClinicsFullData: async ({ name, province, specialty, city, doctorCount, limit, page }) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
-
+    getAllClinicsFullData: async ({ name, province, specialty, city, limit, page }) => {
         const query = {};
         if (name) query.name = name;
         if (province) query.province = province;
@@ -84,30 +80,17 @@ const ClinicService = {
         const queryAddress = city ? { city } : {};
         const querySpecialty = specialty ? { name: specialty } : {};
 
-        let includeDoctorCount = {};
-        if (doctorCount === 'true') {
-            includeDoctorCount = {
-                include: [
-                    [
-                        sequelize.literal(`(
-                            SELECT COUNT(*)
-                            FROM "doctors" AS doctors
-                            WHERE doctors.clinic_id = "Clinics".id
-                        )`),
-                        'doctorCount'
-                    ]
-                ]
-            };
-        }
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
 
         try {
-            const clinics = await db.Clinics.findAll({
+            const { rows, count } = await db.Clinics.findAndCountAll({
                 limit: parsedLimit,
                 offset: offset,
                 where: query,
                 attributes: {
-                    exclude: ["password", "resetToken", "updatedAt", "role"],
-                    ...includeDoctorCount,
+                    exclude: ["password", "resetToken", "createdAt", "updatedAt", "role"]
                 },
                 include: [
                     {
@@ -138,7 +121,68 @@ const ClinicService = {
                 ],
             });
 
-            return clinics;
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, clinics: rows };
+        } catch (err) {
+            throw err;
+        }
+    },
+    getAllClinicsForAdmin: async ({ sort, limit, page }) => {
+        const sortOptions = [
+            ["name", sort === "ASC" ? "ASC" : "DESC"],
+        ];
+
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
+
+        try {
+            const { rows, count } = await db.Clinics.findAndCountAll({
+                limit: parsedLimit,
+                offset: offset,
+                order: sortOptions,
+                attributes: {
+                    exclude: ["password", "resetToken", "updatedAt", "role", "description"],
+                    include: [
+                        [
+                            sequelize.literal(`(
+                                SELECT COUNT(*)
+                                FROM "doctors" AS doctors
+                                WHERE doctors.clinic_id = "Clinics".id
+                            )`),
+                            'doctorCount'
+                        ]
+                    ]
+                },
+                include: [
+                    {
+                        model: db.Addresses,
+                        as: "address",
+                        attributes: {
+                            exclude: ["id", "user_id", "clinic_id", "createdAt", "updatedAt"],
+                        }
+                    }
+                ],
+            });
+
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, clinics: rows };
         } catch (err) {
             throw err;
         }

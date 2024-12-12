@@ -103,6 +103,52 @@ const DoctorService = {
             throw err;
         }
     },
+    getAllDoctorsForAdmin: async ({ sort, gender, limit, page }) => {
+        const userWhere = gender ? { gender } : {};
+
+        const sortOptions = [
+            [{ model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"],
+        ];
+
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
+
+        try {
+            const { rows, count } = await db.Doctors.findAndCountAll({
+                limit: parsedLimit,
+                offset: offset,
+                attributes: [],
+                include: [
+                    {
+                        model: db.Users,
+                        as: "user",
+                        where: userWhere,
+                        attributes: ["first_name", "last_name", "gender", "createdAt", "birthday"]
+                    },
+                    {
+                        model: db.Clinics,
+                        as: "clinic",
+                        attributes: ["name"]
+                    },
+                ],
+                order: sortOptions
+            });
+
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, doctors: rows };
+        } catch (err) {
+            throw err;
+        }
+    },
     updateDoctorById: async ({ userId, userData, addressData, doctorData, servicesIds }) => {
         const t = await sequelize.transaction();
 
@@ -158,25 +204,28 @@ const DoctorService = {
             throw err;
         }
     },
-    getDoctorsByClinicWithSorting: async (clinicId, filters) => {
-        try {
-            const query = {};
-            if (filters.gender) {
-                query.gender = filters.gender;
-            }
+    getDoctorsByClinicWithSorting: async ({ clinicId, gender, sort, limit, page }) => {
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
 
-            const sortOptions = [];
-            if (filters.sortBy) {
-                sortOptions.push({ "$User.name": filters.sort === "desc" ? "DESC" : "ASC" });
-            }
-            const doctors = await db.Doctors.findAll({
+        const userWhere = gender ? { gender } : {};
+
+        const sortOptions = [
+            [{ model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"],
+        ];
+
+        try {
+            const { rows, count } = await db.Doctors.findAndCountAll({
+                limit: parsedLimit,
+                offset: offset,
                 where: { clinic_id: clinicId },
                 attributes: ["id"],
                 include: [
                     {
                         model: db.Users,
                         as: "user",
-                        where: query,
+                        where: userWhere,
                         attributes: ["first_name", "last_name", "gender"],
                     },
                     {
@@ -187,7 +236,16 @@ const DoctorService = {
                 ],
                 order: sortOptions,
             })
-            return doctors;
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, doctors: rows };
         } catch (err) {
             throw err;
         }

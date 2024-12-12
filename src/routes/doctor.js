@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const doctorController = require("../controllers/doctorController");
+const { isAuthenticated, hasRole } = require("../middleware/auth");
 
 
 /**
@@ -268,6 +269,124 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
 router.get("/doctors/:doctorId", doctorController.getDoctorById);
 /**
  * @swagger
+ * /admins/doctors:
+ *   get:
+ *     summary: Получить всех враче для админа (НЕПОНЯТНО ЗАЧЕМ ТАКАЯ ИНФА АДМИНУ)
+ *     description: Возвращает допустимые данные о врачах для пдмина.
+ *     tags:
+ *       - Doctors
+ *     parameters:
+ *       - name: gender
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [male, female, other]
+ *           example: "male"
+ *         description: Пол доктора
+ *       - name: sort
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [ASC, DESC]
+ *           example: "asc"
+ *         description: Сортировка по имени
+ *       - name: limit
+ *         in: query
+ *         required: false
+ *         description: Лимит на количество результатов
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - name: page
+ *         in: query
+ *         required: false
+ *         description: Номер страницы
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *     responses:
+ *       200:
+ *         description: Успешно возвращены полные данные врача
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   description: Уникальный идентификатор врача
+ *                   example: 18
+ *                 description:
+ *                   type: string
+ *                   example: "Tabella ager ventus cupiditate demulceo."
+ *                 rating:
+ *                   type: number
+ *                   format: float
+ *                   example: 3.4528073983690954
+ *                 hired_at:
+ *                   type: string
+ *                   example: "2024-10-04T17:41:40.320Z"
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     first_name:
+ *                       type: string
+ *                       example: "Jarret"
+ *                     last_name:
+ *                       type: string
+ *                       example: "Douglas"
+ *                     gender:
+ *                       type: string
+ *                       example: "female"
+ *                     photo:
+ *                       type: string
+ *                       example: "https://exapmle.com"
+ *                     email:
+ *                       type: string
+ *                       example: "doctor@gmail.com"
+ *                     address:
+ *                       type: object
+ *                       properties:
+ *                         city:
+ *                           type: string
+ *                           example: "Novogrudek"
+ *                         province:
+ *                           type: string
+ *                           example: "Ghrodnenska"
+ *                         street:
+ *                           type: string
+ *                           example: "st. Mickiewicha"
+ *                         home:
+ *                           type: string
+ *                           example: "69"
+ *                         flat:
+ *                           type: string
+ *                           example: "96"
+ *                         post_index:
+ *                           type: string
+ *                           example: "123456"
+ *                 specialty:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                       example: "Agent"
+ *                 clinic:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                       example: "Larson - Schmidt"
+ *       404:
+ *         description: Врач не найден
+ *       500:
+ *         description: Внутренняя ошибка сервера
+ */
+router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorController.getAllDoctorsForAdmin);
+/**
+ * @swagger
  * /users/{userId}/doctors:
  *   put:
  *     summary: Обновить информацию о докторе
@@ -359,7 +478,7 @@ router.get("/doctors/:doctorId", doctorController.getDoctorById);
  *                   type: string
  *                   example: "Данные доктора успешно обновлены"
  */
-router.put("/users/:userId/doctors", doctorController.updateDoctorById);
+router.put("/users/:userId/doctors", isAuthenticated, hasRole("doctor"), doctorController.updateDoctorById);
 /**
  * @swagger
  * /clinics/{clinicId}/doctors:
@@ -389,9 +508,23 @@ router.put("/users/:userId/doctors", doctorController.updateDoctorById);
  *         required: false
  *         schema:
  *           type: string
- *           enum: [asc, desc]
- *           example: "asc"
- *         description: Сортировка по дате создания
+ *           enum: [ASC, DESC]
+ *           example: "ASC"
+ *         description: Сортировка по имени
+ *       - name: limit
+ *         in: query
+ *         required: false
+ *         description: Лимит на количество результатов
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - name: page
+ *         in: query
+ *         required: false
+ *         description: Номер страницы
+ *         schema:
+ *           type: integer
+ *           default: 1
  *     responses:
  *       200:
  *         description: Массив всех докторов

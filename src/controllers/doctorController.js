@@ -17,8 +17,18 @@ const DoctorController = {
         const { doctorId } = req.params;
 
         try {
-            const createdDoctor = await DoctorService.getDoctorById(doctorId);
-            res.status(200).json(createdDoctor);
+            const doctor = await DoctorService.getDoctorById(doctorId);
+            res.status(200).json(doctor);
+        } catch (err) {
+            next(err);
+        }
+    },
+    getAllDoctorsForAdmin: async (req, res, next) => {
+        const { sort, gender, limit, page } = req.query;
+
+        try {
+            const doctors = await DoctorService.getAllDoctorsForAdmin({ sort, gender, limit, page });
+            res.status(200).json(doctors);
         } catch (err) {
             next(err);
         }
@@ -47,10 +57,10 @@ const DoctorController = {
     },
     getDoctorsByClinicWithSorting: async (req, res, next) => {
         const { clinicId } = req.params;
-        const { gender, sort } = req.query;
+        const { gender, sort, limit, page } = req.query;
 
         try {
-            const doctors = await DoctorService.getDoctorsByClinicWithSorting(clinicId, { gender, sort });
+            const doctors = await DoctorService.getDoctorsByClinicWithSorting({ clinicId, gender, sort, limit, page });
             res.status(200).json(doctors);
         } catch (err) {
             next(err);

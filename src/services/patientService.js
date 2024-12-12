@@ -44,10 +44,35 @@ const PatientService = {
             throw err;
         }
     },
+    getPatientById: async (userId) => {
+        try {
+            const patient = await db.Patients.findOne({
+                include: [
+                    {
+                        model: db.Users,
+                        as: "user",
+                        where: { id: userId },
+                        include: [{ model: db.Addresses, as: 'address' }],
+                    }
+                ]
+            });
+
+            if (!patient) {
+                throw new AppError("Patient not found", 404);
+            }
+            return patient;
+        } catch (err) {
+            throw err;
+        }
+    },
     getPatientsByParam: async ({ sort, limit, page, doctorId, clinicId }) => {
         if (!doctorId && !clinicId) {
             throw new AppError("Either doctorId or clinicId is required");
         }
+
+        const sortOptions = [
+            [{ model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"],
+        ];
 
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
         const pageNumber = Math.max(parseInt(page) || 1, 1);
@@ -92,28 +117,48 @@ const PatientService = {
                 return [];
             }
 
-            return { pages: totalPages, slots: rows };
+            return { pages: totalPages, patients: rows };
         } catch (err) {
             throw err;
         }
     },
-    getPatientById: async (userId) => {
+    getAllPatientsForAdmin: async ({ sort, gender, limit, page }) => {
+        const userWhere = gender ? { gender } : {};
+
+        const sortOptions = [
+            [{ model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"],
+        ];
+
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
+
         try {
-            const patient = await db.Patients.findOne({
+            const { rows, count } = await db.Patients.findAndCountAll({
+                limit: parsedLimit,
+                offset: offset,
+                attributes: [],
                 include: [
                     {
                         model: db.Users,
                         as: "user",
-                        where: { id: userId },
-                        include: [{ model: db.Addresses, as: 'address' }],
-                    }
-                ]
+                        where: userWhere,
+                        attributes: ["first_name", "last_name", "gender", "createdAt", "birthday"]
+                    },
+                ],
+                order: sortOptions
             });
 
-            if (!patient) {
-                throw new AppError("Patient not found", 404);
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
             }
-            return patient;
+
+            if (!rows.length) {
+                return [];
+            }
+
+            return { pages: totalPages, patients: rows };
         } catch (err) {
             throw err;
         }

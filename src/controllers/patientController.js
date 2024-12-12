@@ -11,8 +11,18 @@ const PatientController = {
             next(err);
         }
     },
+    getPatientById: async (req, res, next) => {
+        const { userId } = req.params;
+
+        try {
+            const patient = await PatientService.getPatientById(userId);
+            res.status(200).json(patient)
+        } catch (err) {
+            next(err);
+        }
+    },
     getPatientsFilter: async (req, res, next) => {
-        const { sort = 'asc', limit, page, doctorId, clinicId } = req.query;
+        const { sort, limit, page, doctorId, clinicId } = req.query;
 
         try {
             const patients = await PatientService.getPatientsByParam({ sort, limit, page, doctorId, clinicId });
@@ -21,12 +31,12 @@ const PatientController = {
             next(err);
         }
     },
-    getPatientById: async (req, res, next) => {
-        const { userId } = req.params;
+    getAllPatientsForAdmin: async (req, res, next) => {
+        const { sort, gender, limit, page } = req.query;
 
         try {
-            const patient = await PatientService.getPatientById(userId);
-            res.status(200).json(patient)
+            const patients = await PatientService.getAllPatientsForAdmin({ sort, gender, limit, page });
+            res.status(200).json(patients);
         } catch (err) {
             next(err);
         }

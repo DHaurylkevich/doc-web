@@ -44,6 +44,18 @@ const ClinicController = {
             next(err);
         }
     },
+    getAllClinicsForAdmin: async (req, res, next) => {
+        const { sort, limit, page } = req.query;
+
+        try {
+            const clinics = await ClinicService.getAllClinicsForAdmin({ sort, limit, page });
+
+            res.status(200).json(clinics);
+        } catch (err) {
+            console.log(err);
+            next(err);
+        }
+    },
     updateClinicById: async (req, res, next) => {
         const { clinicId } = req.params;
         const { clinicData, addressData } = req.body;
