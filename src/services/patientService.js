@@ -84,6 +84,7 @@ const PatientService = {
                 offset: offset,
                 where: clinicId ? { clinic_id: clinicId } : {},
                 attributes: ['id'],
+                order: sortOptions,
                 include: [
                     {
                         model: db.Patients,

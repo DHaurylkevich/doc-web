@@ -7,19 +7,6 @@ const { validateRequest } = require("../middleware/errorHandler");
 
 /**
  * @swagger
- * /timetable:
- *   get:
- *     summary: Получить все тэги
- *     description: Возвращает список всех тэгов.
- *     tags:
- *       - Timetable
- *     responses:
- *       200:
- *         description: Массив всех тэгов
- */
-router.get("/timetable", TimetableController.getAllTimetables);
-/**
- * @swagger
  * /clinics/{clinicId}/timetable:
  *   put:
  *     summary: Обновить расписание

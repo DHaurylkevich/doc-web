@@ -94,30 +94,40 @@ const AppointmentService = {
                         model: db.Schedules,
                         attributes: ["id", "date", "interval", "end_time", "start_time"],
                         where: scheduleWhere,
+                        required: true,
                         include: [
                             {
                                 model: db.Doctors,
                                 as: "doctor",
                                 attributes: ["id", "description", "rating"],
+                                required: true,
                                 include: [
+                                    {
+                                        model: db.Users,
+                                        as: "user",
+                                        attributes: ["first_name", "last_name", "photo"],
+                                    },
                                     {
                                         model: db.Specialties,
                                         as: "specialty",
                                         attributes: ["name"],
-                                        where: specialtyWhere
-                                    }
+                                        where: specialtyWhere,
+                                        required: true,
+                                    },
                                 ]
                             },
                             {
                                 model: db.Clinics,
                                 as: "clinic",
                                 attributes: ["id", "name", "photo"],
+                                required: true,
                                 include: [
                                     {
                                         model: db.Addresses,
-                                        where: clinicWhere,
                                         as: "address",
+                                        where: clinicWhere,
                                         attributes: ["id", "city", "street", "home", "flat", "post_index"],
+                                        required: true,
                                     }
                                 ]
                             },
@@ -127,10 +137,12 @@ const AppointmentService = {
                         model: db.DoctorService,
                         as: "doctorService",
                         attributes: ["id"],
+                        required: true,
                         include: [
                             {
                                 model: db.Services,
                                 as: "service",
+                                required: true,
                                 attributes: ["id", "name", "price"]
                             }
                         ]
@@ -337,7 +349,7 @@ const AppointmentService = {
                     {
                         model: db.Patients,
                         as: "patient",
-                        attributes: ["user_id"],
+                        attributes: ["user_id", "id"],
                         include: [
                             {
                                 model: db.Users,

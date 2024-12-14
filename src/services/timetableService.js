@@ -1,7 +1,6 @@
 const db = require("../models");
 const AppError = require("../utils/appError");
 const sequelize = require("../config/db");
-const { Op } = require("sequelize");
 
 const TimetableService = {
     createTimetable: async (clinicId, t) => {
@@ -24,21 +23,13 @@ const TimetableService = {
             throw err;
         }
     },
-    getAllTimetables: async () => {
-        try {
-            return db.Timetables.findAll();
-        } catch (error) {
-            throw err;
-        }
-    },
     updateTimetable: async (clinicId, timetablesData) => {
         try {
             const validatedData = timetablesData.map(data => {
-                if (data.dayOfWeek < 1 || data.dayOfWeek > 7) {
+                if (data.dayOfWeek === undefined || data.dayOfWeek < 1 || data.dayOfWeek > 7) {
                     throw new AppError("Invalid day of week. Must be between 1 and 7", 400);
                 }
-
-                if (data.startTime && data.endTime && data.startTime >= data.endTime) {
+                if (data.startTime === undefined || data.endTime === undefined || data.startTime >= data.endTime) {
                     throw new AppError("Start time must be before end time", 400);
                 }
 
