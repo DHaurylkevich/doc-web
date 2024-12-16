@@ -14,7 +14,7 @@ describe("DoctorController API", () => {
             hired_at: faker.date.past(),
             description: faker.lorem.paragraph()
         };
-        fakeClinic = { name: faker.company.buzzAdjective(), password: faker.internet.password(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date" };
+        fakeClinic = { name: faker.company.buzzAdjective(), password: faker.internet.password(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence()};
         fakeUser = {
             first_name: faker.person.firstName(),
             last_name: faker.person.lastName(),
@@ -181,7 +181,7 @@ describe("DoctorController API", () => {
         describe("POST /clinic/:clinicId/doctors", () => {
             let fakeClinic, fakeUser, fakeAddress;
             beforeEach(async () => {
-                fakeClinic = { name: faker.company.buzzAdjective(), password: faker.internet.password(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date" };
+                fakeClinic = { name: faker.company.buzzAdjective(), password: faker.internet.password(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence()};
                 fakeUser = {
                     first_name: faker.person.firstName(),
                     last_name: faker.person.lastName(),

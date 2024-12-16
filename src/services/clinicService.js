@@ -7,6 +7,7 @@ const createJWT = require("../utils/createJWT");
 const { setPasswordMail } = require("../utils/mail");
 const TimetableService = require("./timetableService");
 const { Op } = require("sequelize");
+const logger = require("../utils/logger");
 
 const ClinicService = {
     createClinic: async (clinicData, addressData) => {
@@ -94,11 +95,10 @@ const ClinicService = {
         }
     },
     getAllClinicsFullData: async ({ name, province, specialty, city, limit, page }) => {
-        const query = {};
-        if (name) query.name = name;
-        if (province) query.province = province;
-
-        const queryAddress = city ? { city } : {};
+        const queryClinic = name ? { name } : {};
+        const queryAddress = {};
+        if (city) queryAddress.city = city;
+        if (province) queryAddress.province = province;
         const querySpecialty = specialty ? { name: specialty } : {};
 
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
@@ -111,7 +111,7 @@ const ClinicService = {
                 nest: true,
                 limit: parsedLimit,
                 offset: offset,
-                where: query,
+                where: queryClinic,
                 attributes: {
                     exclude: ["password", "resetToken", "createdAt", "updatedAt", "role"],
                     include: [
@@ -162,7 +162,6 @@ const ClinicService = {
                     },
                 ],
             });
-
             const totalPages = Math.ceil(count / parsedLimit);
             if (page - 1 > totalPages) {
                 throw new AppError("Page not found", 404);

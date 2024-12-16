@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 min: 1,
-                max: 6,
+                max: 7,
             },
         },
         start_time: {

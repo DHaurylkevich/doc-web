@@ -56,14 +56,12 @@ describe("UserController API", () => {
                 const createdClinic = await db.Clinics.create({
                     name: faker.company.buzzAdjective(),
                     nip: 1234567890,
-                    registration_day: faker.date.birthdate(),
                     nr_license: faker.vehicle.vin(),
                     email: faker.internet.email(),
                     phone: faker.phone.number({ style: 'international' }),
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
                     province: faker.location.state(),
-                    description: faker.lorem.sentence(),
-                    schedule: "Pn-Pt 10:00-18:00"
+                    description: faker.lorem.sentence()
                 });
                 const clinicId = createdClinic.id;
                 const res = await request(app)

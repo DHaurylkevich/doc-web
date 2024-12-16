@@ -14,6 +14,7 @@ module.exports = {
             street: faker.location.street(),
             province: faker.location.state(),
             home: faker.location.buildingNumber(),
+            flat: faker.location.buildingNumber(),
             post_index: faker.location.zipCode('#####'),
             createdAt: new Date(),
             updatedAt: new Date(),

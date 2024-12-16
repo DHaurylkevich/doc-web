@@ -29,10 +29,6 @@ const clinicController = require("../controllers/clinicController");
  *                     nip:
  *                       type: string
  *                       example: "1234567890"
- *                     registration_day:
- *                       type: string
- *                       format: date
- *                       example: "2023-01-01"
  *                     nr_license:
  *                       type: string
  *                       example: "NR-123456"
@@ -48,13 +44,9 @@ const clinicController = require("../controllers/clinicController");
  *                     description:
  *                       type: string
  *                       example: "Descripcion clinic"
- *                     schedule:
- *                       type: string
- *                       example: "Пн-Пт: 8:00 - 17:00"
  *                   required:
  *                     - name
  *                     - nip
- *                     - registration_day
  *                     - nr_license
  *                     - email
  *                     - password
@@ -107,10 +99,6 @@ const clinicController = require("../controllers/clinicController");
  *               nip:
  *                 type: string
  *                 example: "1234567890"
- *               registration_day:
- *                 type: string
- *                 format: date
- *                 example: "2023-01-01"
  *               nr_license:
  *                 type: string
  *                 example: "NR-123456"
@@ -126,9 +114,6 @@ const clinicController = require("../controllers/clinicController");
  *               description:
  *                 type: string
  *                 example: "Descripcion clinic"
- *               schedule:
- *                 type: string
- *                 example: "Pn-Pt: 8:00 - 17:00"
  *               address:
  *                 type: object
  *                 properties:
@@ -291,10 +276,6 @@ router.get("/admins/clinics", clinicController.getAllClinicsForAdmin);
  *                 nip:
  *                   type: string
  *                   example: "1234567890"
- *                 registration_day:
- *                   type: string
- *                   format: date
- *                   example: "2023-01-01"
  *                 nr_license:
  *                   type: string
  *                   example: "NR-123456"
@@ -307,9 +288,6 @@ router.get("/admins/clinics", clinicController.getAllClinicsForAdmin);
  *                 description:
  *                   type: string
  *                   example: "Descripcion clinic"
- *                 schedule:
- *                   type: string
- *                   example: "Пн-Пт: 8:00 - 17:00"
  *                 address:
  *                   type: object
  *                   properties:
@@ -377,10 +355,6 @@ router.get("/clinics/:clinicId", clinicController.getFullClinic);
  *               nip:
  *                 type: string
  *                 example: "1234567890"
- *               registration_day:
- *                 type: string
- *                 format: date
- *                 example: "2023-01-01"
  *               nr_license:
  *                 type: string
  *                 example: "NR-123456"

@@ -39,6 +39,25 @@ module.exports = {
             comment: {
                 type: Sequelize.TEXT,
                 allowNull: true
+            },
+            moderationComment: {
+                type: Sequelize.TEXT,
+                allowNull: true
+            },
+            status: {
+                type: Sequelize.ENUM('pending', 'approved', 'rejected'),
+                defaultValue: 'pending',
+                allowNull: false
+            },
+            createdAt: {
+                allowNull: false,
+                type: Sequelize.DATE,
+                defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+            },
+            updatedAt: {
+                allowNull: false,
+                type: Sequelize.DATE,
+                defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
             }
         });
     },

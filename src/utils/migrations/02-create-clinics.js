@@ -17,10 +17,6 @@ module.exports = {
         type: Sequelize.STRING(10),
         allowNull: false
       },
-      registration_day: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
       nr_license: {
         type: Sequelize.STRING(20),
         allowNull: false
@@ -44,10 +40,6 @@ module.exports = {
         defaultValue: "clinic"
       },
       description: {
-        type: Sequelize.STRING(255),
-        allowNull: true
-      },
-      schedule: {
         type: Sequelize.STRING(255),
         allowNull: true
       },

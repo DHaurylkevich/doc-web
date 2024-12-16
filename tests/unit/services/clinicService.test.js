@@ -29,7 +29,7 @@ describe("Clinic Service", () => {
                 createClinicStub = sinon.stub(db.Clinics, "create");
             });
             it("expect a clinic to be created, when required data is valid", async () => {
-                const clinic = { name: "House", nip: "1234567890", registration_day: "2024-11-05", nr_license: "1234567890", email: "clinic@gmail.com", password: "1234567890", description: "foo", schedule: "foo" };
+                const clinic = { name: "House", nip: "1234567890", nr_license: "1234567890", email: "clinic@gmail.com", password: "1234567890", description: "foo" };
                 const address = { city: "foo", street: "foo", province: "foo", home: 2, flat: 1, post_index: "123-1234" };
                 createClinicStub.resolves({ createAddress: createAddressStub });
 

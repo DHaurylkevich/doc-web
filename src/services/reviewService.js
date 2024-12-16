@@ -37,25 +37,13 @@ const ReviewService = {
             }
 
             await t.commit();
-
-            const [result] = await db.Reviews.findAll({
-                where: { doctor_id: doctorId },
-                attributes: [
-                    [sequelize.fn('ROUND', sequelize.fn('AVG', sequelize.col('rating')), 1), 'averageRating'],
-                    [sequelize.fn('COUNT', sequelize.col('id')), 'totalReviews']
-                ],
-                raw: true
-            });
-
-            await doctor.update({ rating: result.averageRating })
-
             return;
         } catch (err) {
             await t.rollback();
             throw err;
         }
     },
-    getAllReviews: async ({ limit, page }) => {
+    getAllPendingReviews: async ({ limit, page }) => {
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
         const pageNumber = Math.max(parseInt(page) || 1, 1);
         const offset = (pageNumber - 1) * parsedLimit;
@@ -63,6 +51,7 @@ const ReviewService = {
         try {
             const { rows, count } = await db.Reviews.findAndCountAll({
                 model: db.Reviews,
+                where: { status: 'pending' },
                 attributes: ["comment", "rating"],
                 limit: parsedLimit,
                 offset: offset,
@@ -98,6 +87,7 @@ const ReviewService = {
                         through: { attributes: [] },
                     }
                 ],
+                order: [['createdAt', 'DESC']]
             });
 
             const totalPages = Math.ceil(count / parsedLimit);
@@ -128,6 +118,7 @@ const ReviewService = {
                     ['createdAt', sortDate === 'DESC' ? 'DESC' : 'ASC']
                 ],
                 attributes: ["id", "comment", "rating"],
+                where: { status: 'approved' },
                 include: [
                     {
                         model: db.Doctors,
@@ -188,6 +179,7 @@ const ReviewService = {
                 offset: offset,
                 where: { doctor_id: doctorId },
                 attributes: ["comment", "rating"],
+                where: { status: 'approved' },
                 include: [
                     {
                         model: db.Patients,
@@ -221,6 +213,44 @@ const ReviewService = {
 
             return { pages: totalPages, reviews: rows };
         } catch (err) {
+            throw err;
+        }
+    },
+    moderateReview: async (reviewId, status, moderationComment) => {
+        const t = await sequelize.transaction();
+
+        try {
+            const review = await db.Reviews.findByPk(reviewId, { transaction: t });
+
+            if (!review) {
+                throw new AppError("Review not found", 404);
+            }
+
+            await review.update({
+                status,
+                moderationComment
+            }, { transaction: t });
+
+            if (status === 'approved') {
+                const doctor = await db.Doctors.findByPk(review.doctor_id);
+                const [result] = await db.Reviews.findAll({
+                    where: {
+                        doctor_id: review.doctor_id,
+                        status: 'approved'
+                    },
+                    attributes: [
+                        [sequelize.fn('ROUND', sequelize.fn('AVG', sequelize.col('rating')), 1), 'averageRating']
+                    ],
+                    raw: true
+                });
+
+                await doctor.update({ rating: result.averageRating }, { transaction: t });
+            }
+
+            await t.commit();
+            return;
+        } catch (err) {
+            await t.rollback();
             throw err;
         }
     },

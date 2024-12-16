@@ -8,7 +8,7 @@ module.exports = {
             { type: Sequelize.QueryTypes.SELECT }
         );
 
-        const services = await queryInterface.sequelize.query(
+        const createdServices = await queryInterface.sequelize.query(
             `SELECT id, clinic_id FROM services;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
@@ -16,20 +16,22 @@ module.exports = {
         const doctorServices = [];
 
         for (const doctor of doctors) {
-            const clinicServices = services.filter(service => service.clinic_id === doctor.clinic_id);
+            const clinicServices = createdServices.filter(
+                service => service.clinic_id === doctor.clinic_id
+            );
 
             if (clinicServices.length > 0) {
-                const numServices = faker.number.int({ min: 1, max: clinicServices.length });
-                const selectedServices = faker.helpers.shuffle(clinicServices).slice(0, numServices);
+                const numServices = faker.number.int({ min: 2, max: 4 });
+                const selectedServices = faker.helpers.arrayElements(clinicServices, numServices);
 
-                for (const service of selectedServices) {
+                selectedServices.forEach(service => {
                     doctorServices.push({
                         doctor_id: doctor.id,
                         service_id: service.id,
                         createdAt: new Date(),
-                        updatedAt: new Date(),
+                        updatedAt: new Date()
                     });
-                }
+                });
             } else {
                 console.warn(`No services found for doctor ${doctor.id} in clinic ${doctor.clinic_id}`);
             }

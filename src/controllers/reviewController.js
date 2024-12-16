@@ -14,11 +14,11 @@ const ReviewController = {
             next(err);
         }
     },
-    getAllReviews: async (req, res, next) => {
+    getAllPendingReviews: async (req, res, next) => {
         const { limit, page } = req.query;
 
         try {
-            const specialties = await ReviewService.getAllReviews({ page, limit });
+            const specialties = await ReviewService.getAllPendingReviews({ page, limit });
             res.status(200).json(specialties);
         } catch (err) {
             next(err);
@@ -46,17 +46,17 @@ const ReviewController = {
             next(err);
         }
     },
-    // updateSpecialty: async (req, res, next) => {
-    //     const { id } = req.params;
-    //     const { specialtyData } = req.body;
+    moderateReview: async (req, res, next) => {
+        const { reviewId } = req.params;
+        const { status, moderationComment } = req.body;
 
-    //     try {
-    //         const updateSpecialty = await ReviewService.updateSpecialty(id, specialtyData);
-    //         res.status(200).json(updateSpecialty);
-    //     } catch (err) {
-    //         next(err);
-    //     }
-    // },
+        try {
+            await ReviewService.moderateReview(reviewId, status, moderationComment);
+            res.status(200).json({ message: "Review update successfully" });
+        } catch (err) {
+            next(err);
+        }
+    },
     deleteReview: async (req, res, next) => {
         const { reviewId } = req.params;
 

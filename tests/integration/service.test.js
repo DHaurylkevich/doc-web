@@ -48,7 +48,7 @@ describe("ServiceController API", () => {
                 expect(res.body).to.have.property("user");
 
                 sessionCookies = res.headers['set-cookie'];
-                fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date", password: faker.internet.password() };
+                fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), password: faker.internet.password() };
             });
             after(async () => {
                 await db.Users.destroy({ where: {} });
@@ -215,7 +215,7 @@ describe("ServiceController API", () => {
 
                 sessionCookies = res.headers['set-cookie'];
 
-                fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date", password: faker.internet.password() };
+                fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), password: faker.internet.password() };
                 createdClinic = await db.Clinics.create(fakeClinic);
                 specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
                 specialtyId = specialtiesInDb.id;
@@ -254,7 +254,7 @@ describe("ServiceController API", () => {
                 expect(response.body).to.have.property("message", "SpecialtyId is required");
             });
             it("expect return 401 error when attempting to create a service without authentication", async () => {
-                const fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date", password: faker.internet.password() };
+                const fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), password: faker.internet.password() };
                 const createdClinic = await db.Clinics.create(fakeClinic);
                 const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
                 const specialtyId = specialtiesInDb.id;
@@ -267,7 +267,7 @@ describe("ServiceController API", () => {
                 expect(response.body).to.have.property("message", "Unauthorized user");
             });
             it("expect return 409 error when this service exist", async () => {
-                const fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, registration_day: faker.date.birthdate(), nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), schedule: "Date", password: faker.internet.password() };
+                const fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), password: faker.internet.password() };
                 const createdClinic = await db.Clinics.create(fakeClinic);
                 const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
                 const specialtyId = specialtiesInDb.id;

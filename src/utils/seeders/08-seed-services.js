@@ -14,17 +14,33 @@ module.exports = {
         );
 
         const services = [];
+        const serviceNames = [
+            "ULTRASOUND'",
+            "X-ray",
+            "Blood test'",
+            "ECG",
+            "Vaccination'",
+            "Physiotherapy",
+            "MRI",
+            "CT SCAN",
+            "Massage"
+        ];
 
-        for (let i = 0; i < 20; i++) {
-            services.push({
-                name: faker.commerce.productName(),
-                price: faker.number.float({ min: 50, max: 500, precision: 0.01 }),
-                clinic_id: clinics[faker.number.int({ min: 0, max: clinics.length - 1 })].id,
-                specialty_id: specialties[faker.number.int({ min: 0, max: specialties.length - 1 })].id,
-                createdAt: new Date(),
-                updatedAt: new Date(),
+        clinics.forEach(clinic => {
+            const numServices = faker.number.int({ min: 3, max: 5 });
+            const selectedServices = faker.helpers.arrayElements(serviceNames, numServices);
+
+            selectedServices.forEach(serviceName => {
+                services.push({
+                    name: serviceName,
+                    price: faker.number.float({ min: 50, max: 500, precision: 0.01 }),
+                    clinic_id: clinic.id,
+                    specialty_id: specialties[faker.number.int({ min: 0, max: specialties.length - 1 })].id,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
             });
-        }
+        });
 
         await queryInterface.bulkInsert('services', services, {});
     },

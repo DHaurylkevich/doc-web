@@ -87,12 +87,10 @@ describe("SpecialtyController API", () => {
                     name: faker.company.buzzAdjective(),
                     password: faker.internet.password(),
                     nip: 12345678909,
-                    registration_day: faker.date.birthdate(),
                     nr_license: faker.vehicle.vin(),
                     email: faker.internet.email(),
                     phone: faker.phone.number({ style: 'international' }),
                     description: faker.lorem.sentence(),
-                    schedule: "pn-pt"
                 };
                 createdClinic = await db.Clinics.create(fakeClinic);
                 specialtiesInDb = await db.Specialties.create(fakeSpecialty);

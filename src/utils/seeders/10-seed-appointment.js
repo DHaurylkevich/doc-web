@@ -65,29 +65,32 @@ module.exports = {
             }
         };
 
-        const appointments = patients.flatMap((patient) => {
-            const validSchedules = schedules.filter(schedule => schedule.doctor_service_id);
-            if (validSchedules.length === 0) {
-                console.warn('No valid schedules found with doctor services');
-                return [];
+        const appointments = [];
+        patients.forEach((patient) => {
+            const appointmentCount = faker.number.int({ min: 1, max: 3 });
+
+            for (let i = 0; i < appointmentCount; i++) {
+                const validSchedules = schedules.filter(schedule => schedule.doctor_service_id);
+                if (validSchedules.length === 0) {
+                    console.warn('No valid schedules found with doctor services');
+                    continue;
+                }
+
+                const schedule = faker.helpers.arrayElement(validSchedules);
+                appointments.push({
+                    patient_id: patient.id,
+                    schedule_id: schedule.id,
+                    clinic_id: schedule.clinic_id,
+                    doctor_service_id: schedule.doctor_service_id,
+                    time_slot: getRandomTimeSlot(schedule),
+                    description: faker.lorem.sentence(),
+                    first_visit: faker.datatype.boolean(),
+                    visit_type: faker.helpers.arrayElement(['prywatna', 'NFZ']),
+                    status: faker.helpers.arrayElement(['active', 'canceled', 'completed']),
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
             }
-
-            const scheduleIndex = faker.number.int({ min: 0, max: validSchedules.length - 1 });
-            const schedule = validSchedules[scheduleIndex];
-
-            return {
-                patient_id: patient.id,
-                schedule_id: schedule.id,
-                clinic_id: schedule.clinic_id,
-                doctor_service_id: schedule.doctor_service_id,
-                time_slot: getRandomTimeSlot(schedule),
-                description: faker.lorem.sentence(),
-                first_visit: faker.datatype.boolean(),
-                visit_type: faker.helpers.arrayElement(['prywatna', 'NFZ']),
-                status: faker.helpers.arrayElement(['active', 'canceled', 'completed']),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            };
         });
 
         if (appointments.length === 0) {

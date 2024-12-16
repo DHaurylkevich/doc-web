@@ -38,6 +38,15 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true,
         },
+        moderationComment: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
+        status: {
+            type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+            defaultValue: 'pending',
+            allowNull: false
+        }
     }, {
         sequelize,
         modelName: 'Reviews',

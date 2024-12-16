@@ -78,7 +78,6 @@ describe("PatientController API", () => {
                     name: faker.company.name(),
                     password: faker.internet.password(),
                     nip: faker.number.int({ min: 1000000000, max: 9999999999 }),
-                    registration_day: faker.date.past(),
                     nr_license: faker.vehicle.vin(),
                     email: faker.internet.email(),
                     phone: faker.phone.number({ style: 'international' }),

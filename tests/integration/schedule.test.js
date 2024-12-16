@@ -14,12 +14,10 @@ describe("ScheduleController API", () => {
             name: faker.company.buzzAdjective(),
             password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
             nip: 1234567890,
-            registration_day: faker.date.birthdate(),
             nr_license: faker.vehicle.vin(),
             email: faker.internet.email(),
             phone: faker.phone.number({ style: "international" }),
-            description: faker.lorem.sentence(),
-            schedule: "Date"
+            description: faker.lorem.sentence()
         });
         fakeDoctor = {
             clinic_id: testClinic.id,

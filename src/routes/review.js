@@ -125,7 +125,7 @@ router.post("/reviews/", isAuthenticated, hasRole("patient"), ReviewController.c
  *                     type: string
  *                     example: "Expensive prices"
  */
-router.get("/reviews", isAuthenticated, hasRole("admin"), ReviewController.getAllReviews);
+router.get("/reviews", isAuthenticated, hasRole("admin"), ReviewController.getAllPendingReviews);
 /**
  * @swagger
  * /reviews/{reviewId}:
