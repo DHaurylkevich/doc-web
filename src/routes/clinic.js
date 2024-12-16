@@ -197,13 +197,6 @@ router.post("/clinics", clinicController.createClinic);
  *         schema:
  *           type: string
  *           example: "Novogrudok"
- *       - name: doctorCount
- *         in: query
- *         description: Должно ли показывать колическо докторов работающих в клинике
- *         required: false
- *         schema:
- *           type: boolean
- *           example: true
  *       - name: limit
  *         in: query
  *         required: false

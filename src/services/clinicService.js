@@ -107,11 +107,32 @@ const ClinicService = {
 
         try {
             const { rows, count } = await db.Clinics.findAndCountAll({
+                raw: true,
+                nest: true,
                 limit: parsedLimit,
                 offset: offset,
                 where: query,
                 attributes: {
-                    exclude: ["password", "resetToken", "createdAt", "updatedAt", "role"]
+                    exclude: ["password", "resetToken", "createdAt", "updatedAt", "role"],
+                    include: [
+                        [
+                            sequelize.literal(`(
+                                SELECT COALESCE(ROUND(CAST(AVG(d.rating) AS NUMERIC), 1), 0)
+                                FROM "doctors" d
+                                WHERE d.clinic_id = "Clinics".id
+                            )`),
+                            'averageRating'
+                        ],
+                        [
+                            sequelize.literal(`(
+                                SELECT COUNT(d.rating)
+                                FROM "doctors" d
+                                WHERE d.clinic_id = "Clinics".id
+                                AND d.rating IS NOT NULL
+                            )`),
+                            'totalRatings'
+                        ]
+                    ]
                 },
                 include: [
                     {
@@ -151,7 +172,14 @@ const ClinicService = {
                 return [];
             }
 
-            return { pages: totalPages, clinics: rows };
+            return {
+                pages: totalPages,
+                clinics: rows.map(clinic => ({
+                    ...clinic,
+                    averageRating: parseFloat(clinic.averageRating),
+                    totalRatings: clinic.totalRatings
+                }))
+            };
         } catch (err) {
             throw err;
         }
