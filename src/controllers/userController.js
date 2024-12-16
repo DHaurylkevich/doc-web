@@ -1,6 +1,5 @@
 const UserService = require("../services/userService");
 const ClinicService = require("../services/clinicService");
-const passwordUtil = require("../utils/passwordUtil");
 const AppError = require("../utils/appError");
 
 const UserController = {
@@ -21,6 +20,25 @@ const UserController = {
             next(err);
         }
     },
+    updateUser: async (req, res, next) => {
+        const { userData, addressData, doctorData } = req.body;
+        const user = req.user;
+
+        try {
+            if ("password" in userData) {
+                delete userData.password;
+            }
+
+            if (user.role === "clinic") {
+                await ClinicService.updateClinic(user.id, userData, addressData);
+            } else {
+                await UserService.updateUser(user.id, userData, addressData, doctorData);
+            }
+            res.status(200).json({ message: "User update successfully" });
+        } catch (err) {
+            next(err);
+        }
+    },
     updateUserPassword: async (req, res, next) => {
         const { oldPassword, newPassword } = req.body;
         const userId = req.user.id;
@@ -37,17 +55,21 @@ const UserController = {
         }
     },
     deleteUser: async (req, res, next) => {
-        const { userId } = req.params;
+        const user = req.user;
         try {
-            const result = await UserService.deleteUser(userId);
+            if (user.role === "clinic") {
+                await ClinicService.deleteClinicById(user.id);
+            } else {
+                await UserService.deleteUserById(user.id);
+            }
 
-            res.status(200).json(result);
+            res.status(200).json({ message: "Successful delete" });
         } catch (err) {
             next(err);
         }
     },
     updateImage: async (req, res, next) => {
-        const { userId } = req.params;
+        const userId = req.user.id;
         const image = req.file ? req.file.path : null;
 
         try {

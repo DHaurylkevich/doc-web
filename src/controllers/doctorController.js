@@ -2,7 +2,7 @@ const DoctorService = require("../services/doctorService");
 
 const DoctorController = {
     createDoctor: async (req, res, next) => {
-        const { clinicId } = req.params;
+        const clinicId = req.user.id;
         const { userData, addressData, doctorData, specialtyId, servicesIds } = req.body;
 
         try {
@@ -34,13 +34,14 @@ const DoctorController = {
         }
     },
     updateDoctorById: async (req, res, next) => {
-        const { userId } = req.params;
+        const { doctorId } = req.params;
         const { userData, addressData, doctorData, servicesIds } = req.body;
+        const clinicId = req.user.id;
 
         try {
-            const updateDoctor = await DoctorService.updateDoctorById({ userId, userData, addressData, doctorData, servicesIds });
+            await DoctorService.updateDoctorById({ doctorId, userData, addressData, doctorData, servicesIds, clinicId });
 
-            res.status(200).json(updateDoctor);
+            res.status(200).json({ message: "Doctor update successfully" });
         } catch (err) {
             next(err);
         }

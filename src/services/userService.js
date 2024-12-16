@@ -4,6 +4,7 @@ const passwordUtil = require("../utils/passwordUtil");
 const bcrypt = require("bcrypt");
 const cloudinary = require("../middleware/upload");
 const AppError = require("../utils/appError");
+const sequelize = require("../config/db");
 
 const UserService = {
     createUser: async (userData, t) => {
@@ -19,22 +20,15 @@ const UserService = {
             throw err;
         }
     },
-    // findAllUsers: async () => {
-    //     try {
-    //         return await db.Users.findAll();
-    //     } catch (err) {
-    //         throw err;
-    //     }
-    // },
     getUserById: async (userId, role) => {
         try {
             const user = await db.Users.findByPk(userId,
                 {
-                    attributes: { exclude: ['password', "createdAt", "updatedAt", "resetToken", "role"] },
+                    attributes: { exclude: ["password", "createdAt", "updatedAt", "resetToken", "role"] },
                     include: [{
                         model: db.Addresses,
-                        as: 'address',
-                        attributes: { exclude: ['createdAt', 'updatedAt', "clinic_id", "user_id"] }
+                        as: "address",
+                        attributes: { exclude: ["createdAt", "updatedAt", "clinic_id", "user_id"] }
                     }]
                 }
             );
@@ -47,7 +41,7 @@ const UserService = {
                 const doctor = await user.getDoctor({
                     attributes: ["rating", "hired_at", "description"],
                     include: [
-                        { model: db.Specialties, as: "specialty", attributes: ["name"] },
+                        { model: db.Specialties, as: "specialty", attributes: ["id", "name"]},
                         { model: db.Clinics, as: "clinic", attributes: ["name"] },
                     ]
                 });
@@ -83,24 +77,24 @@ const UserService = {
             throw err;
         }
     },
-    updateUser: async ({ userId, updatedData, t }) => {
+    updateUser: async (userId, userData, addressData, doctorData) => {
+        const t = await sequelize.transaction();
         try {
             const user = await db.Users.findByPk(userId);
-            if (!user) {
-                throw new AppError("User not found", 404);
+            await user.update(userData, { transaction: t });
+
+            const address = await user.getAddress();
+            await address.update(addressData, { transaction: t });
+
+            if (user.role === "doctor" || doctorData) {
+                const doctor = await user.getDoctor();
+                await doctor.update(doctorData, { transaction: t });
             }
-
-            if (image && image !== user.photo) {
-                updatedData.photo = image;
-                console.log('Calling deleteFromCloud...');
-
-                await cloudinary.deleteFromCloud(user.photo);
-            }
-
-            await user.update(updatedData, { transaction: t, returning: true })
+            await t.commit();
 
             return user;
         } catch (err) {
+            await t.rollback();
             throw err;
         }
     },
@@ -141,15 +135,12 @@ const UserService = {
             throw err;
         }
     },
-    deleteUser: async (userId) => {
+    deleteUserById: async (userId) => {
         try {
-            const user = await db.Users.findByPk(userId)
-            if (!user) {
-                throw new AppError("User not found", 404);
-            }
-
-            await user.destroy();
-            return { message: "Successful delete" };
+            await db.Users.destroy({
+                where: { id: userId }
+            });
+            return;
         } catch (err) {
             throw err;
         }

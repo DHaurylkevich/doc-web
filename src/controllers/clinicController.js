@@ -12,16 +12,6 @@ const ClinicController = {
             next(err);
         }
     },
-    // getClinic: async (req, res, next) => {
-    //     const { clinicId } = req.params;
-    //     try {
-    //         const clinicData = await ClinicService.getClinicById(clinicId);
-
-    //         res.status(200).json(clinicData);
-    //     } catch (err) {
-    //         next(err);
-    //     }
-    // },
     getFullClinic: async (req, res, next) => {
         const { clinicId } = req.params;
         try {
@@ -56,30 +46,29 @@ const ClinicController = {
             next(err);
         }
     },
-    updateClinicById: async (req, res, next) => {
-        const { clinicId } = req.params;
-        const { clinicData, addressData } = req.body;
+    // updateClinicById: async (req, res, next) => {
+    //     const { clinicId } = req.params;
+    //     const { clinicData, addressData } = req.body;
 
-        try {
-            const updatedClinic = await ClinicService.updateClinic(clinicId, clinicData, addressData);
+    //     try {
+    //         const updatedClinic = await ClinicService.updateClinic(clinicId, clinicData, addressData);
 
-            res.status(200).json(updatedClinic);
-        } catch (err) {
-            console.log(err);
-            next(err);
-        }
-    },
-    deleteClinic: async (req, res, next) => {
-        const { clinicId } = req.params;
+    //         res.status(200).json(updatedClinic);
+    //     } catch (err) {
+    //         next(err);
+    //     }
+    // },
+    // deleteClinic: async (req, res, next) => {
+    //     const { clinicId } = req.params;
 
-        try {
-            await ClinicService.deleteClinicById(clinicId);
+    //     try {
+    //         await ClinicService.deleteClinicById(clinicId);
 
-            res.status(200).json({ message: "Successful delete" })
-        } catch (err) {
-            next(err);
-        }
-    }
+    //         res.status(200).json({ message: "Successful delete" })
+    //     } catch (err) {
+    //         next(err);
+    //     }
+    // }
 };
 
 module.exports = ClinicController;

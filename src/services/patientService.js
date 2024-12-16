@@ -163,27 +163,7 @@ const PatientService = {
         } catch (err) {
             throw err;
         }
-    },
-    updatePatient: async ({ userId, userData, addressData }) => {
-        const t = await sequelize.transaction();
-
-        try {
-            const user = await UserService.updateUser(userId, userData, t);
-
-            let address = await user.getAddress();
-            if (address) {
-                await AddressService.updateAddress(address, addressData, t);
-            } else if (addressData) {
-                address = await user.createAddress(addressData, t);
-            }
-
-            await t.commit();
-            return { user, address };
-        } catch (err) {
-            await t.rollback();
-            throw err;
-        }
-    },
+    }
 };
 
 module.exports = PatientService;

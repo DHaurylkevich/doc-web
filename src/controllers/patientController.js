@@ -40,19 +40,7 @@ const PatientController = {
         } catch (err) {
             next(err);
         }
-    },
-    updatePatientById: async (req, res, next) => {
-        const { userId } = req.params;
-        const { userData, addressData } = req.body;
-
-        try {
-            const updatePatient = await PatientService.updatePatient({ userId, userData, addressData })
-
-            res.status(200).json(updatePatient);
-        } catch (err) {
-            next(err);
-        }
-    },
+    }
 };
 
 module.exports = PatientController;

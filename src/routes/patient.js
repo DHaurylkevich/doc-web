@@ -71,44 +71,44 @@ const { validateRequest } = require('../middleware/errorHandler');
  *                         type: string
  */
 router.get("/patients", isAuthenticated, patientController.getPatientsFilter);
-/**
- * @swagger
- * /patients/{userId}:
- *   get:
- *     summary: Получить информацию о пациенте по ID.
- *     description: Возвращает данные пациента по указанному ID. Можно использовать для профиля
- *     tags:
- *       - Patients
- *     parameters:
- *       - name: userId
- *         in: path
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID пациента
- *     responses:
- *       200:
- *         description: Информация о пациенте успешно получена
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 gender:
- *                   type: string
- *                 user:
- *                   type: object
- *                   properties:
- *                     first_name:
- *                       type: string
- *                     last_name:
- *                       type: string
- *       404:
- *         description: Пациент не найден
- */
-router.get("/patients/:userId", isAuthenticated, patientController.getPatientById);
+// /**
+//  * @swagger
+//  * /patients/{userId}:
+//  *   get:
+//  *     summary: Получить информацию о пациенте по ID.
+//  *     description: Возвращает данные пациента по указанному ID. Можно использовать для профиля
+//  *     tags:
+//  *       - Patients
+//  *     parameters:
+//  *       - name: userId
+//  *         in: path
+//  *         required: true
+//  *         schema:
+//  *           type: integer
+//  *         description: ID пациента
+//  *     responses:
+//  *       200:
+//  *         description: Информация о пациенте успешно получена
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 id:
+//  *                   type: integer
+//  *                 gender:
+//  *                   type: string
+//  *                 user:
+//  *                   type: object
+//  *                   properties:
+//  *                     first_name:
+//  *                       type: string
+//  *                     last_name:
+//  *                       type: string
+//  *       404:
+//  *         description: Пациент не найден
+//  */
+// router.get("/patients/:userId", isAuthenticated, patientController.getPatientById);
 /**
  * @swagger
  * /admins/patients:
@@ -174,71 +174,5 @@ router.get("/patients/:userId", isAuthenticated, patientController.getPatientByI
  *         description: Внутренняя ошибка сервера
  */
 router.get("/admins/patients", isAuthenticated, hasRole("admin"), patientController.getAllPatientsForAdmin);
-/**
- * @swagger
- * /patients/{userId}:
- *   put:
- *     summary: Обновить информацию о пациенте
- *     description: Обновляет данные пациента по указанному ID пользователя.
- *     tags:
- *       - Patients
- *     parameters:
- *       - name: userId
- *         in: path
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID пользователя пациента
- *     requestBody:
- *       description: Данные для обновления пациента
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               userData:
- *                 type: object
- *                 properties:
- *                   email:
- *                     type: string
- *                     example: "new_email@gmail.com"
- *                   phone:
- *                     type: string
- *                     example: "+1234567890"
- *                   gender:
- *                     type: string
- *                     example: "female"
- *               patientData:
- *                 type: object
- *                 properties:
- *                   market_inf:
- *                     type: boolean
- *                     example: true
- *               addressData:
- *                 type: object
- *                 properties:
- *                   city:
- *                     type: string
- *                     example: "Los Angeles"
- *     responses:
- *       200:
- *         description: Данные пациента успешно обновлены
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   type: object
- *                   description: Обновленные данные пользователя
- *                 patient:
- *                   type: object
- *                   description: Обновленные данные пациента
- *                 address:
- *                   type: object
- *                   description: Обновленные данные адреса
- */
-router.put("/users/:userId/patients", isAuthenticated, dataExistValidation, validateRequest, patientController.updatePatientById);
 
 module.exports = router;

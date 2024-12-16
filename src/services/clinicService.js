@@ -7,7 +7,6 @@ const createJWT = require("../utils/createJWT");
 const { setPasswordMail } = require("../utils/mail");
 const TimetableService = require("./timetableService");
 const { Op } = require("sequelize");
-const logger = require("../utils/logger");
 
 const ClinicService = {
     createClinic: async (clinicData, addressData) => {
@@ -246,9 +245,6 @@ const ClinicService = {
         const t = await sequelize.transaction();
         try {
             const clinic = await db.Clinics.findByPk(clinicId);
-            if (!clinic) {
-                throw new AppError("Clinics not found", 404);
-            }
             await clinic.update(clinicData, { transaction: t });
 
             const address = await clinic.getAddress();
@@ -273,12 +269,9 @@ const ClinicService = {
     },
     deleteClinicById: async (clinicId) => {
         try {
-            const clinic = await db.Clinics.findByPk(clinicId);
-            if (!clinic) {
-                throw new AppError("Clinic not found", 404);
-            }
-
-            await clinic.destroy();
+            await db.Clinics.destroy({
+                where: { id: clinicId }
+            });
             return;
         } catch (err) {
             throw err;

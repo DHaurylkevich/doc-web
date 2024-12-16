@@ -91,6 +91,78 @@ const upload = require("../middleware/upload").uploadImages;
 router.get("/users/account", isAuthenticated, UserController.getUserAccount);
 /**
  * @swagger
+ * /users:
+ *   put:
+ *     summary: Обновить информацию о докторе, пациенте, клинике, админе
+ *     description: Обновляет данные пользователя.
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       description: Данные для обновления доктора
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userData:
+ *                 type: object
+ *                 description: Данные пользователя
+ *                 properties:
+ *                   email:
+ *                     type: string
+ *                     example: "new_email@gmail.com"
+ *                   phone:
+ *                     type: string
+ *                     example: "+1234567890"
+ *               addressData:
+ *                 type: object
+ *                 description: Адрес доктора
+ *                 properties:
+ *                   city:
+ *                     type: string
+ *                     example: "Effertzhaven"
+ *                   province:
+ *                     type: string
+ *                     example: "Ohio"
+ *                   street:
+ *                     type: string
+ *                     example: "N Chestnut Street"
+ *                   home:
+ *                     type: integer
+ *                     example: "7903"
+ *                   flat:
+ *                     type: integer
+ *                     example: "495"
+ *                   post_index:
+ *                     type: string
+ *                     example: "37428-7078"
+ *               doctorData:
+ *                 type: object
+ *                 description: Данные доктора
+ *                 properties:
+ *                   hired_at:
+ *                     type: string
+ *                     format: date-time
+ *                     example: "2023-11-13T07:29:36.618Z"
+ *                   description:
+ *                     type: string
+ *                     example: "Corroboro avaritia pecto suadeo. Claudeo aestas comitatus. Benigne spargo appono denuncio terra."
+ *     responses:
+ *       200:
+ *         description: Данные доктора успешно обновлены
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Данные доктора успешно обновлены"
+ */
+router.put("/users", isAuthenticated, UserController.updateUser);
+/**
+ * @swagger
  * /users/password:
  *   put:
  *     summary: Обновить пароль пользователя
@@ -133,19 +205,12 @@ router.put("/users/password", isAuthenticated, passwordValidation, validateReque
  * @swagger
  * /users/{userId}:
  *   delete:
- *     summary: Удаляет пользователя по ID и связанные с ним элементы
+ *     summary: Удаляет пользователя(doctor,patient,clinic) по ID и связанные с ним элементы
  *     operationId: deleteUser
  *     security:
  *      - CookieAuth: []
  *     tags:
  *       - Users
- *     parameters:
- *       - name: userId
- *         in: path
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID пользователя
  *     responses:
  *       200:
  *         description: Успешное удаление пользователя
@@ -160,22 +225,15 @@ router.put("/users/password", isAuthenticated, passwordValidation, validateReque
  *       401:
  *         description: Unauthorized user
  */
-router.delete("/users/:userId", isAuthenticated, UserController.deleteUser);
+router.delete("/users", isAuthenticated, UserController.deleteUser);
 /**
  * @swagger
- * /api/users/{userId}/photo:
+ * /users/photo:
  *   post:
  *     summary: Обновляет аватарку пользователя
  *     description: Загружает новую фотографию профиля для аутентифицированного пользователя
  *     tags:
  *       - Users
- *     parameters:
- *       - name: userId
- *         in: path
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID пользователя
  *     security:
  *       - CookieAuth: []
  *     consumes:
@@ -225,6 +283,6 @@ router.delete("/users/:userId", isAuthenticated, UserController.deleteUser);
  *                   type: string
  *                   example: "Internal server error"
  */
-router.post("/api/users/:userId/photo", isAuthenticated, upload.single("image"), UserController.updateImage);
+router.post("/users/photo", isAuthenticated, upload.single("image"), UserController.updateImage);
 
 module.exports = router;

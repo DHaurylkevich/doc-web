@@ -3,24 +3,15 @@ const router = express.Router();
 const doctorController = require("../controllers/doctorController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
 
-
 /**
  * @swagger
  * paths:
- *   /clinic/{clinicId}/doctors:
+ *   /clinics/doctors:
  *     post:
  *       summary: Создание нового доктора
  *       operationId: createDoctor
  *       tags:
  *         - Doctors
- *       parameters:
- *         - name: clinicId
- *           in: path
- *           required: true
- *           description: ID клиники
- *           schema:
- *             type: integer
- *             example: 1
  *       requestBody:
  *         required: true
  *         content:
@@ -113,7 +104,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *         404:
  *           description: Пользователь не найден
  */
-router.post("/clinic/:clinicId/doctors/", doctorController.createDoctor);
+router.post("/clinics/doctors/", doctorController.createDoctor);
 /**
  * @swagger
  * /doctors/{doctorId}/short:
@@ -387,19 +378,19 @@ router.get("/doctors/:doctorId", doctorController.getDoctorById);
 router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorController.getAllDoctorsForAdmin);
 /**
  * @swagger
- * /users/{userId}/doctors:
+ * /clinics/doctors/{doctorId}:
  *   put:
- *     summary: Обновить информацию о докторе
+ *     summary: Обновить информацию о докторе (CLINIC)
  *     description: Обновляет данные доктора по указанному ID пользователя.
  *     tags:
  *       - Doctors
  *     parameters:
- *       - name: userId
+ *       - name: doctorId
  *         in: path
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID пользователя доктора
+ *         description: ID доктора
  *     requestBody:
  *       description: Данные для обновления доктора
  *       required: true
@@ -448,15 +439,9 @@ router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorControlle
  *                     type: string
  *                     format: date-time
  *                     example: "2023-11-13T07:29:36.618Z"
- *                   vacation days:
- *                      type: integer
- *                      example: 27
  *                   description:
  *                     type: string
  *                     example: "Corroboro avaritia pecto suadeo. Claudeo aestas comitatus. Benigne spargo appono denuncio terra."
- *                   user_id:
- *                     type: integer
- *                     example: 1
  *                   specialty_id:
  *                     type: integer
  *                     example: 2
@@ -478,7 +463,7 @@ router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorControlle
  *                   type: string
  *                   example: "Данные доктора успешно обновлены"
  */
-router.put("/users/:userId/doctors", isAuthenticated, hasRole("doctor"), doctorController.updateDoctorById);
+router.put("/clinics/doctors/:doctorId", isAuthenticated, hasRole("clinic"), doctorController.updateDoctorById);
 /**
  * @swagger
  * /clinics/{clinicId}/doctors:

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { isAuthenticated, hasRole } = require('../middleware/auth');
-const clinicController = require("../controllers/clinicController");
+const ClinicController = require("../controllers/clinicController");
 
 /**
  * @swagger
@@ -144,7 +144,7 @@ const clinicController = require("../controllers/clinicController");
  *         400:
  *           description: Ошибка валидации данных
  */
-router.post("/clinics", clinicController.createClinic);
+router.post("/clinics", isAuthenticated, hasRole("admin"), ClinicController.createClinic);
 /**
  * @swagger
  * /clinics:
@@ -200,7 +200,7 @@ router.post("/clinics", clinicController.createClinic);
  *       200:
  *         description: Список клиник успешно получен
  */
-router.get("/clinics", clinicController.getAllClinicByParams);
+router.get("/clinics", ClinicController.getAllClinicByParams);
 /**
  * @swagger
  * /admins/clinics:
@@ -236,7 +236,7 @@ router.get("/clinics", clinicController.getAllClinicByParams);
  *       200:
  *         description: Список клиник успешно получен
  */
-router.get("/admins/clinics", clinicController.getAllClinicsForAdmin);
+router.get("/admins/clinics", isAuthenticated, hasRole("admin"), ClinicController.getAllClinicsForAdmin);
 /**
  * @swagger
  * /clinics/{clinicId}:
@@ -315,115 +315,116 @@ router.get("/admins/clinics", clinicController.getAllClinicsForAdmin);
  *       404:
  *         description: Клиника не найдена
  */
-router.get("/clinics/:clinicId", clinicController.getFullClinic);
-/**
- * @swagger
- * /clinics/{clinicId}:
- *   put:
- *     summary: Обновить клинику
- *     description: Обновляет существующую клинику по ее ID.
- *     tags:
- *       - Clinics
- *     parameters:
- *       - name: clinicId
- *         in: path
- *         required: true
- *         description: ID клиники
- *         schema:
- *           type: integer
- *           example: 3
- *     requestBody:
- *       description: Обновленные данные клиники
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               id:
- *                 type: integer
- *                 example: 1
- *               photo:
- *                 type: string
- *                 example: "url"
- *               name:
- *                 type: string
- *                 example: "Durka"
- *               role:
- *                 type: string
- *                 example: "clinic"
- *               nip:
- *                 type: string
- *                 example: "1234567890"
- *               nr_license:
- *                 type: string
- *                 example: "NR-123456"
- *               email:
- *                 type: string
- *                 example: "clinic@example.com"
- *               phone:
- *                     type: string
- *                     example: "+123456789"
- *               description:
- *                 type: string
- *                 example: "Descripcion clinic"
- *               address:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 1
- *                   city:
- *                     type: string
- *                     example: "Novogrudok"
- *                   street:
- *                     type: string
- *                     example: "st Lenina"
- *                   province:
- *                     type: string
- *                     example: "Grodhno"
- *                   home:
- *                     type: string
- *                     example: "10"
- *                   flat:
- *                     type: string
- *                     example: "5"
- *                   post_index:
- *                     type: string
- *                     example: "123456"
- *     responses:
- *       200:
- *         description: Клиника успешно обновлена
- */
-router.put("/clinics/:clinicId", clinicController.updateClinicById);
-/**
- * @swagger
- * /clinics/{clinicId}:
- *   delete:
- *     summary: Удалить клинику
- *     description: Удаляет клинику по заданному ID.
- *     tags:
- *       - Clinics
- *     parameters:
- *       - name: clinicId
- *         in: path
- *         required: true
- *         description: ID клиники для удаления
- *         schema:
- *           type: integer
- *           example: 1
- *     responses:
- *       200:
- *         description: Successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "Successful delete"
- */
-router.delete("/clinics/:clinicId", clinicController.deleteClinic);
+router.get("/clinics/:clinicId", ClinicController.getFullClinic);
+// /**
+//  * @swagger
+//  * /clinics/{clinicId}:
+//  *   put:
+//  *     summary: Обновить клинику
+//  *     description: Обновляет существующую клинику по ее ID.
+//  *     tags:
+//  *       - Clinics
+//  *     parameters:
+//  *       - name: clinicId
+//  *         in: path
+//  *         required: true
+//  *         description: ID клиники
+//  *         schema:
+//  *           type: integer
+//  *           example: 3
+//  *     requestBody:
+//  *       description: Обновленные данные клиники
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             properties:
+//  *               id:
+//  *                 type: integer
+//  *                 example: 1
+//  *               photo:
+//  *                 type: string
+//  *                 example: "url"
+//  *               name:
+//  *                 type: string
+//  *                 example: "Durka"
+//  *               role:
+//  *                 type: string
+//  *                 example: "clinic"
+//  *               nip:
+//  *                 type: string
+//  *                 example: "1234567890"
+//  *               nr_license:
+//  *                 type: string
+//  *                 example: "NR-123456"
+//  *               email:
+//  *                 type: string
+//  *                 example: "clinic@example.com"
+//  *               phone:
+//  *                     type: string
+//  *                     example: "+123456789"
+//  *               description:
+//  *                 type: string
+//  *                 example: "Descripcion clinic"
+//  *               address:
+//  *                 type: object
+//  *                 properties:
+//  *                   id:
+//  *                     type: integer
+//  *                     example: 1
+//  *                   city:
+//  *                     type: string
+//  *                     example: "Novogrudok"
+//  *                   street:
+//  *                     type: string
+//  *                     example: "st Lenina"
+//  *                   province:
+//  *                     type: string
+//  *                     example: "Grodhno"
+//  *                   home:
+//  *                     type: string
+//  *                     example: "10"
+//  *                   flat:
+//  *                     type: string
+//  *                     example: "5"
+//  *                   post_index:
+//  *                     type: string
+//  *                     example: "123456"
+//  *     responses:
+//  *       200:
+//  *         description: Клиника успешно обновлена
+//  */
+// router.put("/clinics/:clinicId", ClinicController.updateClinicById);
+
+// /**
+//  * @swagger
+//  * /clinics/{clinicId}:
+//  *   delete:
+//  *     summary: Удалить клинику
+//  *     description: Удаляет клинику по заданному ID.
+//  *     tags:
+//  *       - Clinics
+//  *     parameters:
+//  *       - name: clinicId
+//  *         in: path
+//  *         required: true
+//  *         description: ID клиники для удаления
+//  *         schema:
+//  *           type: integer
+//  *           example: 1
+//  *     responses:
+//  *       200:
+//  *         description: Successful
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 message:
+//  *                   type: string
+//  *                   example: "Successful delete"
+//  */
+// router.delete("/clinics/:clinicId", ClinicController.deleteClinic);
 
 module.exports = router;

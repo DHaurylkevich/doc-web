@@ -1,7 +1,6 @@
 const sequelize = require("../config/db");
 const AppError = require("../utils/appError");
 const db = require("../models");
-const UserService = require("../services/userService");
 const ClinicService = require("./clinicService");
 const { Op } = require("sequelize");
 const createJWT = require("../utils/createJWT");
@@ -85,7 +84,10 @@ const DoctorService = {
                     {
                         model: db.Specialties,
                         as: 'specialty',
-                        attributes: ["name"]
+                        attributes: ["name"],
+                        include: [
+                            { model: db.Services, as: "services", attributes: ["id", "name"] }
+                        ]
                     },
                     {
                         model: db.Clinics,
@@ -149,25 +151,34 @@ const DoctorService = {
             throw err;
         }
     },
-    updateDoctorById: async ({ userId, userData, addressData, doctorData, servicesIds }) => {
-        const t = await sequelize.transaction();
+    updateDoctorById: async ({ doctorId, userData, addressData, doctorData, servicesIds, clinicId }) => {
+        const doctor = await db.Doctors.findOne({
+            where: {
+                id: doctorId,
+                clinic_id: clinicId
+            }
+        })
+        if (!doctor) {
+            throw new AppError("Access denied", 403);
+        }
 
+        const t = await sequelize.transaction();
         try {
-            const user = await UserService.updateUser({ userId, updatedData: userData, t });
+            if ("password" in userData) {
+                delete userData.password;
+            }
+
+            const user = await doctor.getUser();
+            await user.update(userData, { transaction: t });
 
             const address = await user.getAddress();
-            await address.update(addressData, t);
+            await address.update(addressData, { transaction: t });
 
-            const doctor = await user.getDoctor();
-            if (!doctor) {
-                throw new AppError("Doctor not found", 404);
-            }
             await doctor.update(doctorData, { transaction: t });
-
             await doctor.setServices(servicesIds, { transaction: t });
 
             await t.commit();
-            return doctor;
+            return;
         } catch (err) {
             await t.rollback();
             throw err;
