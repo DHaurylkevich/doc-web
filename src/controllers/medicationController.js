@@ -2,27 +2,25 @@ const MedicationService = require("../services/medicationService");
 
 const MedicationController = {
     createMedication: async (req, res, next) => {
-        const medicationData = req.body;
-        
+        const { name } = req.body;
+
         try {
-            const medication = await MedicationService.createMedication(medicationData);
-            res.status(201).json({ message: "Medication created successfully", medication });
+            await MedicationService.createMedication(name);
+            res.status(201).json({ message: "Medication created successfully" });
         } catch (err) {
             next(err);
         }
     },
-
     getMedicationById: async (req, res, next) => {
-        const { medicationsId } = req.params;
+        const { medicationId } = req.params;
 
         try {
-            const medication = await MedicationService.getMedicationById(medicationsId);
+            const medication = await MedicationService.getMedicationById(medicationId);
             res.status(200).json(medication);
         } catch (err) {
             next(err);
         }
     },
-
     getAllMedications: async (req, res, next) => {
         try {
             const medications = await MedicationService.getAllMedications();
@@ -31,25 +29,23 @@ const MedicationController = {
             next(err);
         }
     },
-
     updateMedication: async (req, res, next) => {
-        const { medicationsId } = req.params;
+        const { medicationId } = req.params;
         const medicationData = req.body;
 
         try {
-            const medication = await MedicationService.updateMedication(medicationsId, medicationData);
-            res.status(200).json({ message: "Medication updated successfully", medication });
+            await MedicationService.updateMedication(medicationId, medicationData);
+            res.status(200).json({ message: "Medication updated successfully", });
         } catch (err) {
             next(err);
         }
     },
-
     deleteMedication: async (req, res, next) => {
-        const { medicationsId } = req.params;
+        const { medicationId } = req.params;
 
         try {
-            const result = await MedicationService.deleteMedication(medicationsId);
-            res.status(200).json(result);
+            await MedicationService.deleteMedication(medicationId);
+            res.status(200).json({ message: "Medication deleted successfully" });
         } catch (err) {
             next(err);
         }

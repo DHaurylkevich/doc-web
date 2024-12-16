@@ -1,5 +1,6 @@
 const express = require("express");
 const MedicationController = require("../controllers/medicationController");
+const { isAuthenticated, hasRole } = require("../middleware/auth");
 const router = express.Router();
 
 /**
@@ -23,18 +24,17 @@ const router = express.Router();
  *       201:
  *         description: Лекарство успешно создано
  */
-router.post("/medications", MedicationController.createMedication);
-
+router.post("/medications", isAuthenticated, hasRole("admin"), MedicationController.createMedication);
 /**
  * @swagger
- * /medications/{medicationsId}:
+ * /medications/{medicationId}:
  *   get:
  *     summary: Получить лекарство по ID
  *     tags:
  *       - Medications
  *     parameters:
  *       - in: path
- *         name: medicationsId
+ *         name: medicationId
  *         required: true
  *         schema:
  *           type: integer
@@ -43,8 +43,7 @@ router.post("/medications", MedicationController.createMedication);
  *       200:
  *         description: Информация о лекарстве
  */
-router.get("/medications/:medicationsId", MedicationController.getMedicationById);
-
+router.get("/medications/:medicationId", isAuthenticated, MedicationController.getMedicationById);
 /**
  * @swagger
  * /medications:
@@ -56,18 +55,17 @@ router.get("/medications/:medicationsId", MedicationController.getMedicationById
  *       200:
  *         description: Список лекарств
  */
-router.get("/medications", MedicationController.getAllMedications);
-
+router.get("/medications", isAuthenticated, MedicationController.getAllMedications);
 /**
  * @swagger
- * /medications/{medicationsId}:
+ * /medications/{medicationId}:
  *   put:
  *     summary: Обновить информацию о лекарстве
  *     tags:
  *       - Medications
  *     parameters:
  *       - in: path
- *         name: medicationsId
+ *         name: medicationId
  *         required: true
  *         schema:
  *           type: integer
@@ -82,28 +80,21 @@ router.get("/medications", MedicationController.getAllMedications);
  *               name:
  *                 type: string
  *                 example: "Ibuprofen"
- *               description:
- *                 type: string
- *                 example: "Anti-inflammatory"
- *               dosage:
- *                 type: string
- *                 example: "200mg"
  *     responses:
  *       200:
  *         description: Лекарство успешно обновлено
  */
-router.put("/medications/:medicationsId", MedicationController.updateMedication);
-
+router.put("/medications/:medicationId", isAuthenticated, hasRole("admin"), MedicationController.updateMedication);
 /**
  * @swagger
- * /medications/{medicationsId}:
+ * /medications/{medicationId}:
  *   delete:
  *     summary: Удалить лекарство
  *     tags: 
  *       - Medications
  *     parameters:
  *       - in: path
- *         name: medicationsId
+ *         name: medicationId
  *         required: true
  *         schema:
  *           type: integer
@@ -112,6 +103,6 @@ router.put("/medications/:medicationsId", MedicationController.updateMedication)
  *       200:
  *         description: Лекарство успешно удалено
  */
-router.delete("medications/:medicationsId", MedicationController.deleteMedication);
+router.delete("/medications/:medicationId", isAuthenticated, hasRole("admin"), MedicationController.deleteMedication);
 
 module.exports = router;

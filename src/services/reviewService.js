@@ -50,16 +50,16 @@ const ReviewService = {
 
         try {
             const { rows, count } = await db.Reviews.findAndCountAll({
-                model: db.Reviews,
-                where: { status: 'pending' },
-                attributes: ["comment", "rating"],
                 limit: parsedLimit,
                 offset: offset,
+                where: { status: 'pending' },
+                order: [['createdAt', 'DESC']],
+                attributes: ["id", "comment", "rating", "createdAt"],
                 include: [
                     {
                         model: db.Doctors,
                         as: "doctor",
-                        attributes: ["id", "description", "rating"],
+                        attributes: ["rating"],
                         include: [
                             {
                                 model: db.Users,
@@ -71,7 +71,7 @@ const ReviewService = {
                     {
                         model: db.Patients,
                         as: "patient",
-                        attributes: ["id"],
+                        attributes: [],
                         include: [
                             {
                                 model: db.Users,
@@ -83,11 +83,10 @@ const ReviewService = {
                     {
                         model: db.Tags,
                         as: "tags",
-                        attributes: ["id", "name"],
+                        attributes: ["name"],
                         through: { attributes: [] },
                     }
                 ],
-                order: [['createdAt', 'DESC']]
             });
 
             const totalPages = Math.ceil(count / parsedLimit);

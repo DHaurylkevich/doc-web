@@ -7,7 +7,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  * @swagger
  * /reviews:
  *   post:
- *     summary: Создать новую запись
+ *     summary: Создать новую запись (PATIENT)
  *     description: Создает новую запись с заданными данными, может создавать только patient.
  *     tags:
  *       - Reviews
@@ -55,7 +55,7 @@ router.post("/reviews/", isAuthenticated, hasRole("patient"), ReviewController.c
  * @swagger
  * /reviews:
  *   get:
- *     summary: Получить все комментарии, может получсть только админ
+ *     summary: Получить все комментарии для модерации (ADMIN)
  *     tags:
  *       - Reviews
  *     security:
@@ -130,7 +130,7 @@ router.get("/reviews", isAuthenticated, hasRole("admin"), ReviewController.getAl
  * @swagger
  * /reviews/{reviewId}:
  *   delete:
- *     summary: Удалить комментарий
+ *     summary: Удалить комментарий (ADMIN)
  *     description: Удаляет комментарий по заданному ID, может только админ
  *     tags:
  *       - Reviews
@@ -157,6 +157,57 @@ router.get("/reviews", isAuthenticated, hasRole("admin"), ReviewController.getAl
  *                   example: "Review deleted successfully"
  */
 router.delete("/reviews/:reviewId", isAuthenticated, hasRole("admin"), ReviewController.deleteReview);
+/**
+ * @swagger
+ * /reviews/{reviewId}/moderate:
+ *   patch:
+ *     summary: Модерация комментария (ADMIN)
+ *     description: Модерация комментария админом (одобрить/отклонить)
+ *     tags:
+ *       - Reviews
+ *     security:
+ *       - CookieAuth: []
+ *     parameters:
+ *       - name: reviewId
+ *         in: path
+ *         required: true
+ *         description: ID комментария для модерации
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [approved, rejected]
+ *                 example: approved
+ *               moderationComment:
+ *                 type: string
+ *                 example: "Комментарий одобрен"
+ *             required:
+ *               - status
+ *     responses:
+ *       200:
+ *         description: Успешная модерация комментария
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Review moderated successfully"
+ *       400:
+ *         description: Неверный статус модерации
+ *       404:
+ *         description: Комментарий не найден
+ */
+router.patch("/reviews/:reviewId/moderate", isAuthenticated, hasRole("admin"), ReviewController.moderateReview);
 /**
  * @swagger
  * /clinics/{clinicId}/reviews:
