@@ -1,8 +1,6 @@
 const sequelize = require("../config/db");
 const db = require("../models");
 const AppError = require("../utils/appError");
-const UserService = require("../services/userService");
-const AddressService = require("../services/addressService");
 const passwordUtil = require("../utils/passwordUtil");
 
 const PatientService = {
@@ -44,21 +42,40 @@ const PatientService = {
             throw err;
         }
     },
-    getPatientById: async (patientId) => {
+    getPatientById: async (patientId, user) => {
         try {
-            const patient = await db.Patients.findByPk(patientId, {
+            const appointmentWhere = user.role === "clinic" ? { clinic_id: user.id } : {}
+            const doctorServiceWhere = user.role === "doctor" ? { doctor_id: user.roleId } : {}
+
+            const patient = await db.Appointments.findOne({
+                where: appointmentWhere,
                 attributes: [],
                 include: [
                     {
-                        model: db.Users,
-                        attributes: ["first_name", "last_name", "photo", "phone", "email", "birthday", "gender"],
-                        as: "user",
+                        model: db.Patients,
+                        as: "patient",
+                        where: { id: patientId },
+                        attributes: ["id"],
                         include: [
                             {
-                                model: db.Addresses,
-                                as: "address",
-                                attributes: ["city", "home", "street", "flat"],
-                            }],
+                                model: db.Users,
+                                as: "user",
+                                attributes: ["first_name", "last_name", "photo", "phone", "email", "birthday", "gender"],
+                                include: [
+                                    {
+                                        model: db.Addresses,
+                                        as: "address",
+                                        attributes: ["city", "home", "street", "flat"],
+                                    }
+                                ],
+                            }
+                        ]
+                    },
+                    {
+                        model: db.DoctorService,
+                        as: "doctorService",
+                        where: doctorServiceWhere,
+                        attributes: [],
                     }
                 ]
             });
@@ -71,14 +88,20 @@ const PatientService = {
             throw err;
         }
     },
-    getPatientsByParam: async ({ sort, limit, page, doctorId, clinicId }) => {
+    getPatientsByParam: async ({ sort, limit, page, doctorId, clinicId, user }) => {
+        if (user.role === "doctor") {
+            doctorId = user.roleId
+        } else if (user.role === "clinic") {
+            clinicId = user.roleId;
+        }
+
         if (!doctorId && !clinicId) {
             throw new AppError("Either doctorId or clinicId is required");
         }
 
-        const sortOptions = [
-            [{ model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"],
-        ];
+        const sortOptions = [{ model: db.Patients, as: "patient" }, { model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"];
+        const appointmentWhere = clinicId ? { clinic_id: clinicId } : {}
+        const doctorServiceWhere = doctorId ? { doctor_id: doctorId } : {}
 
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
         const pageNumber = Math.max(parseInt(page) || 1, 1);
@@ -88,29 +111,35 @@ const PatientService = {
             const { rows, count } = await db.Appointments.findAndCountAll({
                 limit: parsedLimit,
                 offset: offset,
-                where: clinicId ? { clinic_id: clinicId } : {},
+                where: appointmentWhere,
                 attributes: ["id"],
-                order: sortOptions,
+                order: [sortOptions],
                 include: [
                     {
                         model: db.Patients,
                         as: "patient",
-                        order: [["first_name", sort === "asc" ? "ASC" : "DESC"]],
                         attributes: ["id"],
                         include: [
                             {
                                 model: db.Users,
                                 as: "user",
-                                attributes: ["id", "first_name", "last_name", "photo", "gender"],
-                                include: [{ model: db.Addresses, as: "address" }],
+                                attributes: ["first_name", "last_name", "photo", "gender"],
+                                order: [["first_name", sort === "ASC" ? "ASC" : "DESC"]],
+                                include: [
+                                    {
+                                        model: db.Addresses,
+                                        as: "address",
+                                        attributes: ["city", "home", "street", "flat", "post_index"],
+                                    }
+                                ],
                             }
                         ]
                     },
                     {
                         model: db.DoctorService,
                         as: "doctorService",
-                        attributes: ["doctor_id"],
-                        where: doctorId ? { doctor_id: doctorId } : {}
+                        where: doctorServiceWhere,
+                        attributes: [],
                     }
                 ]
             });
@@ -145,6 +174,7 @@ const PatientService = {
                 limit: parsedLimit,
                 offset: offset,
                 attributes: [],
+                order: sortOptions,
                 include: [
                     {
                         model: db.Users,
@@ -153,7 +183,6 @@ const PatientService = {
                         attributes: ["first_name", "last_name", "gender", "createdAt", "birthday"]
                     },
                 ],
-                order: sortOptions
             });
 
             const totalPages = Math.ceil(count / parsedLimit);

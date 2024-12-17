@@ -1,24 +1,24 @@
-'use strict';
-const { Model } = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Patients extends Model {
     static associate(models) {
       Patients.belongsTo(models.Users, {
-        foreignKey: 'user_id',
-        as: 'user',
+        foreignKey: "user_id",
+        as: "user",
       });
       Patients.hasMany(models.Appointments, {
         foreignKey: "patient_id",
-        as: 'appointments',
+        as: "appointments",
       });
       Patients.hasMany(models.Reviews, {
         foreignKey: "patient_id",
         as: "reviews"
       });
       Patients.hasMany(models.Prescriptions, {
-        foreignKey: 'medication_id',
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
+        foreignKey: "medication_id",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       });
     }
   }
@@ -31,8 +31,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'Patients',
-    tableName: 'patients',
+    modelName: "Patients",
+    tableName: "patients",
   });
   return Patients;
 };
