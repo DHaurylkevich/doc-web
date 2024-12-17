@@ -1,6 +1,8 @@
 const express = require("express");
 const prescriptionController = require("../controllers/prescriptionController");
+const { isAuthenticated, hasRole } = require("../middleware/auth");
 const router = express.Router();
+
 
 /**
  * @swagger
@@ -62,82 +64,15 @@ const router = express.Router();
  *       400:
  *         description: Ошибка валидации данных
  */
-router.post("/prescriptions", prescriptionController.createPrescription);
+router.post("/prescriptions", isAuthenticated, hasRole("doctor"), prescriptionController.createPrescription);
 /**
  * @swagger
- * /patient/{patientId}/prescriptions:
- *   get:
- *     summary: Получение всех рецептов пациента
- *     tags:
- *       - Prescriptions
- *     parameters:
- *       - in: path
- *         name: patientId
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID пациента
- *       - name: limit
- *         in: query
- *         required: false
- *         description: Лимит на количество результатов
- *         schema:
- *           type: integer
- *           default: 10
- *       - name: page
- *         in: query
- *         required: false
- *         description: Номер страницы
- *         schema:
- *           type: integer
- *           default: 1
- *     responses:
- *       200:
- *         description: Список рецептов пациента
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 1
- *                   code:
- *                     type: string
- *                     example: "4f7b3d92d6"
- *                   expiration_date:
- *                     type: string
- *                     format: date
- *                     example: "2024-12-31"
- *                   patient_id:
- *                     type: integer
- *                     example: 5
- *                   doctor_id:
- *                     type: integer
- *                     example: 3
- *                   medication_id:
- *                     type: integer
- *                     example: 2
- *       400:
- *         description: Ошибка получения рецептов
- */
-router.get("/patient/:patientId/prescriptions", prescriptionController.getPrescriptionsByPatient);
-/**
- * @swagger
- * /doctors/{doctorId}/prescriptions:
+ * /prescriptions:
  *   get:
  *     summary: Получение всех рецептов, назначенных доктором
  *     tags:
  *       - Prescriptions
  *     parameters:
- *       - in: path
- *         name: doctorId
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID доктора
  *       - name: sort
  *         in: query
  *         required: false
@@ -216,6 +151,6 @@ router.get("/patient/:patientId/prescriptions", prescriptionController.getPrescr
  *       400:
  *         description: Ошибка получения рецептов
  */
-router.get("/doctors/:doctorId/prescriptions", prescriptionController.getPrescriptionsByDoctor);
+router.get("/prescriptions", isAuthenticated, prescriptionController.getPrescriptions);
 
 module.exports = router;

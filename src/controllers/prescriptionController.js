@@ -14,23 +14,17 @@ const prescriptionController = {
             next(err);
         }
     },
-    getPrescriptionsByPatient: async (req, res, next) => {
+    getPrescriptions: async (req, res, next) => {
         try {
-            const { patientId } = req.params;
-            const { limit, page } = req.query;
-
-            const prescriptions = await prescriptionService.getPrescriptionsByPatient({ patientId, limit, page });
-            return res.status(200).json(prescriptions);
-        } catch (err) {
-            next(err);
-        }
-    },
-    getPrescriptionsByDoctor: async (req, res, next) => {
-        try {
-            const { doctorId } = req.params;
+            const user = req.user;
             const { sort = 'ASC', limit, page } = req.query;
+            let prescriptions;
+            if (user.role === "patient") {
+                prescriptions = await prescriptionService.getPrescriptionsByPatient({ userId: user.id, sort, limit, page });
+            } else {
+                prescriptions = await prescriptionService.getPrescriptionsByDoctor({ userId: user.id, sort, limit, page });
+            }
 
-            const prescriptions = await prescriptionService.getPrescriptionsByDoctor({ doctorId, sort, limit, page });
             return res.status(200).json(prescriptions);
         } catch (err) {
             next(err);

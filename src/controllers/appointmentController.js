@@ -23,7 +23,7 @@ const AppointmentController = {
         }
     },
     getAppointmentsByClinic: async (req, res, next) => {
-        const { clinicId } = req.params;
+        const clinicId = req.user.id;
         const { doctorId, patientId, date, limit, page } = req.query;
 
         try {
@@ -34,22 +34,22 @@ const AppointmentController = {
         }
     },
     getAppointmentsByDoctor: async (req, res, next) => {
-        const user = req.user;
+        const userId = req.user.id;
         const { startDate, endDate, status, limit, page } = req.query;
 
         try {
-            const appointments = await AppointmentService.getAllAppointmentsByDoctor({ user, limit, page, startDate, endDate, status });
+            const appointments = await AppointmentService.getAllAppointmentsByDoctor({ userId, limit, page, startDate, endDate, status });
             res.status(200).json(appointments);
         } catch (err) {
             next(err);
         }
     },
     getAppointmentsByPatient: async (req, res, next) => {
-        const { patientId } = req.params;
+        const userId = req.user.id;
         const { limit, page, startDate, endDate } = req.query;
 
         try {
-            const appointments = await AppointmentService.getAllAppointmentsByPatient({ patientId, limit, page, startDate, endDate });
+            const appointments = await AppointmentService.getAllAppointmentsByPatient({ userId, limit, page, startDate, endDate });
             res.status(200).json(appointments);
         } catch (err) {
             console.log(err)

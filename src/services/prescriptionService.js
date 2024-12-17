@@ -28,22 +28,27 @@ const prescriptionService = {
             throw error;
         }
     },
-    getPrescriptionsByPatient: async ({ patientId, limit, page }) => {
+    getPrescriptionsByPatient: async ({ userId, limit, page }) => {
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
         const pageNumber = Math.max(parseInt(page) || 1, 1);
         const offset = (pageNumber - 1) * parsedLimit;
 
         try {
-            const patient = await db.Patients.findByPk(patientId);
+            const patient = await db.Patients.findOne({
+                raw: true,
+                where: { user_id: userId },
+                attributes: ["id"]
+            });
             if (!patient) {
                 throw new AppError("Patient not found", 404);
             }
 
             const { rows, count } = await db.Prescriptions.findAndCountAll({
-                where: { patient_id: patientId },
+                where: { patient_id: patient.id },
                 attributes: { exclude: ["updatedAt", "doctor_id", "medication_id", "patient_id"] },
                 limit: parsedLimit,
                 offset: offset,
+                order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
                 include: [
                     {
                         model: db.Doctors, as: "doctor",
@@ -74,19 +79,23 @@ const prescriptionService = {
             throw err;
         }
     },
-    getPrescriptionsByDoctor: async ({ doctorId, sort, limit, page }) => {
+    getPrescriptionsByDoctor: async ({ userId, sort, limit, page }) => {
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
         const pageNumber = Math.max(parseInt(page) || 1, 1);
         const offset = (pageNumber - 1) * parsedLimit;
 
         try {
-            const doctor = await db.Doctors.findByPk(doctorId);
+            const doctor = await db.Doctors.findOne({
+                raw: true,
+                where: { user_id: userId },
+                attributes: ["id"]
+            });
             if (!doctor) {
                 throw new AppError("Doctor not found", 404);
             }
 
             const { rows, count } = await db.Prescriptions.findAndCountAll({
-                where: { doctor_id: doctorId },
+                where: { doctor_id: doctor.id },
                 order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
                 limit: parsedLimit,
                 offset: offset,

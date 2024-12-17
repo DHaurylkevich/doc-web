@@ -299,16 +299,17 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAllAppointmentsByDoctor: async ({ user, limit, page, startDate, endDate, status }) => {
+    getAllAppointmentsByDoctor: async ({ userId, limit, page, startDate, endDate, status }) => {
         let scheduleWhere = {};
-        if (user.role !== "doctor") {
-            throw new AppError("Acces define", 403);
-        }
+
         const doctor = await db.Doctors.findOne({
             raw: true,
-            where: { user_id: user.id },
+            where: { user_id: userId },
             attributes: ["id"]
         })
+        if (!doctor) {
+            throw new AppError("Doctor not found", 404);
+        }
 
         if (startDate && endDate) {
             scheduleWhere.date = {
@@ -400,7 +401,15 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAllAppointmentsByPatient: async ({ patientId, limit, page, startDate, endDate }) => {
+    getAllAppointmentsByPatient: async ({ userId, limit, page, startDate, endDate }) => {
+        const patient = await db.Patients.findOne({
+            raw: true,
+            where: { user_id: userId }
+        });
+        if (!patient) {
+            throw new AppError("Patient not found", 404);
+        }
+
         const scheduleWhere = startDate && endDate ? {
             date: {
                 [Op.between]: [startDate, endDate]
@@ -413,7 +422,7 @@ const AppointmentService = {
 
         try {
             const { rows, count } = await db.Appointments.findAndCountAll({
-                where: { patient_id: patientId },
+                where: { patient_id: patient.id },
                 limit: parsedLimit,
                 offset: offset,
                 attributes: { exclude: ["createdAt", "updatedAt", "doctor_service_id"] },

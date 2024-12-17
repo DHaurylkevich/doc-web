@@ -247,7 +247,7 @@ router.delete("/appointments/:id", isAuthenticated, validateParam("id"), validat
 /**
  * @swagger
  * paths:
- *   /clinics/{clinicId}/appointments:
+ *   /clinics/appointments:
  *      get:
  *       summary: Получить записи для графика
  *       description: Получает записи с учетом фильтров.
@@ -257,12 +257,6 @@ router.delete("/appointments/:id", isAuthenticated, validateParam("id"), validat
  *       security:
  *         - CookieAuth: []
  *       parameters:
- *         - name: clinicId
- *           in: path
- *           required: true
- *           description: ID клиники
- *           schema:
- *             type: integer
  *         - name: doctorId
  *           in: query
  *           required: false
@@ -375,7 +369,7 @@ router.delete("/appointments/:id", isAuthenticated, validateParam("id"), validat
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/clinics/:clinicId/appointments", isAuthenticated, validateParam("clinicId"), validateRequest, AppointmentController.getAppointmentsByClinic);
+router.get("/clinics/appointments", isAuthenticated, hasRole("clinic"), validateParam("clinicId"), validateRequest, AppointmentController.getAppointmentsByClinic);
 /**
  * @swagger
  *   /doctors/appointments:
@@ -491,10 +485,10 @@ router.get("/clinics/:clinicId/appointments", isAuthenticated, validateParam("cl
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/doctors/appointments", isAuthenticated, validation.filterDateExist, validateRequest, AppointmentController.getAppointmentsByDoctor);
+router.get("/doctors/appointments", isAuthenticated, hasRole("doctor"), validation.filterDateExist, validateRequest, AppointmentController.getAppointmentsByDoctor);
 /**
  * @swagger
- *   /patients/{patientId}/appointments:
+ *   /patients/appointments:
  *     get:
  *       summary: Получить все записи пациента
  *       description: Получает все записи на прием для указанного пациента.
@@ -504,13 +498,6 @@ router.get("/doctors/appointments", isAuthenticated, validation.filterDateExist,
  *       security:
  *         - CookieAuth: []
  *       parameters:
- *         - name: patientId
- *           in: path
- *           required: true
- *           description: ID пациента
- *           schema:
- *             type: integer
- *             example: 1
  *         - name: limit
  *           in: query
  *           required: false
@@ -603,6 +590,6 @@ router.get("/doctors/appointments", isAuthenticated, validation.filterDateExist,
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/patients/:patientId/appointments", isAuthenticated, validateParam("patientId"), validateRequest, AppointmentController.getAppointmentsByPatient);
+router.get("/patients/appointments", isAuthenticated, hasRole("patient"), validateParam("patientId"), validateRequest, AppointmentController.getAppointmentsByPatient);
 
 module.exports = router;
