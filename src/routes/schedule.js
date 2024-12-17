@@ -167,7 +167,7 @@ router.delete("/schedules/:scheduleId", ScheduleController.deleteSchedule);
  *       400:
  *         description: Ошибка при получении расписания.
  */
-router.get("/doctors/:doctorId/schedules", ScheduleController.getScheduleByDoctor);
+router.get("/doctors/schedules", ScheduleController.getScheduleByDoctor);
 /**
  * @swagger
  * /clinics/{clinicId}/schedules:

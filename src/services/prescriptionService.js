@@ -28,23 +28,14 @@ const prescriptionService = {
             throw error;
         }
     },
-    getPrescriptionsByPatient: async ({ userId, limit, page }) => {
+    getPrescriptionsByPatient: async ({ patientId, limit, page }) => {
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
         const pageNumber = Math.max(parseInt(page) || 1, 1);
         const offset = (pageNumber - 1) * parsedLimit;
 
         try {
-            const patient = await db.Patients.findOne({
-                raw: true,
-                where: { user_id: userId },
-                attributes: ["id"]
-            });
-            if (!patient) {
-                throw new AppError("Patient not found", 404);
-            }
-
             const { rows, count } = await db.Prescriptions.findAndCountAll({
-                where: { patient_id: patient.id },
+                where: { patient_id: patientId },
                 attributes: { exclude: ["updatedAt", "doctor_id", "medication_id", "patient_id"] },
                 limit: parsedLimit,
                 offset: offset,
@@ -79,23 +70,14 @@ const prescriptionService = {
             throw err;
         }
     },
-    getPrescriptionsByDoctor: async ({ userId, sort, limit, page }) => {
+    getPrescriptionsByDoctor: async ({ doctorId, sort, limit, page }) => {
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
         const pageNumber = Math.max(parseInt(page) || 1, 1);
         const offset = (pageNumber - 1) * parsedLimit;
 
         try {
-            const doctor = await db.Doctors.findOne({
-                raw: true,
-                where: { user_id: userId },
-                attributes: ["id"]
-            });
-            if (!doctor) {
-                throw new AppError("Doctor not found", 404);
-            }
-
             const { rows, count } = await db.Prescriptions.findAndCountAll({
-                where: { doctor_id: doctor.id },
+                where: { doctor_id: doctorId },
                 order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
                 limit: parsedLimit,
                 offset: offset,

@@ -20,9 +20,9 @@ const prescriptionController = {
             const { sort = 'ASC', limit, page } = req.query;
             let prescriptions;
             if (user.role === "patient") {
-                prescriptions = await prescriptionService.getPrescriptionsByPatient({ userId: user.id, sort, limit, page });
+                prescriptions = await prescriptionService.getPrescriptionsByPatient({ patientId: user.roleId, sort, limit, page });
             } else {
-                prescriptions = await prescriptionService.getPrescriptionsByDoctor({ userId: user.id, sort, limit, page });
+                prescriptions = await prescriptionService.getPrescriptionsByDoctor({ doctorId: user.roleId, sort, limit, page });
             }
 
             return res.status(200).json(prescriptions);

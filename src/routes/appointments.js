@@ -369,7 +369,7 @@ router.delete("/appointments/:id", isAuthenticated, validateParam("id"), validat
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/clinics/appointments", isAuthenticated, hasRole("clinic"), validateParam("clinicId"), validateRequest, AppointmentController.getAppointmentsByClinic);
+router.get("/clinics/appointments", isAuthenticated, hasRole("clinic"), validateRequest, AppointmentController.getAppointmentsByClinic);
 /**
  * @swagger
  *   /doctors/appointments:
@@ -590,6 +590,6 @@ router.get("/doctors/appointments", isAuthenticated, hasRole("doctor"), validati
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/patients/appointments", isAuthenticated, hasRole("patient"), validateParam("patientId"), validateRequest, AppointmentController.getAppointmentsByPatient);
+router.get("/patients/appointments", isAuthenticated, hasRole("patient"), validateRequest, AppointmentController.getAppointmentsByPatient);
 
 module.exports = router;

@@ -51,7 +51,7 @@ const ScheduleController = {
         }
     },
     getScheduleByDoctor: async (req, res, next) => {
-        const { doctorId } = req.params;
+        const { doctorId } = req.user.id;
 
         try {
             const schedules = await ScheduleService.getScheduleByDoctor(doctorId);

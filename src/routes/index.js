@@ -26,10 +26,10 @@ const upload = require("../middleware/upload").uploadFiles;
 router.use("/", authRouter);
 // router.use("/api", searchRouter);
 
+router.use("/api", appointmentRouter);
 router.use("/api", clinicRouter);
 router.use("/api", userRouter);
 router.use("/api", patientRouter);
-router.use("/api", appointmentRouter);
 router.use("/api", doctorRouter);
 router.use("/api", serviceRouter);
 router.use("/api", specialtyRouter);

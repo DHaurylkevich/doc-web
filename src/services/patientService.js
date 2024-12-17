@@ -44,15 +44,21 @@ const PatientService = {
             throw err;
         }
     },
-    getPatientById: async (userId) => {
+    getPatientById: async (patientId) => {
         try {
-            const patient = await db.Patients.findOne({
+            const patient = await db.Patients.findByPk(patientId, {
+                attributes: [],
                 include: [
                     {
                         model: db.Users,
+                        attributes: ["first_name", "last_name", "photo", "phone", "email", "birthday", "gender"],
                         as: "user",
-                        where: { id: userId },
-                        include: [{ model: db.Addresses, as: 'address' }],
+                        include: [
+                            {
+                                model: db.Addresses,
+                                as: "address",
+                                attributes: ["city", "home", "street", "flat"],
+                            }],
                     }
                 ]
             });
@@ -83,27 +89,27 @@ const PatientService = {
                 limit: parsedLimit,
                 offset: offset,
                 where: clinicId ? { clinic_id: clinicId } : {},
-                attributes: ['id'],
+                attributes: ["id"],
                 order: sortOptions,
                 include: [
                     {
                         model: db.Patients,
-                        as: 'patient',
-                        order: [['first_name', sort === 'asc' ? 'ASC' : 'DESC']],
-                        attributes: ['id'],
+                        as: "patient",
+                        order: [["first_name", sort === "asc" ? "ASC" : "DESC"]],
+                        attributes: ["id"],
                         include: [
                             {
                                 model: db.Users,
                                 as: "user",
-                                attributes: ['id', 'first_name', 'last_name', 'photo', 'gender'],
-                                include: [{ model: db.Addresses, as: 'address' }],
+                                attributes: ["id", "first_name", "last_name", "photo", "gender"],
+                                include: [{ model: db.Addresses, as: "address" }],
                             }
                         ]
                     },
                     {
                         model: db.DoctorService,
-                        as: 'doctorService',
-                        attributes: ['doctor_id'],
+                        as: "doctorService",
+                        attributes: ["doctor_id"],
                         where: doctorId ? { doctor_id: doctorId } : {}
                     }
                 ]

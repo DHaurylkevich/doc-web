@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
       Users.hasOne(models.Patients, {
         foreignKey: 'user_id',
         onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
+        onUpdate: 'CASCADE',
+        as: "patient"
       });
       Users.hasOne(models.Doctors, {
         foreignKey: 'user_id',

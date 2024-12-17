@@ -71,44 +71,44 @@ const { validateRequest } = require('../middleware/errorHandler');
  *                         type: string
  */
 router.get("/patients", isAuthenticated, patientController.getPatientsFilter);
-// /**
-//  * @swagger
-//  * /patients/{userId}:
-//  *   get:
-//  *     summary: Получить информацию о пациенте по ID.
-//  *     description: Возвращает данные пациента по указанному ID. Можно использовать для профиля
-//  *     tags:
-//  *       - Patients
-//  *     parameters:
-//  *       - name: userId
-//  *         in: path
-//  *         required: true
-//  *         schema:
-//  *           type: integer
-//  *         description: ID пациента
-//  *     responses:
-//  *       200:
-//  *         description: Информация о пациенте успешно получена
-//  *         content:
-//  *           application/json:
-//  *             schema:
-//  *               type: object
-//  *               properties:
-//  *                 id:
-//  *                   type: integer
-//  *                 gender:
-//  *                   type: string
-//  *                 user:
-//  *                   type: object
-//  *                   properties:
-//  *                     first_name:
-//  *                       type: string
-//  *                     last_name:
-//  *                       type: string
-//  *       404:
-//  *         description: Пациент не найден
-//  */
-// router.get("/patients/:userId", isAuthenticated, patientController.getPatientById);
+/**
+ * @swagger
+ * /patients/{patientId}:
+ *   get:
+ *     summary: Получить информацию о пациенте по ID.
+ *     description: Возвращает данные пациента по указанному ID. Можно использовать для профиля
+ *     tags:
+ *       - Patients
+ *     parameters:
+ *       - name: patientId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID пациента
+ *     responses:
+ *       200:
+ *         description: Информация о пациенте успешно получена
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 gender:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     first_name:
+ *                       type: string
+ *                     last_name:
+ *                       type: string
+ *       404:
+ *         description: Пациент не найден
+ */
+router.get("/patients/:patientId", isAuthenticated, patientController.getPatientById);
 /**
  * @swagger
  * /admins/patients:

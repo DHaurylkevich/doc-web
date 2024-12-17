@@ -182,7 +182,7 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAppointmentsByClinic: async ({ clinicId, doctorId, patientId, date, limit, page }) => {
+    getAppointmentsByClinic: async ({ clinicId, doctorId, patientId, date, specialty, limit, page }) => {
         let appointmentWhere = { clinic_id: clinicId };
         if (patientId) {
             appointmentWhere.patient_id = patientId;
@@ -248,7 +248,6 @@ const AppointmentService = {
                     },
                     {
                         model: db.Schedules,
-                        as: "schedule",
                         attributes: ["id", "date", "interval"],
                         order: [['date', 'DESC']],
                         where: scheduleWhere,
@@ -299,17 +298,8 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAllAppointmentsByDoctor: async ({ userId, limit, page, startDate, endDate, status }) => {
+    getAllAppointmentsByDoctor: async ({ doctorId, limit, page, startDate, endDate, status }) => {
         let scheduleWhere = {};
-
-        const doctor = await db.Doctors.findOne({
-            raw: true,
-            where: { user_id: userId },
-            attributes: ["id"]
-        })
-        if (!doctor) {
-            throw new AppError("Doctor not found", 404);
-        }
 
         if (startDate && endDate) {
             scheduleWhere.date = {
@@ -339,7 +329,7 @@ const AppointmentService = {
                     {
                         model: db.DoctorService,
                         as: "doctorService",
-                        where: { doctor_id: doctor.id },
+                        where: { doctor_id: doctorId },
                         attributes: { exclude: ["id", "createdAt", "updatedAt"] },
                         include: [
                             {
@@ -401,15 +391,7 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAllAppointmentsByPatient: async ({ userId, limit, page, startDate, endDate }) => {
-        const patient = await db.Patients.findOne({
-            raw: true,
-            where: { user_id: userId }
-        });
-        if (!patient) {
-            throw new AppError("Patient not found", 404);
-        }
-
+    getAllAppointmentsByPatient: async ({ patientId, limit, page, startDate, endDate }) => {
         const scheduleWhere = startDate && endDate ? {
             date: {
                 [Op.between]: [startDate, endDate]
@@ -422,7 +404,7 @@ const AppointmentService = {
 
         try {
             const { rows, count } = await db.Appointments.findAndCountAll({
-                where: { patient_id: patient.id },
+                where: { patient_id: patientId },
                 limit: parsedLimit,
                 offset: offset,
                 attributes: { exclude: ["createdAt", "updatedAt", "doctor_service_id"] },

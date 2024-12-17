@@ -24,32 +24,32 @@ const AppointmentController = {
     },
     getAppointmentsByClinic: async (req, res, next) => {
         const clinicId = req.user.id;
-        const { doctorId, patientId, date, limit, page } = req.query;
+        const { doctorId, patientId, date, specialty, limit, page } = req.query;
 
         try {
-            const appointments = await AppointmentService.getAppointmentsByClinic({ clinicId, doctorId, patientId, date, limit, page });
+            const appointments = await AppointmentService.getAppointmentsByClinic({ clinicId, doctorId, patientId, date, specialty, limit, page });
             res.status(200).json(appointments);
         } catch (err) {
             next(err);
         }
     },
     getAppointmentsByDoctor: async (req, res, next) => {
-        const userId = req.user.id;
+        const doctorId = req.user.roleId;
         const { startDate, endDate, status, limit, page } = req.query;
 
         try {
-            const appointments = await AppointmentService.getAllAppointmentsByDoctor({ userId, limit, page, startDate, endDate, status });
+            const appointments = await AppointmentService.getAllAppointmentsByDoctor({ doctorId, limit, page, startDate, endDate, status });
             res.status(200).json(appointments);
         } catch (err) {
             next(err);
         }
     },
     getAppointmentsByPatient: async (req, res, next) => {
-        const userId = req.user.id;
+        const patientId = req.user.roleId;
         const { limit, page, startDate, endDate } = req.query;
 
         try {
-            const appointments = await AppointmentService.getAllAppointmentsByPatient({ userId, limit, page, startDate, endDate });
+            const appointments = await AppointmentService.getAllAppointmentsByPatient({ patientId, limit, page, startDate, endDate });
             res.status(200).json(appointments);
         } catch (err) {
             console.log(err)

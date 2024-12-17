@@ -59,7 +59,17 @@ passport.deserializeUser(async (user, done) => {
     try {
         let foundUser;
         if (user.role !== "clinic") {
-            foundUser = await db.Users.findByPk(user.id);
+            foundUser = await db.Users.findByPk(user.id, {
+                attributes: ['id', 'role'],
+                include: [
+                    { model: db.Doctors, as: 'doctor', attributes: ['id'] },
+                    { model: db.Patients, as: 'patient', attributes: ['id'] }
+                ]
+            });
+            foundUser.roleId = foundUser.doctor?.id || foundUser.patient?.id;
+
+            console.log({ id: foundUser.id, role: foundUser.role, roleId: foundUser.roleId });
+            return done(null, { id: foundUser.id, role: foundUser.role, roleId: foundUser.roleId });
         } else {
             foundUser = await db.Clinics.findByPk(user.id);
         }
