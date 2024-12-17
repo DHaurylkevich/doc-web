@@ -19,19 +19,21 @@ const authRouter = require("./auth");
 const chatRouter = require("./chat");
 const messageRouter = require("./messages");
 const timetableRouter = require("./timetables");
+const searchRouter = require("./search");
 const { isAuthenticated, hasRole } = require('../middleware/auth');
 const upload = require("../middleware/upload").uploadFiles;
 
 router.use("/", authRouter);
+router.use("/api", searchRouter);
 
 router.use("/api", clinicRouter);
 router.use("/api", userRouter);
 router.use("/api", patientRouter);
+router.use("/api", appointmentRouter);
 router.use("/api", doctorRouter);
 router.use("/api", serviceRouter);
 router.use("/api", specialtyRouter);
 router.use("/api", scheduleRouter);
-router.use("/api", appointmentRouter);
 router.use("/api", reviewRouter);
 router.use("/api", tagRouter);
 router.use("/api", categoryRouter);

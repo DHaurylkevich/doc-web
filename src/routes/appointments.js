@@ -378,7 +378,7 @@ router.delete("/appointments/:id", isAuthenticated, validateParam("id"), validat
 router.get("/clinics/:clinicId/appointments", isAuthenticated, validateParam("clinicId"), validateRequest, AppointmentController.getAppointmentsByClinic);
 /**
  * @swagger
- *   /doctors/{doctorId}/appointments:
+ *   /doctors/appointments:
  *     get:
  *       summary: Получить все записи на прием
  *       description: Получает все записи для указанного врача.
@@ -388,13 +388,6 @@ router.get("/clinics/:clinicId/appointments", isAuthenticated, validateParam("cl
  *       security:
  *         - CookieAuth: []
  *       parameters:
- *         - name: doctorId
- *           in: path
- *           required: true
- *           description: ID врача
- *           schema:
- *             type: integer
- *             example: 1
  *         - name: limit
  *           in: query
  *           required: false
@@ -498,7 +491,7 @@ router.get("/clinics/:clinicId/appointments", isAuthenticated, validateParam("cl
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/doctors/:doctorId/appointments", isAuthenticated, validation.filterDateExist, validateRequest, AppointmentController.getAppointmentsByDoctor);
+router.get("/doctors/appointments", isAuthenticated, validation.filterDateExist, validateRequest, AppointmentController.getAppointmentsByDoctor);
 /**
  * @swagger
  *   /patients/{patientId}/appointments:

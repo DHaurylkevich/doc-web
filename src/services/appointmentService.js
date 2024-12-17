@@ -299,8 +299,16 @@ const AppointmentService = {
             throw err;
         }
     },
-    getAllAppointmentsByDoctor: async ({ doctorId, limit, page, startDate, endDate, status }) => {
+    getAllAppointmentsByDoctor: async ({ user, limit, page, startDate, endDate, status }) => {
         let scheduleWhere = {};
+        if (user.role !== "doctor") {
+            throw new AppError("Acces define", 403);
+        }
+        const doctor = await db.Doctors.findOne({
+            raw: true,
+            where: { user_id: user.id },
+            attributes: ["id"]
+        })
 
         if (startDate && endDate) {
             scheduleWhere.date = {
@@ -330,7 +338,7 @@ const AppointmentService = {
                     {
                         model: db.DoctorService,
                         as: "doctorService",
-                        where: { doctor_id: doctorId },
+                        where: { doctor_id: doctor.id },
                         attributes: { exclude: ["id", "createdAt", "updatedAt"] },
                         include: [
                             {

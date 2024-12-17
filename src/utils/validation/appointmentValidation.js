@@ -1,8 +1,6 @@
 const { body, query, param } = require('express-validator');
 
 const filterDateExist = [
-    param("doctorId")
-        .exists().withMessage("Doctor is required"),
     query("startDate")
         .exists().withMessage("Start date is required")
 ];
