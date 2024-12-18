@@ -3,9 +3,10 @@ const AppError = require("../utils/appError");
 const ClinicService = require("../services/clinicService");
 const UserService = require("../services/userService");
 const { Op } = require("sequelize");
+// const logger = require("../utils/logger");
 
 const AppointmentService = {
-    createAppointment: async ({ doctorId, doctorServiceId, clinicId, userId, date, timeSlot, firstVisit, visitType, status, description }) => {
+    createAppointment: async ({ doctorId, doctorServiceId, clinicId, patientId, date, timeSlot, firstVisit, visitType, description }) => {
         const schedule = await db.Schedules.findOne({
             where: { doctor_id: doctorId, date: date },
             attributes: ["id", "date", "interval", "doctor_id", "start_time", "end_time"],
@@ -31,17 +32,11 @@ const AppointmentService = {
 
         await ClinicService.getClinicById(clinicId);
 
-        const user = await UserService.getUserById(userId);
-        const patient = await user.getPatient();
-        if (!patient) {
-            throw new AppError("Patient not found", 404);
-        }
-
         try {
             const newAppointment = await db.Appointments.create({
                 clinic_id: clinicId,
                 schedule_id: schedule.id,
-                patient_id: patient.id,
+                patient_id: patientId,
                 doctor_service_id: doctorServiceId,
                 time_slot: timeSlot,
                 description: description,
@@ -78,74 +73,73 @@ const AppointmentService = {
     getAvailableSlotsWithFilter: async ({ city, specialty, date, limit, page }) => {
         const clinicWhere = city ? { city: city } : {};
         const specialtyWhere = specialty ? { name: specialty } : {};
-        const scheduleWhere = date ? { date: date } : {};
+        const scheduleWhere = date
+            ? { where: { date: date } }
+            : {
+                limit: 2,
+                where: {
+                    date: {
+                        [Op.gte]: new Date()
+                    }
+                },
+                required: false,
+            };
 
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
         const pageNumber = Math.max(parseInt(page) || 1, 1);
         const offset = (pageNumber - 1) * parsedLimit;
 
         try {
-            const { rows, count } = await db.Appointments.findAndCountAll({
+            const { rows, count } = await db.Doctors.findAndCountAll({
                 limit: parsedLimit,
                 offset: offset,
-                attributes: ["time_slot"],
+                attributes: ["id", "description", "rating"],
                 include: [
                     {
                         model: db.Schedules,
                         attributes: ["id", "date", "interval", "end_time", "start_time"],
-                        where: scheduleWhere,
+                        ...scheduleWhere,
+                        order: [['date', 'ASC']],
+                        include: [
+                            {
+                                model: db.Appointments,
+                                attributes: ["time_slot"],
+                                required: false
+                            }
+                        ],
+                    },
+                    {
+                        model: db.Users,
+                        as: "user",
+                        attributes: ["first_name", "last_name", "photo"],
+                    },
+                    {
+                        model: db.Specialties,
+                        as: "specialty",
+                        attributes: ["name"],
+                        where: specialtyWhere,
+                        required: true,
+                    },
+                    {
+                        model: db.Clinics,
+                        as: "clinic",
+                        attributes: ["id", "name"],
                         required: true,
                         include: [
                             {
-                                model: db.Doctors,
-                                as: "doctor",
-                                attributes: ["id", "description", "rating"],
+                                model: db.Addresses,
+                                as: "address",
+                                where: clinicWhere,
+                                attributes: ["id", "city", "street", "home", "flat", "post_index"],
                                 required: true,
-                                include: [
-                                    {
-                                        model: db.Users,
-                                        as: "user",
-                                        attributes: ["first_name", "last_name", "photo"],
-                                    },
-                                    {
-                                        model: db.Specialties,
-                                        as: "specialty",
-                                        attributes: ["name"],
-                                        where: specialtyWhere,
-                                        required: true,
-                                    },
-                                ]
-                            },
-                            {
-                                model: db.Clinics,
-                                as: "clinic",
-                                attributes: ["id", "name", "photo"],
-                                required: true,
-                                include: [
-                                    {
-                                        model: db.Addresses,
-                                        as: "address",
-                                        where: clinicWhere,
-                                        attributes: ["id", "city", "street", "home", "flat", "post_index"],
-                                        required: true,
-                                    }
-                                ]
-                            },
+                            }
                         ]
                     },
                     {
-                        model: db.DoctorService,
-                        as: "doctorService",
-                        attributes: ["id"],
-                        required: true,
-                        include: [
-                            {
-                                model: db.Services,
-                                as: "service",
-                                required: true,
-                                attributes: ["id", "name", "price"]
-                            }
-                        ]
+                        model: db.Services,
+                        as: "services",
+                        attributes: ["id", "name", "price"],
+                        through: { attributes: [] },
                     }
                 ]
             });
@@ -158,21 +152,24 @@ const AppointmentService = {
             if (!rows.length) {
                 return [];
             }
-            // return rows;
-            const availableSlots = rows.map(appointment => {
-                const schedule = appointment.Schedule;
-                const doctor = schedule.doctor;
-                const slots = AppointmentService.getAvailableSlots(schedule);
-                const freeSlots = slots.filter(slot => slot !== appointment.time_slot.slice(0, -3));
+            // return rows
+            const availableSlots = rows.map(doctor => {
+                const freeSlots = doctor.Schedules.map(schedule => {
+                    let slots = AppointmentService.getAvailableSlots(schedule)
+                    const appointmentTimes = schedule.Appointments.map(app => app.time_slot.slice(0, -3));
+                    slots = slots.filter(slot => !appointmentTimes.includes(slot)).flat();
+                    return { date: schedule.date, slots };
+                });
 
                 return {
                     doctor_id: doctor.id,
                     description: doctor.description,
                     rating: doctor.rating,
+                    user: doctor.user,
                     specialty: doctor.specialty.name,
-                    address: schedule.clinic.address || null,
-                    date: schedule.date,
-                    service: appointment.doctorService.service,
+                    clinic: doctor.clinic.name,
+                    address: doctor.clinic.address,
+                    service: doctor.services,
                     slots: freeSlots,
                 };
             });
@@ -182,6 +179,123 @@ const AppointmentService = {
             throw err;
         }
     },
+    // getAvailableSlotsWithFilter: async ({ city, specialty, date, limit, page }) => {
+    //     const clinicWhere = city ? { city: city } : {};
+    //     const specialtyWhere = specialty ? { name: specialty } : {};
+    //     let scheduleWhere = {};
+    //     if (date) {
+    //         scheduleWhere = date ? { date: date } : {};
+    //     } else {
+    //         scheduleWhere = {
+    //             date: {
+    //                 [Op.gte]: new Date()
+    //             }
+    //         }
+    //     }
+
+
+    //     const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+    //     const pageNumber = Math.max(parseInt(page) || 1, 1);
+    //     const offset = (pageNumber - 1) * parsedLimit;
+
+    //     try {
+    //         const { rows, count } = await db.Appointments.findAndCountAll({
+    //             limit: parsedLimit,
+    //             offset: offset,
+    //             attributes: ["time_slot"],
+    //             include: [
+    //                 {
+    //                     model: db.Schedules,
+    //                     attributes: ["id", "date", "interval", "end_time", "start_time"],
+    //                     where: scheduleWhere,
+    //                     required: true,
+    //                     include: [
+    //                         {
+    //                             model: db.Doctors,
+    //                             as: "doctor",
+    //                             attributes: ["id", "description", "rating"],
+    //                             required: true,
+    //                             include: [
+    //                                 {
+    //                                     model: db.Users,
+    //                                     as: "user",
+    //                                     attributes: ["first_name", "last_name", "photo"],
+    //                                 },
+    //                                 {
+    //                                     model: db.Specialties,
+    //                                     as: "specialty",
+    //                                     attributes: ["name"],
+    //                                     where: specialtyWhere,
+    //                                     required: true,
+    //                                 },
+    //                             ]
+    //                         },
+    //                         {
+    //                             model: db.Clinics,
+    //                             as: "clinic",
+    //                             attributes: ["id", "name", "photo"],
+    //                             required: true,
+    //                             include: [
+    //                                 {
+    //                                     model: db.Addresses,
+    //                                     as: "address",
+    //                                     where: clinicWhere,
+    //                                     attributes: ["id", "city", "street", "home", "flat", "post_index"],
+    //                                     required: true,
+    //                                 }
+    //                             ]
+    //                         },
+    //                     ]
+    //                 },
+    //                 {
+    //                     model: db.DoctorService,
+    //                     as: "doctorService",
+    //                     attributes: ["id"],
+    //                     required: true,
+    //                     include: [
+    //                         {
+    //                             model: db.Services,
+    //                             as: "service",
+    //                             required: true,
+    //                             attributes: ["id", "name", "price"]
+    //                         }
+    //                     ]
+    //                 }
+    //             ]
+    //         });
+
+    //         const totalPages = Math.ceil(count / parsedLimit);
+    //         if (page - 1 > totalPages) {
+    //             throw new AppError("Page not found", 404);
+    //         }
+
+    //         if (!rows.length) {
+    //             return [];
+    //         }
+    //         return rows;
+    //         const availableSlots = rows.map(appointment => {
+    //             const schedule = appointment.Schedule;
+    //             const doctor = schedule.doctor;
+    //             const slots = AppointmentService.getAvailableSlots(schedule);
+    //             const freeSlots = slots.filter(slot => slot !== appointment.time_slot.slice(0, -3));
+
+    //             return {
+    //                 doctor_id: doctor.id,
+    //                 description: doctor.description,
+    //                 rating: doctor.rating,
+    //                 specialty: doctor.specialty.name,
+    //                 address: schedule.clinic.address || null,
+    //                 date: schedule.date,
+    //                 service: appointment.doctorService.service,
+    //                 slots: freeSlots,
+    //             };
+    //         });
+
+    //         return { pages: totalPages, slots: availableSlots };
+    //     } catch (err) {
+    //         throw err;
+    //     }
+    // },
     getAppointmentsByClinic: async ({ clinicId, doctorId, patientId, date, specialty, limit, page }) => {
         let appointmentWhere = { clinic_id: clinicId };
         if (patientId) {
