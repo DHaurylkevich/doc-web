@@ -41,7 +41,7 @@ const UserService = {
                 const doctor = await user.getDoctor({
                     attributes: ["rating", "hired_at", "description"],
                     include: [
-                        { model: db.Specialties, as: "specialty", attributes: ["id", "name"]},
+                        { model: db.Specialties, as: "specialty", attributes: ["id", "name"] },
                         { model: db.Clinics, as: "clinic", attributes: ["name"] },
                     ]
                 });
@@ -107,8 +107,9 @@ const UserService = {
             if (!user) {
                 throw new AppError("User not found", 404);
             }
-
-            await cloudinary.deleteFromCloud(user.photo);
+            if (user.photo !== null) {
+                await cloudinary.deleteFromCloud(user.photo);
+            }
 
             await user.update({ photo: image }, { returning: true });
 

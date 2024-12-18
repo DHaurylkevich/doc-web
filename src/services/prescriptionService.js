@@ -28,7 +28,7 @@ const prescriptionService = {
             throw error;
         }
     },
-    getPrescriptionsByPatient: async ({ patientId, limit, page }) => {
+    getPrescriptionsByPatient: async ({ patientId, sort, limit, page }) => {
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
         const pageNumber = Math.max(parseInt(page) || 1, 1);
         const offset = (pageNumber - 1) * parsedLimit;

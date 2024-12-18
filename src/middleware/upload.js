@@ -13,7 +13,7 @@ const storageImages = new CloudinaryStorage({
             { width: 1000, height: 1000, crop: "limit" },
             { quality: "auto", fetch_format: "auto" }
         ],
-        resource_type: "auto",
+        resource_type: "image",
         limits: {
             fileSize: 5 * 1024 * 1024
         }

@@ -90,7 +90,8 @@ const PatientService = {
     },
     getPatientsByParam: async ({ sort, limit, page, doctorId, clinicId, user }) => {
         if (user.role === "doctor") {
-            doctorId = user.roleId
+            doctorId = user.roleId;
+            clinicId = null;
         } else if (user.role === "clinic") {
             clinicId = user.roleId;
         }
@@ -100,8 +101,8 @@ const PatientService = {
         }
 
         const sortOptions = [{ model: db.Patients, as: "patient" }, { model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"];
-        const appointmentWhere = clinicId ? { clinic_id: clinicId } : {}
-        const doctorServiceWhere = doctorId ? { doctor_id: doctorId } : {}
+        const appointmentWhere = clinicId ? { clinic_id: clinicId } : {};
+        const doctorServiceWhere = doctorId ? { doctor_id: doctorId } : {};
 
         const parsedLimit = Math.max(parseInt(limit) || 10, 1);
         const pageNumber = Math.max(parseInt(page) || 1, 1);
