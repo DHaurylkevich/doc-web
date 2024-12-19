@@ -24,9 +24,11 @@ const AuthController = require("../controllers/authController");
  *               loginParam:
  *                 type: string
  *                 description: Email, телефон или PESEL пользователя
+ *                 example: "doctor@gmail.com"
  *               password:
  *                 type: string
  *                 description: Пароль пользователя
+ *                 example: "123456789"
  *     responses:
  *       '200':
  *         description: Успешная аутентификация

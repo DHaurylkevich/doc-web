@@ -1,15 +1,13 @@
-// controllers/prescriptionController.js
 const prescriptionService = require("../services/prescriptionService");
 
 const prescriptionController = {
     createPrescription: async (req, res, next) => {
         try {
-            //TODO: expirationDate обязательное поле
-            const { patientId, doctorId, medicationId, expirationDate } = req.body;
-            const prescription = await prescriptionService.createPrescription(
-                patientId, doctorId, medicationId, expirationDate
-            );
-            return res.status(201).json({ message: "Рецепт успешно создан", prescription });
+            const { patientId, medicationId, expirationDate } = req.body;
+            const doctorId = req.user.roleId;
+
+            await prescriptionService.createPrescription(patientId, doctorId, medicationId, expirationDate);
+            return res.status(201).json({ message: "Prescription created successful" });
         } catch (err) {
             next(err);
         }

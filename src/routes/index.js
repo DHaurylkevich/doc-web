@@ -20,11 +20,13 @@ const chatRouter = require("./chat");
 const messageRouter = require("./messages");
 const timetableRouter = require("./timetables");
 const searchRouter = require("./search");
+const statisticRouter = require("./statistics");
 const { isAuthenticated, hasRole } = require('../middleware/auth');
 const upload = require("../middleware/upload").uploadFiles;
 
 router.use("/", authRouter);
 router.use("/api", searchRouter);
+router.use("/api", statisticRouter);
 
 router.use("/api", appointmentRouter);
 router.use("/api", clinicRouter);

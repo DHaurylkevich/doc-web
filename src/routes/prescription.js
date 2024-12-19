@@ -1,6 +1,7 @@
 const express = require("express");
 const prescriptionController = require("../controllers/prescriptionController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
+const { validateParam } = require("../utils/validation");
 const router = express.Router();
 
 
@@ -25,9 +26,6 @@ const router = express.Router();
  *               patientId:
  *                 type: integer
  *                 description: ID пациента
- *               doctorId:
- *                 type: integer
- *                 description: ID доктора
  *               medicationId:
  *                 type: integer
  *                 description: ID лекарства
@@ -64,7 +62,7 @@ const router = express.Router();
  *       400:
  *         description: Ошибка валидации данных
  */
-router.post("/prescriptions", isAuthenticated, hasRole("doctor"), prescriptionController.createPrescription);
+router.post("/prescriptions", isAuthenticated, hasRole("doctor"), validateParam("expirationDate"), prescriptionController.createPrescription);
 /**
  * @swagger
  * /prescriptions:

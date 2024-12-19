@@ -7,11 +7,10 @@ const prescriptionService = {
         const t = await db.sequelize.transaction();
         try {
             const patient = await db.Patients.findByPk(patientId);
-            const doctor = await db.Doctors.findByPk(doctorId);
             const medication = await db.Medications.findByPk(medicationId);
 
-            if (!patient || !doctor || !medication) {
-                throw new AppError("Пациент, доктор или лекарство не найдены", 404);
+            if (!patient || !medication) {
+                throw new AppError("Patient or medication not found", 404);
             }
 
             const prescription = await db.Prescriptions.create({

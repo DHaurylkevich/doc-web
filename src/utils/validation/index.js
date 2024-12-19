@@ -1,4 +1,5 @@
 const { body, param } = require('express-validator');
+const AppError = require('../appError');
 
 
 const validateParam = (paramName, options = {}) => {
@@ -10,7 +11,7 @@ const validateParam = (paramName, options = {}) => {
             .custom((value, { req }) => {
                 if (matchUser) {
                     if (!req.user || req.user.id !== value) {
-                        throw new Error(`${paramName} must match the authenticated user's ID`);
+                        throw new AppError(`${paramName} must match the authenticated user's ID`);
                     }
                 }
                 return true;

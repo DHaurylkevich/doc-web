@@ -1,5 +1,5 @@
-const sequelize = require("../config/db");
 const db = require("../models");
+const sequelize = require("../config/db");
 const AppError = require("../utils/appError");
 const AddressService = require("./addressService");
 const passwordUtil = require("../utils/passwordUtil");
@@ -80,7 +80,7 @@ const ClinicService = {
                     },
                     {
                         model: db.Timetables,
-                        as: "timetable",
+                        as: "timetables",
                         attributes: { exclude: ["createdAt", "updatedAt", "clinic_id"] }
                     },
                 ]

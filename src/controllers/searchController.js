@@ -1,6 +1,5 @@
 const SearchService = require("../services/searchService");
 
-//TODO: query валидация 400
 const SearchController = {
     searchPosts: async (req, res, next) => {
         try {
