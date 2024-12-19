@@ -77,7 +77,8 @@ const DoctorService = {
                         include: [
                             {
                                 model: db.Addresses,
-                                as: "address"
+                                as: "address",
+                                attributes: { exclude: ["createdAt", "updatedAt", "id", "user_id", "clinic_id"] }
                             }
                         ],
                     },
@@ -120,7 +121,7 @@ const DoctorService = {
             const { rows, count } = await db.Doctors.findAndCountAll({
                 limit: parsedLimit,
                 offset: offset,
-                attributes: [],
+                attributes: ["id"],
                 include: [
                     {
                         model: db.Users,

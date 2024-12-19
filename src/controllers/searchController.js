@@ -37,6 +37,30 @@ const SearchController = {
             next(err);
         }
     },
+    searchClinics: async (req, res, next) => {
+        try {
+            const { query, page, limit } = req.query;
+
+            const result = await SearchService.searchClinic(query, page, limit);
+
+            res.json(result);
+        } catch (err) {
+            next(err);
+        }
+    },
+    searchPrescriptions: async (req, res, next) => {
+        try {
+            const { query, page, limit } = req.query;
+            const doctorId = req.user.roleId;
+
+
+            const result = await SearchService.searchPrescription(query, page, limit, doctorId);
+
+            res.json(result);
+        } catch (err) {
+            next(err);
+        }
+    },
 };
 
 module.exports = SearchController;
