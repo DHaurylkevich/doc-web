@@ -7,8 +7,8 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  * @swagger
  * /doctors/statistics:
  *   get:
- *     summary: Получение общего количества пациентов DOCTOR
- *     description: Возвращает общее количество пациентов в системе
+ *     summary: Получение общего количества пациентов и процента изменения
+ *     description: Возвращает общее количество пациентов и процента изменения в системе
  *     tags: [Statistics]
  *     responses:
  *       200:
@@ -39,8 +39,8 @@ router.get("/doctors/statistics", isAuthenticated, hasRole("doctor"), StatisticC
  * @swagger
  * /clinics/statistics:
  *   get:
- *     summary: Получение общего количества пациентов CLINIC
- *     description: Возвращает общее количество пациентов в системе
+ *     summary: Получение общего количества пациентов, среднего рейтинга и процента изменения
+ *     description: Возвращает общее количество пациентов и процента изменения
  *     tags: [Statistics]
  *     responses:
  *       200:
