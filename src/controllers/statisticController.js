@@ -23,6 +23,33 @@ const StatisticController = {
             next(error);
         }
     },
+    getAdminStatistics: async (req, res, next) => {
+        const { start_date, end_date } = req.query;
+
+        try {
+            const countUser = await StatisticsService.mainStatist(start_date, end_date);
+            const statisticUser = await StatisticsService.countNewPatientsAndClinics();
+            res.status(200).json({ countUser, statisticUser });
+        } catch (error) {
+            next(error);
+        }
+    },
+    ratingsStatistics: async (req, res, next) => {
+        try {
+            const count = await StatisticsService.ratingsStatistics();
+            res.status(200).json(count);
+        } catch (error) {
+            next(error);
+        }
+    },
+    clinicProvinceStatistics: async (req, res, next) => {
+        try {
+            const count = await StatisticsService.clinicProvinceStatistics();
+            res.status(200).json(count);
+        } catch (error) {
+            next(error);
+        }
+    },
 }
 
 module.exports = StatisticController;
