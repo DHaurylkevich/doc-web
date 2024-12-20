@@ -7,7 +7,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  * @swagger
  * /doctors/statistics:
  *   get:
- *     summary: Получение общего количества пациентов и процента изменения
+ *     summary: Получение общего количества пациентов, визитов и процента изменения
  *     description: Возвращает общее количество пациентов и процента изменения в системе
  *     tags: [Statistics]
  *     responses:
