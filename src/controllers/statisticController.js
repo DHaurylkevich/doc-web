@@ -5,9 +5,9 @@ const StatisticController = {
         const doctor = req.user;
 
         try {
-            const countPatient = await StatisticsService.countPatients(doctor);
+            const countPatients = await StatisticsService.countPatients(doctor);
             const countAppointments = await StatisticsService.countAppointments(doctor.roleId);
-            res.status(200).json({ countPatient, countAppointments });
+            res.status(200).json({ countPatients, countAppointments });
         } catch (error) {
             next(error);
         }
@@ -16,9 +16,9 @@ const StatisticController = {
         const clinic = req.user;
 
         try {
-            const count = await StatisticsService.countPatients(clinic);
+            const countPatients = await StatisticsService.countPatients(clinic);
             const averageRating = await StatisticsService.averageScore(clinic.id);
-            res.status(200).json({ count, averageRating });
+            res.status(200).json({ countPatients, averageRating });
         } catch (error) {
             next(error);
         }
