@@ -22,6 +22,7 @@ const router = express.Router();
  *               - patientId
  *               - doctorId
  *               - medicationId
+ *               - expirationDate
  *             properties:
  *               patientId:
  *                 type: integer
@@ -29,6 +30,10 @@ const router = express.Router();
  *               medicationId:
  *                 type: integer
  *                 description: ID лекарства
+ *               expirationDate:
+ *                 type: string
+ *                 format: date
+ *                 description: Дата истечения срока действия рецепта
  *     responses:
  *       201:
  *         description: Рецепт успешно создан

@@ -17,6 +17,8 @@ module.exports = (sequelize, DataTypes) => {
       });
       Clinics.hasMany(models.Schedules, {
         foreignKey: "clinic_id",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
         as: "schedules"
       });
       Clinics.hasMany(models.Timetables, {
@@ -27,6 +29,8 @@ module.exports = (sequelize, DataTypes) => {
       });
       Clinics.hasMany(models.Services, {
         foreignKey: "clinic_id",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
         as: "services",
       });
       Clinics.hasMany(models.Appointments, {

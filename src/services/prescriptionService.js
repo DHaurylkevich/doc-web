@@ -1,27 +1,34 @@
-// services/prescriptionService.js
-const db = require("../models");
 const AppError = require("../utils/appError");
+const db = require("../models");
+const moment = require("moment");
 
 const prescriptionService = {
-    createPrescription: async (patientId, doctorId, medicationId, expirationDate) => {
+    createPrescription: async (patientId, doctorId, medicationsIds, expirationDate) => {
         const t = await db.sequelize.transaction();
         try {
             const patient = await db.Patients.findByPk(patientId);
-            const medication = await db.Medications.findByPk(medicationId);
+            const medication = await db.Medications.findAll({ where: { id: medicationsIds } });
 
-            if (!patient || !medication) {
+            if (!patient || medication.length !== medicationsIds.length) {
                 throw new AppError("Patient or medication not found", 404);
             }
 
-            const prescription = await db.Prescriptions.create({
+            const maxExpirationDate = moment().add(360, 'days').toDate();
+            if (new Date(expirationDate) > maxExpirationDate) {
+                throw new AppError("Expiration date cannot exceed 360 days from today", 400);
+            }
+
+            const prescriptions = medicationsIds.map(medicationId => ({
                 patient_id: patientId,
                 doctor_id: doctorId,
                 medication_id: medicationId,
                 expiration_date: expirationDate,
-            }, { transaction: t });
+            }));
+
+            await db.Prescriptions.bulkCreate(prescriptions, { transaction: t });
 
             await t.commit();
-            return prescription;
+            return;
         } catch (error) {
             await t.rollback();
             throw error;
@@ -60,10 +67,6 @@ const prescriptionService = {
                 throw new AppError("Page not found", 404);
             }
 
-            if (!rows.length) {
-                return [];
-            }
-
             return { pages: totalPages, prescriptions: rows };
         } catch (err) {
             throw err;
@@ -100,10 +103,6 @@ const prescriptionService = {
             const totalPages = Math.ceil(count / parsedLimit);
             if (page - 1 > totalPages) {
                 throw new AppError("Page not found", 404);
-            }
-
-            if (!rows.length) {
-                return [];
             }
 
             return { pages: totalPages, prescriptions: rows };
