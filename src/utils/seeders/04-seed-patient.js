@@ -10,6 +10,7 @@ module.exports = {
 
         const patients = users.map((user) => ({
             user_id: user.id,
+            feedbackRating: faker.number.int({ min: 0, max: 5 }),
             createdAt: new Date(),
             updatedAt: new Date(),
         }));

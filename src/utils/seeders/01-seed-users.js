@@ -1,5 +1,5 @@
 'use strict';
-const { faker } = require('@faker-js/faker');
+const { faker, fakerPL } = require('@faker-js/faker');
 
 module.exports = {
     async up(queryInterface, Sequelize) {
@@ -8,15 +8,15 @@ module.exports = {
         for (const user of roleUser) {
             users.push({
                 photo: faker.image.avatar(),
-                first_name: faker.person.firstName(),
-                last_name: faker.person.lastName(),
+                first_name: fakerPL.person.firstName(),
+                last_name: fakerPL.person.lastName(),
                 email: user.gmail,
-                gender: faker.helpers.arrayElement(['male', 'female', 'other']),
-                pesel: faker.number.int({ min: 10000000000, max: 99999999999 }).toString(),
-                phone: faker.phone.number({ style: 'international' }),
+                gender: faker.helpers.arrayElement(['male', 'female']),
+                pesel: fakerPL.number.int({ min: 10000000000, max: 99999999999 }).toString(),
+                phone: fakerPL.phone.number({ style: 'international' }),
                 password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
                 role: user.role,
-                birthday: faker.date.birthdate({ min: 18, max: 70, mode: 'age' }),
+                birthday: fakerPL.date.birthdate({ min: 18, max: 70, mode: 'age' }),
                 createdAt: new Date(),
                 updatedAt: new Date(),
             });
@@ -25,29 +25,29 @@ module.exports = {
         for (let i = 0; i < 20; i++) {
             users.push({
                 photo: faker.image.avatar(),
-                first_name: faker.person.firstName(),
-                last_name: faker.person.lastName(),
-                email: faker.internet.email(),
+                first_name: fakerPL.person.firstName(),
+                last_name: fakerPL.person.lastName(),
+                email: fakerPL.internet.email(),
                 gender: faker.helpers.arrayElement(['male', 'female', 'other']),
                 pesel: faker.number.int({ min: 10000000000, max: 99999999999 }).toString(),
-                phone: faker.phone.number({ style: 'international' }),
+                phone: fakerPL.phone.number({ style: 'international' }),
                 password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
                 role: 'doctor',
-                birthday: faker.date.birthdate({ min: 18, max: 70, mode: 'age' }),
+                birthday: fakerPL.date.birthdate({ min: 18, max: 70, mode: 'age' }),
                 createdAt: new Date(),
                 updatedAt: new Date(),
             });
             users.push({
-                photo: faker.image.avatar(),
-                first_name: faker.person.firstName(),
-                last_name: faker.person.lastName(),
-                email: faker.internet.email(),
+                photo: fakerPL.image.avatar(),
+                first_name: fakerPL.person.firstName(),
+                last_name: fakerPL.person.lastName(),
+                email: fakerPL.internet.email(),
                 gender: faker.helpers.arrayElement(['male', 'female', 'other']),
                 pesel: faker.number.int({ min: 10000000000, max: 99999999999 }).toString(),
-                phone: faker.phone.number({ style: 'international' }),
+                phone: fakerPL.phone.number({ style: 'international' }),
                 password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
                 role: 'patient',
-                birthday: faker.date.birthdate({ min: 18, max: 70, mode: 'age' }),
+                birthday: fakerPL.date.birthdate({ min: 18, max: 70, mode: 'age' }),
                 createdAt: new Date(),
                 updatedAt: new Date(),
             });

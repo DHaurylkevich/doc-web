@@ -28,7 +28,13 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true
-    }
+    },
+    feedbackRating: {
+      type: DataTypes.INTEGER,
+      max: 5,
+      min: 0,
+      allowNull: true,
+    },
   }, {
     sequelize,
     modelName: "Patients",

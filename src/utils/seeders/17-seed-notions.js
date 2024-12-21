@@ -1,5 +1,5 @@
 'use strict';
-const { faker } = require('@faker-js/faker');
+const { fakerPL } = require('@faker-js/faker');
 
 module.exports = {
     async up(queryInterface, Sequelize) {
@@ -17,7 +17,7 @@ module.exports = {
         for (let i = 0; i < 50; i++) {
             notions.push({
                 admin_id: admins[Math.floor(Math.random() * admins.length)].id,
-                content: faker.lorem.sentences({ min: 1, max: 3 }),
+                content: fakerPL.lorem.sentences({ min: 1, max: 3 }),
                 createdAt: new Date(),
                 updatedAt: new Date()
             });

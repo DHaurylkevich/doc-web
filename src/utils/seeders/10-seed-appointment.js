@@ -10,8 +10,8 @@ module.exports = {
         const schedules = await queryInterface.sequelize.query(
             `SELECT schedules.id, schedules.start_time, schedules.end_time, schedules.interval, 
                     schedules.clinic_id, schedules.doctor_id, doctor_services.id AS doctor_service_id
-             FROM schedules
-             INNER JOIN doctor_services ON schedules.doctor_id = doctor_services.doctor_id;`,
+            FROM schedules
+            INNER JOIN doctor_services ON schedules.doctor_id = doctor_services.doctor_id;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 

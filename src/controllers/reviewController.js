@@ -67,6 +67,29 @@ const ReviewController = {
             next(err);
         }
     },
+    leaveFeedback: async (req, res, next) => {
+        const user = req.user;
+        const { reviewData } = req.body;
+
+        try {
+            await ReviewService.leaveFeedback(user, reviewData);
+
+            res.status(201).json({ message: "Successfully" });
+        } catch (err) {
+            next(err);
+        }
+    },
+    getFeedback: async (req, res, next) => {
+        const user = req.user;
+
+        try {
+            const hasReview = await ReviewService.getFeedback(user);
+
+            res.status(200).json(hasReview);
+        } catch (err) {
+            next(err);
+        }
+    },
 };
 
 module.exports = ReviewController;

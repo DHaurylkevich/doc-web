@@ -101,11 +101,26 @@ router.get("/clinics/statistics", isAuthenticated, hasRole("clinic"), StatisticC
 router.get("/admins/statistics", isAuthenticated, hasRole("admin"), StatisticController.getAdminStatistics);
 /**
  * @swagger
- * /admins/statistics/global:
+ * /admins/statistics/details:
  *   get:
  *     summary: Получение общего количества пациентов, среднего рейтинга и процента изменения
- *     description: Возвращает общее количество пациентов и процента изменения
+ *     description: ЕСЛИ НЕ ВПИСЫВАТЬ даты, то прийдет актуальная статистика. Также даже если ты введешь даты, прийдет актуальные оценки сервиса от клиники и пациента. Возвращает общее количество пациентов и процента изменения
  *     tags: [Statistics]
+ *     parameters:
+ *       - in: query
+ *         name: start_date
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: "2024-12-16"
+ *         description: НЕОБЯЗАТЕЛЬНАЯ Начальная дата для фильтрации статистики
+ *       - in: query
+ *         name: end_date
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: "2024-12-16"
+ *         description: НЕОБЯЗАТЕЛЬНАЯ Конечная дата для фильтрации статистики
  *     responses:
  *       200:
  *         description: Успешное получение количества пациентов
@@ -130,10 +145,10 @@ router.get("/admins/statistics", isAuthenticated, hasRole("admin"), StatisticCon
  *                   description: Сообщение об ошибке
  *                   example: "Внутренняя ошибка сервера"
  */
-router.get("/admins/statistics/global", isAuthenticated, hasRole("admin"), StatisticController.ratingsStatistics);
+router.get("/admins/statistics/details", isAuthenticated, hasRole("admin"), StatisticController.getAdminStatisticDetails);
 /**
  * @swagger
- * /clinics/statistics/province:
+ * /statistics/province:
  *   get:
  *     summary: Получение количества клиник по областям
  *     tags: [Statistics]

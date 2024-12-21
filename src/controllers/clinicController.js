@@ -19,7 +19,6 @@ const ClinicController = {
 
             res.status(200).json(clinicData);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },
@@ -30,7 +29,6 @@ const ClinicController = {
 
             res.status(200).json(clinicData);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },
@@ -42,7 +40,6 @@ const ClinicController = {
 
             res.status(200).json(clinics);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },

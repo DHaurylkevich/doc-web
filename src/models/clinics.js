@@ -86,6 +86,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     description: DataTypes.STRING(255),
+    feedbackRating: {
+      type: DataTypes.INTEGER,
+      max: 5,
+      min: 0,
+      allowNull: true,
+    },
     resetToken: {
       type: DataTypes.STRING(255),
       allowNull: true,

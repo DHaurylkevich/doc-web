@@ -5,7 +5,8 @@ const { Op } = require("sequelize");
 const { tr } = require("@faker-js/faker");
 
 const calculatePercentage = (total, beforeToday) => {
-    if (beforeToday === 0) return 0;
+    if (beforeToday === 0) return total === 0 ? 0 : 100;
+    ;
     return ((total - beforeToday) / beforeToday) * 100;
 };
 
@@ -157,8 +158,10 @@ const StatisticsService = {
             throw err;
         }
     },
-    mainStatist: async () => {
-        const today = moment().startOf('day').toDate();
+    mainStatist: async (start_date, end_date) => {
+        const today = start_date ? start_date : moment().startOf('day').toDate();
+        const datesWhere = start_date && end_date ? { createdAt: { [Op.between]: [start_date, end_date] } } : {}
+
         try {
             const [
                 beforeTodayPatient,
@@ -172,26 +175,30 @@ const StatisticsService = {
             ] = await Promise.all([
                 db.Patients.count({
                     raw: true,
+                    attributes: [],
                     where: { createdAt: { [Op.lt]: today } }
                 }),
-                db.Patients.count({ raw: true }),
+                db.Patients.count({ raw: true, attributes: [], where: datesWhere }),
                 db.Clinics.count({
                     raw: true,
+                    attributes: [],
                     where: { createdAt: { [Op.lt]: today } }
 
                 }),
-                db.Clinics.count({ raw: true }),
+                db.Clinics.count({ raw: true, attributes: [], where: datesWhere }),
                 db.Doctors.count({
                     raw: true,
+                    attributes: [],
                     where: { createdAt: { [Op.lt]: today } }
 
                 }),
-                db.Doctors.count({ raw: true }),
+                db.Doctors.count({ raw: true, attributes: [], where: datesWhere }),
                 db.Appointments.count({
                     raw: true,
+                    attributes: [],
                     where: { createdAt: { [Op.lt]: today } }
                 }),
-                db.Appointments.count({ raw: true }),
+                db.Appointments.count({ raw: true, attributes: [], where: datesWhere }),
             ]);
 
             const percentagePatient = calculatePercentage(totalPatient, beforeTodayPatient);
@@ -243,15 +250,18 @@ const StatisticsService = {
             throw err;
         }
     },
-    ratingsStatistics: async () => {
+    ratingsStatistics: async (start_date, end_date) => {
+        const datesWhere = start_date && end_date ? { createdAt: { [Op.between]: [start_date, end_date] } } : {}
+
         try {
-            const [doctorRatings, cityRating] = await Promise.all([
+            const [doctorRatings, cityRating, clinicsFeedback, patientsFeedback] = await Promise.all([
                 db.Doctors.findAll({
                     raw: true,
                     limit: 5,
-                    order: [['rating', 'DESC']],
                     attributes: ['rating'],
+                    where: datesWhere,
                     group: ['rating'],
+                    order: [['rating', 'DESC']],
                 }),
                 db.Clinics.findAll({
                     raw: true,
@@ -263,6 +273,7 @@ const StatisticsService = {
                             WHERE d.clinic_id = "Clinics".id
                         )`), 'averageRating']
                     ],
+                    where: datesWhere,
                     include: [
                         {
                             model: db.Addresses,
@@ -275,14 +286,27 @@ const StatisticsService = {
                     order: [[sequelize.literal('"averageRating"'), 'DESC']],
                     limit: 5,
                 }),
+                db.Clinics.findAll({
+                    raw: true,
+                    attributes: [
+                        "feedbackRating",
+                        [sequelize.fn('COUNT', sequelize.col('feedbackRating')), 'count']
+                    ],
+                    where: { feedbackRating: { [Op.ne]: null } },
+                    group: ['feedbackRating'],
+                }),
+                db.Patients.findAll({
+                    raw: true,
+                    attributes: [
+                        "feedbackRating",
+                        [sequelize.fn('COUNT', sequelize.col('feedbackRating')), 'count']
+                    ],
+                    where: { feedbackRating: { [Op.ne]: null } },
+                    group: ['feedbackRating'],
+                })
             ]);
-            // const ratings = await db.Ratings.findAll({
-            //     raw: true,
-            //     attributes: ['rating', 'count'],
-            //     group: ['rating']
-            // });
 
-            return { doctorRatings, cityRating };
+            return { doctorRatings, cityRating, clinicsFeedback, patientsFeedback };
         } catch (err) {
             throw err;
         }

@@ -43,6 +43,12 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: true
       },
+      feedbackRating: {
+        type: Sequelize.INTEGER,
+        max: 5,
+        min: 0,
+        allowNull: true
+      },
       photo: {
         type: Sequelize.STRING(255),
         allowNull: true

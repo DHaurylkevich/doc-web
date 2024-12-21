@@ -19,10 +19,12 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      market_inf: {
-        type: Sequelize.BOOLEAN,
+      feedbackRating: {
+        type: Sequelize.INTEGER,
+        max: 5,
+        min: 0,
         allowNull: true
-      }
+      },
     });
   },
 

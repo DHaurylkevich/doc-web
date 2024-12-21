@@ -1,5 +1,5 @@
 'use strict';
-const { faker } = require('@faker-js/faker');
+const { fakerPL } = require('@faker-js/faker');
 
 module.exports = {
     async up(queryInterface, Sequelize) {
@@ -10,12 +10,12 @@ module.exports = {
 
         let addresses = clinics.map((clinic) => ({
             clinic_id: clinic.id,
-            city: faker.location.city(),
-            street: faker.location.street(),
-            province: faker.location.state(),
-            home: faker.location.buildingNumber(),
-            flat: faker.location.buildingNumber(),
-            post_index: faker.location.zipCode('#####'),
+            city: fakerPL.location.city(),
+            street: fakerPL.location.street(),
+            province: fakerPL.location.state(),
+            home: fakerPL.location.buildingNumber(),
+            flat: fakerPL.location.buildingNumber(),
+            post_index: fakerPL.location.zipCode('#####'),
             createdAt: new Date(),
             updatedAt: new Date(),
         }));
@@ -29,12 +29,12 @@ module.exports = {
 
         addresses = users.map((user) => ({
             user_id: user.id,
-            city: faker.location.city(),
-            street: faker.location.street(),
-            flat: faker.location.buildingNumber(),
-            province: faker.location.state(),
-            home: faker.location.buildingNumber(),
-            post_index: faker.location.zipCode('#####'),
+            city: fakerPL.location.city(),
+            street: fakerPL.location.street(),
+            flat: fakerPL.location.buildingNumber(),
+            province: fakerPL.location.state(),
+            home: fakerPL.location.buildingNumber(),
+            post_index: fakerPL.location.zipCode('#####'),
             createdAt: new Date(),
             updatedAt: new Date(),
         }));

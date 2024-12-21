@@ -1,5 +1,5 @@
 'use strict';
-const { faker } = require('@faker-js/faker');
+const { fakerPL } = require('@faker-js/faker');
 
 module.exports = {
     async up(queryInterface, Sequelize) {
@@ -7,7 +7,7 @@ module.exports = {
 
         for (let i = 0; i < 20; i++) {
             categories.push({
-                name: faker.commerce.department(),
+                name: fakerPL.commerce.department(),
                 createdAt: new Date(),
                 updatedAt: new Date()
             });

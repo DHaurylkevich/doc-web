@@ -410,5 +410,54 @@ router.get("/clinics/:clinicId/reviews", ReviewController.getAllReviewsByClinic)
  *                           example: "Friendly staff"
  */
 router.get("/doctors/:doctorId/reviews", ReviewController.getAllReviewsByDoctor);
+/**
+ * @swagger
+ * /reviews/feedback:
+ *   patch:
+ *     summary: Оценка нашего сервиса CLINIC,PATIENT
+ *     description: Возвращает подробные данные о клинике, включая адрес и связанные сервисы.
+ *     tags:
+ *       - Reviews
+ *     parameters:
+ *       - name: raiting
+ *         in: path
+ *         required: true
+ *         description: оценка от клиники
+ *         schema:
+ *           type: integer
+ *           example: 3
+ *     responses:
+ *       201:
+ *         description: Информация о успешном созддании отзыва
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "Successfully created"
+ */
+router.patch("/reviews/feedback", isAuthenticated, hasRole(["clinic", "patient"]), ReviewController.leaveFeedback);
+/**
+ * @swagger
+ * /reviews/feedback:
+ *   get:
+ *     summary: Проверить, оставил ли пациент/клиника отзыв ADMIN
+ *     tags:
+ *       - Reviews
+ *     responses:
+ *       200:
+ *         description: Информация о том, оставила ли клиника отзыв
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 hasFeedback:
+ *                   type: boolean
+ *                   example: true
+ */
+router.get("/reviews/feedback", isAuthenticated, hasRole("admin"), ReviewController.getFeedback);
 
 module.exports = router;

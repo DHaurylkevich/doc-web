@@ -62,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     gender: {
-      type: DataTypes.ENUM('male', 'female', 'other'),
+      type: DataTypes.ENUM('male', 'female'),
       allowNull: true
     },
     pesel: {

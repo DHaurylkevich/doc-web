@@ -1,7 +1,6 @@
 const db = require("../models");
 const sequelize = require("../config/db");
 const AppError = require("../utils/appError");
-const { Op } = require("sequelize");
 
 const ReviewService = {
     createReview: async ({ userId, doctorId, rating, comment, tagsIds }) => {
@@ -265,7 +264,32 @@ const ReviewService = {
         } catch (err) {
             throw err;
         }
-    }
+    },
+    leaveFeedback: async (user, reviewData) => {
+        try {
+            if (user.role === "clinic") {
+                await db.Clinics.update({ feedbackRating: reviewData }, { where: { id: user.id } });
+            } else {
+                await db.Patients.update({ feedbackRating: reviewData }, { where: { id: user.roleId } });
+            }
+            return;
+        } catch (err) {
+            throw err;
+        }
+    },
+    getFeedback: async (user) => {
+        try {
+            let reviews;
+            if (user.role === "clinic") {
+                reviews = await db.Clinics.findOne({ attributes: ["feedbackRating"], where: { id: user.id } });
+            } else {
+                reviews = await db.Patients.findOne({ attributes: ["feedbackRating"], where: { id: user.roleId } });
+            }
+            return { hasFeedback: reviews.feedbackRating !== null };
+        } catch (err) {
+            throw err;
+        }
+    },
 }
 
 module.exports = ReviewService;

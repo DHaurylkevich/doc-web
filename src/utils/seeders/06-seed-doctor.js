@@ -1,5 +1,5 @@
 'use strict';
-const { faker } = require('@faker-js/faker');
+const { faker, fakerPL } = require('@faker-js/faker');
 
 module.exports = {
     async up(queryInterface, Sequelize) {
@@ -24,7 +24,7 @@ module.exports = {
             specialty_id: specialties[faker.number.int({ min: 0, max: specialties.length - 1 })].id,
             rating: faker.number.float({ min: 0, max: 5, precision: 0.1 }),
             hired_at: faker.date.past(),
-            description: faker.lorem.sentence(),
+            description: fakerPL.lorem.sentence(),
             createdAt: new Date(),
             updatedAt: new Date(),
         }));
