@@ -51,7 +51,7 @@ const ClinicService = {
         try {
             const clinic = await db.Clinics.findByPk(clinicId,
                 {
-                    attributes: { exclude: ["password", "createdAt", "updatedAt", "resetToken", "role"] },
+                    attributes: { exclude: ["password", "createdAt", "updatedAt", "resetToken", "role", "feedbackRating"] },
                     include: [{
                         model: db.Addresses,
                         as: "address",
@@ -71,7 +71,7 @@ const ClinicService = {
         try {
             const clinic = await db.Clinics.findOne({
                 where: { id: clinicId },
-                attributes: { exclude: ["password", "resetToken", "createdAt", "updatedAt"] },
+                attributes: { exclude: ["password", "resetToken", "createdAt", "updatedAt", "feedbackRating"] },
                 include: [
                     {
                         model: db.Addresses,
@@ -112,7 +112,7 @@ const ClinicService = {
                 offset: offset,
                 where: queryClinic,
                 attributes: {
-                    exclude: ["password", "resetToken", "createdAt", "updatedAt", "role"],
+                    exclude: ["password", "resetToken", "createdAt", "updatedAt", "role", "feedbackRating"],
                     include: [
                         [
                             sequelize.literal(`(
@@ -197,7 +197,7 @@ const ClinicService = {
                 offset: offset,
                 order: sortOptions,
                 attributes: {
-                    exclude: ["password", "resetToken", "updatedAt", "role", "description"],
+                    exclude: ["password", "resetToken", "updatedAt", "role", "description", "feedbackRating"],
                     include: [
                         [
                             sequelize.literal(`(

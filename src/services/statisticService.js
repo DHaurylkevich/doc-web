@@ -33,6 +33,7 @@ const StatisticsService = {
             const [countBeforeToday, totalCount] = await Promise.all([
                 db.Patients.count({
                     raw: true,
+                    attributes: [],
                     include: [
                         {
                             model: db.Appointments,
@@ -49,6 +50,7 @@ const StatisticsService = {
                 }),
                 db.Patients.count({
                     raw: true,
+                    attributes: [],
                     include: [
                         {
                             model: db.Appointments,
