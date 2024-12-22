@@ -13,6 +13,8 @@ const calculatePercentage = (total, beforeToday) => {
 const StatisticsService = {
     countPatients: async (user) => {
         let appointmentWhere = {};
+        let countToday;
+        const today = moment().startOf('day').toDate();
 
         if (user.role === "doctor") {
             appointmentWhere = {
@@ -25,9 +27,26 @@ const StatisticsService = {
                     }
                 ]
             };
+            countToday = await db.Patients.count({
+                raw: true,
+                attributes: [],
+                include: [
+                    {
+                        model: db.Appointments,
+                        as: "appointments",
+                        attributes: [],
+                        required: true,
+                        where: {
+                            status: "active",
+                            ...(user.role === "clinic" && { clinic_id: user.id })
+                        },
+                        include: [
+                            { model: db.DoctorService, as: 'doctorService', required: true, where: { doctor_id: user.roleId } },
+                            { model: db.Schedules, attributes: ["date"], where: { date: today } }]
+                    }
+                ]
+            });
         }
-
-        const today = moment().startOf('day').toDate();
 
         try {
             const [countBeforeToday, totalCount] = await Promise.all([
@@ -64,10 +83,9 @@ const StatisticsService = {
                 })
             ]);
 
-            // const percentageChange = ((totalCount - countBeforeToday) / countBeforeToday) * 100;
             const percentageChange = calculatePercentage(totalCount - countBeforeToday);
 
-            return { percentageChange, totalCount };
+            return { countToday, percentageChange, totalCount };
         } catch (err) {
             throw err;
         }
