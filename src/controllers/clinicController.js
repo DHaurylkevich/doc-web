@@ -43,6 +43,14 @@ const ClinicController = {
             next(err);
         }
     },
+    getAllCities: async (req, res, next) => {
+        try {
+            const cities = await ClinicService.getAllCities();
+            res.json(cities);
+        } catch (error) {
+            next(error);
+        }
+    }
     // updateClinicById: async (req, res, next) => {
     //     const { clinicId } = req.params;
     //     const { clinicData, addressData } = req.body;

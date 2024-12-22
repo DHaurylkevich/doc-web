@@ -276,7 +276,30 @@ const ClinicService = {
         } catch (err) {
             throw err;
         }
+    },
+    getAllCities: async () => {
+        try {
+            const cities = await db.Clinics.findAll({
+                attributes: [[sequelize.col("address.city"), "city"]],
+                include: [
+                    {
+                        model: db.Addresses,
+                        as: "address",
+                        attributes: [],
+                        where: {
+                            city: {
+                                [Op.ne]: null
+                            }
+                        },
+                    }
+                ],
+                raw: true,
+            });
+            return cities.map(city => city.city);
+        } catch (err) {
+            throw err;
+        }
     }
-}
+};
 
 module.exports = ClinicService;

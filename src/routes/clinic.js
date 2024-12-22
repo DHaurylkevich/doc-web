@@ -239,6 +239,28 @@ router.get("/clinics", ClinicController.getAllClinicByParams);
 router.get("/admins/clinics", isAuthenticated, hasRole("admin"), ClinicController.getAllClinicsForAdmin);
 /**
  * @swagger
+ * /clinics/cities:
+ *   get:
+ *     summary: Получить список всех городов, где есть клиники
+ *     description: Возвращает уникальный список городов, в которых есть клиники
+ *     tags:
+ *       - Clinics
+ *     responses:
+ *       200:
+ *         description: Успешное получение списка городов
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["Warsaw", "Poznań", "Gdansk"]
+ *       500:
+ *         description: Внутренняя ошибка сервера
+ */
+router.get("/clinics/cities", ClinicController.getAllCities);
+/**
+ * @swagger
  * /clinics/{clinicId}:
  *   get:
  *     summary: Получить полную информацию о клинике
@@ -316,6 +338,8 @@ router.get("/admins/clinics", isAuthenticated, hasRole("admin"), ClinicControlle
  *         description: Клиника не найдена
  */
 router.get("/clinics/:clinicId", ClinicController.getFullClinic);
+
+module.exports = router;
 // /**
 //  * @swagger
 //  * /clinics/{clinicId}:
@@ -396,7 +420,6 @@ router.get("/clinics/:clinicId", ClinicController.getFullClinic);
 //  *         description: Клиника успешно обновлена
 //  */
 // router.put("/clinics/:clinicId", ClinicController.updateClinicById);
-
 // /**
 //  * @swagger
 //  * /clinics/{clinicId}:
