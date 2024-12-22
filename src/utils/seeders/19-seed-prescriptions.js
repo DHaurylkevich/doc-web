@@ -32,15 +32,20 @@ module.exports = {
         const prescriptions = [];
 
         for (let i = 0; i < 50; i++) {
-            prescriptions.push({
-                patient_id: patients[faker.number.int({ min: 0, max: patients.length - 1 })].id,
-                doctor_id: doctors[faker.number.int({ min: 0, max: doctors.length - 1 })].id,
-                medication_id: medications[faker.number.int({ min: 0, max: medications.length - 1 })].id,
-                code: generateUniqueCode(),
-                expiration_date: faker.date.future(),
-                createdAt: new Date(),
-                updatedAt: new Date()
-            });
+            const medication = medications[faker.number.int({ min: 0, max: medications.length - 1 })];
+            const prescriptionCount = faker.number.int({ min: 1, max: 5 });
+
+            for (let j = 0; j < prescriptionCount; j++) {
+                prescriptions.push({
+                    patient_id: patients[faker.number.int({ min: 0, max: patients.length - 1 })].id,
+                    doctor_id: doctors[faker.number.int({ min: 0, max: doctors.length - 1 })].id,
+                    medication_id: medication.id,
+                    code: generateUniqueCode(),
+                    expiration_date: faker.date.future(),
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
+            }
         }
 
         await queryInterface.bulkInsert('prescriptions', prescriptions, {});

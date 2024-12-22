@@ -9,8 +9,8 @@ module.exports = {
         );
 
         const schedules = [];
-        for (let index = 0; index < 3; index++) {
-            doctors.forEach(doctor => {
+        doctors.forEach(doctor => {
+            for (let index = 0; index < 3; index++) {
                 const startHour = fakerPL.number.int({ min: 8, max: 10 });
                 const endHour = fakerPL.number.int({ min: 16, max: 18 });
 
@@ -24,8 +24,8 @@ module.exports = {
                     createdAt: new Date(),
                     updatedAt: new Date()
                 });
-            });
-        }
+            }
+        });
 
         await queryInterface.bulkInsert('schedules', schedules, {});
     },

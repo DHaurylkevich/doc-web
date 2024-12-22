@@ -14,54 +14,38 @@ module.exports = {
             INNER JOIN doctor_services ON schedules.doctor_id = doctor_services.doctor_id;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
+        const timeToMinutes = (time) => {
+            const [hours, minutes] = time.split(':').map(Number);
+            return hours * 60 + minutes;
+        };
+        const minutesToTime = (minutes) => {
+            const hours = Math.floor(minutes / 60).toString().padStart(2, '0');
+            const mins = (minutes % 60).toString().padStart(2, '0');
+            return `${hours}:${mins}`;
+        };
+        const getAvailableSlots = (schedule) => {
+            const { start_time, end_time, interval } = schedule;
 
-        const getRandomTimeSlot = (schedule) => {
+            const start = timeToMinutes(start_time.slice(0, -3));
+            const end = timeToMinutes(end_time.slice(0, -3));
+            const slots = [];
+
+            for (let time = start; time < end; time += interval) {
+                slots.push(minutesToTime(time));
+            }
+
+            return slots;
+        };
+
+        const getRandomTimeSlot = (slots) => {
             try {
-                const defaultStart = '09:00';
-                const defaultEnd = '17:00';
-                const defaultInterval = 30;
-
-                const start_time = schedule.start_time || defaultStart;
-                const end_time = schedule.end_time || defaultEnd;
-                const interval = parseInt(schedule.interval) || defaultInterval;
-
-                const startMinutes = timeToMinutes(start_time);
-                const endMinutes = timeToMinutes(end_time);
-
-                const slots = [];
-                for (let time = startMinutes; time < endMinutes; time += interval) {
-                    slots.push(minutesToTime(time));
-                }
-
-                if (slots.length > 0) {
-                    return slots[faker.number.int({ min: 0, max: slots.length - 1 })];
-                }
-
-                return defaultStart;
+                const randomIndex = faker.number.int({ min: 0, max: slots.length - 1 });
+                const selectedSlot = slots[randomIndex];
+                slots.splice(randomIndex, 1);
+                return selectedSlot;
             } catch (error) {
                 console.log('Error in getRandomTimeSlot:', error);
                 return '09:00';
-            }
-        };
-
-        const timeToMinutes = (time) => {
-            try {
-                const [hours, minutes] = time.toString().split(':').map(Number);
-                return (hours || 0) * 60 + (minutes || 0);
-            } catch (error) {
-                console.log('Error in timeToMinutes:', error);
-                return 0;
-            }
-        };
-
-        const minutesToTime = (minutes) => {
-            try {
-                const hours = Math.floor(minutes / 60).toString().padStart(2, '0');
-                const mins = (minutes % 60).toString().padStart(2, '0');
-                return `${hours}:${mins}`;
-            } catch (error) {
-                console.log('Error in minutesToTime:', error);
-                return '00:00';
             }
         };
 
@@ -69,20 +53,17 @@ module.exports = {
         patients.forEach((patient) => {
             const appointmentCount = faker.number.int({ min: 1, max: 3 });
 
-            for (let i = 0; i < appointmentCount; i++) {
-                const validSchedules = schedules.filter(schedule => schedule.doctor_service_id);
-                if (validSchedules.length === 0) {
-                    console.warn('No valid schedules found with doctor services');
-                    continue;
-                }
+            const validSchedules = schedules.filter(schedule => schedule.doctor_service_id);
+            const schedule = faker.helpers.arrayElement(validSchedules);
+            const availableSlots = getAvailableSlots(schedule);
 
-                const schedule = faker.helpers.arrayElement(validSchedules);
+            for (let i = 0; i < appointmentCount; i++) {
                 appointments.push({
                     patient_id: patient.id,
                     schedule_id: schedule.id,
                     clinic_id: schedule.clinic_id,
                     doctor_service_id: schedule.doctor_service_id,
-                    time_slot: getRandomTimeSlot(schedule),
+                    time_slot: getRandomTimeSlot(availableSlots),
                     description: faker.lorem.sentence(),
                     first_visit: faker.datatype.boolean(),
                     visit_type: faker.helpers.arrayElement(['prywatna', 'NFZ']),

@@ -30,7 +30,7 @@ const { validateParam } = require('../utils/validation');
  *                   type: integer
  *                   example: 1
  *                   description: ID врача, к которому создается запись
- *                 doctorServiceId:
+ *                 serviceId:
  *                   type: integer
  *                   example: 1
  *                   description: ID услуги врача
@@ -93,129 +93,6 @@ const { validateParam } = require('../utils/validation');
  *           description: Внутренняя ошибка сервера
  */
 router.post("/appointments", isAuthenticated, hasRole("patient"), validation.createDataExist, validateRequest, AppointmentController.createAppointment);
-/**
- * @swagger
- * paths:
- *   /appointments:
- *      get:
- *       summary: Получить доступные слоты для записи
- *       description: Получает доступные слоты для записи с учетом фильтров.
- *       operationId: getAvailableSlotsWithFilter
- *       tags:
- *         - Appointment
- *       parameters:
- *         - name: city
- *           in: query
- *           required: false
- *           description: Город для фильтрации
- *           schema:
- *             type: string
- *             example: "Novogrudok"
- *         - name: specialty
- *           in: query
- *           required: false
- *           description: Специальность врача
- *           schema:
- *             type: string
- *             example: "Associate"
- *         - name: date
- *           in: query
- *           required: false
- *           description: Дата для фильтрации
- *           schema:
- *             type: string
- *             format: date
- *             example: "2024-11-05"
- *         - name: visitType
- *           in: query
- *           required: false
- *           description: Какой-то тупой фильтр, потому что у нас нигде не обозначается что график или клиника(А если есть то это тупо и не нужно)), только для этого визита
- *           schema:
- *             type: string
- *             example: "консультация"
- *         - name: limit
- *           in: query
- *           required: false
- *           description: Лимит на количество результатов
- *           schema:
- *             type: integer
- *             default: 10
- *         - name: page
- *           in: query
- *           required: false
- *           description: Номер страницы
- *           schema:
- *             type: integer
- *             default: 1
- *       responses:
- *         200:
- *           description: Массив доступных слотов
- *           content:
- *             application/json:
- *               schema:
- *                 type: object
- *                 properties:
- *                   pages:
- *                      type: object
- *                      example: 32
- *                   slots:
- *                      type: object
- *                      properties:
- *                        doctor_id:
- *                          type: integer
- *                          example: 1
- *                        description:
- *                          type: string
- *                          example: "Ascisco caritas minima surgo patrocinor crustulum"
- *                        rating:
- *                          type: number
- *                          format: float
- *                          example: 4.5
- *                        specialty:
- *                          type: string
- *                          example: "Associate"
- *                        address:
- *                          type: object
- *                          properties:
- *                            city:
- *                              type: string
- *                              example: "Новогрудок"
- *                            street:
- *                              type: string
- *                              example: "Мицкевича"
- *                            home:
- *                              type: string
- *                              example: "1"
- *                            flat:
- *                              type: string
- *                              example: "1"
- *                            post_index:
- *                              type: string
- *                              example: "1"
- *                        date:
- *                          type: string
- *                          format: date
- *                          example: "2024-11-05"
- *                        service:
- *                          type: object
- *                          properties:
- *                            name:
- *                              type: string
- *                              example: "Table"
- *                            price:
- *                              type: number
- *                              example: "258.66"
- *                        slots:
- *                          type: array
- *                          items:
- *                            type: string
- *                            example: "10:00"
- *         400:
- *           description: Неверные данные запроса
- *         500:
- *           description: Внутренняя ошибка сервера
- */
-router.get("/appointments", AppointmentController.getAvailableSlotsWithFilter);
 /**
  * @swagger
  *    /appointments/{id}:

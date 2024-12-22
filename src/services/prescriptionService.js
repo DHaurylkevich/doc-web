@@ -17,15 +17,13 @@ const prescriptionService = {
             if (new Date(expirationDate) > maxExpirationDate) {
                 throw new AppError("Expiration date cannot exceed 360 days from today", 400);
             }
-
-            const prescriptions = medicationsIds.map(medicationId => ({
+            const prescriptions = await db.Prescriptions.create({
                 patient_id: patientId,
                 doctor_id: doctorId,
-                medication_id: medicationId,
                 expiration_date: expirationDate,
-            }));
+            }, { transaction: t });
 
-            await db.Prescriptions.bulkCreate(prescriptions, { transaction: t });
+            await prescriptions.setMedications(medicationsIds, { transaction: t });
 
             await t.commit();
             return;

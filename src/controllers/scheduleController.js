@@ -1,15 +1,10 @@
 const ScheduleService = require("../services/scheduleService");
-const AppError = require("../utils/appError");
 
 const ScheduleController = {
     createSchedule: async (req, res, next) => {
         try {
-            const { clinicId } = req.params;
+            const clinicId = req.user.id;
             const scheduleData = req.body;
-
-            if (req.user.id != clinicId) {
-                throw new AppError("Clinic authorized error", 401);
-            }
 
             const newSchedules = await ScheduleService.createSchedule(clinicId, scheduleData);
 
@@ -50,26 +45,31 @@ const ScheduleController = {
             next(err);
         }
     },
-    getScheduleByDoctor: async (req, res, next) => {
-        const { doctorId } = req.user.id;
+    getAvailableSlotsWithFilter: async (req, res, next) => {
+        const { city, specialty, date, limit, page } = req.query;
 
         try {
-            const schedules = await ScheduleService.getScheduleByDoctor(doctorId);
+            const availableSlot = await ScheduleService.getAvailableSlotsWithFilter({ city, specialty, date, limit, page });
+            res.status(200).json(availableSlot);
+        } catch (err) {
+            next(err);
+        }
+    },
+    getScheduleByRole: async (req, res, next) => {
+        const user = req.user;
+
+        try {
+            let schedules;
+            if (user.role === "doctor") {
+                schedules = await ScheduleService.getScheduleByDoctor(user.roleId);
+            } else {
+                schedules = await ScheduleService.getScheduleByClinic(user.id);
+            }
             return res.status(200).json(schedules);
         } catch (err) {
             next(err);
         }
     },
-    getScheduleByClinic: async (req, res, next) => {
-        const { clinicId } = req.params;
-
-        try {
-            const schedules = await ScheduleService.getScheduleByClinic(clinicId);
-            return res.status(200).json(schedules);
-        } catch (err) {
-            next(err);
-        }
-    }
 };
 
 module.exports = ScheduleController;

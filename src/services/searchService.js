@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const db = require("../models");
-const AppError = require("../utils/appError");
+const sequelize = require("../config/db");
 
 const SearchService = {
     searchPosts: async (query, page, limit) => {
@@ -73,14 +73,8 @@ const SearchService = {
                     model: db.Appointments,
                     as: "appointments",
                     attributes: [],
-                    include: [
-                        {
-                            model: db.Clinics,
-                            where: { id: user.id },
-                            as: "clinic",
-                            attributes: ["id"]
-                        }
-                    ]
+                    where: { clinic_id: user.id },
+                    required: true,
                 };
                 break;
             case "doctor":
@@ -90,7 +84,8 @@ const SearchService = {
                         {
                             model: db.Addresses,
                             as: "address",
-                            attributes: { exclude: ["createdAt", "updatedAt", "id", "user_id", "clinic_id"] }
+                            attributes: { exclude: ["createdAt", "updatedAt", "id", "user_id", "clinic_id"] },
+                            required: true,
                         }
                     ]
                 };
@@ -98,14 +93,18 @@ const SearchService = {
                     model: db.Appointments,
                     as: "appointments",
                     attributes: [],
-                    include: [
-                        {
-                            model: db.DoctorService,
-                            where: { doctor_id: user.roleId },
-                            as: "doctorService",
-                            attributes: ["doctor_id"],
-                        }
-                    ]
+                    required: true,
+                    where: {
+                        id: {
+                            [Op.in]: sequelize.literal(`(
+                                SELECT "appointments"."id"
+                                FROM "appointments"
+                                INNER JOIN "doctor_services" AS "doctorService"
+                                ON "appointments"."doctor_service_id" = "doctorService"."id"
+                                WHERE "doctorService"."doctor_id" = ${user.roleId}
+                            )`),
+                        },
+                    },
                 };
                 break;
             default:
@@ -133,6 +132,7 @@ const SearchService = {
                         },
                     ],
                 },
+                required: true,
             },
         ];
         if (Object.keys(appointmentWhere).length > 0) {
@@ -141,11 +141,13 @@ const SearchService = {
 
         try {
             const { rows, count } = await db.Patients.findAndCountAll({
-                offset,
-                limit: parsedLimit,
+                include: includeArray,
                 attributes: [],
-                include: includeArray
+                offset: offset,
+                limit: parsedLimit,
+                distinct: true,
             });
+
             const totalPages = Math.ceil(count / parsedLimit);
 
             return { patients: rows, pages: totalPages };

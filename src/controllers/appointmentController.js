@@ -2,22 +2,12 @@ const AppointmentService = require("../services/appointmentService");
 
 const AppointmentController = {
     createAppointment: async (req, res, next) => {
-        const { doctorId, doctorServiceId, clinicId, date, timeSlot, firstVisit, visitType, description } = req.body;
+        const { doctorId, serviceId, date, timeSlot, firstVisit, visitType, description } = req.body;
         const patientId = req.user.roleId;
 
         try {
-            const appointment = await AppointmentService.createAppointment({ doctorId, doctorServiceId, clinicId, patientId, date, timeSlot, firstVisit, visitType, description });
+            const appointment = await AppointmentService.createAppointment({ doctorId, serviceId, patientId, date, timeSlot, firstVisit, visitType, description });
             res.status(201).json(appointment);
-        } catch (err) {
-            next(err);
-        }
-    },
-    getAvailableSlotsWithFilter: async (req, res, next) => {
-        const { city, specialty, date, limit, page } = req.query;
-
-        try {
-            const availableSlot = await AppointmentService.getAvailableSlotsWithFilter({ city, specialty, date, limit, page });
-            res.status(200).json(availableSlot);
         } catch (err) {
             next(err);
         }

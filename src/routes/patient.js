@@ -108,7 +108,7 @@ router.get("/patients", isAuthenticated, patientController.getPatientsFilter);
  *       404:
  *         description: Пациент не найден
  */
-router.get("/patients/:patientId", isAuthenticated, patientController.getPatientById);
+router.get("/patients/:patientId", isAuthenticated, hasRole(["doctor", "admin"]), patientController.getPatientById);
 /**
  * @swagger
  * /admins/patients:

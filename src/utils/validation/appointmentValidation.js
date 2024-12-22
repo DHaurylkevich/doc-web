@@ -8,10 +8,8 @@ const filterDateExist = [
 const createDataExist = [
     body("doctorId")
         .exists().withMessage("Doctor is required"),
-    body("doctorServiceId")
+    body("serviceId")
         .exists().withMessage("Doctor service is required"),
-    body("clinicId")
-        .exists().withMessage("Clinic is required"),
     body("date")
         .exists().withMessage("Date is required"),
     body("timeSlot")

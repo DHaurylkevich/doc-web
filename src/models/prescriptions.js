@@ -17,11 +17,11 @@ module.exports = (sequelize, DataTypes) => {
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE',
             });
-            Prescriptions.belongsTo(models.Medications, {
+            Prescriptions.hasMany(models.Medications, {
                 foreignKey: 'medication_id',
+                as: 'medications',
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE',
-                as: 'medications',
             });
         }
     }
