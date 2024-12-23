@@ -3,10 +3,11 @@ const StatisticsService = require("../services/statisticService");
 const StatisticController = {
     getDoctorStatistics: async (req, res, next) => {
         const doctor = req.user;
+        const { startOfMonth, endOfMonth } = req.query;
 
         try {
             const countPatients = await StatisticsService.countPatients(doctor);
-            const countAppointments = await StatisticsService.countAppointments(doctor.roleId);
+            const countAppointments = await StatisticsService.countAppointments(doctor.roleId, startOfMonth, endOfMonth);
             res.status(200).json({ countPatients, countAppointments });
         } catch (error) {
             next(error);
@@ -16,9 +17,9 @@ const StatisticController = {
         const clinic = req.user;
 
         try {
-            const countPatients = await StatisticsService.countPatients(clinic);
+            // const countPatients = await StatisticsService.countPatients(clinic);
             const averageRating = await StatisticsService.averageScore(clinic.id);
-            res.status(200).json({ countPatients, averageRating });
+            res.status(200).json({ averageRating });
         } catch (error) {
             next(error);
         }

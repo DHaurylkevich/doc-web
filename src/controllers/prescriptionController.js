@@ -3,10 +3,10 @@ const prescriptionService = require("../services/prescriptionService");
 const prescriptionController = {
     createPrescription: async (req, res, next) => {
         try {
-            const { patientId, medicationId, expirationDate } = req.body;
+            const { patientId, medicationsIds, expirationDate } = req.body;
             const doctorId = req.user.roleId;
 
-            await prescriptionService.createPrescription(patientId, doctorId, medicationId, expirationDate);
+            await prescriptionService.createPrescription(patientId, doctorId, medicationsIds, expirationDate);
             return res.status(201).json({ message: "Prescription created successful" });
         } catch (err) {
             next(err);

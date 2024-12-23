@@ -2,74 +2,36 @@ const db = require("../models");
 const sequelize = require("../config/db");
 const moment = require("moment");
 const { Op } = require("sequelize");
-const { tr } = require("@faker-js/faker");
 
 const calculatePercentage = (total, beforeToday) => {
     if (beforeToday === 0) return total === 0 ? 0 : 100;
-    ;
     return ((total - beforeToday) / beforeToday) * 100;
 };
 
 const StatisticsService = {
     countPatients: async (user) => {
         let appointmentWhere = {};
-        let countToday;
-        const today = moment().startOf('day').toDate();
 
         if (user.role === "doctor") {
             appointmentWhere = {
-                include: [
-                    {
-                        model: db.DoctorService,
-                        as: 'doctorService',
-                        required: true,
-                        where: { doctor_id: user.roleId },
-                    }
-                ]
+                model: db.DoctorService,
+                as: 'doctorService',
+                required: true,
+                distinct: true,
+                where: { doctor_id: user.roleId },
             };
-            countToday = await db.Patients.count({
-                raw: true,
-                attributes: [],
-                include: [
-                    {
-                        model: db.Appointments,
-                        as: "appointments",
-                        attributes: [],
-                        required: true,
-                        where: {
-                            status: "active",
-                            ...(user.role === "clinic" && { clinic_id: user.id })
-                        },
-                        include: [
-                            { model: db.DoctorService, as: 'doctorService', required: true, where: { doctor_id: user.roleId } },
-                            { model: db.Schedules, attributes: ["date"], where: { date: today } }]
-                    }
-                ]
-            });
         }
+
+        const today = moment().startOf('day').toDate();
+        const startOfMonth = moment().startOf('month').toDate();
+        const endOfMonth = moment().endOf('month').toDate();
 
         try {
             const [countBeforeToday, totalCount] = await Promise.all([
                 db.Patients.count({
                     raw: true,
                     attributes: [],
-                    include: [
-                        {
-                            model: db.Appointments,
-                            as: "appointments",
-                            attributes: [],
-                            required: true,
-                            where: {
-                                createdAt: { [Op.lt]: today },
-                                ...(user.role === "clinic" && { clinic_id: user.id })
-                            },
-                            ...appointmentWhere,
-                        }
-                    ]
-                }),
-                db.Patients.count({
-                    raw: true,
-                    attributes: [],
+                    distinct: true,
                     include: [
                         {
                             model: db.Appointments,
@@ -77,15 +39,49 @@ const StatisticsService = {
                             attributes: [],
                             required: true,
                             where: { ...(user.role === "clinic" && { clinic_id: user.id }) },
-                            ...appointmentWhere
+                            where: { clinic_id: user.id },
+                            include: appointmentWhere ? [] : [
+                                appointmentWhere,
+                                {
+                                    model: db.Schedules, required: true, attributes: ["date"], where: {
+                                        date: {
+                                            [Op.between]: [startOfMonth, endOfMonth],
+                                            [Op.lt]: today
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }),
+                db.Patients.count({
+                    raw: true,
+                    attributes: [],
+                    distinct: true,
+                    include: [
+                        {
+                            model: db.Appointments,
+                            as: "appointments",
+                            attributes: [],
+                            required: true,
+                            where: { ...(user.role === "clinic" && { clinic_id: user.id }) },
+                            include: appointmentWhere ? [] : [
+                                {
+                                    model: db.Schedules, required: true, attributes: ["date"], where: {
+                                        date: {
+                                            [Op.between]: [startOfMonth, endOfMonth],
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     ]
                 })
             ]);
 
-            const percentageChange = calculatePercentage(totalCount - countBeforeToday);
+            const percentageChange = calculatePercentage(totalCount, countBeforeToday);
 
-            return { countToday, percentageChange, totalCount };
+            return { percentageChange, totalCount };
         } catch (err) {
             throw err;
         }
@@ -97,16 +93,13 @@ const StatisticsService = {
             const [beforeToday, currentRating] = await Promise.all([
                 db.Clinics.findOne({
                     raw: true,
-                    where: {
-                        id: clinicId,
-                        createdAt: { [Op.lt]: today }
-                    },
+                    where: { id: clinicId },
                     attributes: [
                         [
                             sequelize.literal(`(
                                 SELECT COALESCE(ROUND(AVG(d.rating)::numeric, 1), 0)
                                 FROM doctors d
-                                WHERE d.clinic_id = ${clinicId}
+                                WHERE d.clinic_id = ${clinicId} AND d."updatedAt" < '${today.toISOString()}'
                             )`),
                             'averageRating'
                         ]
@@ -128,31 +121,36 @@ const StatisticsService = {
                 })
             ]);
 
-            // const percentageChange = ((currentRating.averageRating - beforeToday.averageRating) / beforeToday.averageRating) * 100;
-            const percentageChange = calculatePercentage(currentRating.averageRating - beforeToday.averageRating);
+            const percentageChange = calculatePercentage(currentRating.averageRating, beforeToday.averageRating);
 
             return { percentageChange, currentRating: currentRating.averageRating };
         } catch (err) {
             throw err;
         }
     },
-    countAppointments: async (doctorId) => {
+    countAppointments: async (doctorId, startOfMonth, endOfMonth) => {
         const today = moment().startOf('day').toDate();
-        try {
 
-            const [countBeforeToday, totalCount] = await Promise.all([
+        if (!endOfMonth && !startOfMonth) {
+            startOfMonth = moment().startOf('month').toDate();
+            endOfMonth = moment().endOf('month').toDate();
+        }
+
+        try {
+            const [countBeforeToday, totalCount, totalCountToday] = await Promise.all([
                 db.Appointments.count({
                     raw: true,
                     attributes: [],
-                    where: {
-                        status: "active",
-                        createdAt: { [Op.gt]: today }
-                    },
+                    where: { status: "active" },
                     include: [
+                        { model: db.DoctorService, as: 'doctorService', where: { doctor_id: doctorId }, },
                         {
-                            model: db.DoctorService,
-                            as: 'doctorService',
-                            where: { doctor_id: doctorId },
+                            model: db.Schedules, required: true, attributes: ["date"], where: {
+                                date: {
+                                    [Op.between]: [startOfMonth, endOfMonth],
+                                    [Op.lt]: today
+                                }
+                            }
                         }
                     ]
                 }),
@@ -161,19 +159,28 @@ const StatisticsService = {
                     attributes: [],
                     where: { status: "active" },
                     include: [
+                        { model: db.DoctorService, as: 'doctorService', where: { doctor_id: doctorId } },
                         {
-                            model: db.DoctorService,
-                            as: 'doctorService',
-                            where: { doctor_id: doctorId },
-                        }
+                            model: db.Schedules, required: true, attributes: ["date"], where: {
+                                date: { [Op.between]: [startOfMonth, endOfMonth] }
+                            }
+                        },
+                    ]
+                }),
+                db.Appointments.count({
+                    raw: true,
+                    attributes: [],
+                    where: { status: "active" },
+                    include: [
+                        { model: db.DoctorService, as: 'doctorService', where: { doctor_id: doctorId } },
+                        { model: db.Schedules, attributes: ["date"], where: { date: today } }
                     ]
                 })
             ]);
 
-            // const percentageChange = ((totalCount - countBeforeToday) / countBeforeToday) * 100;
-            const percentageChange = calculatePercentage(totalCount - countBeforeToday);
+            const percentageChange = calculatePercentage(totalCount, countBeforeToday);
 
-            return { percentageChange, totalCount };
+            return { percentageChange, totalCount, totalCountToday };
         } catch (err) {
             throw err;
         }
@@ -358,5 +365,3 @@ const StatisticsService = {
 };
 
 module.exports = StatisticsService;
-//АДМИН: количество пользователей(пациентов)/клиники/докторов/визитов
-// новых пользователей за

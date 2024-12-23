@@ -27,7 +27,7 @@ const router = express.Router();
  *               patientId:
  *                 type: integer
  *                 description: ID пациента
- *               medicationId:
+ *               medicationsIds:
  *                 type: integer
  *                 description: ID лекарства
  *               expirationDate:

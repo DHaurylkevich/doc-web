@@ -56,7 +56,7 @@ const prescriptionService = {
                             }
                         ]
                     },
-                    { model: db.Medications, as: "medications", attributes: ["id", "name"] },
+                    { model: db.Medications, as: "medications", through: { attributes: [] }, attributes: ["name"] },
                 ],
             });
 
@@ -94,7 +94,7 @@ const prescriptionService = {
                             }
                         ]
                     },
-                    { model: db.Medications, as: "medications", attributes: ["id", "name"] },
+                    { model: db.Medications, as: "medications", through: { attributes: [] }, attributes: ["name"] },
                 ],
             });
 

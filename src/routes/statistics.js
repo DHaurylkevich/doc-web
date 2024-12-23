@@ -8,8 +8,23 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  * /doctors/statistics:
  *   get:
  *     summary: Получение общего количества пациентов, визитов и процента изменения
- *     description: Возвращает общее количество пациентов и процента изменения в системе
+ *     description: Возвращает общее количество пациентов и процента изменения в системе. Без даты вернется инфа за этот месяц
  *     tags: [Statistics]
+ *     parameters:
+ *       - in: query
+ *         name: startOfMonth
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: "2024-12-01"
+ *         description: НЕОБЯЗАТЕЛЬНАЯ Начальная дата для фильтрации статистики
+ *       - in: query
+ *         name: endOfMonth
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: "2024-12-31"
+ *         description: НЕОБЯЗАТЕЛЬНАЯ Конечная дата для фильтрации статистики
  *     responses:
  *       200:
  *         description: Успешное получение количества пациентов

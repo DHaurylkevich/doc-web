@@ -17,8 +17,10 @@ module.exports = (sequelize, DataTypes) => {
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE',
             });
-            Prescriptions.hasMany(models.Medications, {
-                foreignKey: 'medication_id',
+            Prescriptions.belongsToMany(models.Medications, {
+                through: 'PrescriptionMedications',
+                foreignKey: 'prescription_id',
+                otherKey: 'medication_id',
                 as: 'medications',
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE',
