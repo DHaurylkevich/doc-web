@@ -362,7 +362,104 @@ router.get("/clinics/appointments", isAuthenticated, hasRole("clinic"), validate
  *         500:
  *           description: Внутренняя ошибка сервера
  */
-router.get("/doctors/appointments", isAuthenticated, hasRole("doctor"), validation.filterDateExist, validateRequest, AppointmentController.getAppointmentsByDoctor);
+router.get("/doctors/appointments", isAuthenticated, hasRole("doctor"), validateRequest, AppointmentController.getAppointmentsByDoctor);
+/**
+ * @swagger
+ *   /doctors/patients/{patientId}/appointments:
+ *     get:
+ *       summary: Получить все записи на прием
+ *       description: Получает все записи для указанного врача.
+ *       tags:
+ *         - Appointment
+ *       security:
+ *         - CookieAuth: []
+ *       parameters:
+ *         - name: patientId
+ *           in: path
+ *           description: ID пациента
+ *           schema:
+ *             type: integer
+ *             example: 1
+ *         - name: limit
+ *           in: query
+ *           required: false
+ *           description: Лимит на количество результатов
+ *           schema:
+ *             type: integer
+ *             default: 10
+ *         - name: page
+ *           in: query
+ *           required: false
+ *           description: Номер страницы
+ *           schema:
+ *             type: integer
+ *             default: 1
+ *       responses:
+ *         200:
+ *           description: Массив записей врача
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                     pages:
+ *                        type: object
+ *                        example: 32
+ *                     slots:
+ *                        type: object
+ *                        properties:
+ *                           date:
+ *                             type: string
+ *                             format: date
+ *                             example: "2025-02-11"
+ *                           start_time:
+ *                             type: string
+ *                             example: "06:02"
+ *                           end_time:
+ *                             type: string
+ *                             example: "06:58"
+ *                           description:
+ *                             type: string
+ *                             example: "Arbor cuius atqui viridis aduro censura."
+ *                           service:
+ *                             type: object
+ *                             properties:
+ *                               name:
+ *                                 type: string
+ *                                 example: "Gorgeous Wooden Table"
+ *                               price:
+ *                                 type: number
+ *                                 example: "10.66"
+ *                           first_visit:
+ *                             type: boolean
+ *                             example: true
+ *                           visit_type:
+ *                             type: string
+ *                             example: "NFZ"
+ *                           status:
+ *                             type: string
+ *                             example: "completed"
+ *                           patient:
+ *                             type: object
+ *                             properties:
+ *                               patientId:
+ *                                 type: number
+ *                                 example: "1"
+ *                               first_name:
+ *                                 type: string
+ *                                 example: "Mariano"
+ *                               last_name:
+ *                                 type: string
+ *                                 example: "Schulist"
+ *                               photo:
+ *                                 type: string
+ *                                 example: "https://avatars.githubusercontent.com/u/6199909"
+ *         404:
+ *           description: Записи не найдены
+ *         500:
+ *           description: Внутренняя ошибка сервера
+ */
+router.get("/doctors/patients/:patientId/appointments", isAuthenticated, hasRole("doctor"), validateRequest, AppointmentController.getAppointmentsByPatientId);
 /**
  * @swagger
  *   /patients/appointments:

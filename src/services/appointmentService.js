@@ -1,4 +1,5 @@
 const db = require("../models");
+const appointments = require("../models/appointments");
 const AppError = require("../utils/appError");
 const { Op } = require("sequelize");
 
@@ -48,21 +49,72 @@ const AppointmentService = {
             throw err;
         }
     },
-    // getAppointmentById: async (id) => {
-    //     try {
-    //         const appointment = await db.Appointments.findByPk(id, {
-    //             include: [db.Doctors, db.Clinics, db.Patients, db.Schedules]
-    //         });
+    getAppointmentsByPatientId: async (patientId, limit, page) => {
+        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
+        const pageNumber = Math.max(parseInt(page) || 1, 1);
+        const offset = (pageNumber - 1) * parsedLimit;
 
-    //         if (!appointment) {
-    //             throw new AppError("Appointment not found", 404);
-    //         }
+        try {
+            const { rows, count } = await db.Appointments.findAndCountAll({
+                limit: parsedLimit,
+                offset: offset,
+                where: { patient_id: patientId },
+                attributes: [],
+                include: [
+                    {
+                        model: db.DoctorService,
+                        as: 'doctorService',
+                        attributes: ["id"],
+                        include: [
+                            {
+                                model: db.Doctors,
+                                as: 'doctor',
+                                attributes: ["id"],
+                                include: [
+                                    {
+                                        model: db.Users,
+                                        as: "user",
+                                        attributes: ["first_name", "last_name"]
+                                    },
+                                    {
+                                        model: db.Specialties,
+                                        as: "specialty",
+                                        attributes: ["name"],
+                                    }
+                                ]
+                            },
+                            {
+                                model: db.Services,
+                                as: "service",
+                                attributes: ["name"],
+                            },
+                        ],
+                    },
+                    {
+                        model: db.Schedules,
+                        attributes: ["date"],
+                    }
+                ],
+            });
+            const totalPages = Math.ceil(count / parsedLimit);
+            if (page - 1 > totalPages) {
+                throw new AppError("Page not found", 404);
+            }
 
-    //         return appointment;
-    //     } catch (err) {
-    //         throw err;
-    //     }
-    // },
+            const appointments = rows.map(appointment => {
+                return {
+                    doctor: appointment.doctorService.doctor.user,
+                    specialty: appointment.doctorService.doctor.specialty.name,
+                    service: appointment.doctorService.service.name,
+                    date: appointment.Schedule.date,
+                }
+            });
+
+            return { pages: totalPages, appointments };
+        } catch (err) {
+            throw err;
+        }
+    },
     deleteAppointment: async (id) => {
         try {
             const appointment = await db.Appointments.findByPk(id);
@@ -152,10 +204,6 @@ const AppointmentService = {
             const totalPages = Math.ceil(count / parsedLimit);
             if (page - 1 > totalPages) {
                 throw new AppError("Page not found", 404);
-            }
-
-            if (!rows.length) {
-                return [];
             }
 
             const availableSlots = rows.map(appointment => {

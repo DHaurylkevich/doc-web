@@ -2,8 +2,8 @@ const AppointmentService = require("../services/appointmentService");
 
 const AppointmentController = {
     createAppointment: async (req, res, next) => {
-        const { doctorId, serviceId, date, timeSlot, firstVisit, visitType, description } = req.body;
         const patientId = req.user.roleId;
+        const { doctorId, serviceId, date, timeSlot, firstVisit, visitType, description } = req.body;
 
         try {
             const appointment = await AppointmentService.createAppointment({ doctorId, serviceId, patientId, date, timeSlot, firstVisit, visitType, description });
@@ -18,6 +18,17 @@ const AppointmentController = {
 
         try {
             const appointments = await AppointmentService.getAppointmentsByClinic({ clinicId, doctorId, patientId, date, specialty, limit, page });
+            res.status(200).json(appointments);
+        } catch (err) {
+            next(err);
+        }
+    },
+    getAppointmentsByPatientId: async (req, res, next) => {
+        const { patientId } = req.params;
+        const { limit, page } = req.query;
+
+        try {
+            const appointments = await AppointmentService.getAppointmentsByPatientId(patientId, limit, page);
             res.status(200).json(appointments);
         } catch (err) {
             next(err);
@@ -42,7 +53,6 @@ const AppointmentController = {
             const appointments = await AppointmentService.getAllAppointmentsByPatient({ patientId, limit, page, startDate, endDate });
             res.status(200).json(appointments);
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },
