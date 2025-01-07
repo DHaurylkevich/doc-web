@@ -4,23 +4,20 @@ const AppError = require("../utils/appError");
 const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 
 const ReviewService = {
-    createReview: async ({ userId, doctorId, rating, comment, tagsIds }) => {
+    createReview: async ({ roleId, doctorId, rating, comment, tagsIds }) => {
         const t = await sequelize.transaction();
 
         try {
-            const patient = await db.Patients.findOne({
-                where: { user_id: userId }
-            });
-
             const doctor = await db.Doctors.findOne({
                 where: { id: doctorId }
             });
+
             if (!doctor) {
                 throw new AppError("Doctor not found", 404);
             }
 
             const newReview = await db.Reviews.create({
-                patient_id: patient.id,
+                patient_id: roleId,
                 doctor_id: doctorId,
                 rating,
                 comment,
@@ -90,7 +87,7 @@ const ReviewService = {
             const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
-                return [];
+                return { pages: 0, reviews: [] };
             }
 
             return { pages: totalPages, reviews: rows };
@@ -149,7 +146,7 @@ const ReviewService = {
             const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
-                return [];
+                return { pages: 0, reviews: [] };
             }
 
             return { pages: totalPages, reviews: rows };
@@ -192,7 +189,7 @@ const ReviewService = {
             const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
-                return [];
+                return { pages: 0, reviews: [] };
             }
 
             return { pages: totalPages, reviews: rows };

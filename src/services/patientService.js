@@ -7,6 +7,7 @@ const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 const PatientService = {
     createPatient: async (userData) => {
         const t = await sequelize.transaction();
+
         try {
             const filter = {};
             if (userData.email) {
@@ -147,7 +148,7 @@ const PatientService = {
             const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
-                return [];
+                return { pages: 0, patients: [] };
             }
 
             return { pages: totalPages, patients: rows };
@@ -183,7 +184,7 @@ const PatientService = {
             const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
-                return [];
+                return { pages: 0, patients: [] };
             }
 
             return { pages: totalPages, patients: rows };

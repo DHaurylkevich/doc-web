@@ -3,12 +3,15 @@ const db = require("../models");
 const sequelize = require("../config/db");
 const { getPaginationParams } = require("../utils/pagination");
 
+function getQueryWords(query) {
+    const words = query.split(" ");
+    return words.map(word => "%" + word + "%");
+}
+
 const SearchService = {
     searchPosts: async (query, page, limit) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
-
-        const words = query.split(" ");
-        const queryWhere = words.map(word => "%" + word + "%");
+        const queryWhere = getQueryWords(query);
 
         try {
             const { rows, count } = await db.Posts.findAndCountAll({
@@ -57,9 +60,7 @@ const SearchService = {
     },
     searchPatients: async (query, page, limit, user) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
-
-        const words = query.split(" ");
-        const queryWhere = words.map(word => "%" + word + "%");
+        const queryWhere = getQueryWords(query);
 
         let appointmentWhere = {};
         let userInclude = {};
@@ -156,9 +157,7 @@ const SearchService = {
     },
     searchDoctors: async (query, page, limit, user) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
-
-        const words = query.split(" ");
-        const queryWhere = words.map(word => "%" + word + "%");
+        const queryWhere = getQueryWords(query);
 
         let doctorWhere = {};
         let otherInclude = {};
@@ -243,9 +242,7 @@ const SearchService = {
     },
     searchClinic: async (query, page, limit) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
-
-        const words = query.split(" ");
-        const queryWhere = words.map(word => "%" + word + "%");
+        const queryWhere = getQueryWords(query);
 
         try {
             const { rows, count } = await db.Clinics.findAndCountAll({
@@ -284,9 +281,7 @@ const SearchService = {
     },
     searchPrescription: async (query, page, limit, doctorId) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
-
-        const words = query.split(" ");
-        const queryWhere = words.map(word => "%" + word + "%");
+        const queryWhere = getQueryWords(query);
 
         try {
             const { rows, count } = await db.Prescriptions.findAndCountAll({

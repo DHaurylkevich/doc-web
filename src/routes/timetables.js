@@ -22,7 +22,7 @@ const { validateRequest } = require("../middleware/errorHandler");
  *           type: integer
  *           example: 1
  *     requestBody:
- *       description: Обновленные данные тэга
+ *       description: Обновленные данные графика для клиники
  *       required: true
  *       content:
  *         application/json:
@@ -34,6 +34,9 @@ const { validateRequest } = require("../middleware/errorHandler");
  *                 items:
  *                   type: object
  *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
  *                     dayOfWeek:
  *                       type: integer
  *                       example: 1
@@ -46,6 +49,7 @@ const { validateRequest } = require("../middleware/errorHandler");
  *                       format: time
  *                       example: "18:00"
  *                 required:
+ *                   - id
  *                   - dayOfWeek
  *                   - startTime
  *                   - endTime

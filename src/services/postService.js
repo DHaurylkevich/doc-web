@@ -41,7 +41,7 @@ const PostService = {
     },
     updatePost: async (postId, data) => {
         try {
-            let post = await db.Posts.findByPk(postId);
+            const post = await db.Posts.findByPk(postId);
             if (!post) {
                 throw new AppError("Post not found", 404);
             }
@@ -53,13 +53,13 @@ const PostService = {
     },
     deletePost: async (postId) => {
         try {
-            let post = await db.Posts.findByPk(postId);
+            const post = await db.Posts.findByPk(postId);
             if (!post) {
                 throw new AppError("Post not found", 404);
             }
 
             await post.destroy();
-            return { message: "Successful delete" };
+            return;
         } catch (err) {
             throw err;
         }

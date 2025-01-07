@@ -17,9 +17,7 @@ const SpecialtyService = {
     },
     getAllSpecialties: async () => {
         try {
-            const specialties = await db.Specialties.findAll({ attributes: ["id", "name"] });
-
-            return specialties;
+            return await db.Specialties.findAll({ attributes: ["id", "name"] });
         } catch (err) {
             throw err;
         }
@@ -42,9 +40,9 @@ const SpecialtyService = {
             throw err;
         }
     },
-    getSpecialtyById: async (id) => {
+    getSpecialtyById: async (specialtyId) => {
         try {
-            const specialty = await db.Specialties.findByPk(id);
+            const specialty = await db.Specialties.findByPk(specialtyId);
             if (!specialty) {
                 throw new AppError("Specialty not found", 404);
             }
@@ -54,28 +52,28 @@ const SpecialtyService = {
             throw err;
         }
     },
-    updateSpecialty: async (id, data) => {
+    updateSpecialty: async (specialtyId, data) => {
         try {
-            let specialty = await db.Specialties.findByPk(id);
+            const specialty = await db.Specialties.findByPk(specialtyId);
             if (!specialty) {
                 throw new AppError("Specialty not found", 404);
             }
 
-            specialty = await specialty.update(data);
-
-            return specialty;
+            await specialty.update(data);
+            return;
         } catch (err) {
             throw err;
         }
     },
-    deleteSpecialty: async (id) => {
+    deleteSpecialty: async (specialtyId) => {
         try {
-            let specialty = await db.Specialties.findByPk(id);
+            const specialty = await db.Specialties.findByPk(specialtyId);
             if (!specialty) {
                 throw new AppError("Specialty not found", 404);
             }
 
             await specialty.destroy();
+            return;
         } catch (err) {
             throw err;
         }

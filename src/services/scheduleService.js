@@ -3,7 +3,6 @@ const db = require("../models");
 const AppError = require("../utils/appError");
 const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 
-
 const ScheduleService = {
     createSchedule: async (clinicId, scheduleData) => {
         const t = await db.sequelize.transaction();
@@ -23,7 +22,6 @@ const ScheduleService = {
                 throw new AppError("One or more doctors not found", 404);
             }
 
-
             scheduleData = doctorsIds.flatMap(doctorId =>
                 dates.map(date => ({
                     ...commonData,
@@ -32,12 +30,14 @@ const ScheduleService = {
                     doctor_id: doctorId
                 }))
             );
+
             const existingSchedules = await db.Schedules.findAll({
                 where: {
                     [Op.or]: scheduleData
                 },
                 transaction: t
             });
+
             if (existingSchedules.length > 0) {
                 throw new AppError("One or more schedules already exist", 400);
             }

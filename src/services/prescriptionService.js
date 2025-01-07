@@ -3,7 +3,6 @@ const db = require("../models");
 const moment = require("moment");
 const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 
-
 const prescriptionService = {
     createPrescription: async (patientId, doctorId, medicationsIds, expirationDate) => {
         const t = await db.sequelize.transaction();
@@ -19,6 +18,7 @@ const prescriptionService = {
             if (new Date(expirationDate) > maxExpirationDate) {
                 throw new AppError("Expiration date cannot exceed 360 days from today", 400);
             }
+            
             const prescriptions = await db.Prescriptions.create({
                 patient_id: patientId,
                 doctor_id: doctorId,

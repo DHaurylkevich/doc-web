@@ -1,4 +1,5 @@
 const db = require("../models");
+const AppError = require("../utils/appError");
 
 const NotionService = {
     createNotion: async (notionData) => {
@@ -21,7 +22,7 @@ const NotionService = {
         try {
             let notion = await db.Notions.findByPk(notionId);
             if (!notion) {
-                throw new Error("Notion not found");
+                throw new AppError("Notion not found");
             }
 
             notion = await notion.update(notionData);
@@ -31,15 +32,15 @@ const NotionService = {
             throw err;
         }
     },
-    deleteNotion: async (tagId) => {
+    deleteNotion: async (notionId) => {
         try {
-            let notion = await db.Notions.findByPk(tagId);
+            let notion = await db.Notions.findByPk(notionId);
             if (!notion) {
-                throw new Error("Notion not found");
+                throw new AppError("Notion not found");
             }
 
             await notion.destroy();
-            return { message: "Successful delete" };
+            return;
         } catch (err) {
             throw err;
         }

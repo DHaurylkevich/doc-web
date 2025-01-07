@@ -19,26 +19,26 @@ const tagService = {
     },
     updateTag: async (tagId, tagData) => {
         try {
-            let tag = await db.Tags.findByPk(tagId);
+            const tag = await db.Tags.findByPk(tagId);
             if (!tag) {
                 throw new AppError("Tag not found", 404);
             }
 
-            tag = await tag.update(tagData);
-
-            return tag;
+            await tag.update(tagData);
+            return;
         } catch (err) {
             throw err;
         }
     },
     deleteTag: async (tagId) => {
         try {
-            let tag = await db.Tags.findByPk(tagId);
+            const tag = await db.Tags.findByPk(tagId);
             if (!tag) {
                 throw new AppError("Tag not found", 404);
             }
 
             await tag.destroy();
+            return;
         } catch (err) {
             throw err;
         }

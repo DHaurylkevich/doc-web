@@ -140,7 +140,7 @@ const DoctorService = {
             const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
-                return [];
+                return { pages: 0, doctors: [] };
             }
 
             return { pages: totalPages, doctors: rows };
@@ -245,7 +245,7 @@ const DoctorService = {
             const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
-                return [];
+                return { pages: 0, doctors: [] };
             }
 
             return { pages: totalPages, doctors: rows };

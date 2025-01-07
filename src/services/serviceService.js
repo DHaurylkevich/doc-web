@@ -6,8 +6,10 @@ const AppError = require("../utils/appError");
 const ServiceService = {
     createService: async ({ clinicId, name, specialtyId, price }) => {
         try {
-            await ClinicService.getClinicById(clinicId);
-            await SpecialtyService.getSpecialtyById(specialtyId);
+            await Promise.all([
+                ClinicService.getClinicById(clinicId),
+                SpecialtyService.getSpecialtyById(specialtyId)
+            ]);
 
             const serviceExist = await db.Services.findOne({
                 where: { name: name, price: price, specialty_id: specialtyId, clinic_id: clinicId }
@@ -17,7 +19,7 @@ const ServiceService = {
             }
 
             const service = await db.Services.create({ name, price, clinic_id: clinicId, specialty_id: specialtyId });
-            return service
+            return service;
         } catch (err) {
             throw err;
         }
@@ -62,12 +64,13 @@ const ServiceService = {
     },
     deleteService: async (serviceId) => {
         try {
-            let service = await db.Services.findByPk(serviceId);
+            const service = await db.Services.findByPk(serviceId);
             if (!service) {
                 throw new AppError("Service not found", 404);
             }
 
             await service.destroy();
+            return;
         } catch (err) {
             throw err;
         }

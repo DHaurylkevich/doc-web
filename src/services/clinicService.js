@@ -96,10 +96,11 @@ const ClinicService = {
     },
     getAllClinicsFullData: async ({ name, province, specialty, city, limit, page }) => {
         const queryClinic = name ? { name } : {};
+        const querySpecialty = specialty ? { name: specialty } : {};
+
         const queryAddress = {};
         if (city) queryAddress.city = city;
         if (province) queryAddress.province = province;
-        const querySpecialty = specialty ? { name: specialty } : {};
 
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
@@ -160,10 +161,11 @@ const ClinicService = {
                     },
                 ],
             });
+
             const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
-                return [];
+                return { pages: 0, clinics: [] };
             }
 
             return {
@@ -179,17 +181,13 @@ const ClinicService = {
         }
     },
     getAllClinicsForAdmin: async ({ sort, limit, page }) => {
-        const sortOptions = [
-            ["name", sort === "ASC" ? "ASC" : "DESC"],
-        ];
-
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Clinics.findAndCountAll({
                 limit: parsedLimit,
                 offset: offset,
-                order: sortOptions,
+                order: ["name", sort === "ASC" ? "ASC" : "DESC"],
                 attributes: {
                     exclude: ["password", "resetToken", "updatedAt", "role", "description", "feedbackRating"],
                     include: [
@@ -224,7 +222,7 @@ const ClinicService = {
             const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
-                return [];
+                return { pages: 0, clinics: [] };
             }
 
             return { pages: totalPages, clinics: rows };
@@ -234,12 +232,13 @@ const ClinicService = {
     },
     updateClinic: async (clinicId, clinicData, addressData) => {
         const t = await sequelize.transaction();
+
         try {
             const clinic = await db.Clinics.findByPk(clinicId);
             await clinic.update(clinicData, { transaction: t });
 
             const address = await clinic.getAddress();
-            await AddressService.updateAddress(address, addressData, t)
+            await AddressService.updateAddress(address, addressData, t);
 
             await t.commit();
             await clinic.reload({
