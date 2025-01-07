@@ -2,7 +2,7 @@ const AppError = require("../utils/appError");
 const db = require("../models");
 const sequelize = require("../config/db");
 const createJWT = require("../utils/createJWT");
-const { hashingPassword } = require("../utils/passwordUtil");
+const hashingPassword = require("../utils/passwordUtil");
 const { resetMail } = require("../utils/mail");
 const jwt = require("jsonwebtoken");
 

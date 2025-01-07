@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const db = require("../models");
-const passwordUtil = require("../utils/passwordUtil");
+const hashingPassword = require("../utils/passwordUtil");
 const bcrypt = require("bcrypt");
 const cloudinary = require("../middleware/upload");
 const AppError = require("../utils/appError");
@@ -14,7 +14,7 @@ const UserService = {
                 throw new AppError("User already exist", 404);
             }
 
-            userData.password = await passwordUtil.hashingPassword(userData.password);
+            userData.password = await hashingPassword(userData.password);
             return await db.Users.create(userData, { transaction: t });
         } catch (err) {
             throw err;
@@ -130,7 +130,7 @@ const UserService = {
                 throw new AppError("Password Error", 400);
             };
 
-            newPassword = await passwordUtil.hashingPassword(newPassword);
+            newPassword = await hashingPassword(newPassword);
             return await user.update({ password: newPassword });
         } catch (err) {
             throw err;

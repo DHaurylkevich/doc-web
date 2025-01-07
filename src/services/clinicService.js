@@ -2,7 +2,7 @@ const db = require("../models");
 const sequelize = require("../config/db");
 const AppError = require("../utils/appError");
 const AddressService = require("./addressService");
-const passwordUtil = require("../utils/passwordUtil");
+const hashingPassword = require("../utils/passwordUtil");
 const createJWT = require("../utils/createJWT");
 const { setPasswordMail } = require("../utils/mail");
 const TimetableService = require("./timetableService");
@@ -12,7 +12,7 @@ const { Op } = require("sequelize");
 const ClinicService = {
     createClinic: async (clinicData, addressData) => {
         const t = await sequelize.transaction();
-        clinicData.password = await passwordUtil.hashingPassword(clinicData.password);
+        clinicData.password = await hashingPassword(clinicData.password);
 
         try {
             let clinic = await db.Clinics.findAll({

@@ -1,7 +1,7 @@
 const sequelize = require("../config/db");
 const db = require("../models");
 const AppError = require("../utils/appError");
-const passwordUtil = require("../utils/passwordUtil");
+const hashingPassword = require("../utils/passwordUtil");
 const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 
 const PatientService = {
@@ -23,7 +23,7 @@ const PatientService = {
                 throw new AppError("User already exist", 400);
             }
 
-            const hashedPassword = await passwordUtil.hashingPassword(userData.password);
+            const hashedPassword = await hashingPassword(userData.password);
 
             const createdUser = await db.Users.create({
                 ...filter,
