@@ -1,15 +1,17 @@
 const db = require("../models");
 const AppError = require("../utils/appError");
 const { getPaginationParams, getTotalPages } = require("../utils/pagination");
+const { timeToMinutes, minutesToTime } = require("../utils/timeUtils");
 const { checkScheduleAndSlot } = require("./scheduleService");
 const { checkDoctorService } = require("./doctorServiceService");
 const { Op } = require("sequelize");
 
 const AppointmentService = {
     createAppointment: async ({ doctorId, serviceId, patientId, date, timeSlot, firstVisit, visitType, description }) => {
-        const schedule = checkScheduleAndSlot(doctorId, date, timeSlot)
-
-        const doctorService = checkDoctorService(doctorId, serviceId)
+        const [schedule, doctorService] = await Promise.all([
+            checkScheduleAndSlot(doctorId, date, timeSlot),
+            checkDoctorService(doctorId, serviceId)
+        ]);
 
         try {
             await db.Appointments.create({
@@ -38,6 +40,9 @@ const AppointmentService = {
                 offset: offset,
                 where: { patient_id: patientId },
                 attributes: [],
+                order: [
+                    [db.Schedules, "date", "ASC"],
+                ],                
                 include: [
                     {
                         model: db.DoctorService,
@@ -76,6 +81,10 @@ const AppointmentService = {
             });
 
             const totalPages = getTotalPages(count, parsedLimit, page);
+
+            if (!rows.length) {
+                return { pages: 0, appointments: [] };
+            }
 
             const appointments = rows.map(appointment => {
                 return {
@@ -123,6 +132,10 @@ const AppointmentService = {
                 limit: parsedLimit,
                 offset: offset,
                 where: appointmentWhere,
+                order: [
+                    [db.Schedules, "date", "ASC"],
+                    ["time_slot", "ASC"]
+                ],   
                 include: [
                     {
                         model: db.DoctorService,
@@ -170,7 +183,7 @@ const AppointmentService = {
                     {
                         model: db.Schedules,
                         attributes: ["id", "date", "interval"],
-                        order: [["date", "DESC"]],
+                        // order: [["date", "DESC"]],
                         where: scheduleWhere,
                     },
                 ]
@@ -178,8 +191,8 @@ const AppointmentService = {
 
             const totalPages = getTotalPages(count, parsedLimit, page);
 
-            const availableSlots = rows.map(appointment => {
-                const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
+            const appointments = rows.map(appointment => {
+                const end_time = timeToMinutes(appointment.time_slot.slice(0, -3))
                 return {
                     doctor: appointment.doctorService.doctor.user,
                     patient: {
@@ -190,11 +203,11 @@ const AppointmentService = {
                     service: appointment.doctorService.service,
                     date: appointment.Schedule.date,
                     start_time: appointment.time_slot.slice(0, -3),
-                    end_time: AppointmentService.minutesToTime(end_time + appointment.Schedule.interval),
+                    end_time: minutesToTime(end_time + appointment.Schedule.interval),
                 }
             });
 
-            return { pages: totalPages, slots: availableSlots };
+            return { pages: totalPages, appointments };
         } catch (err) {
             throw err;
         }
@@ -260,15 +273,15 @@ const AppointmentService = {
             const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
-                return [];
+                return { pages: 0, appointments: [] };
             }
 
-            const availableSlots = rows.map(appointment => {
-                const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
+            const appointments = rows.map(appointment => {
+                const end_time = timeToMinutes(appointment.time_slot.slice(0, -3))
                 return {
                     date: appointment.Schedule.date,
                     start_time: appointment.time_slot.slice(0, -3),
-                    end_time: AppointmentService.minutesToTime(end_time + appointment.Schedule.interval),
+                    end_time: minutesToTime(end_time + appointment.Schedule.interval),
                     description: appointment.description,
                     service: appointment.doctorService.service,
                     first_visit: appointment.first_visit,
@@ -281,7 +294,7 @@ const AppointmentService = {
                 }
             });
 
-            return { pages: totalPages, slots: availableSlots.flat() };
+            return { pages: totalPages, appointments };
         } catch (err) {
             throw err;
         }
@@ -338,17 +351,16 @@ const AppointmentService = {
 
             const totalPages = getTotalPages(count, parsedLimit, page);
 
-
             if (!rows.length) {
-                return [];
+                return { pages: 0, appointments: [] };
             }
 
-            const availableSlots = rows.map(appointment => {
-                const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
+            const appointments = rows.map(appointment => {
+                const end_time = timeToMinutes(appointment.time_slot.slice(0, -3))
                 return {
                     date: appointment.Schedule.date,
                     start_time: appointment.time_slot.slice(0, -3),
-                    end_time: AppointmentService.minutesToTime(end_time + appointment.Schedule.interval),
+                    end_time: minutesToTime(end_time + appointment.Schedule.interval),
                     description: appointment.description,
                     service: appointment.doctorService.service,
                     first_visit: appointment.first_visit,
@@ -358,29 +370,10 @@ const AppointmentService = {
                 }
             });
 
-            return { pages: totalPages, slots: availableSlots };
+            return { pages: totalPages, appointments };
         } catch (err) {
             throw err;
         }
-    },
-    /**
-     * Вспомогательная функция для преобразования времени в минуты
-     * @param {*} time 
-     * @returns 
-     */
-    timeToMinutes: (time) => {
-        const [hours, minutes] = time.split(":").map(Number);
-        return hours * 60 + minutes;
-    },
-    /**
-     * Вспомогательная функция для преобразования минут в формат HH:MM
-     * @param {*} minutes 
-     * @returns 
-     */
-    minutesToTime: (minutes) => {
-        const hours = Math.floor(minutes / 60).toString().padStart(2, "0");
-        const mins = (minutes % 60).toString().padStart(2, "0");
-        return `${hours}:${mins}`;
     },
 };
 
