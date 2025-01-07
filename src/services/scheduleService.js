@@ -1,6 +1,8 @@
 const { Op } = require("sequelize");
 const db = require("../models");
 const AppError = require("../utils/appError");
+const { getPaginationParams, getTotalPages } = require("../utils/pagination");
+
 
 const ScheduleService = {
     createSchedule: async (clinicId, scheduleData) => {
@@ -102,9 +104,7 @@ const ScheduleService = {
         }
     },
     getScheduleByDoctor: async (doctorId, limit, page) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Schedules.findAndCountAll({
@@ -114,10 +114,7 @@ const ScheduleService = {
                 where: { doctor_id: doctorId }
             });
 
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+            const totalPages = getTotalPages(count, parsedLimit, page);
 
             return { pages: totalPages, schedule: rows };
         } catch (err) {
@@ -125,9 +122,7 @@ const ScheduleService = {
         }
     },
     getScheduleByClinic: async (clinicId, limit, page) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Schedules.findAndCountAll({
@@ -151,10 +146,7 @@ const ScheduleService = {
                 ],
             });
 
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+            const totalPages = getTotalPages(count, parsedLimit, page);
 
             return { pages: totalPages, schedule: rows };
         } catch (err) {
@@ -177,9 +169,7 @@ const ScheduleService = {
                 required: false,
             };
 
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Doctors.findAndCountAll({
@@ -231,10 +221,7 @@ const ScheduleService = {
                 ]
             });
 
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+            const totalPages = getTotalPages(count, parsedLimit, page);
 
             // return rows
             const availableSlots = rows.map(doctor => {
@@ -259,6 +246,29 @@ const ScheduleService = {
         } catch (err) {
             throw err;
         }
+    },
+    checkScheduleAndSlot: async (doctorId, date, timeSlot) => {
+        const schedule = await db.Schedules.findOne({
+            where: { doctor_id: doctorId, date: date },
+            attributes: ["id", "available_slots"],
+            include: [
+                {
+                    model: db.Appointments,
+                    as: "appointments",
+                    attributes: ["time_slot"],
+                },
+            ],
+        });
+
+        if (!schedule) {
+            throw new AppError("Расписание врача на указанную дату не найдено.", 404);
+        }
+
+        if (!schedule.available_slots.includes(timeSlot)) {
+            throw new AppError(`Временной слот ${timeSlot} недоступен.`, 400);
+        }
+
+        return schedule;
     },
 }
 

@@ -1,12 +1,12 @@
 const { Op } = require("sequelize");
 const db = require("../models");
 const sequelize = require("../config/db");
+const { getPaginationParams } = require("../utils/pagination");
 
 const SearchService = {
     searchPosts: async (query, page, limit) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
+
         const words = query.split(" ");
         const queryWhere = words.map(word => "%" + word + "%");
 
@@ -56,9 +56,8 @@ const SearchService = {
         }
     },
     searchPatients: async (query, page, limit, user) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
+
         const words = query.split(" ");
         const queryWhere = words.map(word => "%" + word + "%");
 
@@ -156,9 +155,8 @@ const SearchService = {
         }
     },
     searchDoctors: async (query, page, limit, user) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
+
         const words = query.split(" ");
         const queryWhere = words.map(word => "%" + word + "%");
 
@@ -244,9 +242,8 @@ const SearchService = {
         }
     },
     searchClinic: async (query, page, limit) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
+
         const words = query.split(" ");
         const queryWhere = words.map(word => "%" + word + "%");
 
@@ -286,9 +283,8 @@ const SearchService = {
         }
     },
     searchPrescription: async (query, page, limit, doctorId) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
+
         const words = query.split(" ");
         const queryWhere = words.map(word => "%" + word + "%");
 

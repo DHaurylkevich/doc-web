@@ -1,36 +1,15 @@
 const db = require("../models");
-const appointments = require("../models/appointments");
 const AppError = require("../utils/appError");
+const { getPaginationParams, getTotalPages } = require("../utils/pagination");
+const { checkScheduleAndSlot } = require("./scheduleService");
+const { checkDoctorService } = require("./doctorServiceService");
 const { Op } = require("sequelize");
 
 const AppointmentService = {
     createAppointment: async ({ doctorId, serviceId, patientId, date, timeSlot, firstVisit, visitType, description }) => {
-        const schedule = await db.Schedules.findOne({
-            where: { doctor_id: doctorId, date: date },
-            attributes: ["id", "date", "interval", "doctor_id", "start_time", "end_time", "available_slots"],
-            include: [
-                {
-                    model: db.Appointments,
-                    as: "appointments",
-                    attributes: ["time_slot"]
-                }
-            ]
-        })
-        if (!schedule) {
-            throw new AppError("This Schedule doesn't exist", 404);
-        }
+        const schedule = checkScheduleAndSlot(doctorId, date, timeSlot)
 
-        if (!schedule.available_slots.includes(timeSlot)) {
-            throw new AppError("This time slot is not available", 400);
-        }
-        const doctorService = await db.DoctorService.findOne({
-            where: { doctor_id: doctorId, service_id: serviceId },
-            include: [{ model: db.Services, as: "service", attributes: ["clinic_id"] }]
-        });
-
-        if (!doctorService || !doctorService.service.clinic_id) {
-            throw new AppError("This doctor service doesn't exist", 404);
-        }
+        const doctorService = checkDoctorService(doctorId, serviceId)
 
         try {
             await db.Appointments.create({
@@ -44,15 +23,14 @@ const AppointmentService = {
                 visit_type: visitType,
                 status: "active"
             });
+
             return;
         } catch (err) {
             throw err;
         }
     },
     getAppointmentsByPatientId: async (patientId, limit, page) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Appointments.findAndCountAll({
@@ -96,10 +74,8 @@ const AppointmentService = {
                     }
                 ],
             });
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+
+            const totalPages = getTotalPages(count, parsedLimit, page);
 
             const appointments = rows.map(appointment => {
                 return {
@@ -115,6 +91,7 @@ const AppointmentService = {
             throw err;
         }
     },
+    //TODO: ВОЗМОЖНО УДАЛИТЬ, НИГДЕ НЕ ИСПОЛЬЗУЕТСЯ
     deleteAppointment: async (id) => {
         try {
             const appointment = await db.Appointments.findByPk(id);
@@ -138,9 +115,7 @@ const AppointmentService = {
         const specialtyWhere = specialty ? { name: specialty } : {};
         const scheduleWhere = date ? { date: date } : {};
 
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Appointments.findAndCountAll({
@@ -201,10 +176,7 @@ const AppointmentService = {
                 ]
             });
 
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+            const totalPages = getTotalPages(count, parsedLimit, page);
 
             const availableSlots = rows.map(appointment => {
                 const end_time = AppointmentService.timeToMinutes(appointment.time_slot.slice(0, -3))
@@ -240,9 +212,7 @@ const AppointmentService = {
             };
         }
 
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Appointments.findAndCountAll({
@@ -287,10 +257,7 @@ const AppointmentService = {
                     }
                 ],
             });
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+            const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
                 return [];
@@ -326,9 +293,7 @@ const AppointmentService = {
             }
         } : {}
 
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Appointments.findAndCountAll({
@@ -371,10 +336,8 @@ const AppointmentService = {
                 ]
             });
 
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+            const totalPages = getTotalPages(count, parsedLimit, page);
+
 
             if (!rows.length) {
                 return [];

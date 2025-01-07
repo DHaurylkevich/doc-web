@@ -2,6 +2,7 @@ const sequelize = require("../config/db");
 const db = require("../models");
 const AppError = require("../utils/appError");
 const passwordUtil = require("../utils/passwordUtil");
+const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 
 const PatientService = {
     createPatient: async (userData) => {
@@ -104,9 +105,7 @@ const PatientService = {
         const appointmentWhere = clinicId ? { clinic_id: clinicId } : {};
         const doctorServiceWhere = doctorId ? { doctor_id: doctorId } : {};
 
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Appointments.findAndCountAll({
@@ -145,10 +144,7 @@ const PatientService = {
                 ]
             });
 
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+            const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
                 return [];
@@ -166,9 +162,7 @@ const PatientService = {
             [{ model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"],
         ];
 
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Patients.findAndCountAll({
@@ -186,10 +180,7 @@ const PatientService = {
                 ],
             });
 
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+            const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
                 return [];

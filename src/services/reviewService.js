@@ -1,6 +1,7 @@
 const db = require("../models");
 const sequelize = require("../config/db");
 const AppError = require("../utils/appError");
+const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 
 const ReviewService = {
     createReview: async ({ userId, doctorId, rating, comment, tagsIds }) => {
@@ -43,9 +44,7 @@ const ReviewService = {
         }
     },
     getAllPendingReviews: async ({ limit, page }) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Reviews.findAndCountAll({
@@ -88,10 +87,7 @@ const ReviewService = {
                 ],
             });
 
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+            const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
                 return [];
@@ -103,9 +99,7 @@ const ReviewService = {
         }
     },
     getAllReviewsByClinic: async (clinicId, { sortDate, sortRating, limit, page }) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Reviews.findAndCountAll({
@@ -152,10 +146,7 @@ const ReviewService = {
                 ],
             });
 
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+            const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
                 return [];
@@ -167,9 +158,7 @@ const ReviewService = {
         }
     },
     getAllReviewsByDoctor: async ({ doctorId, page, limit }) => {
-        const parsedLimit = Math.max(parseInt(limit) || 10, 1);
-        const pageNumber = Math.max(parseInt(page) || 1, 1);
-        const offset = (pageNumber - 1) * parsedLimit;
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         try {
             const { rows, count } = await db.Reviews.findAndCountAll({
@@ -200,10 +189,7 @@ const ReviewService = {
                 ]
             });
 
-            const totalPages = Math.ceil(count / parsedLimit);
-            if (page - 1 > totalPages) {
-                throw new AppError("Page not found", 404);
-            }
+            const totalPages = getTotalPages(count, parsedLimit, page);
 
             if (!rows.length) {
                 return [];

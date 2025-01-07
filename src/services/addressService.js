@@ -1,39 +1,23 @@
-// const TEST = require("../../tests/unit/services/addressService.test");
 const db = require("../models");
-const Address = db.Addresses;
+const AppError = require("../utils/appError");
 
 const AddressService = {
-    /**
-     * 
-     * @param {Object} addressData 
-     * @param {Sequelize} t 
-     * @returns {Object}
-     */
     createAddress: async (addressData, t) => {
         try {
-            return await Address.create(addressData, { transaction: t });
+            return await db.Address.create(addressData, { transaction: t });
         } catch (err) {
-            console.error("Error occurred", err);
-            throw new Error(err.message);
+            throw err;
         }
     },
-    /**
-     * 
-     * @param {Number} id 
-     * @param {Object} addressData 
-     * @param {Sequelize} t 
-     * @returns {Object}
-     */
     updateAddress: async (address, addressData, t) => {
         try {
             if (!address) {
-                throw new Error("Address not found");
+                throw new AppError("Address not found");
             }
 
             return await address.update(addressData, { transaction: t })
         } catch (err) {
-            console.error("Error occurred", err);
-            throw new Error(err.message);
+            throw err;
         }
     }
 }
