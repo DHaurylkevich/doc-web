@@ -1,7 +1,7 @@
 const { Server } = require("socket.io");
-const AppError = require("../utils/appError");
+// const AppError = require("../utils/appError");
 const logger = require("../utils/logger");
-const sessionStore = require("../config/store");
+// const sessionStore = require("../config/store");
 const { startChatWithMessage, listChats } = require("../socketHandlers/chat");
 const { sendMessage, listMessages, readMessage } = require("../socketHandlers/message");
 const { userList } = require("../socketHandlers/user");

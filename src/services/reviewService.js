@@ -43,159 +43,146 @@ const ReviewService = {
     getAllPendingReviews: async ({ limit, page }) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
-        try {
-            const { rows, count } = await db.Reviews.findAndCountAll({
-                limit: parsedLimit,
-                offset: offset,
-                where: { status: 'pending' },
-                order: [['createdAt', 'DESC']],
-                attributes: ["id", "comment", "rating", "createdAt"],
-                include: [
-                    {
-                        model: db.Doctors,
-                        as: "doctor",
-                        attributes: ["rating"],
-                        include: [
-                            {
-                                model: db.Users,
-                                as: "user",
-                                attributes: ["first_name", "last_name"]
-                            }
-                        ]
-                    },
-                    {
-                        model: db.Patients,
-                        as: "patient",
-                        attributes: [],
-                        include: [
-                            {
-                                model: db.Users,
-                                as: "user",
-                                attributes: ["first_name", "last_name", "photo"]
-                            }
-                        ]
-                    },
-                    {
-                        model: db.Tags,
-                        as: "tags",
-                        attributes: ["name"],
-                        through: { attributes: [] },
-                    }
-                ],
-            });
+        const { rows, count } = await db.Reviews.findAndCountAll({
+            limit: parsedLimit,
+            offset: offset,
+            where: { status: 'pending' },
+            order: [['createdAt', 'DESC']],
+            attributes: ["id", "comment", "rating", "createdAt"],
+            include: [
+                {
+                    model: db.Doctors,
+                    as: "doctor",
+                    attributes: ["rating"],
+                    include: [
+                        {
+                            model: db.Users,
+                            as: "user",
+                            attributes: ["first_name", "last_name"]
+                        }
+                    ]
+                },
+                {
+                    model: db.Patients,
+                    as: "patient",
+                    attributes: [],
+                    include: [
+                        {
+                            model: db.Users,
+                            as: "user",
+                            attributes: ["first_name", "last_name", "photo"]
+                        }
+                    ]
+                },
+                {
+                    model: db.Tags,
+                    as: "tags",
+                    attributes: ["name"],
+                    through: { attributes: [] },
+                }
+            ],
+        });
 
-            const totalPages = getTotalPages(count, parsedLimit, page);
+        const totalPages = getTotalPages(count, parsedLimit, page);
 
-            if (!rows.length) {
-                return { pages: 0, reviews: [] };
-            }
-
-            return { pages: totalPages, reviews: rows };
-        } catch (err) {
-            throw err;
+        if (!rows.length) {
+            return { pages: 0, reviews: [] };
         }
+
+        return { pages: totalPages, reviews: rows };
     },
     getAllReviewsByClinic: async (clinicId, { sortDate, sortRating, limit, page }) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
-        try {
-            const { rows, count } = await db.Reviews.findAndCountAll({
-                limit: parsedLimit,
-                offset: offset,
-                order: [
-                    ['rating', sortRating === 'DESC' ? 'DESC' : 'ASC'],
-                    ['createdAt', sortDate === 'DESC' ? 'DESC' : 'ASC']
-                ],
-                attributes: ["id", "comment", "rating"],
-                where: { status: 'approved' },
-                include: [
-                    {
-                        model: db.Doctors,
-                        as: "doctor",
-                        where: { clinic_id: clinicId },
-                        attributes: ["id", "description", "rating", "user_id"],
-                        include: [
-                            {
-                                model: db.Users,
-                                as: "user",
-                                attributes: ["first_name", "last_name"]
-                            }
-                        ]
-                    },
-                    {
-                        model: db.Patients,
-                        as: "patient",
-                        attributes: ["id"],
-                        include: [
-                            {
-                                model: db.Users,
-                                as: "user",
-                                attributes: ["first_name", "last_name", "photo"]
-                            }
-                        ]
-                    },
-                    {
-                        model: db.Tags,
-                        as: "tags",
-                        attributes: ["id", "name"],
-                        through: { attributes: [] }
-                    }
-                ],
-            });
+        const { rows, count } = await db.Reviews.findAndCountAll({
+            limit: parsedLimit,
+            offset: offset,
+            order: [
+                ['rating', sortRating === 'DESC' ? 'DESC' : 'ASC'],
+                ['createdAt', sortDate === 'DESC' ? 'DESC' : 'ASC']
+            ],
+            attributes: ["id", "comment", "rating"],
+            where: { status: 'approved' },
+            include: [
+                {
+                    model: db.Doctors,
+                    as: "doctor",
+                    where: { clinic_id: clinicId },
+                    attributes: ["id", "description", "rating", "user_id"],
+                    include: [
+                        {
+                            model: db.Users,
+                            as: "user",
+                            attributes: ["first_name", "last_name"]
+                        }
+                    ]
+                },
+                {
+                    model: db.Patients,
+                    as: "patient",
+                    attributes: ["id"],
+                    include: [
+                        {
+                            model: db.Users,
+                            as: "user",
+                            attributes: ["first_name", "last_name", "photo"]
+                        }
+                    ]
+                },
+                {
+                    model: db.Tags,
+                    as: "tags",
+                    attributes: ["id", "name"],
+                    through: { attributes: [] }
+                }
+            ],
+        });
 
-            const totalPages = getTotalPages(count, parsedLimit, page);
+        const totalPages = getTotalPages(count, parsedLimit, page);
 
-            if (!rows.length) {
-                return { pages: 0, reviews: [] };
-            }
-
-            return { pages: totalPages, reviews: rows };
-        } catch (err) {
-            throw err;
+        if (!rows.length) {
+            return { pages: 0, reviews: [] };
         }
+
+        return { pages: totalPages, reviews: rows };
     },
     getAllReviewsByDoctor: async ({ doctorId, page, limit }) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
-        try {
-            const { rows, count } = await db.Reviews.findAndCountAll({
-                limit: parsedLimit,
-                offset: offset,
-                where: { doctor_id: doctorId },
-                attributes: ["comment", "rating"],
-                where: { status: 'approved' },
-                include: [
-                    {
-                        model: db.Patients,
-                        as: "patient",
-                        attributes: ["id"],
-                        include: [
-                            {
-                                model: db.Users,
-                                as: "user",
-                                attributes: ["first_name", "last_name", "photo"]
-                            }
-                        ]
-                    },
-                    {
-                        model: db.Tags,
-                        as: "tags",
-                        attributes: ["id", "name"],
-                        through: { attributes: [] }
-                    }
-                ]
-            });
+        const { rows, count } = await db.Reviews.findAndCountAll({
+            limit: parsedLimit,
+            offset: offset,
+            where: { doctor_id: doctorId, status: 'approved' },
+            attributes: ["comment", "rating"],
+            include: [
+                {
+                    model: db.Patients,
+                    as: "patient",
+                    attributes: ["id"],
+                    include: [
+                        {
+                            model: db.Users,
+                            as: "user",
+                            attributes: ["first_name", "last_name", "photo"]
+                        }
+                    ]
+                },
+                {
+                    model: db.Tags,
+                    as: "tags",
+                    attributes: ["id", "name"],
+                    through: { attributes: [] }
+                }
+            ]
+        });
 
-            const totalPages = getTotalPages(count, parsedLimit, page);
+        const totalPages = getTotalPages(count, parsedLimit, page);
 
-            if (!rows.length) {
-                return { pages: 0, reviews: [] };
-            }
-
-            return { pages: totalPages, reviews: rows };
-        } catch (err) {
-            throw err;
+        if (!rows.length) {
+            return { pages: 0, reviews: [] };
         }
+
+        return { pages: totalPages, reviews: rows };
     },
     moderateReview: async (reviewId, status, moderationComment) => {
         const t = await sequelize.transaction();
@@ -229,49 +216,34 @@ const ReviewService = {
             }
 
             await t.commit();
-            return;
         } catch (err) {
             await t.rollback();
             throw err;
         }
     },
     deleteReview: async (reviewId) => {
-        try {
-            const review = await db.Reviews.findByPk(reviewId);
-            if (!review) {
-                throw new AppError("Review not found");
-            }
-
-            await review.destroy();
-            return;
-        } catch (err) {
-            throw err;
+        const review = await db.Reviews.findByPk(reviewId);
+        if (!review) {
+            throw new AppError("Review not found");
         }
+
+        await review.destroy();
     },
     leaveFeedback: async (user, reviewData) => {
-        try {
-            if (user.role === "clinic") {
-                await db.Clinics.update({ feedbackRating: reviewData }, { where: { id: user.id } });
-            } else {
-                await db.Patients.update({ feedbackRating: reviewData }, { where: { id: user.roleId } });
-            }
-            return;
-        } catch (err) {
-            throw err;
+        if (user.role === "clinic") {
+            await db.Clinics.update({ feedbackRating: reviewData }, { where: { id: user.id } });
+        } else {
+            await db.Patients.update({ feedbackRating: reviewData }, { where: { id: user.roleId } });
         }
     },
     getFeedback: async (user) => {
-        try {
-            let reviews;
-            if (user.role === "clinic") {
-                reviews = await db.Clinics.findOne({ attributes: ["feedbackRating"], where: { id: user.id } });
-            } else {
-                reviews = await db.Patients.findOne({ attributes: ["feedbackRating"], where: { id: user.roleId } });
-            }
-            return { hasFeedback: reviews.feedbackRating !== null };
-        } catch (err) {
-            throw err;
+        let reviews;
+        if (user.role === "clinic") {
+            reviews = await db.Clinics.findOne({ attributes: ["feedbackRating"], where: { id: user.id } });
+        } else {
+            reviews = await db.Patients.findOne({ attributes: ["feedbackRating"], where: { id: user.roleId } });
         }
+        return { hasFeedback: reviews.feedbackRating !== null };
     },
 }
 

@@ -20,7 +20,7 @@ const startChatWithMessage = async ({ io, socket, to, content }) => {
         socket.emit("error", { message: "Ошибка при создании чата" });
     }
 }
-const listChats = async ({ io, socket }) => {
+const listChats = async ({ socket }) => {
     const chats = await chatService.getChats(socket.user);
     return chats;
 }

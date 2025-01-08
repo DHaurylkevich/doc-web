@@ -4,7 +4,6 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const db = require("../models");
 const userService = require("../services/userService");
 const bcrypt = require("bcrypt");
-const logger = require("../utils/logger");
 
 passport.use(new LocalStrategy({
     usernameField: "loginParam",

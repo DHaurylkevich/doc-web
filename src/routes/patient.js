@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const patientController = require("../controllers/patientController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
-const { dataExistValidation } = require('../utils/validation/userValidation');
-const { validateRequest } = require('../middleware/errorHandler');
+// const { dataExistValidation } = require('../utils/validation/userValidation');
+// const { validateRequest } = require('../middleware/errorHandler');
 
 /**
  * @swagger

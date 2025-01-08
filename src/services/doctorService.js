@@ -66,46 +66,42 @@ const DoctorService = {
         }
     },
     getDoctorById: async (doctorId) => {
-        try {
-            const doctor = await db.Doctors.findOne({
-                where: { id: doctorId },
-                attributes: ["id", "description", "rating", "hired_at"],
-                include: [
-                    {
-                        model: db.Users,
-                        as: "user",
-                        attributes: ["first_name", "last_name", "gender", "photo", "email"],
-                        include: [
-                            {
-                                model: db.Addresses,
-                                as: "address",
-                                attributes: { exclude: ["createdAt", "updatedAt", "id", "user_id", "clinic_id"] }
-                            }
-                        ],
-                    },
-                    {
-                        model: db.Specialties,
-                        as: 'specialty',
-                        attributes: ["name"],
-                        include: [
-                            { model: db.Services, as: "services", attributes: ["id", "name"] }
-                        ]
-                    },
-                    {
-                        model: db.Clinics,
-                        as: 'clinic',
-                        attributes: ["name"]
-                    }
-                ]
-            });
-            if (!doctor) {
-                throw new AppError("Doctor not found", 404);
-            }
-
-            return doctor;
-        } catch (err) {
-            throw err;
+        const doctor = await db.Doctors.findOne({
+            where: { id: doctorId },
+            attributes: ["id", "description", "rating", "hired_at"],
+            include: [
+                {
+                    model: db.Users,
+                    as: "user",
+                    attributes: ["first_name", "last_name", "gender", "photo", "email"],
+                    include: [
+                        {
+                            model: db.Addresses,
+                            as: "address",
+                            attributes: { exclude: ["createdAt", "updatedAt", "id", "user_id", "clinic_id"] }
+                        }
+                    ],
+                },
+                {
+                    model: db.Specialties,
+                    as: 'specialty',
+                    attributes: ["name"],
+                    include: [
+                        { model: db.Services, as: "services", attributes: ["id", "name"] }
+                    ]
+                },
+                {
+                    model: db.Clinics,
+                    as: 'clinic',
+                    attributes: ["name"]
+                }
+            ]
+        });
+        if (!doctor) {
+            throw new AppError("Doctor not found", 404);
         }
+
+        return doctor;
     },
     getAllDoctorsForAdmin: async ({ sort, gender, limit, page }) => {
         const userWhere = gender ? { gender } : {};
@@ -116,37 +112,33 @@ const DoctorService = {
 
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
-        try {
-            const { rows, count } = await db.Doctors.findAndCountAll({
-                limit: parsedLimit,
-                offset: offset,
-                attributes: ["id"],
-                include: [
-                    {
-                        model: db.Users,
-                        as: "user",
-                        where: userWhere,
-                        attributes: ["first_name", "last_name", "gender", "createdAt", "birthday"]
-                    },
-                    {
-                        model: db.Clinics,
-                        as: "clinic",
-                        attributes: ["name"]
-                    },
-                ],
-                order: sortOptions
-            });
+        const { rows, count } = await db.Doctors.findAndCountAll({
+            limit: parsedLimit,
+            offset: offset,
+            attributes: ["id"],
+            include: [
+                {
+                    model: db.Users,
+                    as: "user",
+                    where: userWhere,
+                    attributes: ["first_name", "last_name", "gender", "createdAt", "birthday"]
+                },
+                {
+                    model: db.Clinics,
+                    as: "clinic",
+                    attributes: ["name"]
+                },
+            ],
+            order: sortOptions
+        });
 
-            const totalPages = getTotalPages(count, parsedLimit, page);
+        const totalPages = getTotalPages(count, parsedLimit, page);
 
-            if (!rows.length) {
-                return { pages: 0, doctors: [] };
-            }
-
-            return { pages: totalPages, doctors: rows };
-        } catch (err) {
-            throw err;
+        if (!rows.length) {
+            return { pages: 0, doctors: [] };
         }
+
+        return { pages: totalPages, doctors: rows };
     },
     updateDoctorById: async ({ doctorId, userData, addressData, doctorData, servicesIds, clinicId }) => {
         const doctor = await db.Doctors.findOne({
@@ -182,35 +174,32 @@ const DoctorService = {
         }
     },
     getShortDoctorById: async (doctorId) => {
-        try {
-            const doctor = await db.Doctors.findByPk(doctorId, {
-                attributes: ["id", "description", "rating"],
-                include: [
-                    {
-                        model: db.Users, as: "user",
-                        attributes: ["first_name", "last_name", "photo"],
-                    },
-                    {
-                        model: db.Specialties, as: 'specialty',
-                        attributes: ["name"]
-                    },
-                    {
-                        model: db.Clinics, as: 'clinic',
-                        attributes: [],
-                        include: [
-                            { model: db.Addresses, as: "address" }
-                        ]
-                    }
-                ],
-                raw: true
-            });
-            if (!doctor) {
-                throw new AppError("Doctor not found", 404);
-            }
-            return doctor;
-        } catch (err) {
-            throw err;
+        const doctor = await db.Doctors.findByPk(doctorId, {
+            attributes: ["id", "description", "rating"],
+            include: [
+                {
+                    model: db.Users, as: "user",
+                    attributes: ["first_name", "last_name", "photo"],
+                },
+                {
+                    model: db.Specialties, as: 'specialty',
+                    attributes: ["name"]
+                },
+                {
+                    model: db.Clinics, as: 'clinic',
+                    attributes: [],
+                    include: [
+                        { model: db.Addresses, as: "address" }
+                    ]
+                }
+            ],
+            raw: true
+        });
+        if (!doctor) {
+            throw new AppError("Doctor not found", 404);
         }
+
+        return doctor;
     },
     getDoctorsByClinicWithSorting: async ({ clinicId, gender, sort, limit, page }) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
@@ -221,37 +210,33 @@ const DoctorService = {
             [{ model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"],
         ];
 
-        try {
-            const { rows, count } = await db.Doctors.findAndCountAll({
-                limit: parsedLimit,
-                offset: offset,
-                where: { clinic_id: clinicId },
-                attributes: ["id"],
-                include: [
-                    {
-                        model: db.Users,
-                        as: "user",
-                        where: userWhere,
-                        attributes: ["first_name", "last_name", "gender"],
-                    },
-                    {
-                        model: db.Specialties,
-                        as: "specialty",
-                        attributes: ["name"],
-                    }
-                ],
-                order: sortOptions,
-            })
-            const totalPages = getTotalPages(count, parsedLimit, page);
+        const { rows, count } = await db.Doctors.findAndCountAll({
+            limit: parsedLimit,
+            offset: offset,
+            where: { clinic_id: clinicId },
+            attributes: ["id"],
+            include: [
+                {
+                    model: db.Users,
+                    as: "user",
+                    where: userWhere,
+                    attributes: ["first_name", "last_name", "gender"],
+                },
+                {
+                    model: db.Specialties,
+                    as: "specialty",
+                    attributes: ["name"],
+                }
+            ],
+            order: sortOptions,
+        })
+        const totalPages = getTotalPages(count, parsedLimit, page);
 
-            if (!rows.length) {
-                return { pages: 0, doctors: [] };
-            }
-
-            return { pages: totalPages, doctors: rows };
-        } catch (err) {
-            throw err;
+        if (!rows.length) {
+            return { pages: 0, doctors: [] };
         }
+
+        return { pages: totalPages, doctors: rows };
     },
 };
 

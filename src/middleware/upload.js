@@ -2,6 +2,7 @@ const multer = require("multer");
 const cloudinary = require("../config/cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const { extractPublicId } = require("cloudinary-build-url");
+const logger = require("../utils/logger");
 
 const storageImages = new CloudinaryStorage({
     cloudinary,
@@ -38,6 +39,7 @@ exports.deleteFromCloud = async (url) => {
         const publicId = extractPublicId(url);
         return await cloudinary.uploader.destroy(publicId);
     } catch (err) {
+        logger.error("cloudinary.deleteFromCloud Error")
         throw err;
     }
 };

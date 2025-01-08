@@ -36,7 +36,7 @@ const sendMessage = async ({ io, socket, chatId, to, content, fileUrl = null }) 
     }
 };
 
-const listMessages = async ({ io, socket, chatId, limit, offset }) => {
+const listMessages = async ({ socket, chatId, limit, offset }) => {
     const messages = await messageService.getMessagesByChatId({ chatId, userId: socket.user.id, limit, offset });
     socket.emit("message:list", messages);
 };

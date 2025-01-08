@@ -1,5 +1,5 @@
 const chatController = require("../controllers/chatController");
-const { isAuthenticated, hasRole } = require('../middleware/auth');
+const { isAuthenticated } = require('../middleware/auth');
 
 const router = require("express").Router();
 /**

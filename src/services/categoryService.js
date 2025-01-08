@@ -3,45 +3,28 @@ const AppError = require("../utils/appError");
 
 const CategoryService = {
     createCategory: async (categoryData) => {
-        try {
-            return await db.Categories.create(categoryData);
-        } catch (err) {
-            throw err;
-        }
+        return await db.Categories.create(categoryData);
     },
     getAllCategories: async () => {
-        try {
-            return await db.Categories.findAll();
-        } catch (err) {
-            throw err;
-        }
+        return await db.Categories.findAll();
     },
     updateCategory: async (categoryId, data) => {
-        try {
-            let category = await db.Categories.findByPk(categoryId);
-            if (!category) {
-                throw new AppError("Category not found", 404);
-            }
-
-            category = await category.update(data);
-
-            return category;
-        } catch (err) {
-            throw err;
+        let category = await db.Categories.findByPk(categoryId);
+        if (!category) {
+            throw new AppError("Category not found", 404);
         }
+
+        category = await category.update(data);
+
+        return category;
     },
     deleteCategory: async (categoryId) => {
-        try {
-            let category = await db.Categories.findByPk(categoryId);
-            if (!category) {
-                throw new AppError("Category not found", 404);
-            }
-
-            await category.destroy();
-            return { message: "Successful delete" };
-        } catch (err) {
-            throw err;
+        const category = await db.Categories.findByPk(categoryId);
+        if (!category) {
+            throw new AppError("Category not found", 404);
         }
+
+        await category.destroy();
     }
 }
 

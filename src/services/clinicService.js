@@ -42,57 +42,48 @@ const ClinicService = {
             setPasswordMail(clinic.email, resetToken);
 
             await t.commit();
-            return;
         } catch (err) {
             await t.rollback();
             throw err;
         }
     },
     getClinicById: async (clinicId) => {
-        try {
-            const clinic = await db.Clinics.findByPk(clinicId,
-                {
-                    attributes: { exclude: ["password", "createdAt", "updatedAt", "resetToken", "role", "feedbackRating"] },
-                    include: [{
-                        model: db.Addresses,
-                        as: "address",
-                        attributes: { exclude: ["id", "createdAt", "updatedAt", "clinic_id", "user_id"] }
-                    }]
-                }
-            );
-            if (!clinic) {
-                throw new AppError("Clinic not found", 404);
+        const clinic = await db.Clinics.findByPk(clinicId,
+            {
+                attributes: { exclude: ["password", "createdAt", "updatedAt", "resetToken", "role", "feedbackRating"] },
+                include: [{
+                    model: db.Addresses,
+                    as: "address",
+                    attributes: { exclude: ["id", "createdAt", "updatedAt", "clinic_id", "user_id"] }
+                }]
             }
-            return clinic;
-        } catch (err) {
-            throw err;
+        );
+        if (!clinic) {
+            throw new AppError("Clinic not found", 404);
         }
+        return clinic;
     },
     getFullClinicById: async (clinicId) => {
-        try {
-            const clinic = await db.Clinics.findOne({
-                where: { id: clinicId },
-                attributes: { exclude: ["password", "resetToken", "createdAt", "updatedAt", "feedbackRating"] },
-                include: [
-                    {
-                        model: db.Addresses,
-                        as: "address",
-                        attributes: { exclude: ["createdAt", "updatedAt", "user_id", "clinic_id"] }
-                    },
-                    {
-                        model: db.Timetables,
-                        as: "timetables",
-                        attributes: { exclude: ["createdAt", "updatedAt", "clinic_id"] }
-                    },
-                ]
-            });
-            if (!clinic) {
-                throw new AppError("Clinic not found", 404);
-            }
-            return clinic;
-        } catch (err) {
-            throw err;
+        const clinic = await db.Clinics.findOne({
+            where: { id: clinicId },
+            attributes: { exclude: ["password", "resetToken", "createdAt", "updatedAt", "feedbackRating"] },
+            include: [
+                {
+                    model: db.Addresses,
+                    as: "address",
+                    attributes: { exclude: ["createdAt", "updatedAt", "user_id", "clinic_id"] }
+                },
+                {
+                    model: db.Timetables,
+                    as: "timetables",
+                    attributes: { exclude: ["createdAt", "updatedAt", "clinic_id"] }
+                },
+            ]
+        });
+        if (!clinic) {
+            throw new AppError("Clinic not found", 404);
         }
+        return clinic;
     },
     getAllClinicsFullData: async ({ name, province, specialty, city, limit, page }) => {
         const queryClinic = name ? { name } : {};
@@ -104,131 +95,123 @@ const ClinicService = {
 
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
-        try {
-            const { rows, count } = await db.Clinics.findAndCountAll({
-                raw: true,
-                nest: true,
-                limit: parsedLimit,
-                offset: offset,
-                where: queryClinic,
-                attributes: {
-                    exclude: ["password", "resetToken", "createdAt", "updatedAt", "role", "feedbackRating"],
-                    include: [
-                        [
-                            sequelize.literal(`(
+        const { rows, count } = await db.Clinics.findAndCountAll({
+            raw: true,
+            nest: true,
+            limit: parsedLimit,
+            offset: offset,
+            where: queryClinic,
+            attributes: {
+                exclude: ["password", "resetToken", "createdAt", "updatedAt", "role", "feedbackRating"],
+                include: [
+                    [
+                        sequelize.literal(`(
                                 SELECT COALESCE(ROUND(CAST(AVG(d.rating) AS NUMERIC), 1), 0)
                                 FROM "doctors" d
                                 WHERE d.clinic_id = "Clinics".id
                             )`),
-                            'averageRating'
-                        ],
-                        [
-                            sequelize.literal(`(
+                        'averageRating'
+                    ],
+                    [
+                        sequelize.literal(`(
                                 SELECT COUNT(d.rating)
                                 FROM "doctors" d
                                 WHERE d.clinic_id = "Clinics".id
                                 AND d.rating IS NOT NULL
                             )`),
-                            'totalRatings'
-                        ]
+                        'totalRatings'
+                    ]
+                ]
+            },
+            include: [
+                {
+                    model: db.Addresses,
+                    as: "address",
+                    attributes: {
+                        exclude: ["id", "user_id", "clinic_id", "createdAt", "updatedAt"],
+                    },
+                    where: queryAddress,
+                },
+                {
+                    model: db.Services,
+                    as: "services",
+                    attributes: {
+                        exclude: ["id", "specialty_id", "clinic_id", "createdAt", "updatedAt"],
+                    },
+                    include: [
+                        {
+                            model: db.Specialties,
+                            as: "specialty",
+                            attributes: {
+                                exclude: ["id", "createdAt", "updatedAt"],
+                            },
+                            where: querySpecialty
+                        }
                     ]
                 },
-                include: [
-                    {
-                        model: db.Addresses,
-                        as: "address",
-                        attributes: {
-                            exclude: ["id", "user_id", "clinic_id", "createdAt", "updatedAt"],
-                        },
-                        where: queryAddress,
-                    },
-                    {
-                        model: db.Services,
-                        as: "services",
-                        attributes: {
-                            exclude: ["id", "specialty_id", "clinic_id", "createdAt", "updatedAt"],
-                        },
-                        include: [
-                            {
-                                model: db.Specialties,
-                                as: "specialty",
-                                attributes: {
-                                    exclude: ["id", , "createdAt", "updatedAt"],
-                                },
-                                where: querySpecialty
-                            }
-                        ]
-                    },
-                ],
-            });
+            ],
+        });
 
-            const totalPages = getTotalPages(count, parsedLimit, page);
+        const totalPages = getTotalPages(count, parsedLimit, page);
 
-            if (!rows.length) {
-                return { pages: 0, clinics: [] };
-            }
-
-            return {
-                pages: totalPages,
-                clinics: rows.map(clinic => ({
-                    ...clinic,
-                    averageRating: parseFloat(clinic.averageRating),
-                    totalRatings: clinic.totalRatings
-                }))
-            };
-        } catch (err) {
-            throw err;
+        if (!rows.length) {
+            return { pages: 0, clinics: [] };
         }
+
+        return {
+            pages: totalPages,
+            clinics: rows.map(clinic => ({
+                ...clinic,
+                averageRating: parseFloat(clinic.averageRating),
+                totalRatings: clinic.totalRatings
+            }))
+        };
     },
     getAllClinicsForAdmin: async ({ sort, limit, page }) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
-        try {
-            const { rows, count } = await db.Clinics.findAndCountAll({
-                limit: parsedLimit,
-                offset: offset,
-                order: ["name", sort === "ASC" ? "ASC" : "DESC"],
-                attributes: {
-                    exclude: ["password", "resetToken", "updatedAt", "role", "description", "feedbackRating"],
-                    include: [
-                        [
-                            sequelize.literal(`(
+        const { rows, count } = await db.Clinics.findAndCountAll({
+            limit: parsedLimit,
+            offset: offset,
+            order: ["name", sort === "ASC" ? "ASC" : "DESC"],
+            attributes: {
+                exclude: ["password", "resetToken", "updatedAt", "role", "description", "feedbackRating"],
+                include: [
+                    [
+                        sequelize.literal(`(
                                 SELECT COUNT(*)
                                 FROM "doctors" AS doctors
                                 WHERE doctors.clinic_id = "Clinics".id
                             )`),
-                            'doctorCount'
-                        ]
+                        'doctorCount'
                     ]
-                },
-                include: [
-                    {
-                        model: db.Addresses,
-                        as: "address",
-                        attributes: {
-                            exclude: ["id", "user_id", "clinic_id", "createdAt", "updatedAt"],
-                        }
-                    },
-                    {
-                        model: db.Timetables,
-                        as: "timetables",
-                        attributes: {
-                            exclude: ["id", "clinic_id", "createdAt", "updatedAt"],
-                        }
+                ]
+            },
+            include: [
+                {
+                    model: db.Addresses,
+                    as: "address",
+                    attributes: {
+                        exclude: ["id", "user_id", "clinic_id", "createdAt", "updatedAt"],
                     }
-                ],
-            });
+                },
+                {
+                    model: db.Timetables,
+                    as: "timetables",
+                    attributes: {
+                        exclude: ["id", "clinic_id", "createdAt", "updatedAt"],
+                    }
+                }
+            ],
+        });
 
-            const totalPages = getTotalPages(count, parsedLimit, page);
+        const totalPages = getTotalPages(count, parsedLimit, page);
 
-            if (!rows.length) {
-                return { pages: 0, clinics: [] };
-            }
-
-            return { pages: totalPages, clinics: rows };
-        } catch (err) {
-            throw err;
+        if (!rows.length) {
+            return { pages: 0, clinics: [] };
         }
+
+        return { pages: totalPages, clinics: rows };
     },
     updateClinic: async (clinicId, clinicData, addressData) => {
         const t = await sequelize.transaction();
@@ -241,54 +224,45 @@ const ClinicService = {
             await AddressService.updateAddress(address, addressData, t);
 
             await t.commit();
-            await clinic.reload({
+
+            const plainClinic = await clinic.reload({
                 include: [{
                     model: db.Addresses,
                     as: "address",
                     attributes: { exclude: ["createdAt", "updatedAt", "clinic_id", "user_id"] }
-                }]
+                }],
+                attributes: { exclude: ["schedule", "resetToken", "createdAt", "updatedAt", "password"] }
             });
 
-            const plainClinic = clinic.get({ plain: true });
-            const { schedule, resetToken, createdAt, updatedAt, password, ...filteredClinic } = plainClinic;
-            return filteredClinic;
+            return plainClinic;
         } catch (err) {
             await t.rollback();
             throw err;
         }
     },
     deleteClinicById: async (clinicId) => {
-        try {
-            await db.Clinics.destroy({
-                where: { id: clinicId }
-            });
-            return;
-        } catch (err) {
-            throw err;
-        }
+        await db.Clinics.destroy({
+            where: { id: clinicId }
+        });
     },
     getAllCities: async () => {
-        try {
-            const cities = await db.Clinics.findAll({
-                attributes: [[sequelize.col("address.city"), "city"]],
-                include: [
-                    {
-                        model: db.Addresses,
-                        as: "address",
-                        attributes: [],
-                        where: {
-                            city: {
-                                [Op.ne]: null
-                            }
-                        },
-                    }
-                ],
-                raw: true,
-            });
-            return cities.map(city => city.city);
-        } catch (err) {
-            throw err;
-        }
+        const cities = await db.Clinics.findAll({
+            attributes: [[sequelize.col("address.city"), "city"]],
+            include: [
+                {
+                    model: db.Addresses,
+                    as: "address",
+                    attributes: [],
+                    where: {
+                        city: {
+                            [Op.ne]: null
+                        }
+                    },
+                }
+            ],
+            raw: true,
+        });
+        return cities.map(city => city.city);
     }
 };
 
