@@ -3,10 +3,11 @@ const AppError = require("../utils/appError");
 
 const CategoryService = {
     createCategory: async (categoryData) => {
-        return await db.Categories.create(categoryData);
+        const category = await db.Categories.create(categoryData);
+        return { id: category.id, name: category.name };
     },
     getAllCategories: async () => {
-        return await db.Categories.findAll();
+        return await db.Categories.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] } });
     },
     updateCategory: async (categoryId, data) => {
         let category = await db.Categories.findByPk(categoryId);
@@ -16,7 +17,7 @@ const CategoryService = {
 
         category = await category.update(data);
 
-        return category;
+        return category.name;
     },
     deleteCategory: async (categoryId) => {
         const category = await db.Categories.findByPk(categoryId);

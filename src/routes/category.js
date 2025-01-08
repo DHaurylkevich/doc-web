@@ -2,16 +2,16 @@ const express = require("express");
 const router = express.Router();
 const CategoryController = require("../controllers/categoryController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
-
+const { validateBody } = require("../utils/validation");
+const { validateRequest } = require("../middleware/errorHandler");
 
 /**
  * @swagger
  * /categories:
  *   post:
  *     summary: Создать новую категории
- *     description: Создает новую категорию с заданными данными.
- *     tags:
- *       - Categories
+ *     description: Создает новую категорию с заданными данными для постов.
+ *     tags: [Categories]
  *     requestBody:
  *       description: Данные для создания категории
  *       required: true
@@ -28,8 +28,19 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *     responses:
  *       201:
  *         description: Успешно создана запись
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 name:
+ *                   type: string
+ *                   example: "Название категории"
  */
-router.post("/categories", isAuthenticated, hasRole("admin"), CategoryController.createCategory);
+router.post("/categories", validateBody("name"), validateRequest, isAuthenticated, hasRole("admin"), CategoryController.createCategory);
 /**
  * @swagger
  * /categories:
@@ -41,6 +52,19 @@ router.post("/categories", isAuthenticated, hasRole("admin"), CategoryController
  *     responses:
  *       200:
  *         description: Массив всех категорий
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   name:
+ *                     type: string
+ *                     example: "Название категории"
  */
 router.get("/categories", CategoryController.getAllCategories);
 /**
@@ -75,8 +99,16 @@ router.get("/categories", CategoryController.getAllCategories);
  *     responses:
  *       200:
  *         description: Категория успешно обновлена
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 name:
+ *                   type: string
+ *                   example: "Название категории"
  */
-router.put("/categories/:categoryId", isAuthenticated, hasRole("admin"), CategoryController.updateCategory);
+router.put("/categories/:categoryId", validateBody("name"), validateRequest, isAuthenticated, hasRole("admin"), CategoryController.updateCategory);
 /**
  * @swagger
  * /categories/{categoryId}:
@@ -96,6 +128,14 @@ router.put("/categories/:categoryId", isAuthenticated, hasRole("admin"), Categor
  *     responses:
  *       200:
  *         description: Категория успешно удалена
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Category deleted successfully"
  */
 router.delete("/categories/:categoryId", isAuthenticated, hasRole("admin"), CategoryController.deleteCategory);
 

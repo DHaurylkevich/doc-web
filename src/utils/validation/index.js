@@ -1,7 +1,6 @@
 const { body, param } = require('express-validator');
 const AppError = require('../appError');
 
-
 const validateParam = (paramName, options = {}) => {
     const { matchUser = false } = options;
     return [
@@ -19,6 +18,11 @@ const validateParam = (paramName, options = {}) => {
     ];
 };
 
+const validateBody = (paramName) => [
+    body(paramName)
+        .exists().withMessage(`${paramName} is required`)
+];
+
 const serviceCreateValidation = [
     body("name")
         .exists().withMessage("Name is required")
@@ -32,5 +36,6 @@ const serviceCreateValidation = [
 
 module.exports = {
     validateParam,
+    validateBody,
     serviceCreateValidation,
 };

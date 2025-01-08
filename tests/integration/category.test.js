@@ -64,6 +64,7 @@ describe("CategoryController API", () => {
                     .get(`/api/categories/`)
                     .expect(200);
 
+                expect(response.body).to.be.an("array");
                 expect(response.body[0]).to.have.property("id", testCategory.id);
                 expect(response.body[0]).to.include({ name: testCategory.name });
             });
@@ -72,25 +73,25 @@ describe("CategoryController API", () => {
             it("expect to update category, when data valid and it exists", async () => {
                 const testCategory = await db.Categories.create(fakeCategory);
 
-                await request(app)
+                const response = await request(app)
                     .put(`/api/categories/${testCategory.id}`)
                     .send({ name: "TEST" })
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
-                const categoryInDB = await db.Categories.findByPk(testCategory.id);
-                expect(categoryInDB).to.include({ name: "TEST" });
+                expect(response.body).to.include("TEST");
             });
         });
         describe("DELETE /api/categories/:categoryId", () => {
             it("expect delete category by id, when it exists", async () => {
                 const testCategory = await db.Categories.create(fakeCategory);
 
-                await request(app)
+                const response = await request(app)
                     .delete(`/api/categories/${testCategory.id}`)
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
+                expect(response.body).to.have.property("message", "Category deleted successfully")
                 const categoryInDb = await db.Categories.findByPk(testCategory.id);
                 expect(categoryInDb).to.be.null;
             });
@@ -98,6 +99,14 @@ describe("CategoryController API", () => {
     });
     describe("Negative tests", () => {
         describe("POST /api/categories", () => {
+            it("expect to AppError('name is required'), when 'name' is not provided", async () => {
+                const response = await request(app)
+                    .post("/api/categories/")
+                    .send()
+                    .expect(400);
+
+                expect(response.body).to.have.property("message", "name is required");
+            });
             it("expect to AppError('Unauthorized user'), when user is not unauthorized", async () => {
                 const response = await request(app)
                     .post("/api/categories/")
@@ -133,6 +142,14 @@ describe("CategoryController API", () => {
             });
         });
         describe("PUT /api/categories/:categoryId", () => {
+            it("expect to AppError('name is required'), when 'name' is not provided", async () => {
+                const response = await request(app)
+                    .put("/api/categories/1")
+                    .send()
+                    .expect(400);
+
+                expect(response.body).to.have.property("message", "name is required");
+            });
             it("expect to AppError('Unauthorized user'), when user is not unauthorized", async () => {
                 const response = await request(app)
                     .put("/api/categories/1")

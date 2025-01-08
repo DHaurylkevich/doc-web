@@ -35,8 +35,8 @@ const CategoryController = {
         const { categoryId } = req.params;
 
         try {
-            const result = await CategoryService.deleteCategory(categoryId);
-            res.status(200).json(result);
+            await CategoryService.deleteCategory(categoryId);
+            res.status(200).json({ message: "Category deleted successfully" });
         } catch (err) {
             next(err);
         }
