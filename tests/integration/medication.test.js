@@ -6,16 +6,16 @@ const { faker } = require('@faker-js/faker');
 const app = require("../../index");
 const db = require("../../src/models");
 
-describe("Category API", () => {
-    let fakeCategory;
+describe("Medication API", () => {
+    let fakeMedication;
 
     beforeEach(async () => {
-        fakeCategory = {
+        fakeMedication = {
             name: faker.lorem.sentence(),
         };
     });
     afterEach(async () => {
-        await db.Categories.destroy({ where: {} });
+        await db.Medications.destroy({ where: {} });
         await db.Users.destroy({ where: {} });
     });
     after(async () => {
@@ -44,64 +44,64 @@ describe("Category API", () => {
             expect(res.body).to.have.property("user");
             sessionCookies = res.headers['set-cookie'];
         });
-        describe("POST /api/categories", () => {
-            it("expect to create category, when data is valid", async () => {
+        describe("POST /api/medications", () => {
+            it("expect to create medication, when data is valid", async () => {
                 const response = await request(app)
-                    .post("/api/categories/")
-                    .send(fakeCategory)
+                    .post("/api/medications/")
+                    .send(fakeMedication)
                     .set("Cookie", sessionCookies)
                     .expect(201);
 
                 expect(response.body).that.is.a("object");
-                expect(response.body).to.include({ name: fakeCategory.name });
+                expect(response.body).to.include({ name: fakeMedication.name });
             });
         });
-        describe("GET /api/categories", () => {
-            it("expect categories, when they exists", async () => {
-                const testCategory = await db.Categories.create(fakeCategory);
+        describe("GET /api/medications", () => {
+            it("expect medications, when they exists", async () => {
+                const testMedication = await db.Medications.create(fakeMedication);
 
                 const response = await request(app)
-                    .get(`/api/categories/`)
+                    .get(`/api/medications`)
                     .expect(200);
 
                 expect(response.body).to.be.an("array");
-                expect(response.body[0]).to.have.property("id", testCategory.id);
-                expect(response.body[0]).to.include({ name: testCategory.name });
+                expect(response.body[0]).to.have.property("id", testMedication.id);
+                expect(response.body[0]).to.include({ name: testMedication.name });
             });
         });
-        describe("PUT /api/categories/:categoryId", () => {
-            it("expect to update category, when data valid and it exists", async () => {
-                const testCategory = await db.Categories.create(fakeCategory);
+        describe("PUT /api/medications/:medicationId", () => {
+            it("expect to update medication, when data valid and it exists", async () => {
+                const testMedication = await db.Medications.create(fakeMedication);
 
                 const response = await request(app)
-                    .put(`/api/categories/${testCategory.id}`)
+                    .put(`/api/medications/${testMedication.id}`)
                     .send({ name: "TEST" })
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
-                expect(response.body).to.include("TEST");
+                expect(response.body).to.have.property("name", "TEST");
             });
         });
-        describe("DELETE /api/categories/:categoryId", () => {
-            it("expect delete category by id, when it exists", async () => {
-                const testCategory = await db.Categories.create(fakeCategory);
+        describe("DELETE /api/medications/:medicationId", () => {
+            it("expect delete medication by id, when it exists", async () => {
+                const testMedication = await db.Medications.create(fakeMedication);
 
                 const response = await request(app)
-                    .delete(`/api/categories/${testCategory.id}`)
+                    .delete(`/api/medications/${testMedication.id}`)
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
-                expect(response.body).to.have.property("message", "Category deleted successfully")
-                const categoryInDb = await db.Categories.findByPk(testCategory.id);
-                expect(categoryInDb).to.be.null;
+                expect(response.body).to.have.property("message", "Medication deleted successfully")
+                const MedicationInDb = await db.Medications.findByPk(testMedication.id);
+                expect(MedicationInDb).to.be.null;
             });
         });
     });
     describe("Negative tests", () => {
-        describe("POST /api/categories", () => {
+        describe("POST /api/medications", () => {
             it("expect to AppError('name is required'), when 'name' is not provided", async () => {
                 const response = await request(app)
-                    .post("/api/categories/")
+                    .post("/api/medications/")
                     .send()
                     .expect(400);
 
@@ -109,8 +109,8 @@ describe("Category API", () => {
             });
             it("expect to AppError('Unauthorized user'), when user is not unauthorized", async () => {
                 const response = await request(app)
-                    .post("/api/categories/")
-                    .send(fakeCategory)
+                    .post("/api/medications/")
+                    .send(fakeMedication)
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
@@ -133,18 +133,18 @@ describe("Category API", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .post("/api/categories/")
-                    .send(fakeCategory)
+                    .post("/api/medications/")
+                    .send(fakeMedication)
                     .set("Cookie", sessionCookies)
                     .expect(403);
 
                 expect(response.body).to.have.property("message", "Access denied");
             });
         });
-        describe("PUT /api/categories/:categoryId", () => {
+        describe("PUT /api/medications/:medicationId", () => {
             it("expect to AppError('name is required'), when 'name' is not provided", async () => {
                 const response = await request(app)
-                    .put("/api/categories/1")
+                    .put("/api/medications/1")
                     .send()
                     .expect(400);
 
@@ -152,7 +152,7 @@ describe("Category API", () => {
             });
             it("expect to AppError('Unauthorized user'), when user is not unauthorized", async () => {
                 const response = await request(app)
-                    .put("/api/categories/1")
+                    .put("/api/medications/1")
                     .send({ name: "TEST" })
                     .expect(401);
 
@@ -176,14 +176,14 @@ describe("Category API", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .put("/api/categories/1")
+                    .put("/api/medications/1")
                     .send({ name: "TEST" })
                     .set("Cookie", sessionCookies)
                     .expect(403);
 
                 expect(response.body).to.have.property("message", "Access denied");
             });
-            it("expect to AppError('Category not found'), when category doesn't exist", async () => {
+            it("expect to AppError('Medication not found'), when medication doesn't exist", async () => {
                 const fakeUser = {
                     email: faker.internet.email(),
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
@@ -201,18 +201,18 @@ describe("Category API", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .put("/api/categories/1")
+                    .put("/api/medications/1")
                     .send({ name: "TEST" })
                     .set("Cookie", sessionCookies)
                     .expect(404);
 
-                expect(response.body).to.have.property("message", "Category not found");
+                expect(response.body).to.have.property("message", "Medication not found");
             });
         });
-        describe("DELETE /api/categories/:categoryId", () => {
+        describe("DELETE /api/medications/:medicationId", () => {
             it("expect to AppError('Unauthorized user'), when user is not unauthorized", async () => {
                 const response = await request(app)
-                    .delete("/api/categories/1")
+                    .delete("/api/medications/1")
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
@@ -235,13 +235,13 @@ describe("Category API", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .delete("/api/categories/1")
+                    .delete("/api/medications/1")
                     .set("Cookie", sessionCookies)
                     .expect(403);
 
                 expect(response.body).to.have.property("message", "Access denied");
             });
-            it("expect to AppError('Category not found'), when category doesn't exist", async () => {
+            it("expect to AppError('Medication not found'), when medication doesn't exist", async () => {
                 const fakeUser = {
                     email: faker.internet.email(),
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
@@ -259,13 +259,12 @@ describe("Category API", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .delete("/api/categories/1")
+                    .delete("/api/medications/1")
                     .set("Cookie", sessionCookies)
                     .expect(404);
 
-                expect(response.body).to.have.property("message", "Category not found");
+                expect(response.body).to.have.property("message", "Medication not found");
             });
         });
-
     });
 });

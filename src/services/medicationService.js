@@ -3,7 +3,7 @@ const AppError = require("../utils/appError");
 
 const MedicationService = {
     createMedication: async (name) => {
-        const medication = await db.Medications.findOne({
+        let medication = await db.Medications.findOne({
             where: {
                 name: name,
             }
@@ -12,7 +12,8 @@ const MedicationService = {
             throw new AppError("Mediation exists", 400);
         }
 
-        return await db.Medications.create({ name: name });
+        medication = await db.Medications.create({ name: name });
+        return { id: medication.id, name: medication.name };
     },
     getAllMedications: async () => {
         return await db.Medications.findAll({ attributes: ["id", "name"] });
@@ -25,11 +26,13 @@ const MedicationService = {
         return medication;
     },
     updateMedication: async (medicationId, medicationData) => {
-        const medication = await db.Medications.findByPk(medicationId);
+        let medication = await db.Medications.findByPk(medicationId);
         if (!medication) {
             throw new AppError("Medication not found", 404);
         }
-        return await medication.update(medicationData);
+
+        medication = await medication.update(medicationData);
+        return { name: medication.name }
     },
     deleteMedication: async (medicationId) => {
         const medication = await db.Medications.findByPk(medicationId);

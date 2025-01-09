@@ -5,8 +5,8 @@ const MedicationController = {
         const { name } = req.body;
 
         try {
-            await MedicationService.createMedication(name);
-            res.status(201).json({ message: "Medication created successfully" });
+            const medication = await MedicationService.createMedication(name);
+            res.status(201).json(medication);
         } catch (err) {
             next(err);
         }
@@ -34,8 +34,8 @@ const MedicationController = {
         const medicationData = req.body;
 
         try {
-            await MedicationService.updateMedication(medicationId, medicationData);
-            res.status(200).json({ message: "Medication updated successfully", });
+            const medication = await MedicationService.updateMedication(medicationId, medicationData);
+            res.status(200).json(medication);
         } catch (err) {
             next(err);
         }
