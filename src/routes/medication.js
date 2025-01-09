@@ -10,8 +10,7 @@ const router = express.Router();
  * /medications:
  *   post:
  *     summary: Создать новое лекарство
- *     tags:
- *       - Medications
+ *     tags: [Medications]
  *     requestBody:
  *       required: true
  *       content:
@@ -77,8 +76,7 @@ router.post("/medications", validateBody("name"), validateRequest, isAuthenticat
  * /medications:
  *   get:
  *     summary: Получить все лекарства
- *     tags:
- *       - Medications
+ *     tags: [Medications]
  *     responses:
  *       200:
  *         description: Список лекарств
@@ -102,8 +100,7 @@ router.get("/medications", isAuthenticated, MedicationController.getAllMedicatio
  * /medications/{medicationId}:
  *   put:
  *     summary: Обновить информацию о лекарстве
- *     tags:
- *       - Medications
+ *     tags: [Medications]
  *     parameters:
  *       - in: path
  *         name: medicationId
@@ -139,8 +136,7 @@ router.put("/medications/:medicationId", validateBody("name"), validateRequest, 
  * /medications/{medicationId}:
  *   delete:
  *     summary: Удалить лекарство
- *     tags: 
- *       - Medications
+ *     tags: [Medications]
  *     parameters:
  *       - in: path
  *         name: medicationId

@@ -47,8 +47,7 @@ router.post("/categories", validateBody("name"), validateRequest, isAuthenticate
  *   get:
  *     summary: Получить все категории
  *     description: Возвращает список всех категорий.
- *     tags:
- *       - Categories
+ *     tags: [Categories]
  *     responses:
  *       200:
  *         description: Массив всех категорий
@@ -73,8 +72,7 @@ router.get("/categories", CategoryController.getAllCategories);
  *   put:
  *     summary: Обновить категорию
  *     description: Обновляет существующую категорию по ее ID.
- *     tags:
- *       - Categories
+ *     tags: [Categories]
  *     parameters:
  *       - name: categoryId
  *         in: path
@@ -115,8 +113,7 @@ router.put("/categories/:categoryId", validateBody("name"), validateRequest, isA
  *   delete:
  *     summary: Удалить категорию
  *     description: Удаляет категорию по заданному ID.
- *     tags:
- *       - Categories 
+ *     tags: [Categories]
  *     parameters:
  *       - name: categoryId
  *         in: path

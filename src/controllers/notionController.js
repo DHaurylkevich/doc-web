@@ -8,7 +8,6 @@ const NotionController = {
             const notion = await NotionService.createNotion(notionData);
             res.status(201).json(notion);
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },
@@ -17,7 +16,6 @@ const NotionController = {
             const notions = await NotionService.getAllNotions()
             res.status(200).json(notions);
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },
@@ -29,7 +27,6 @@ const NotionController = {
             const updateNotion = await NotionService.updateNotion(notionId, notionData);
             res.status(200).json(updateNotion);
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },
@@ -38,9 +35,8 @@ const NotionController = {
 
         try {
             await NotionService.deleteNotion(notionId);
-            res.status(200).json({ message: "Successful delete" });
+            res.status(200).json({ message: "Notion deleted successfully" });
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },

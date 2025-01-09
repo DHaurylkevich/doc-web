@@ -6,7 +6,7 @@ const { faker } = require('@faker-js/faker');
 const app = require("../../index");
 const db = require("../../src/models");
 
-describe("Category API", () => {
+describe("Category routes", () => {
     let fakeCategory;
 
     beforeEach(async () => {

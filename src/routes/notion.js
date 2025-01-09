@@ -1,18 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const NotionController = require("../controllers/notionController");
+const { isAuthenticated, hasRole } = require("../middleware/auth");
+const { validateBody } = require("../utils/validation");
+const { validateRequest } = require("../middleware/errorHandler")
+
 /**
  * @swagger
  * paths:
  *   /notions:
  *     post:
- *       summary: Создать новую запись
- *       description: Создает новую запись с заданными данными.
+ *       summary: Создать новую записку
+ *       description: Создает новую записку для админа.
  *       operationId: createNotion
- *       tags:
- *         - Notions
+ *       tags: [Notions]
  *       requestBody:
- *         description: Данные для создания записи
+ *         description: Данные для создания записки
  *         required: true
  *         content:
  *           application/json:
@@ -21,12 +24,12 @@ const NotionController = require("../controllers/notionController");
  *               properties:
  *                 content:
  *                   type: string
- *                   example: "Содержание записи"
+ *                   example: "Текст записки"
  *               required:
  *                 - content
  *       responses:
  *         201:
- *           description: Успешно создана запись
+ *           description: Успешно создана записка
  *           content:
  *             application/json:
  *               schema:
@@ -37,14 +40,11 @@ const NotionController = require("../controllers/notionController");
  *                     example: 1
  *                   content:
  *                     type: string
- *                     example: "Содержание записи"
+ *                     example: "Текст записки"
  *         400:
  *           description: Неверные данные запроса
- *         500:
- *           description: Внутренняя ошибка сервера
  */
-router.post("/notions", NotionController.createNotion);
-
+router.post("/notions", validateBody("content"), validateRequest, isAuthenticated, hasRole("admin"), NotionController.createNotion);
 /**
  * @swagger
  * paths:
@@ -53,8 +53,7 @@ router.post("/notions", NotionController.createNotion);
  *       summary: Получить все записи
  *       description: Возвращает список всех записей.
  *       operationId: getAllNotions
- *       tags:
- *         - Notions
+ *       tags: [Notions]
  *       responses:
  *         200:
  *           description: Массив всех записей
@@ -66,56 +65,46 @@ router.post("/notions", NotionController.createNotion);
  *                   type: object
  *                   properties:
  *                     id:
- *                       type: integer
+ *                       type: number
  *                       example: 1
- *                     title:
- *                       type: string
- *                       example: "Название записи"
  *                     content:
  *                       type: string
  *                       example: "Содержание записи"
- *         500:
- *           description: Внутренняя ошибка сервера
  */
-router.get("/notions", NotionController.getAllNotions);
+router.get("/notions", isAuthenticated, hasRole("admin"), NotionController.getAllNotions);
 /**
  * @swagger
  * paths:
  *    /notions/{notionId}:
  *     put:
  *       summary: Обновить запись
- *       description: Обновляет существующую запись по ее ID.
+ *       description: Обновляет существующую записку по ее ID.
  *       operationId: updateNotion
- *       tags:
- *         - Notions
+ *       tags: [Notions]
  *       parameters:
  *         - name: notionId
  *           in: path
  *           required: true
- *           description: ID записи
+ *           description: ID записки
  *           schema:
  *             type: integer
  *             example: 1
  *       requestBody:
- *         description: Обновленные данные записи
+ *         description: Обновленные данные записки
  *         required: true
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 title:
- *                   type: string
- *                   example: "Обновленное название записи"
  *                 content:
  *                   type: string
- *                   example: "Обновленное содержание записи"
+ *                   example: "Обновленное содержание записки"
  *               required:
- *                 - title
  *                 - content
  *       responses:
  *         200:
- *           description: Запись успешно обновлена
+ *           description: Записка успешно обновлена
  *           content:
  *             application/json:
  *               schema:
@@ -124,39 +113,33 @@ router.get("/notions", NotionController.getAllNotions);
  *                   id:
  *                     type: integer
  *                     example: 1
- *                   title:
- *                     type: string
- *                     example: "Обновленное название записи"
  *                   content:
  *                     type: string
- *                     example: "Обновленное содержание записи"
+ *                     example: "Обновленное содержание записки"
  *         404:
  *           description: Запись не найдена
- *         500:
- *           description: Внутренняя ошибка сервера
  */
-router.put("/notions/:notionId", NotionController.updateNotion);
+router.put("/notions/:notionId", validateBody("content"), validateRequest, isAuthenticated, hasRole("admin"), NotionController.updateNotion);
 /**
  * @swagger
  * paths:
- *   /notions:
+ *   /notions/{notionId}:
  *    delete:
- *       summary: Удалить запись
- *       description: Удаляет запись по заданному ID.
+ *       summary: Удалить записку
+ *       description: Удаляет записку по заданному ID.
  *       operationId: deleteNotion
- *       tags:
- *         - Notions
+ *       tags: [Notions]
  *       parameters:
  *         - name: notionId
  *           in: path
  *           required: true
- *           description: ID записи для удаления
+ *           description: ID записки для удаления
  *           schema:
  *             type: integer
  *             example: 1
  *       responses:
  *         200:
- *           description: Запись успешно удалена
+ *           description: Записка успешно удалена
  *           content:
  *             application/json:
  *               schema:
@@ -164,12 +147,10 @@ router.put("/notions/:notionId", NotionController.updateNotion);
  *                 properties:
  *                   message:
  *                     type: string
- *                     example: "Successful delete"
+ *                     example: "Notion successful delete"
  *         404:
- *           description: Запись не найдена
- *         500:
- *           description: Внутренняя ошибка сервера
+ *           description: Записка не найдена
  */
-router.delete("/notions/:notionId", NotionController.deleteNotion);
+router.delete("/notions/:notionId", isAuthenticated, hasRole("admin"), NotionController.deleteNotion);
 
 module.exports = router; 
