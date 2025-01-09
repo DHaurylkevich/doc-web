@@ -148,8 +148,6 @@ router.put("/notions/:notionId", validateBody("content"), validateRequest, isAut
  *                   message:
  *                     type: string
  *                     example: "Notion successful delete"
- *         404:
- *           description: Записка не найдена
  */
 router.delete("/notions/:notionId", isAuthenticated, hasRole("admin"), NotionController.deleteNotion);
 

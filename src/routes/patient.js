@@ -70,7 +70,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *                       last_name:
  *                         type: string
  */
-router.get("/patients", isAuthenticated, patientController.getPatientsFilter);
+router.get("/patients", isAuthenticated, hasRole(["doctor", "admin", "clinic"]), patientController.getPatientsFilter);
 /**
  * @swagger
  * /patients/{patientId}:

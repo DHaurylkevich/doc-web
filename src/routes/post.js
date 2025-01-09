@@ -5,12 +5,19 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
 
 /**
  * @swagger
- * /posts:
+ * /posts/categories/{categoryId}:
  *   post:
  *     summary: Создать новый пост
  *     description: Создает новый пост с заданными данными.
- *     tags:
- *       - Posts
+ *     tags: [Posts]
+ *     parameters:
+ *       - name: categoryId
+ *         in: path
+ *         required: true
+ *         description: ID категирии
+ *         schema:
+ *           type: integer
+ *           example: 1
  *     requestBody:
  *       description: Данные для создания поста
  *       required: true
@@ -35,6 +42,23 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *     responses:
  *       201:
  *         description: Успешное создана поста
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 photo:
+ *                   type: string
+ *                   example: "Название категории"
+ *                 title:
+ *                   type: string
+ *                   example: "Название категории"
+ *                 content:
+ *                   type: string
+ *                   example: "Название категории"
  */
 router.post("/posts/categories/:categoryId", isAuthenticated, hasRole("admin"), PostController.createPost);
 /**
@@ -43,11 +67,35 @@ router.post("/posts/categories/:categoryId", isAuthenticated, hasRole("admin"), 
  *   get:
  *     summary: Получить все посты
  *     description: Возвращает список всех постов.
- *     tags:
- *       - Posts
+ *     tags: [Posts]
  *     responses:
  *       200:
  *         description: Массив всех постов
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   photo:
+ *                     type: string
+ *                     example: "Фото поста"
+ *                   title:
+ *                     type: string
+ *                     example: "Название поста"
+ *                   content:
+ *                     type: string
+ *                     example: "Текст поста"
+ *                   category:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                         example: "Computers"
  */
 router.get("/posts", PostController.getAllPosts);
 /**
@@ -56,8 +104,7 @@ router.get("/posts", PostController.getAllPosts);
  *   get:
  *     summary: Получить все посты по категории
  *     description: Возвращает список всех постов определенной категории.
- *     tags:
- *       - Posts
+ *     tags: [Posts]
  *     parameters:
  *       - name: categoryId
  *         in: path
@@ -69,6 +116,31 @@ router.get("/posts", PostController.getAllPosts);
  *     responses:
  *       200:
  *         description: Массив всех постов по категории 
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   photo:
+ *                     type: string
+ *                     example: "Фото поста"
+ *                   title:
+ *                     type: string
+ *                     example: "Название поста"
+ *                   content:
+ *                     type: string
+ *                     example: "Текст поста"
+ *                   category:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                         example: "Computers"
  */
 router.get("/posts/categories/:categoryId", PostController.getPostsByCategory);
 /**
@@ -77,10 +149,9 @@ router.get("/posts/categories/:categoryId", PostController.getPostsByCategory);
  *   put:
  *     summary: Обновить пост
  *     description: Обновляет существующуй пост по его ID.
- *     tags:
- *       - Posts
+ *     tags: [Posts]
  *     parameters:
- *       - name: postsId
+ *       - name: postId
  *         in: path
  *         required: true
  *         description: ID поста
@@ -104,23 +175,35 @@ router.get("/posts/categories/:categoryId", PostController.getPostsByCategory);
  *               content:
  *                 type: string
  *                 example: "Обновленное содержание записи"
- *             required:
- *               - photo
- *               - title
- *               - content
  *     responses:
  *       200:
  *         description: Пост успешно обновлена
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 photo:
+ *                   type: string
+ *                   example: "Название категории"
+ *                 title:
+ *                   type: string
+ *                   example: "Название категории"
+ *                 content:
+ *                   type: string
+ *                   example: "Название категории"
  */
 router.put("/posts/:postId", isAuthenticated, hasRole("admin"), PostController.updatePost);
 /**
  * @swagger
- *  /post/{postId}:
+ *  /posts/{postId}:
  *   delete:
  *     summary: Удалить пост
  *     description: Удаляет пост по заданному ID.
- *     tags:
- *       - Posts
+ *     tags: [Posts]
  *     parameters:
  *       - name: postId
  *         in: path
@@ -131,7 +214,15 @@ router.put("/posts/:postId", isAuthenticated, hasRole("admin"), PostController.u
  *           example: 1
  *     responses:
  *       200:
- *         description: Пост успешно удалена
+ *         description: Пост успешно удален
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Post deleted successfully"
  */
 router.delete("/posts/:postId", isAuthenticated, hasRole("admin"), PostController.deletePost);
 

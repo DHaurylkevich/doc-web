@@ -8,9 +8,6 @@ const db = require("../../src/models");
 
 describe("PatientController API", () => {
     let fakeUser, createdUser, patient, fakeAddress;
-    // before(async () => {
-    //     await db.sequelize.sync({ force: true });
-    // })
 
     beforeEach(async () => {
         fakeUser = {

@@ -45,8 +45,8 @@ const PostController = {
         const { postId } = req.params;
 
         try {
-            const result = await PostService.deletePost(postId);
-            res.status(200).json(result);
+            await PostService.deletePost(postId);
+            res.status(200).json({ message: "Post deleted successfully" });
         } catch (err) {
             next(err);
         }

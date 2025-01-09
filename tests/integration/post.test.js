@@ -6,7 +6,7 @@ const { faker } = require('@faker-js/faker');
 const app = require("../../index");
 const db = require("../../src/models");
 
-describe("PostController API", () => {
+describe("Post routes", () => {
     let fakePost;
 
     beforeEach(async () => {
@@ -27,6 +27,7 @@ describe("PostController API", () => {
     describe("Positive tests", () => {
         describe("POST /api/posts/categories/:categoryId", () => {
             let testCategory, sessionCookies;
+
             beforeEach(async () => {
                 testCategory = await db.Categories.create(fakeCategory);
 
@@ -56,7 +57,10 @@ describe("PostController API", () => {
                     .expect(201);
 
                 expect(response.body).that.is.a("object");
+                expect(response.body).to.have.property("id");
                 expect(response.body).to.include({ title: fakePost.title });
+                expect(response.body).to.include({ photo: fakePost.photo });
+                expect(response.body).to.include({ content: fakePost.content });
             });
         });
         describe("GET /api/posts", () => {
@@ -67,6 +71,7 @@ describe("PostController API", () => {
                     .get(`/api/posts/`)
                     .expect(200);
 
+                expect(response.body).to.be.an("array");
                 expect(response.body[0]).to.have.property("id", testPost.id);
                 expect(response.body[0]).to.include({ title: testPost.title });
             });
@@ -82,11 +87,12 @@ describe("PostController API", () => {
                     .expect(200);
 
                 expect(response.body[0]).to.have.property("id", testPost.id);
-                expect(response.body[0].category).to.include({ id: testCategory.id });
+                expect(response.body[0].category).to.have.property("name", testCategory.name);
             });
         });
         describe("PUT /api/posts/:postId", () => {
             let testPost, sessionCookies;
+
             beforeEach(async () => {
                 const fakeUser = {
                     email: faker.internet.email(),
@@ -108,18 +114,18 @@ describe("PostController API", () => {
                 testPost = await db.Posts.create(fakePost);
             });
             it("expect to update post, when data valid and it exists", async () => {
-                await request(app)
+                const response = await request(app)
                     .put(`/api/posts/${testPost.id}`)
                     .send({ title: "TEST" })
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
-                const categoryInDB = await db.Posts.findByPk(testPost.id);
-                expect(categoryInDB).to.include({ title: "TEST" });
+                expect(response.body).to.include({ title: "TEST" });
             });
         });
         describe("DELETE /api/posts/:postId", () => {
             let testPost, sessionCookies;
+
             beforeEach(async () => {
                 const fakeUser = {
                     email: faker.internet.email(),
@@ -141,11 +147,12 @@ describe("PostController API", () => {
                 testPost = await db.Posts.create(fakePost);
             });
             it("expect delete post by id, when it exists", async () => {
-                await request(app)
+                const response = await request(app)
                     .delete(`/api/posts/${testPost.id}`)
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
+                expect(response.body).to.have.property("message", "Post deleted successfully");
                 const postInDb = await db.Posts.findByPk(testPost.id);
                 expect(postInDb).to.be.null;
             });

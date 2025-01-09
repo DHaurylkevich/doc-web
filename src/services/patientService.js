@@ -13,7 +13,7 @@ const PatientService = {
             if (userData.email) {
                 filter.email = userData.email;
             } else {
-                throw new AppError("Need to enter the email");
+                throw new AppError("Need to enter the email", 400);
             }
 
             const foundUser = await db.Users.findOne({
@@ -95,7 +95,7 @@ const PatientService = {
         }
 
         if (!doctorId && !clinicId) {
-            throw new AppError("Either doctorId or clinicId is required");
+            throw new AppError("Either doctorId or clinicId is required", 400);
         }
 
         const sortOptions = [{ model: db.Patients, as: "patient" }, { model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"];
