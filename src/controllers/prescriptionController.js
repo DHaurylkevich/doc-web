@@ -7,7 +7,7 @@ const prescriptionController = {
             const doctorId = req.user.roleId;
 
             await prescriptionService.createPrescription(patientId, doctorId, medicationsIds, expirationDate);
-            return res.status(201).json({ message: "Prescription created successful" });
+            return res.status(201).json({ message: "Prescription created successfully" });
         } catch (err) {
             next(err);
         }
@@ -16,14 +16,8 @@ const prescriptionController = {
         try {
             const user = req.user;
             const { sort = 'ASC', limit, page } = req.query;
-            let prescriptions;
 
-            if (user.role === "patient") {
-                prescriptions = await prescriptionService.getPrescriptionsByPatient({ patientId: user.roleId, sort, limit, page });
-            } else {
-                prescriptions = await prescriptionService.getPrescriptionsByDoctor({ doctorId: user.roleId, sort, limit, page });
-            }
-
+            const prescriptions = await prescriptionService.getPrescriptionsByPatient(user.role, { roleId: user.roleId, sort, limit, page });
             return res.status(200).json(prescriptions);
         } catch (err) {
             next(err);

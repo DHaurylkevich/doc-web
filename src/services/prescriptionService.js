@@ -6,17 +6,20 @@ const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 const prescriptionService = {
     createPrescription: async (patientId, doctorId, medicationsIds, expirationDate) => {
         const t = await db.sequelize.transaction();
+
         try {
-            const patient = await db.Patients.findByPk(patientId);
-            const medication = await db.Medications.findAll({ where: { id: medicationsIds } });
+            const maxExpirationDate = moment().add(360, 'days').toDate();
+            if (new Date(expirationDate) > maxExpirationDate || new Date(expirationDate) < moment().toDate()) {
+                throw new AppError("Expiration date must be between today and 360 days from today", 400);
+            }
+
+            const [patient, medication] = await Promise.all([
+                db.Patients.findByPk(patientId),
+                db.Medications.findAll({ where: { id: medicationsIds } }),
+            ]);
 
             if (!patient || medication.length !== medicationsIds.length) {
                 throw new AppError("Patient or medication not found", 404);
-            }
-
-            const maxExpirationDate = moment().add(360, 'days').toDate();
-            if (new Date(expirationDate) > maxExpirationDate) {
-                throw new AppError("Expiration date cannot exceed 360 days from today", 400);
             }
 
             const prescriptions = await db.Prescriptions.create({
@@ -34,17 +37,16 @@ const prescriptionService = {
             throw error;
         }
     },
-    getPrescriptionsByPatient: async ({ patientId, sort, limit, page }) => {
+    getPrescriptionsByPatient: async (userRole, { roleId, sort, limit, page }) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
-        const { rows, count } = await db.Prescriptions.findAndCountAll({
-            where: { patient_id: patientId },
-            attributes: { exclude: ["updatedAt", "doctor_id", "medication_id", "patient_id"] },
-            limit: parsedLimit,
-            offset: offset,
-            order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
-            include: [
-                {
+        let wherePrescriptions = {};
+        let includeModel = {};
+        const excludePrescriptions = ["updatedAt", "doctor_id", "medication_id", "patient_id"];
+        switch (userRole) {
+            case "patient":
+                wherePrescriptions = { patient_id: roleId };
+                includeModel = {
                     model: db.Doctors, as: "doctor",
                     attributes: ["id"],
                     include: [
@@ -54,26 +56,12 @@ const prescriptionService = {
                             attributes: ["id", "first_name", "last_name"],
                         }
                     ]
-                },
-                { model: db.Medications, as: "medications", through: { attributes: [] }, attributes: ["name"] },
-            ],
-        });
-
-        const totalPages = getTotalPages(count, parsedLimit, page);
-
-        return { pages: totalPages, prescriptions: rows };
-    },
-    getPrescriptionsByDoctor: async ({ doctorId, sort, limit, page }) => {
-        const { parsedLimit, offset } = getPaginationParams(limit, page);
-
-        const { rows, count } = await db.Prescriptions.findAndCountAll({
-            where: { doctor_id: doctorId },
-            order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
-            limit: parsedLimit,
-            offset: offset,
-            attributes: { exclude: ["updatedAt", "doctor_id", "medication_id", "patient_id"] },
-            include: [
-                {
+                };
+                excludePrescriptions.push("code");
+                break;
+            case "doctor":
+                wherePrescriptions = { doctor_id: roleId };
+                includeModel = {
                     model: db.Patients, as: "patient",
                     attributes: ["id"],
                     include: [
@@ -83,7 +71,18 @@ const prescriptionService = {
                             attributes: ["id", "first_name", "last_name", "photo"],
                         }
                     ]
-                },
+                };
+                break;
+        }
+
+        const { rows, count } = await db.Prescriptions.findAndCountAll({
+            limit: parsedLimit,
+            offset: offset,
+            where: wherePrescriptions,
+            order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
+            attributes: { exclude: excludePrescriptions },
+            include: [
+                includeModel,
                 { model: db.Medications, as: "medications", through: { attributes: [] }, attributes: ["name"] },
             ],
         });
@@ -91,7 +90,7 @@ const prescriptionService = {
         const totalPages = getTotalPages(count, parsedLimit, page);
 
         return { pages: totalPages, prescriptions: rows };
-    },
+    }
 };
 
 module.exports = prescriptionService;

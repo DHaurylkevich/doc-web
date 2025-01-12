@@ -1,39 +1,40 @@
 const express = require("express");
 const prescriptionController = require("../controllers/prescriptionController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
-const { validateParam } = require("../utils/validation");
+const { validateBody } = require("../utils/validation");
+const { validateRequest } = require("../middleware/errorHandler")
 const router = express.Router();
-
 
 /**
  * @swagger
  * /prescriptions:
  *   post:
  *     summary: Создание нового рецепта для пациента
- *     tags:
- *       - Prescriptions
+ *     tags: [Prescriptions]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - patientId
- *               - doctorId
- *               - medicationId
- *               - expirationDate
  *             properties:
  *               patientId:
  *                 type: integer
  *                 description: ID пациента
  *               medicationsIds:
- *                 type: integer
- *                 description: ID лекарства
+ *                 type: array
+ *                 description: IDs лекарств
+ *                 items:
+ *                   type: integer
  *               expirationDate:
  *                 type: string
  *                 format: date
  *                 description: Дата истечения срока действия рецепта
+ *             required:
+ *               - patientId
+ *               - doctorId
+ *               - medicationId
+ *               - expirationDate
  *     responses:
  *       201:
  *         description: Рецепт успешно создан
@@ -42,39 +43,17 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 prescription:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
- *                     code:
- *                       type: string
- *                       example: "4f7b3d92d6"
- *                     expiration_date:
- *                       type: string
- *                       format: date
- *                       example: "2024-12-31"
- *                     patient_id:
- *                       type: integer
- *                       example: 5
- *                     doctor_id:
- *                       type: integer
- *                       example: 3
- *                     medication_id:
- *                       type: integer
- *                       example: 2
- *       400:
- *         description: Ошибка валидации данных
+ *                 message:
+ *                   type: string
+ *                   example: "Category deleted successfully"
  */
-router.post("/prescriptions", isAuthenticated, hasRole("doctor"), validateParam("expirationDate"), prescriptionController.createPrescription);
+router.post("/prescriptions", validateBody("expirationDate"), validateRequest, isAuthenticated, hasRole("doctor"), prescriptionController.createPrescription);
 /**
  * @swagger
  * /prescriptions:
  *   get:
  *     summary: Получение всех рецептов, назначенных доктором
- *     tags:
- *       - Prescriptions
+ *     tags: [Prescriptions]
  *     parameters:
  *       - name: sort
  *         in: query
@@ -145,15 +124,12 @@ router.post("/prescriptions", isAuthenticated, hasRole("doctor"), validateParam(
  *                   medications:
  *                     type: object
  *                     properties:
- *                       id:
- *                         type: number
- *                         example: 1
  *                       name:
  *                         type: string
  *                         example: "Luxurious Metal Ball"
  *       400:
  *         description: Ошибка получения рецептов
  */
-router.get("/prescriptions", isAuthenticated, prescriptionController.getPrescriptions);
+router.get("/prescriptions", isAuthenticated, hasRole(["doctor", "patient"]), prescriptionController.getPrescriptions);
 
 module.exports = router;

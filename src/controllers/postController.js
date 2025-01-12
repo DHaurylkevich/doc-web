@@ -23,6 +23,7 @@ const PostController = {
     },
     getPostsByCategory: async (req, res, next) => {
         const { categoryId } = req.params;
+
         try {
             const posts = await PostService.getPostsByCategory(categoryId);
             res.status(200).json(posts)
