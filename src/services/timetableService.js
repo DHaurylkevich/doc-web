@@ -1,5 +1,6 @@
 const db = require("../models");
 const AppError = require("../utils/appError");
+const { isValidTimeFormat } = require("../utils/timeUtils");
 
 const TimetableService = {
     createTimetable: async (clinicId, t) => {
@@ -15,7 +16,10 @@ const TimetableService = {
             if (!Number.isInteger(data.dayOfWeek) || data.dayOfWeek < 1 || data.dayOfWeek > 7) {
                 throw new AppError("Invalid day of week. Must be between 1 and 7", 400);
             }
-            if (!data.startTime || !data.endTime || data.startTime >= data.endTime) {
+            if (!data.startTime || !data.endTime || !isValidTimeFormat(data.startTime) || !isValidTimeFormat(data.endTime)) {
+                throw new AppError("Invalid time format or missing a variable", 400);
+            }
+            if (data.startTime >= data.endTime) {
                 throw new AppError("Start time must be before end time", 400);
             }
 
@@ -28,21 +32,7 @@ const TimetableService = {
             };
         });
 
-        // await sequelize.transaction(async (t) => {
-        //     const updatePromises = validatedData.map(async (timetableData) => {
-        //         return await db.Timetables.upsert({
-        //             clinic_id: clinicId,
-        //             day_of_week: timetableData.dayOfWeek,
-        //             start_time: timetableData.startTime,
-        //             end_time: timetableData.endTime
-        //         }, {
-        //             transaction: t
-        //         });
-        //     });
-        //     return await Promise.all(updatePromises);
-        // });
-
-        await db.Timetables.bulkCreate(validatedData, { updateOnDuplicate: ["start_time", "end_time"] });
+        return await db.Timetables.bulkCreate(validatedData, { updateOnDuplicate: ["start_time", "end_time"] });
     },
 }
 

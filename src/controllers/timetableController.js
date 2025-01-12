@@ -2,7 +2,7 @@ const TimetableService = require("../services/timetableService");
 
 const TimetableController = {
     updateTimetable: async (req, res, next) => {
-        const { clinicId } = req.params;
+        const clinicId = req.user.id;
         const { timetablesData } = req.body;
 
         try {
