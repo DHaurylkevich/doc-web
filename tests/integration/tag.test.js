@@ -50,6 +50,7 @@ describe("TagController API", () => {
                     .send(fakeTag)
                     .set("Cookie", sessionCookies)
                     .expect(201);
+                console.log(response.body)
 
                 expect(response.body).that.is.a("object");
                 expect(response.body.name).to.equal(fakeTag.name);
@@ -64,7 +65,6 @@ describe("TagController API", () => {
                     .get("/api/tags")
                     .set("Cookie", sessionCookies)
                     .expect(200);
-
                 expect(response.body).to.be.an("array").that.is.not.empty;
                 expect(response.body[0]).to.include({ positive: testTag.positive });
                 expect(response.body[0]).to.include({ name: testTag.name });
@@ -101,6 +101,14 @@ describe("TagController API", () => {
     });
     describe("Negative tests", () => {
         describe("POST /api/tags", () => {
+            it("expect to AppError('name is required'), when user is not unauthorized", async () => {
+                const response = await request(app)
+                    .post("/api/tags")
+                    .send()
+                    .expect(400);
+
+                expect(response.body).to.have.property("message", "name is required");
+            });
             it("expect to AppError('Unauthorized user'), when user is not unauthorized", async () => {
                 const response = await request(app)
                     .post("/api/tags")

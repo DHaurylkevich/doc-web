@@ -73,6 +73,7 @@ describe("Timetable routes", () => {
                     .send({ timetablesData: updatedData })
                     .set("Cookie", sessionCookies)
                     .expect(200);
+                    console.log(response.body)
 
                 expect(response.body[0].start_time).not.to.equal(testTimetable.start_time);
                 expect(response.body[0]).to.have.property("start_time", updatedData[0].startTime + ":00");

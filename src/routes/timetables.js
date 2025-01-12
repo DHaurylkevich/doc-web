@@ -9,8 +9,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *   put:
  *     summary: Обновить расписание
  *     description: Обновляет существующие рассписания клиники
- *     tags:
- *       - Timetable
+ *     tags: [Timetable]
  *     requestBody:
  *       description: Обновленные данные графика для клиники
  *       required: true
@@ -45,7 +44,29 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *                   - endTime
  *     responses:
  *       200:
- *         description: Тэг успешно обновлен
+ *         description: Массив тэгов
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   clinic_id:
+ *                     type: integer
+ *                     example: 1
+ *                   day_of_week:
+ *                     type: integer
+ *                     example: 1
+ *                   start_time:
+ *                     type: string
+ *                     example: "09:00:00"
+ *                   end_time:
+ *                     type: string
+ *                     example: "18:00:00"
  */
 router.put("/clinics/timetable", isAuthenticated, hasRole("clinic"), TimetableController.updateTimetable);
 

@@ -2,15 +2,15 @@ const express = require("express");
 const router = express.Router();
 const TagController = require("../controllers/tagController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
+const { validateBody } = require("../utils/validation");
+const { validateRequest } = require("../middleware/errorHandler");
 
 /**
  * @swagger
  * /tags:
  *   post:
- *     summary: Создать новый тэг
- *     description: Создает новый тэг с заданными данными
- *     tags:
- *       - Tags
+ *     summary: Создает новый тэг
+ *     tags:[Tags]
  *     requestBody:
  *       description: Данные для создания тэга
  *       required: true
@@ -26,9 +26,23 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *               - name
  *     responses:
  *       201:
- *         description: Успешно создана тэга
+ *         description: Успешное созданае тэга
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: number
+ *                   example: 1
+ *                 name:
+ *                   type: string
+ *                   example: "Название категории"
+ *                 positive:
+ *                   type: boolean
+ *                   example: true
  */
-router.post("/tags", isAuthenticated, hasRole("admin"), TagController.createTag);
+router.post("/tags", validateBody("name"), validateRequest, isAuthenticated, hasRole("admin"), TagController.createTag);
 /**
  * @swagger
  * /tags:
