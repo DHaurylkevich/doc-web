@@ -47,6 +47,7 @@ const SpecialtyController = {
 
         try {
             const updateSpecialty = await SpecialtyService.updateSpecialty(specialtyId, specialtyData);
+            console.log(updateSpecialty);
             res.status(200).json(updateSpecialty);
         } catch (err) {
             next(err);
@@ -57,7 +58,7 @@ const SpecialtyController = {
 
         try {
             await SpecialtyService.deleteSpecialty(specialtyId);
-            res.status(200).json({ message: "Successful delete" });
+            res.status(200).json({ message: "Specialty deleted successfully" });
         } catch (err) {
             next(err);
         }

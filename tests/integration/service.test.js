@@ -7,7 +7,7 @@ const { faker } = require('@faker-js/faker');
 const app = require("../../index");
 const db = require("../../src/models");
 
-describe("ServiceController API", () => {
+describe("Service routes", () => {
     let fakeService;
 
     beforeEach(async () => {
@@ -17,49 +17,42 @@ describe("ServiceController API", () => {
         };
     });
     afterEach(async () => {
+        await db.Specialties.destroy({ where: {} });
+        await db.Clinics.destroy({ where: {} });
         await db.Services.destroy({ where: {} });
     });
 
     describe("Positive tests", () => {
-        describe("POST /api/clinics/:id/services", () => {
-            let fakeClinic, sessionCookies;
-
-            before(async () => {
-                const fakeUser = {
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email(),
-                    phone: faker.phone.number({ style: 'international' }),
-                    pesel: 12345678901,
+        describe("POST /api/clinics/services", () => {
+            let sessionCookies;
+            beforeEach(async () => {
+                const fakeClinicData = {
+                    name: faker.company.buzzAdjective(),
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
-                    birthday: faker.date.past(30)
+                    nip: 1234567890,
+                    nr_license: faker.vehicle.vin(),
+                    email: "clinic@gmail.com",
+                    phone: faker.phone.number({ style: 'international' }),
                 };
-                await db.Users.create(fakeUser);
+                await db.Clinics.create(fakeClinicData);
 
                 const res = await request(app)
                     .post('/login')
                     .send({
-                        loginParam: fakeUser.email,
+                        loginParam: fakeClinicData.email,
                         password: "123456789"
                     })
                     .expect(200);
 
                 expect(res.body).to.have.property("user");
-
                 sessionCookies = res.headers['set-cookie'];
-                fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), password: faker.internet.password() };
-            });
-            after(async () => {
-                await db.Users.destroy({ where: {} });
             });
             it("expect to create service, when data is valid", async () => {
-                const createdClinic = await db.Clinics.create(fakeClinic);
                 const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
                 const specialtyId = specialtiesInDb.id;
 
                 const response = await request(app)
-                    .post(`/api/clinics/${createdClinic.id}/services`)
+                    .post(`/api/clinics/services`)
                     .send({ name: fakeService.name, price: fakeService.price, specialtyId })
                     .set('Cookie', sessionCookies)
                     .expect(201);
@@ -68,16 +61,24 @@ describe("ServiceController API", () => {
                 expect(response.body).have.property("name", fakeService.name);
             });
         });
-        describe("GET /api/services", () => {
-            let serviceId;
-
+        describe("GET /api/clinics/:clinicId/services", () => {
+            let serviceId, testClinic;
             beforeEach(async () => {
-                const createdService = await db.Services.create(fakeService);
+                const fakeClinicData = {
+                    name: faker.company.buzzAdjective(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    nip: 1234567890,
+                    nr_license: faker.vehicle.vin(),
+                    email: "clinic@gmail.com",
+                    phone: faker.phone.number({ style: 'international' }),
+                };
+                testClinic = await db.Clinics.create(fakeClinicData);
+                const createdService = await db.Services.create({ ...fakeService, clinic_id: testClinic.id });
                 serviceId = createdService.id;
             });
             it("expect services, when they exists", async () => {
                 const response = await request(app)
-                    .get(`/api/services/`)
+                    .get(`/api/clinics/${testClinic.id}/services/`)
                     .expect(200);
 
                 expect(response.body[0]).to.have.property("id", serviceId);
@@ -86,7 +87,6 @@ describe("ServiceController API", () => {
         });
         describe("GET /api/services/:id", () => {
             let serviceId;
-
             beforeEach(async () => {
                 const createdService = await db.Services.create(fakeService);
                 serviceId = createdService.id;
@@ -95,44 +95,38 @@ describe("ServiceController API", () => {
                 const response = await request(app)
                     .get(`/api/services/${serviceId}`)
                     .expect(200);
-
+                console.log(response.body)
                 expect(response.body).to.have.property("id", serviceId);
                 expect(response.body).have.property("name", fakeService.name);
             });
         });
-        describe("PUT /api/services/:id", () => {
-            let serviceId;
-
-            before(async () => {
-                const fakeUser = {
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email(),
-                    phone: faker.phone.number({ style: 'international' }),
-                    pesel: 12345678901,
+        describe("PUT /api/services/:serviceId", () => {
+            let serviceId, sessionCookies;
+            beforeEach(async () => {
+                const fakeClinicData = {
+                    name: faker.company.buzzAdjective(),
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
-                    birthday: faker.date.past(30)
+                    nip: 1234567890,
+                    nr_license: faker.vehicle.vin(),
+                    email: "clinic@gmail.com",
+                    phone: faker.phone.number({ style: 'international' }),
                 };
-                await db.Users.create(fakeUser);
+                const testClinic = await db.Clinics.create(fakeClinicData);
 
                 const res = await request(app)
                     .post('/login')
                     .send({
-                        loginParam: fakeUser.email,
+                        loginParam: fakeClinicData.email,
                         password: "123456789"
                     })
                     .expect(200);
-                expect(res.body).to.have.property("user");
 
+                expect(res.body).to.have.property("user");
                 sessionCookies = res.headers['set-cookie'];
-                const createdService = await db.Services.create(fakeService);
+                const createdService = await db.Services.create({ ...fakeService, clinic_id: testClinic.id });
                 serviceId = createdService.id;
             });
-            after(async () => {
-                await db.Users.destroy({ where: {} });
-            });
-            it("expect to update service, when data valid and it exists", async () => {
+            it("expect to update service by id, when data valid and it exists", async () => {
                 await request(app)
                     .put(`/api/services/${serviceId}`)
                     .send({ serviceData: { name: "TEST" } })
@@ -143,139 +137,139 @@ describe("ServiceController API", () => {
                 expect(serviceInDB.name).to.equals("TEST");
             });
         });
-        describe("DELETE /api/services/:id", () => {
-            let serviceId;
-            before(async () => {
-                const fakeUser = {
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email(),
-                    phone: faker.phone.number({ style: 'international' }),
-                    pesel: 12345678901,
+        describe("DELETE /api/services/:serviceId", () => {
+            let serviceId, sessionCookies;
+            beforeEach(async () => {
+                const fakeClinicData = {
+                    name: faker.company.buzzAdjective(),
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
-                    birthday: faker.date.past(30)
+                    nip: 1234567890,
+                    nr_license: faker.vehicle.vin(),
+                    email: "clinic@gmail.com",
+                    phone: faker.phone.number({ style: 'international' }),
                 };
-                await db.Users.create(fakeUser);
+                const testClinic = await db.Clinics.create(fakeClinicData);
 
                 const res = await request(app)
                     .post('/login')
                     .send({
-                        loginParam: fakeUser.email,
+                        loginParam: fakeClinicData.email,
                         password: "123456789"
                     })
                     .expect(200);
-                expect(res.body).to.have.property("user");
 
+                expect(res.body).to.have.property("user");
                 sessionCookies = res.headers['set-cookie'];
 
-                const createdService = await db.Services.create(fakeService);
+                const createdService = await db.Services.create({ ...fakeService, clinic_id: testClinic.id });
                 serviceId = createdService.id;
             });
-            afterEach(async () => {
-                await db.Users.destroy({ where: {} });
-            });
             it("expect delete service by id, when it exists", async () => {
-                await request(app)
+                const response = await request(app)
                     .delete(`/api/services/${serviceId}`)
                     .set('Cookie', sessionCookies)
                     .expect(200);
 
+                expect(response.body).to.have.property("message", "Service deleted successfully");
                 const serviceInDb = await db.Services.findByPk(serviceId);
                 expect(serviceInDb).to.be.null;
             });
         });
     })
     describe("Negative tests", () => {
-        describe("POST /api/clinics/:id/services", () => {
-            let fakeClinic, createdClinic, specialtiesInDb, specialtyId;
-
-            before(async () => {
-                fakeUser = {
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email(),
-                    phone: faker.phone.number({ style: 'international' }),
-                    pesel: 12345678901,
-                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
-                    birthday: faker.date.past(30)
-                };
-                const createdUser = await db.Users.create(fakeUser);
-                userId = createdUser.id;
-
-                const res = await request(app)
-                    .post('/login')
-                    .send({
-                        loginParam: fakeUser.email,
-                        password: "123456789"
-                    })
-                    .expect(200);
-                expect(res.body).to.have.property("user");
-
-                sessionCookies = res.headers['set-cookie'];
-
-                fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), password: faker.internet.password() };
-                createdClinic = await db.Clinics.create(fakeClinic);
+        describe("POST /api/clinics/services", () => {
+            let specialtiesInDb, specialtyId;
+            beforeEach(async () => {
                 specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
                 specialtyId = specialtiesInDb.id;
             });
-            after(async () => {
-                await db.Users.destroy({ where: {} });
-            });
-            it("expect return 400 error when creating a service without a name", async () => {
+            it("expect AppError('Name is required') error when creating a service without a name", async () => {
                 const response = await request(app)
-                    .post(`/api/clinics/${createdClinic.id}/services`)
+                    .post(`/api/clinics/services`)
                     .send({ price: fakeService.price, specialtyId })
-                    .set('Cookie', sessionCookies)
                     .expect(400);
 
                 expect(response.body).to.have.property("error");
                 expect(response.body).to.have.property("message", "Name is required");
             });
-            it("expect return 400 error when creating a service without a price", async () => {
+            it("expect AppError('Price is required') error when creating a service without a price", async () => {
                 const response = await request(app)
-                    .post(`/api/clinics/${createdClinic.id}/services`)
+                    .post(`/api/clinics/services`)
                     .send({ name: fakeService.name, specialtyId })
-                    .set('Cookie', sessionCookies)
                     .expect(400);
 
                 expect(response.body).to.have.property("error");
                 expect(response.body).to.have.property("message", "Price is required");
             });
-            it("expect return 400 error when creating a service without a specialtyId", async () => {
+            it("expect AppError('SpecialtyId is required') error when creating a service without a specialtyId", async () => {
                 const response = await request(app)
-                    .post(`/api/clinics/${createdClinic.id}/services`)
+                    .post(`/api/clinics/services`)
                     .send({ name: fakeService.name, price: fakeService.price })
-                    .set('Cookie', sessionCookies)
                     .expect(400);
 
                 expect(response.body).to.have.property("error");
                 expect(response.body).to.have.property("message", "SpecialtyId is required");
             });
-            it("expect return 401 error when attempting to create a service without authentication", async () => {
-                const fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), password: faker.internet.password() };
-                const createdClinic = await db.Clinics.create(fakeClinic);
-                const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
-                const specialtyId = specialtiesInDb.id;
-
+            it("expect AppError('Unauthorized user') error when attempting to create a service without authentication", async () => {
                 const response = await request(app)
-                    .post(`/api/clinics/${createdClinic.id}/services`)
-                    .send({ name: "Test Service", price: 10.10, specialtyId })
+                    .post(`/api/clinics/services`)
+                    .send({ name: fakeService.name, price: fakeService.price, specialtyId })
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
             });
-            it("expect return 409 error when this service exist", async () => {
-                const fakeClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence(), password: faker.internet.password() };
-                const createdClinic = await db.Clinics.create(fakeClinic);
-                const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
-                const specialtyId = specialtiesInDb.id;
-                const createdService = await db.Services.create({ ...fakeService, specialty_id: specialtyId, clinic_id: createdClinic.id });
-                console.log(createdService);
+            it("expect AppError('Access denied') error when user is not unauthorized user", async () => {
+                const fakeUserData = {
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "patient"
+                };
+                await db.Users.create(fakeUserData);
+
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUserData.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .post(`/api/clinics/${createdClinic.id}/services`)
+                    .post(`/api/clinics/services`)
+                    .send({ name: fakeService.name, price: fakeService.price, specialtyId })
+                    .set('Cookie', sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property("message", "Access denied");
+                await db.Users.destroy({ where: {} });
+            });
+            it("expect AppError('Service already exists') error when this service exist", async () => {
+                const fakeClinicData = {
+                    name: faker.company.buzzAdjective(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    nip: 1234567890,
+                    nr_license: faker.vehicle.vin(),
+                    email: "clinic@gmail.com",
+                    phone: faker.phone.number({ style: 'international' }),
+                };
+                const createdClinic = await db.Clinics.create(fakeClinicData);
+
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeClinicData.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+                const createdService = await db.Services.create({ ...fakeService, specialty_id: specialtyId, clinic_id: createdClinic.id });
+
+                const response = await request(app)
+                    .post(`/api/clinics/services`)
                     .send({ name: createdService.name, price: createdService.price, specialtyId, clinic_id: createdClinic.id })
                     .set('Cookie', sessionCookies)
                     .expect(409);
@@ -283,7 +277,7 @@ describe("ServiceController API", () => {
                 expect(response.body).to.have.property("message", "Service already exists");
             });
         });
-        describe("GET /api/services/:id", () => {
+        describe("GET /api/services/:serviceId", () => {
             it("expect service by id, when it exists", async () => {
                 const response = await request(app)
                     .get("/api/services/1")
@@ -293,45 +287,61 @@ describe("ServiceController API", () => {
             });
         });
         describe("PUT /api/services/:id", () => {
-            before(async () => {
-                fakeUser = {
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email(),
-                    phone: faker.phone.number({ style: 'international' }),
-                    pesel: 12345678901,
-                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
-                    birthday: faker.date.past(30)
-                };
-                const createdUser = await db.Users.create(fakeUser);
-                userId = createdUser.id;
-
-                const res = await request(app)
-                    .post('/login')
-                    .send({
-                        loginParam: fakeUser.email,
-                        password: "123456789"
-                    })
-                    .expect(200);
-                expect(res.body).to.have.property("user");
-
-                sessionCookies = res.headers['set-cookie'];
-            });
-
-            after(async () => {
-                await db.Users.destroy({ where: {} });
-            });
-
-            it("expect return 401 error when attempting to update a service without authentication", async () => {
+            it("expect AppError('Unauthorized user') error when attempting to create a service without authentication", async () => {
                 const response = await request(app)
-                    .put(`/api/services/1`)
-                    .send({ name: "Updated Service Name", price: 20.20 })
+                    .put("/api/services/1")
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
             });
-            it("expect return 404 error when a service not found", async () => {
+            it("expect AppError('Access denied') error when user is not unauthorized user", async () => {
+                const fakeUserData = {
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "patient"
+                };
+                await db.Users.create(fakeUserData);
+
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUserData.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
+                const response = await request(app)
+                    .put("/api/services/1")
+                    .set('Cookie', sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property("message", "Access denied");
+                await db.Users.destroy({ where: {} });
+            });
+            it("expect AppError('Service not found') error when a service not found", async () => {
+                const fakeClinicData = {
+                    name: faker.company.buzzAdjective(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    nip: 1234567890,
+                    nr_license: faker.vehicle.vin(),
+                    email: "clinic@gmail.com",
+                    phone: faker.phone.number({ style: 'international' }),
+                };
+                await db.Clinics.create(fakeClinicData);
+
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeClinicData.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
                 const response = await request(app)
                     .put("/api/services/1")
                     .send({ name: "Updated Service Name", price: 20.20 })
@@ -341,36 +351,8 @@ describe("ServiceController API", () => {
                 expect(response.body).to.have.property("message", "Service not found");
             });
         });
-        describe("DELETE /api/services/:id", () => {
-            before(async () => {
-                fakeUser = {
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email(),
-                    phone: faker.phone.number({ style: 'international' }),
-                    pesel: 12345678901,
-                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
-                    birthday: faker.date.past(30)
-                };
-                const createdUser = await db.Users.create(fakeUser);
-                userId = createdUser.id;
-
-                const res = await request(app)
-                    .post('/login')
-                    .send({
-                        loginParam: fakeUser.email,
-                        password: "123456789"
-                    })
-                    .expect(200);
-                expect(res.body).to.have.property("user");
-
-                sessionCookies = res.headers['set-cookie'];
-            });
-            after(async () => {
-                await db.Users.destroy({ where: {} });
-            });
-            it("expect return 401 error when attempting to update a service without authentication", async () => {
+        describe("DELETE /api/services/:serviceId", () => {
+            it("expect AppError('Unauthorized user') error when attempting to create a service without authentication", async () => {
                 const response = await request(app)
                     .delete(`/api/services/1`)
                     .send({ name: "Updated Service Name", price: 20.20 })
@@ -378,13 +360,31 @@ describe("ServiceController API", () => {
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
             });
-            it("expect return 404 error when a service not found", async () => {
+            it("expect AppError('Access denied') error when user is not unauthorized user", async () => {
+                const fakeUserData = {
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "patient"
+                };
+                await db.Users.create(fakeUserData);
+
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUserData.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
                 const response = await request(app)
                     .delete(`/api/services/1`)
                     .set('Cookie', sessionCookies)
-                    .expect(404);
+                    .expect(403);
 
-                expect(response.body).to.have.property("message", "Service not found");
+                expect(response.body).to.have.property("message", "Access denied");
+                await db.Users.destroy({ where: {} });
             });
         });
     })

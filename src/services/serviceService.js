@@ -18,9 +18,9 @@ const ServiceService = {
         }
 
         const service = await db.Services.create({ name, price, clinic_id: clinicId, specialty_id: specialtyId });
-        return service;
+        return { id: service.id, name: service.name, price: service.price };
     },
-    getAllServices: async (clinicId) => {
+    getAllServicesByClinicId: async (clinicId) => {
         return await db.Services.findAll(
             {
                 where: { clinic_id: clinicId },
@@ -34,20 +34,20 @@ const ServiceService = {
             throw new AppError("Service not found", 404);
         }
 
-        return service;
+        return { id: service.id, name: service.name, price: service.price };
     },
-    updateService: async (serviceId, data) => {
-        let service = await db.Services.findByPk(serviceId);
+    updateService: async (clinicId, serviceId, data) => {
+        let service = await db.Services.findOne({ where: { id: serviceId, clinic_id: clinicId } });
         if (!service) {
             throw new AppError("Service not found", 404);
         }
 
         service = await service.update(data);
 
-        return service;
+        return { id: service.id, name: service.name, price: service.price };
     },
-    deleteService: async (serviceId) => {
-        const service = await db.Services.findByPk(serviceId);
+    deleteService: async (clinicId, serviceId) => {
+        const service = await db.Services.findOne({ where: { id: serviceId, clinic_id: clinicId } });
         if (!service) {
             throw new AppError("Service not found", 404);
         }

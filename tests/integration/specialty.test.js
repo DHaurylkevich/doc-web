@@ -7,7 +7,7 @@ const { faker } = require('@faker-js/faker');
 const app = require("../../index");
 const db = require("../../src/models");
 
-describe("SpecialtyController API", () => {
+describe("Specialty routes", () => {
     let fakeSpecialty;
 
     beforeEach(async () => {
@@ -105,7 +105,7 @@ describe("SpecialtyController API", () => {
                 expect(response.body).to.be.an("array");
                 expect(response.body[0]).to.have.property("id", specialtyId);
                 expect(response.body[0].name).to.equal(specialtiesInDb.name);
-                expect(response.body[0].services[0].name).to.deep.equal(servicesInDb[1].name);
+                expect(response.body[0].services[0].name).to.deep.equal(servicesInDb[0].name);
             });
         });
         describe("GET /api/specialties/:id", () => {
@@ -118,6 +118,7 @@ describe("SpecialtyController API", () => {
                 const response = await request(app)
                     .get(`/api/specialties/${specialtyId}`)
                     .expect(200);
+                console.log(response.body);
 
                 expect(response.body).to.have.property("id", specialtyId);
                 expect(response.body.name).to.equal(fakeSpecialty.name);
@@ -193,13 +194,14 @@ describe("SpecialtyController API", () => {
                 specialtyId = createdSpecialty.id;
             });
             it("expect delete service by id, when it exists", async () => {
-                await request(app)
+                const response = await request(app)
                     .delete(`/api/specialties/${specialtyId}`)
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
                 const specialtyInDb = await db.Specialties.findByPk(specialtyId);
                 expect(specialtyInDb).to.be.null;
+                expect(response.body).to.have.property("message", "Specialty deleted successfully");
             });
         });
     })

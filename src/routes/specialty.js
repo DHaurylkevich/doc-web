@@ -13,8 +13,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *      operationId: createSpecialty
  *      security:
  *        - CookieAuth: []
- *      tags:
- *        - Specialties
+ *      tags: [Specialties]
  *      requestBody:
  *        description: Данные для создания специальности
  *        required: true
@@ -41,12 +40,6 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *                  name:
  *                    type: string
  *                    example: "Хирург"
- *        401:
- *          description: "Unauthorized user"
- *        403:
- *          description: "Access denied"
- *        409:
- *          description: "Specialty already exists"
  */
 router.post("/specialties", isAuthenticated, hasRole('admin'), specialtyController.createSpecialty);
 /**
@@ -56,8 +49,7 @@ router.post("/specialties", isAuthenticated, hasRole('admin'), specialtyControll
  *    get:
  *      summary: Получить все специальности без услуг
  *      operationId: getAllSpecialties
- *      tags:
- *        - Specialties
+ *      tags: [Specialties]
  *      responses:
  *        200:
  *          description: Массив всех специальностей
@@ -82,9 +74,7 @@ router.get("/specialties", specialtyController.getAllSpecialties);
  *  /clinic/{clinicId}/specialties:
  *    get:
  *      summary: Получить все специальности и все услуги связанные с клиникой
- *      operationId: getAllSpecialtiesByClinic
- *      tags:
- *        - Specialties
+ *      tags: [Specialties]
  *      parameters:
  *       - name: clinicId
  *         in: path
@@ -109,6 +99,17 @@ router.get("/specialties", specialtyController.getAllSpecialties);
  *                    name:
  *                      type: string
  *                      example: "Хирург"
+ *                    services:
+ *                      type: array
+ *                      items:
+ *                        type: object
+ *                        properties:
+ *                          id:
+ *                            type: integer
+ *                            example: 1
+ *                          name:
+ *                            type: string
+ *                            example: "Название услуги"
  *                    createdAt:
  *                      type: string
  *                      format: date-time
@@ -125,8 +126,7 @@ router.get("/clinic/:clinicId/specialties", specialtyController.getAllSpecialtie
  *   get:
  *     summary: Получить специализацию
  *     description: Возвращает специализацию по заданому ID.
- *     tags:
- *       - Specialties
+ *     tags: [Specialties]
  *     parameters:
  *       - name: specialtyId
  *         in: path
@@ -138,6 +138,17 @@ router.get("/clinic/:clinicId/specialties", specialtyController.getAllSpecialtie
  *     responses:
  *       200:
  *         description: Специализация
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 name:
+ *                   type: string
+ *                   example: "Хирург"
  */
 router.get("/specialties/:specialtyId", specialtyController.getSpecialty);
 /**
@@ -146,8 +157,7 @@ router.get("/specialties/:specialtyId", specialtyController.getSpecialty);
  *   put:
  *     summary: Обновить специальность
  *     description: Обновляет существующую специальность по ее ID.
- *     tags:
- *       - Specialties
+ *     tags: [Specialties]
  *     parameters:
  *       - name: specialtyId
  *         in: path
@@ -172,6 +182,17 @@ router.get("/specialties/:specialtyId", specialtyController.getSpecialty);
  *     responses:
  *       200:
  *         description: Специальность успешно обновлена
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 name:
+ *                   type: string
+ *                   example: "Хирург"
  */
 router.put("/specialties/:specialtyId", isAuthenticated, hasRole('admin'), specialtyController.updateSpecialty);
 /**
@@ -180,8 +201,7 @@ router.put("/specialties/:specialtyId", isAuthenticated, hasRole('admin'), speci
  *   delete:
  *     summary: Удалить специальность
  *     description: Удаляет специальность по заданному ID.
- *     tags:
- *       - Specialties
+ *     tags: [Specialties]
  *     parameters:
  *       - name: specialtyId
  *         in: path
@@ -200,7 +220,7 @@ router.put("/specialties/:specialtyId", isAuthenticated, hasRole('admin'), speci
  *              properties:
  *                message:
  *                  type: string
- *                  example: "Successful delete"
+ *                  example: "Specialty deleted successfully"
  */
 router.delete("/specialties/:specialtyId", isAuthenticated, hasRole('admin'), specialtyController.deleteSpecialty);
 

@@ -35,7 +35,7 @@ const SpecialtyService = {
             throw new AppError("Specialty not found", 404);
         }
 
-        return specialty;
+        return { id: specialty.id, name: specialty.name };
     },
     updateSpecialty: async (specialtyId, data) => {
         const specialty = await db.Specialties.findByPk(specialtyId);

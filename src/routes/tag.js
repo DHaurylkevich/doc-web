@@ -49,8 +49,7 @@ router.post("/tags", validateBody("name"), validateRequest, isAuthenticated, has
  *   get:
  *     summary: Получить все тэги
  *     description: Возвращает список всех тэгов.
- *     tags:
- *       - Tags
+ *     tags: [Tags]
  *     responses:
  *       200:
  *         description: Массив всех тэгов
@@ -62,8 +61,7 @@ router.get("/tags", isAuthenticated, TagController.getAllTags);
  *   put:
  *     summary: Обновить тэг
  *     description: Обновляет существующый тэг по его ID.
- *     tags:
- *       - Tags
+ *     tags: [Tags]
  *     parameters:
  *       - name: tagId
  *         in: path
@@ -96,8 +94,7 @@ router.put("/tags/:tagId", isAuthenticated, hasRole("admin"), TagController.upda
  *   delete:
  *     summary: Удалить тэг
  *     description: Удаляет тэг по заданному ID.
- *     tags:
- *       - Tags
+ *     tags: [Tags]
  *     parameters:
  *       - name: tagId
  *         in: path

@@ -1,26 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const serviceController = require("../controllers/serviceController");
-const { isAuthenticated } = require("../middleware/auth");
+const { isAuthenticated, hasRole } = require("../middleware/auth");
 const { serviceCreateValidation } = require('../utils/validation');
 const { validateRequest } = require('../middleware/errorHandler');
 
 /**
  * @swagger
- * /clinics/{clinicId}/services:
+ * /clinics/services:
  *   post:
  *     summary: Создать новую услугу
- *     description: Создает новую услугу связанную с специализанией для клиники.
- *     tags:
- *       - Services
- *     parameters:
- *       - name: clinicId
- *         in: path
- *         required: true
- *         description: ID клиник которая создает услугу
- *         schema:
- *           type: integer
- *           example: 1
+ *     description: Создает новую услугу связанную с специализанией для клиники
+ *     tags: [Services]
  *     requestBody:
  *       description: Данные для создания услуги
  *       required: true
@@ -45,16 +36,28 @@ const { validateRequest } = require('../middleware/errorHandler');
  *     responses:
  *       201:
  *         description: Успешно создана услуга
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 name:
+ *                   type: string
+ *                   example: "Название сервиса"
+ *                 price:
+ *                   type: string
+ *                   example: "10.10"
  */
-router.post("/clinics/:clinicId/services", serviceCreateValidation, validateRequest, isAuthenticated, serviceController.createService);
+router.post("/clinics/services", serviceCreateValidation, validateRequest, isAuthenticated, hasRole("clinic"), serviceController.createService);
 /**
  * @swagger
  * /clinics/{clinicId}/services:
  *   get:
  *     summary: Получить все услуги определенной клиники
- *     description: Возвращает список всех услуг.
- *     tags:
- *       - Services
+ *     tags: [Services]
  *     parameters:
  *       - name: clinicId
  *         in: path
@@ -66,37 +69,64 @@ router.post("/clinics/:clinicId/services", serviceCreateValidation, validateRequ
  *     responses:
  *       200:
  *         description: Массив всех услуг
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   name:
+ *                     type: string
+ *                     example: "Название сервиса"
+ *                   price:
+ *                     type: string
+ *                     example: "10.10"
  */
-router.get("/clinics/:clinicId/services", serviceController.getAllServices);
+router.get("/clinics/:clinicId/services", serviceController.getAllServicesByClinicId);
 /**
  * @swagger
  * /services/{serviceId}:
  *   get:
- *     summary: Получить все услуги
- *     description: Возвращает список всех услуг.
+ *     summary: Получить услугу по id
  *     tags:
  *       - Services
  *     parameters:
  *       - name: serviceId
  *         in: path
  *         required: true
- *         description: ID услуги для удаления
+ *         description: ID услуги
  *         schema:
  *           type: integer
  *           example: 1
  *     responses:
  *       200:
- *         description: Массив всех услуг
+ *         description: Услуга по заданному id
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 name:
+ *                   type: string
+ *                   example: "Название услуги"
+ *                 price:
+ *                   type: string
+ *                   example: "10.10"
  */
-router.get("/services/:serviceId", serviceController.getService);
+router.get("/services/:serviceId", serviceController.getServiceById);
 /**
  * @swagger
  * /services/{serviceId}:
  *   put:
- *     summary: Обновить услугу
- *     description: Обновляет существующую услугу по ее ID.
- *     tags:
- *       - Services
+ *     summary: Обновить услугу по ее id
+ *     tags: [Services]
  *     security:
  *       - CookieAuth: []
  *     parameters:
@@ -127,8 +157,22 @@ router.get("/services/:serviceId", serviceController.getService);
  *     responses:
  *       200:
  *         description: Услуга успешно обновлена
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 name:
+ *                   type: string
+ *                   example: "Название услуги"
+ *                 price:
+ *                   type: string
+ *                   example: "10.10"
  */
-router.put("/services/:serviceId", isAuthenticated, serviceController.updateService);
+router.put("/services/:serviceId", isAuthenticated, hasRole("clinic"), serviceController.updateService);
 /**
  * @swagger
  * /services/{serviceId}:
@@ -150,7 +194,15 @@ router.put("/services/:serviceId", isAuthenticated, serviceController.updateServ
  *     responses:
  *       200:
  *         description: Услуга успешно удалена
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Service deleted successfully"
  */
-router.delete("/services/:serviceId", isAuthenticated, serviceController.deleteService);
+router.delete("/services/:serviceId", isAuthenticated, hasRole("clinic"), serviceController.deleteService);
 
 module.exports = router;

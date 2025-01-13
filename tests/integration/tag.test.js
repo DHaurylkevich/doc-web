@@ -7,7 +7,7 @@ const { faker } = require('@faker-js/faker');
 const app = require("../../index");
 const db = require("../../src/models");
 
-describe("TagController API", () => {
+describe("Tag routes", () => {
     let fakeTag;
 
     beforeEach(async () => {
