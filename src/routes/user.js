@@ -25,7 +25,7 @@ router.get("/users/account", isAuthenticated, UserController.getUserAccount);
  * /users:
  *   put:
  *     summary: Обновить информацию
- *     description: Обновляет данные пользователя. Работает для всех субъектов связаныйх с user. doctorData нужен только для доктора
+ *     description: Обновляет данные пользователя. Работает для всех субъектов связаныйх с user
  *     tags: [Users]
  *     requestBody:
  *       description: Данные для обновления
