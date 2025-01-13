@@ -338,88 +338,88 @@ router.get("/clinics/cities", ClinicController.getAllCities);
  *         description: Клиника не найдена
  */
 router.get("/clinics/:clinicId", ClinicController.getFullClinic);
+/**
+ * @swagger
+ * /clinics/{clinicId}:
+ *   put:
+ *     summary: Обновить клинику
+ *     description: Обновляет существующую клинику по ее ID.
+ *     tags:
+ *       - Clinics
+ *     parameters:
+ *       - name: clinicId
+ *         in: path
+ *         required: true
+ *         description: ID клиники
+ *         schema:
+ *           type: integer
+ *           example: 3
+ *     requestBody:
+ *       description: Обновленные данные клиники
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: integer
+ *                 example: 1
+ *               photo:
+ *                 type: string
+ *                 example: "url"
+ *               name:
+ *                 type: string
+ *                 example: "Durka"
+ *               role:
+ *                 type: string
+ *                 example: "clinic"
+ *               nip:
+ *                 type: string
+ *                 example: "1234567890"
+ *               nr_license:
+ *                 type: string
+ *                 example: "NR-123456"
+ *               email:
+ *                 type: string
+ *                 example: "clinic@example.com"
+ *               phone:
+ *                     type: string
+ *                     example: "+123456789"
+ *               description:
+ *                 type: string
+ *                 example: "Descripcion clinic"
+ *               address:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   city:
+ *                     type: string
+ *                     example: "Novogrudok"
+ *                   street:
+ *                     type: string
+ *                     example: "st Lenina"
+ *                   province:
+ *                     type: string
+ *                     example: "Grodhno"
+ *                   home:
+ *                     type: string
+ *                     example: "10"
+ *                   flat:
+ *                     type: string
+ *                     example: "5"
+ *                   post_index:
+ *                     type: string
+ *                     example: "123456"
+ *     responses:
+ *       200:
+ *         description: Клиника успешно обновлена
+ */
+router.put("/clinics/:clinicId", ClinicController.updateClinicById);
 
 module.exports = router;
-// /**
-//  * @swagger
-//  * /clinics/{clinicId}:
-//  *   put:
-//  *     summary: Обновить клинику
-//  *     description: Обновляет существующую клинику по ее ID.
-//  *     tags:
-//  *       - Clinics
-//  *     parameters:
-//  *       - name: clinicId
-//  *         in: path
-//  *         required: true
-//  *         description: ID клиники
-//  *         schema:
-//  *           type: integer
-//  *           example: 3
-//  *     requestBody:
-//  *       description: Обновленные данные клиники
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             type: object
-//  *             properties:
-//  *               id:
-//  *                 type: integer
-//  *                 example: 1
-//  *               photo:
-//  *                 type: string
-//  *                 example: "url"
-//  *               name:
-//  *                 type: string
-//  *                 example: "Durka"
-//  *               role:
-//  *                 type: string
-//  *                 example: "clinic"
-//  *               nip:
-//  *                 type: string
-//  *                 example: "1234567890"
-//  *               nr_license:
-//  *                 type: string
-//  *                 example: "NR-123456"
-//  *               email:
-//  *                 type: string
-//  *                 example: "clinic@example.com"
-//  *               phone:
-//  *                     type: string
-//  *                     example: "+123456789"
-//  *               description:
-//  *                 type: string
-//  *                 example: "Descripcion clinic"
-//  *               address:
-//  *                 type: object
-//  *                 properties:
-//  *                   id:
-//  *                     type: integer
-//  *                     example: 1
-//  *                   city:
-//  *                     type: string
-//  *                     example: "Novogrudok"
-//  *                   street:
-//  *                     type: string
-//  *                     example: "st Lenina"
-//  *                   province:
-//  *                     type: string
-//  *                     example: "Grodhno"
-//  *                   home:
-//  *                     type: string
-//  *                     example: "10"
-//  *                   flat:
-//  *                     type: string
-//  *                     example: "5"
-//  *                   post_index:
-//  *                     type: string
-//  *                     example: "123456"
-//  *     responses:
-//  *       200:
-//  *         description: Клиника успешно обновлена
-//  */
-// router.put("/clinics/:clinicId", ClinicController.updateClinicById);
 // /**
 //  * @swagger
 //  * /clinics/{clinicId}:

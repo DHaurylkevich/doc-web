@@ -21,19 +21,11 @@ const UserController = {
         }
     },
     updateUser: async (req, res, next) => {
-        const { userData, addressData, doctorData } = req.body;
-        const user = req.user;
+        const { userData, addressData } = req.body;
+        const userId = req.user.id;
 
         try {
-            if ("password" in userData) {
-                delete userData.password;
-            }
-
-            if (user.role === "clinic") {
-                await ClinicService.updateClinic(user.id, userData, addressData);
-            } else {
-                await UserService.updateUser(user.id, userData, addressData, doctorData);
-            }
+            await UserService.updateUser(userId, userData, addressData);
             res.status(200).json({ message: "User update successfully" });
         } catch (err) {
             next(err);
@@ -41,14 +33,14 @@ const UserController = {
     },
     updateUserPassword: async (req, res, next) => {
         const { oldPassword, newPassword } = req.body;
-        const userId = req.user.id;
+        const user = req.user;
 
         try {
-            if (!userId || !oldPassword || !newPassword) {
+            if (!user || !oldPassword || !newPassword) {
                 throw new AppError("Valid data error", 400);
             }
 
-            await UserService.updatePassword(userId, oldPassword, newPassword);
+            await UserService.updatePassword(user, oldPassword, newPassword);
             res.status(200).json({ message: "Password changed successfully" });
         } catch (err) {
             next(err);
@@ -56,6 +48,7 @@ const UserController = {
     },
     deleteUser: async (req, res, next) => {
         const user = req.user;
+
         try {
             if (user.role === "clinic") {
                 await ClinicService.deleteClinicById(user.id);
@@ -63,7 +56,7 @@ const UserController = {
                 await UserService.deleteUserById(user.id);
             }
 
-            res.status(200).json({ message: "Successful delete" });
+            res.status(200).json({ message: "User deleted successfully" });
         } catch (err) {
             next(err);
         }

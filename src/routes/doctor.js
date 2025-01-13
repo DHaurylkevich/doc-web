@@ -543,5 +543,18 @@ router.put("/clinics/doctors/:doctorId", isAuthenticated, hasRole("clinic"), doc
  *                         example: "Associate"
  */
 router.get("/clinics/:clinicId/doctors", doctorController.getDoctorsByClinicWithSorting);
+//TODO: добавить отделный роут для обновления информации у доктора
+// *               doctorData:
+// *                 type: object
+// *                 description: Данные для доктора
+// *                 properties:
+// *                   hired_at:
+// *                     type: string
+// *                     format: date-time
+// *                     example: "2023-11-13T07:29:36.618Z"
+// *                   description:
+// *                     type: string
+// *                     example: "Corroboro avaritia pecto suadeo. Claudeo aestas comitatus. Benigne spargo appono denuncio terra."
+
 
 module.exports = router;

@@ -182,4 +182,5 @@ router.post("/forgot-password", AuthController.requestPasswordReset);
  *         description: Пароль был успешно сброшен
  */
 router.post("/set-password", AuthController.setPassword);
+
 module.exports = router;

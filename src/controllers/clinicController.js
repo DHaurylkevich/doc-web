@@ -50,19 +50,19 @@ const ClinicController = {
         } catch (error) {
             next(error);
         }
-    }
-    // updateClinicById: async (req, res, next) => {
-    //     const { clinicId } = req.params;
-    //     const { clinicData, addressData } = req.body;
+    },
+    updateClinicById: async (req, res, next) => {
+        const { clinicId } = req.params;
+        const { clinicData, addressData } = req.body;
 
-    //     try {
-    //         const updatedClinic = await ClinicService.updateClinic(clinicId, clinicData, addressData);
+        try {
+            const updatedClinic = await ClinicService.updateClinic(clinicId, clinicData, addressData);
 
-    //         res.status(200).json(updatedClinic);
-    //     } catch (err) {
-    //         next(err);
-    //     }
-    // },
+            res.status(200).json(updatedClinic);
+        } catch (err) {
+            next(err);
+        }
+    },
     // deleteClinic: async (req, res, next) => {
     //     const { clinicId } = req.params;
 

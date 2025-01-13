@@ -51,11 +51,18 @@ const ClinicService = {
         const clinic = await db.Clinics.findByPk(clinicId,
             {
                 attributes: { exclude: ["password", "createdAt", "updatedAt", "resetToken", "role", "feedbackRating"] },
-                include: [{
-                    model: db.Addresses,
-                    as: "address",
-                    attributes: { exclude: ["id", "createdAt", "updatedAt", "clinic_id", "user_id"] }
-                }]
+                include: [
+                    {
+                        model: db.Addresses,
+                        as: "address",
+                        attributes: { exclude: ["id", "createdAt", "updatedAt", "clinic_id", "user_id"] }
+                    },
+                    {
+                        model: db.Timetables,
+                        as: "timetables",
+                        attributes: { exclude: ["createdAt", "updatedAt", "clinic_id"] },
+                    }
+                ],
             }
         );
         if (!clinic) {
@@ -214,6 +221,10 @@ const ClinicService = {
         return { pages: totalPages, clinics: rows };
     },
     updateClinic: async (clinicId, clinicData, addressData) => {
+        if ("password" in clinicData) {
+            delete clinicData.password;
+        }
+
         const t = await sequelize.transaction();
 
         try {

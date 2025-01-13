@@ -10,7 +10,7 @@ const { validateRequest } = require("../middleware/errorHandler");
  * /tags:
  *   post:
  *     summary: Создает новый тэг
- *     tags:[Tags]
+ *     tags: [Tags]
  *     requestBody:
  *       description: Данные для создания тэга
  *       required: true

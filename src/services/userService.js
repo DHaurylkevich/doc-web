@@ -8,7 +8,7 @@ const sequelize = require("../config/db");
 
 const UserService = {
     createUser: async (userData, t) => {
-        const foundUser = await db.Users.findOne({ where: { pesel: userData.pesel } });
+        const foundUser = await db.Users.findOne({ where: { email: userData.email } });
         if (foundUser) {
             throw new AppError("User already exist", 404);
         }
@@ -65,19 +65,18 @@ const UserService = {
 
         return user;
     },
-    updateUser: async (userId, userData, addressData, doctorData) => {
+    updateUser: async (userId, userData, addressData) => {
+        if ("password" in userData) {
+            delete userData.password;
+        }
+
         const t = await sequelize.transaction();
         try {
             const user = await db.Users.findByPk(userId);
             await user.update(userData, { transaction: t });
 
-            const address = await user.getAddress();
-            await address.update(addressData, { transaction: t });
+            await db.Addresses.upsert({ ...addressData, user_id: user.id }, { transaction: t });
 
-            if (user.role === "doctor" || doctorData) {
-                const doctor = await user.getDoctor();
-                await doctor.update(doctorData, { transaction: t });
-            }
             await t.commit();
 
             return user;
@@ -100,19 +99,25 @@ const UserService = {
 
         await user.update({ photo: image }, { returning: true });
     },
-    updatePassword: async (userId, oldPassword, newPassword) => {
-        const user = await db.Users.findByPk(userId);
-        if (!user) {
+    updatePassword: async (user, oldPassword, newPassword) => {
+        const userId = user.id;
+        let entity;
+        if (user.role !== "clinic") {
+            entity = await db.Users.findByPk(userId);
+        } else {
+            entity = await db.Clinics.findByPk(userId);
+        }
+        if (!entity) {
             throw new AppError("User not found", 404);
         }
 
-        const match = await bcrypt.compare(oldPassword, user.password);
+        const match = await bcrypt.compare(oldPassword, entity.password);
         if (!match) {
             throw new AppError("Password Error", 400);
         };
 
         newPassword = await hashingPassword(newPassword);
-        return await user.update({ password: newPassword });
+        return await entity.update({ password: newPassword });
     },
     deleteUserById: async (userId) => {
         await db.Users.destroy({

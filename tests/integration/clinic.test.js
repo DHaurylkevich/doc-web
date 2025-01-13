@@ -20,7 +20,6 @@ describe("ClinicController API", () => {
             // email: "dhaurylkevich@gmail.com",
             phone: faker.phone.number({ style: 'international' }),
             password: faker.internet.password(),
-            province: faker.location.state(),
             description: faker.lorem.sentence(),
         };
         addressData = {

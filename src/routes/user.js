@@ -11,94 +11,24 @@ const upload = require("../middleware/upload").uploadImages;
  * /users/account:
  *   get:
  *     summary: Возвращает информацию о пользователе для всех субъектов
- *     description: Возвращает данные пользователя, включая его роль, на основе идентификатора
- *     operationId: getUserAccount
+ *     description: Возвращает данные пользователя, включая его роль, для всех субъектов patient, doctor, clinic, admin
  *     security:
  *      - CookieAuth: []
- *     tags:
- *       - Users
+ *     tags: [Users]
  *     responses:
  *       200:
- *         description: Информация о пользователе НЕ ТОЧНАЯ, там просто еще клиника 
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                   example: 16
- *                 photo:
- *                   type: string
- *                   example: null
- *                 first_name:
- *                   type: string
- *                   example: 'Buddy'
- *                 last_name:
- *                   type: string
- *                   example: 'Graham'
- *                 email:
- *                   type: string
- *                   example: 'Winnifred96@hotmail.com'
- *                 gender:
- *                   type: string
- *                   example: null
- *                 pesel:
- *                   type: string
- *                   example: '12345678901'
- *                 phone:
- *                   type: string
- *                   example: '+17326402141'
- *                 password:
- *                   type: string
- *                   example: '$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda'
- *                 role:
- *                   type: string
- *                   example: 'patient'
- *                 birthday:
- *                   type: string
- *                   format: date-time
- *                   example: '2024-11-21T03:54:11.313Z'
- *                 address:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
- *                     city:
- *                       type: string
- *                       example: "Novogrudok"
- *                     street:
- *                       type: string
- *                       example: "st Lenina"
- *                     province:
- *                       type: string
- *                       example: "Grodhno"
- *                     home:
- *                       type: string
- *                       example: "10"
- *                     flat:
- *                       type: string
- *                       example: "5"
- *                     post_index:
- *                       type: string
- *                       example: "123456"
- *       401:
- *         description: Unauthorized user
- *       404:
- *         description: Пользователь не найден
+ *         description: Информация о пользователе(patient, doctor, clinic, admin)
 */
 router.get("/users/account", isAuthenticated, UserController.getUserAccount);
 /**
  * @swagger
  * /users:
  *   put:
- *     summary: Обновить информацию о докторе, пациенте, клинике, админе
- *     description: Обновляет данные пользователя.
- *     tags:
- *       - Users
+ *     summary: Обновить информацию
+ *     description: Обновляет данные пользователя. Работает для всех субъектов связаныйх с user. doctorData нужен только для доктора
+ *     tags: [Users]
  *     requestBody:
- *       description: Данные для обновления доктора
+ *       description: Данные для обновления
  *       required: true
  *       content:
  *         application/json:
@@ -109,15 +39,28 @@ router.get("/users/account", isAuthenticated, UserController.getUserAccount);
  *                 type: object
  *                 description: Данные пользователя
  *                 properties:
+ *                   first_name:
+ *                     type: string
+ *                     example: "Ann"
+ *                   last_name:
+ *                     type: string
+ *                     example: "Kingin"
  *                   email:
  *                     type: string
  *                     example: "new_email@gmail.com"
+ *                   gender:
+ *                     type: string
+ *                     enum: ["male", "female"]
+ *                     example: "male"
+ *                   pesel:
+ *                     type: string
+ *                     example: "12345678901"
  *                   phone:
  *                     type: string
  *                     example: "+1234567890"
  *               addressData:
  *                 type: object
- *                 description: Адрес доктора
+ *                 description: Адрес
  *                 properties:
  *                   city:
  *                     type: string
@@ -137,17 +80,6 @@ router.get("/users/account", isAuthenticated, UserController.getUserAccount);
  *                   post_index:
  *                     type: string
  *                     example: "37428-7078"
- *               doctorData:
- *                 type: object
- *                 description: Данные доктора
- *                 properties:
- *                   hired_at:
- *                     type: string
- *                     format: date-time
- *                     example: "2023-11-13T07:29:36.618Z"
- *                   description:
- *                     type: string
- *                     example: "Corroboro avaritia pecto suadeo. Claudeo aestas comitatus. Benigne spargo appono denuncio terra."
  *     responses:
  *       200:
  *         description: Данные доктора успешно обновлены
@@ -168,9 +100,7 @@ router.put("/users", isAuthenticated, UserController.updateUser);
  *     summary: Обновить пароль пользователя
  *     security:
  *      - CookieAuth: []
- *     operationId: updateUserPassword
- *     tags:
- *       - Users
+ *     tags: [Users]
  *     requestBody:
  *       required: true
  *       content:
@@ -193,12 +123,6 @@ router.put("/users", isAuthenticated, UserController.updateUser);
  *                 message:
  *                   type: string
  *                   example: "Password changed successfully"
- *       401:
- *         description: Unauthorized user
- *       400:
- *         description: Password Error, Old password is required, New password is required, Password must be at least 8 characters
- *       404:
- *         description: User not found
  */
 router.put("/users/password", isAuthenticated, passwordValidation, validateRequest, UserController.updateUserPassword);
 /**
@@ -209,8 +133,7 @@ router.put("/users/password", isAuthenticated, passwordValidation, validateReque
  *     operationId: deleteUser
  *     security:
  *      - CookieAuth: []
- *     tags:
- *       - Users
+ *     tags: [Users]
  *     responses:
  *       200:
  *         description: Успешное удаление пользователя

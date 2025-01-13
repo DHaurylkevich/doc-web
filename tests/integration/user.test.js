@@ -8,35 +8,34 @@ const app = require("../../index");
 const db = require("../../src/models");
 const bcrypt = require("bcrypt");
 
-describe("UserController API", () => {
-    let userId, sessionCookies;
+describe("User routes", () => {
+    let fakeUserData;
 
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
+    beforeEach(() => {
+        fakeUserData = {
+            first_name: faker.person.firstName(),
+            email: faker.internet.email(),
+            pesel: 12345678901,
+            password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+            role: "patient",
+        }
     });
     afterEach(async () => {
         await db.Users.destroy({ where: {} });
+    });
+    after(async () => {
+        await db.sequelize.close();
+        app.close();
     });
 
     describe("Positive tests", () => {
         describe("GET /api/users/account", () => {
             it("expect to return user data, when user is not clinic", async () => {
-                const createdUser = await db.Users.create({
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email(),
-                    phone: faker.phone.number({ style: 'international' }),
-                    pesel: 12345678901,
-                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
-                    birthday: faker.date.past(30)
-                });
-                const userId = createdUser.id;
+                const testUser = await db.Users.create(fakeUserData);
                 const res = await request(app)
                     .post('/login')
                     .send({
-                        loginParam: fakeUser.email,
+                        loginParam: testUser.email,
                         password: "123456789"
                     })
                     .expect(200);
@@ -48,30 +47,27 @@ describe("UserController API", () => {
                     .set('Cookie', sessionCookies)
                     .expect(200);
 
-                expect(response.body).to.have.property("id", userId);
+                expect(response.body).to.have.property("id", testUser.id);
                 expect(response.body).to.have.property("first_name");
                 expect(response.body).to.have.property("address");
+                expect(response.body).to.not.have.property("password");
             });
             it("expect to return clinic data, when user is clinic", async () => {
-                const createdClinic = await db.Clinics.create({
+                const testClinic = await db.Clinics.create({
                     name: faker.company.buzzAdjective(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
                     nip: 1234567890,
                     nr_license: faker.vehicle.vin(),
                     email: faker.internet.email(),
                     phone: faker.phone.number({ style: 'international' }),
-                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    province: faker.location.state(),
-                    description: faker.lorem.sentence()
                 });
-                const clinicId = createdClinic.id;
                 const res = await request(app)
                     .post('/login')
                     .send({
-                        loginParam: createdClinic.email,
+                        loginParam: testClinic.email,
                         password: "123456789"
                     })
                     .expect(200);
-
                 expect(res.body).to.have.property("user");
                 const sessionCookies = res.headers['set-cookie'];
 
@@ -79,42 +75,82 @@ describe("UserController API", () => {
                     .get("/api/users/account")
                     .set('Cookie', sessionCookies)
                     .expect(200);
-                console.log(response.body);
-                expect(response.body).to.have.property("id", clinicId);
+
+                expect(response.body).to.have.property("id", testClinic.id);
                 expect(response.body).to.have.property("name");
-                expect(response.body).to.have.property("schedule");
+                expect(response.body).to.have.property("timetables");
                 expect(response.body).to.have.property("address");
+                expect(response.body).to.not.have.property("password");
+                await db.Clinics.destroy({ where: {} });
             });
         });
-        describe("PUT /api/users/password", () => {
-            let userId, sessionCookies;
-            beforeEach(async () => {
-                const fakeUser = {
+        describe("PUT /api/users", () => {
+            it("expect to update user data and return 'User update successfully', when data valid and it exists", async () => {
+                const updateData = {
                     first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
+                    last_name: faker.person.firstName(),
                     email: faker.internet.email(),
-                    phone: faker.phone.number({ style: 'international' }),
-                    pesel: 12345678901,
-                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
-                    birthday: faker.date.past(30)
+                    gender: "male",
+                    pesel: 12345678900,
+                    phone: faker.phone.number(),
+                    birthday: faker.date.birthdate(),
                 };
-                const createdUser = await db.Users.create(fakeUser);
-                userId = createdUser.id;
-
+                const addressData = {
+                    city: faker.location.city(),
+                    province: faker.location.state(),
+                    street: faker.location.street(),
+                    home: faker.location.buildingNumber(),
+                    flat: faker.location.secondaryAddress(),
+                    post_index: faker.location.zipCode(),
+                };
+                const testUser = await db.Users.create(fakeUserData);
                 const res = await request(app)
                     .post('/login')
                     .send({
-                        loginParam: fakeUser.email,
+                        loginParam: testUser.email,
                         password: "123456789"
                     })
                     .expect(200);
-
                 expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
 
-                sessionCookies = res.headers['set-cookie'];
+                const response = await request(app)
+                    .put(`/api/users`)
+                    .send({ userData: updateData, addressData })
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.deep.equals({ message: "User update successfully" });
+                const userInDb = await db.Users.findByPk(testUser.id);
+                expect(userInDb).to.have.property("first_name", updateData.first_name);
+                expect(userInDb).to.have.property("last_name", updateData.last_name);
+                expect(userInDb).to.have.property("email", updateData.email);
+                expect(userInDb).to.have.property("gender", updateData.gender);
+                expect(userInDb).to.have.property("pesel", updateData.pesel.toString());
+                expect(userInDb).to.have.property("phone", updateData.phone);
+                expect(userInDb.birthday).to.deep.equal(updateData.birthday);
+                const addressInDb = await userInDb.getAddress();
+                expect(addressInDb).to.have.property("city", addressData.city);
+                expect(addressInDb).to.have.property("province", addressData.province);
+                expect(addressInDb).to.have.property("street", addressData.street);
+                expect(addressInDb).to.have.property("home", addressData.home);
+                expect(addressInDb).to.have.property("flat", addressData.flat);
+                expect(addressInDb).to.have.property("post_index", addressData.post_index);
+                await db.Addresses.destroy({ where: {} });
             });
+        });
+        describe("PUT /api/users/password", () => {
             it("expect to update user password and return 'Password changed successfully', when data valid and it exists", async () => {
+                const testUser = await db.Users.create(fakeUserData);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
                 const newPassword = faker.internet.password();
 
                 const response = await request(app)
@@ -124,99 +160,124 @@ describe("UserController API", () => {
                     .expect(200);
 
                 expect(response.body).to.deep.equals({ message: "Password changed successfully" });
-                const userInDb = await db.Users.findByPk(userId);
+                const userInDb = await db.Users.findByPk(testUser.id);
                 expect(bcrypt.compareSync(newPassword, userInDb.password)).to.be.true;
             });
-        });
-        describe("DELETE /api/user/:id", () => {
-            let userId, sessionCookies;
-            beforeEach(async () => {
-                const fakeUser = {
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
+            it("expect to update clinic password and return 'Password changed successfully', when data valid and it exists", async () => {
+                const testClinic = await db.Clinics.create({
+                    name: faker.company.buzzAdjective(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    nip: 1234567890,
+                    nr_license: faker.vehicle.vin(),
                     email: faker.internet.email(),
                     phone: faker.phone.number({ style: 'international' }),
-                    pesel: 12345678901,
-                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
-                    birthday: faker.date.past(30)
-                };
-                const createdUser = await db.Users.create(fakeUser);
-                userId = createdUser.id;
-
+                });
                 const res = await request(app)
                     .post('/login')
                     .send({
-                        loginParam: fakeUser.email,
+                        loginParam: testClinic.email,
                         password: "123456789"
                     })
                     .expect(200);
-
                 expect(res.body).to.have.property("user");
-
-                sessionCookies = res.headers['set-cookie'];
-            });
-            it("expect delete user by id, when it exists", async () => {
-                const response = await request(app)
-                    .delete(`/api/users/${userId}`)
-                    .set('Cookie', sessionCookies)
-                    .expect(200);
-
-                expect(response.body).to.have.property("message", "Successful delete");
-                const userInDb = await db.Users.findByPk(userId);
-                expect(userInDb).to.be.null;
-            });
-        });
-    })
-    describe("Negative tests", () => {
-        describe("GET /api/users/:userId", () => {
-            let sessionCookies;
-            beforeEach(async () => {
-                const fakeUser = {
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email(),
-                    phone: faker.phone.number({ style: 'international' }),
-                    pesel: 12345678901,
-                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
-                    birthday: faker.date.past(30)
-                };
-                const createdUser = await db.Users.create(fakeUser);
-
-                const res = await request(app)
-                    .post('/login')
-                    .send({
-                        loginParam: fakeUser.email,
-                        password: "123456789"
-                    })
-                    .expect(200);
-
-                expect(res.body).to.have.property("user");
-
-                sessionCookies = res.headers['set-cookie'];
-            });
-            it("expect to return message: 'User not found', when user with id don't exist", async () => {
-                const response = await request(app)
-                    .get("/api/users/3")
-                    .set('Cookie', sessionCookies)
-                    .expect(404);
-
-                expect(response.body).to.have.property("message", "User not found");
-            });
-        });
-        describe("PUT /api/users/password", () => {
-            it("expect to return message: 'Unauthorized user', when user don't unauthorized", async () => {
-                const newPassword = "s";
+                const sessionCookies = res.headers['set-cookie'];
+                const newPassword = faker.internet.password();
 
                 const response = await request(app)
                     .put(`/api/users/password`)
                     .send({ oldPassword: "123456789", newPassword })
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.deep.equals({ message: "Password changed successfully" });
+                const userInDb = await db.Clinics.findByPk(testClinic.id);
+                expect(bcrypt.compareSync(newPassword, userInDb.password)).to.be.true;
+                await db.Clinics.destroy({ where: {} });
+            });
+        });
+        describe("DELETE /api/user", () => {
+            it("expect delete user, when it exists", async () => {
+                const testUser = await db.Users.create(fakeUserData);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
+                const response = await request(app)
+                    .delete(`/api/users`)
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("message", "User deleted successfully");
+                const userInDb = await db.Users.findByPk(testUser.id);
+                expect(userInDb).to.be.null;
+            });
+            it("expect delete clinic, when it exists", async () => {
+                const testClinic = await db.Clinics.create({
+                    name: faker.company.buzzAdjective(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    nip: 1234567890,
+                    nr_license: faker.vehicle.vin(),
+                    email: faker.internet.email(),
+                    phone: faker.phone.number({ style: 'international' }),
+                });
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testClinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
+                const response = await request(app)
+                    .delete(`/api/users`)
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("message", "User deleted successfully");
+                const userInDb = await db.Clinics.findByPk(testClinic.id);
+                expect(userInDb).to.be.null;
+                await db.Clinics.destroy({ where: {} });
+            });
+        });
+    })
+    describe("Negative tests", () => {
+        describe("GET /api/users/account", () => {
+            it("expect AppError('Unauthorized user'), when user is unauthorized", async () => {
+                const response = await request(app)
+                    .get("/api/users/account")
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
             });
-            it("expect to return message: 'Old password is required', when user with id don't exists", async () => {
+        });
+        describe("PUT /api/users/password", () => {
+            it("expect to return message: 'Unauthorized user', when user don't unauthorized", async () => {
+                const response = await request(app)
+                    .put(`/api/users/password`)
+                    .expect(401);
+
+                expect(response.body).to.have.property("message", "Unauthorized user");
+            });
+            it("expect AppError('Old password is required'), when oldPassword is not provided", async () => {
+                const testUser = await db.Users.create(fakeUserData);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
                 const response = await request(app)
                     .put(`/api/users/password`)
                     .send()
@@ -225,7 +286,18 @@ describe("UserController API", () => {
 
                 expect(response.body).to.have.property("message", "Old password is required");
             });
-            it("expect to return message: 'New password is required', when user with id don't exists", async () => {
+            it("expect AppError('New password is required'), when newPassword is not provided", async () => {
+                const testUser = await db.Users.create(fakeUserData);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
                 const response = await request(app)
                     .put(`/api/users/password`)
                     .send({ oldPassword: "123456789" })
@@ -234,7 +306,17 @@ describe("UserController API", () => {
 
                 expect(response.body).to.have.property("message", "New password is required");
             });
-            it("expect to return message: 'Password Error', when user with id don't exists", async () => {
+            it("expect AppError('Password Error'), when old password and new password are the same", async () => {
+                const testUser = await db.Users.create(fakeUserData);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
                 const newPassword = "123456789";
 
                 const response = await request(app)
@@ -246,10 +328,10 @@ describe("UserController API", () => {
                 expect(response.body).to.have.property("message", "Password Error");
             });
         });
-        describe("DELETE /api/user/:id", () => {
+        describe("DELETE /api/user", () => {
             it("expect to return message: 'Unauthorized user', when user don't unauthorized", async () => {
                 const response = await request(app)
-                    .delete(`/api/users/${userId}`)
+                    .delete(`/api/users`)
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
