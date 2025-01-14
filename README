@@ -40,14 +40,10 @@
 - socket.io-client
 
 ## Установка и настройка 
-
-### Шаг 1: Клонируем репозиторий
-    git clone ...
-### Шаг 2: Установка зависимости
-
-### Шаг 4: Запуск миграций базы данных
+### Запуск миграций базы данных
 npx sequelize-cli db:migration:all
 
+### Заполение базы данных
 npx sequelize-cli db:seed:all
 ## Использование 
 
@@ -64,8 +60,3 @@ npx sequelize-cli db:seed:all
     - `userController`
 
 ## Тесты
-
-## Планы по разработке
-обновить тип ID
--       type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4

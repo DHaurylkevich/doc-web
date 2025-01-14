@@ -2,19 +2,20 @@ const express = require("express");
 const router = express.Router();
 const ScheduleController = require("../controllers/scheduleController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
+const { createSchedule } = require("../utils/validation/scheduleValidator");
+const { validateRequest } = require("../middleware/errorHandler");
 
 /**
  * @swagger
- * /clinics/{clinicId}/schedules:
+ * /clinics/schedules:
  *   post:
  *     summary: Создание нового расписания
- *     description: Создает новое расписание для указанного врача и клиники.
- *     tags:
- *       - Schedules
+ *     description: Создает новое расписание для врача либо врачей
+ *     tags: [Schedules]
  *     parameters:
  *       - in: path
  *         name: clinicId
- *         description: ID клиники.
+ *         description: id клиники
  *         schema:
  *           type: integer
  *         example: 3
@@ -27,7 +28,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *             properties:
  *               doctorsIds:
  *                 type: array
- *                 description: Массив ID докторов
+ *                 description: Массив id докторов
  *                 items:
  *                   type: integer
  *                 example: [4]
@@ -36,7 +37,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *                 example: 30
  *               dates:
  *                 type: array
- *                 description: Массив ID докторов
+ *                 description: Массив дат
  *                 items:
  *                   type: string
  *                   format: date
@@ -51,19 +52,59 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *                 example: "12:00"
  *     responses:
  *       201:
- *         description: Расписание успешно создано.
- *       400:
- *         description: Ошибка создания расписания.
+ *         description: Расписание успешно создано
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   available_slots:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                       example: "09:00"
+ *                   id:
+ *                     type: integer
+ *                     example: 362
+ *                   interval:
+ *                     type: integer
+ *                     example: 30
+ *                   start_time:
+ *                     type: string
+ *                     format: time
+ *                     example: "09:00:00"
+ *                   end_time:
+ *                     type: string
+ *                     format: time
+ *                     example: "12:00:00"
+ *                   date:
+ *                     type: string
+ *                     format: date
+ *                     example: "2024-11-10"
+ *                   clinic_id:
+ *                     type: integer
+ *                     example: 187
+ *                   doctor_id:
+ *                     type: integer
+ *                     example: 197
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                     example: "2025-01-14T08:53:21.933Z"
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *                     example: "2025-01-14T08:53:21.933Z"
  */
-router.post("/clinics/:clinicId/schedules", isAuthenticated, hasRole("clinic"), ScheduleController.createSchedule)
+router.post("/clinics/schedules", createSchedule, validateRequest, isAuthenticated, hasRole("clinic"), ScheduleController.createSchedule)
 /**
  * @swagger
  * /schedules:
  *   get:
  *     summary: Получить расписание для DOCTOR, либо рассписание всех докторов для CLINIC
- *     description: Возвращает список расписаний для указанного доктора.
- *     tags:
- *       - Schedules
+ *     tags: [Schedules]
  *     parameters:
  *       - name: limit
  *         in: query
@@ -81,9 +122,7 @@ router.post("/clinics/:clinicId/schedules", isAuthenticated, hasRole("clinic"), 
  *           default: 1
  *     responses:
  *       200:
- *         description: Успешное получение расписания для доктора.
- *       400:
- *         description: Ошибка при получении расписания.
+ *         description: Успешное получение расписаний
  */
 router.get("/schedules", isAuthenticated, hasRole(["clinic", "doctor"]), ScheduleController.getScheduleByRole);
 /**
@@ -93,9 +132,7 @@ router.get("/schedules", isAuthenticated, hasRole(["clinic", "doctor"]), Schedul
  *      get:
  *       summary: Получить доступные слоты для записи
  *       description: Получает доступные слоты для записи с учетом фильтров.
- *       operationId: getAvailableSlotsWithFilter
- *       tags:
- *         - Schedules
+ *       tags: [Schedules]
  *       parameters:
  *         - name: city
  *           in: query
@@ -213,37 +250,71 @@ router.get("/schedules/available-slots", ScheduleController.getAvailableSlotsWit
  * @swagger
  * /schedules/{scheduleId}:
  *   get:
- *     summary: Получить расписание по ID
- *     description: Возвращает информацию о расписании по его ID.
+ *     summary: Получить расписание по id
  *     tags:
  *       - Schedules
  *     parameters:
  *       - in: path
  *         name: scheduleId
  *         required: true
- *         description: ID расписания.
+ *         description: ID расписания
  *         schema:
  *           type: integer
  *     responses:
  *       200:
- *         description: Успешное получение расписания.
- *       404:
- *         description: Расписание не найдено.
+ *         description: Успешное получение расписания
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 393
+ *                 interval:
+ *                   type: integer
+ *                   example: 30
+ *                 start_time:
+ *                   type: string
+ *                   format: time
+ *                   example: "09:00:00"
+ *                 end_time:
+ *                   type: string
+ *                   format: time
+ *                   example: "12:00:00"
+ *                 date:
+ *                   type: string
+ *                   format: date
+ *                   example: "2024-11-10"
+ *                 doctor:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 249
+ *                     user:
+ *                       type: object
+ *                       nullable: true
+ *                       example: null
+ *                 clinic:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                       example: "proactive"
  */
 router.get("/schedules/:scheduleId", ScheduleController.getScheduleById);
 /**
  * @swagger
  * /schedules/{scheduleId}:
  *   put:
- *     summary: Обновить расписание CLINIC
- *     description: Обновляет существующее расписание по его ID.
- *     tags:
- *       - Schedules
+ *     summary: Обновить расписание по id
+ *     tags: [Schedules]
  *     parameters:
  *       - in: path
  *         name: scheduleId
  *         required: true
- *         description: ID расписания для обновления.
+ *         description: ID расписания для обновления
  *         schema:
  *           type: integer
  *     requestBody:
@@ -267,11 +338,7 @@ router.get("/schedules/:scheduleId", ScheduleController.getScheduleById);
  *                 example: "13:00"
  *     responses:
  *       200:
- *         description: Расписание успешно обновлено.
- *       404:
- *         description: Расписание не найдено.
- *       400:
- *         description: Ошибка обновления расписания.
+ *         description: Расписание успешно обновлено
  */
 router.put("/schedules/:scheduleId", isAuthenticated, hasRole("clinic"), ScheduleController.updateSchedule);
 /**
@@ -297,6 +364,6 @@ router.put("/schedules/:scheduleId", isAuthenticated, hasRole("clinic"), Schedul
  *       400:
  *         description: Ошибка удаления расписания.
  */
-router.delete("/schedules/:scheduleId", ScheduleController.deleteSchedule);
+router.delete("/schedules/:scheduleId", isAuthenticated, hasRole("clinic"), ScheduleController.deleteSchedule);
 
 module.exports = router;

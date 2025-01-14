@@ -34,8 +34,7 @@ describe("ScheduleController API", () => {
         await db.Clinics.destroy({ where: {} });
     });
     describe("Positive tests", () => {
-
-        describe("POST /clinics/:clinicId/schedules/", () => {
+        describe("POST /clinics/schedules/", () => {
             let sessionCookies;
 
             beforeEach(async () => {
@@ -51,7 +50,7 @@ describe("ScheduleController API", () => {
 
                 sessionCookies = response.headers['set-cookie'];
             });
-            it("expect to create schedule for two doctors by clinic, when one date is set", async () => {
+            it("expect to create schedule for one doctor by clinic, when one date is set and interval is 30", async () => {
                 const testDoctor2 = await db.Doctors.create(fakeDoctor);
 
                 const scheduleData = {
@@ -63,12 +62,36 @@ describe("ScheduleController API", () => {
                 };
 
                 const response = await request(app)
-                    .post(`/api/clinics/${testClinic.id}/schedules/`)
+                    .post(`/api/clinics/schedules/`)
                     .send(scheduleData)
                     .set("Cookie", sessionCookies)
                     .expect(201);
 
                 expect(response.body.length).to.equal(scheduleData.doctorsIds.length);
+                expect(response.body[0].available_slots).to.length(6);
+                expect(response.body[0]).to.have.property("doctor_id", scheduleData.doctorsIds[0]);
+                expect(response.body[0]).to.have.property("interval", scheduleData.interval);
+                expect(response.body[0]).to.have.property("date", scheduleData.dates[0]);
+            });
+            it("expect to create schedule for one doctor by clinic, when one date is set and interval is 60", async () => {
+                const testDoctor2 = await db.Doctors.create(fakeDoctor);
+
+                const scheduleData = {
+                    doctorsIds: [testDoctor.id, testDoctor2.id,],
+                    interval: 60,
+                    dates: ["2024-11-10"],
+                    start_time: "09:00",
+                    end_time: "12:00",
+                };
+
+                const response = await request(app)
+                    .post(`/api/clinics/schedules/`)
+                    .send(scheduleData)
+                    .set("Cookie", sessionCookies)
+                    .expect(201);
+                console.log(response.body);
+                expect(response.body.length).to.equal(scheduleData.doctorsIds.length);
+                expect(response.body[0].available_slots).to.length(3);
                 expect(response.body[0]).to.have.property("doctor_id", scheduleData.doctorsIds[0]);
                 expect(response.body[0]).to.have.property("interval", scheduleData.interval);
                 expect(response.body[0]).to.have.property("date", scheduleData.dates[0]);
@@ -85,7 +108,7 @@ describe("ScheduleController API", () => {
                 };
 
                 const response = await request(app)
-                    .post(`/api/clinics/${testClinic.id}/schedules/`)
+                    .post(`/api/clinics/schedules/`)
                     .send(scheduleData)
                     .set("Cookie", sessionCookies)
                     .expect(201);
@@ -100,6 +123,147 @@ describe("ScheduleController API", () => {
                 expect(response.body[0]).to.have.property("interval", scheduleData.interval);
             });
         });
+        describe("GET /schedules", () => {
+            it("expect to get schedule for doctors by clinic, when it exists", async () => {
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testClinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+                const scheduleData = {
+                    doctor_id: testDoctor.id,
+                    clinic_id: testClinic.id,
+                    date: "2024-11-10",
+                    start_time: "09:00",
+                    end_time: "12:00",
+                    interval: 30,
+                };
+                const createdSchedule = await db.Schedules.create(scheduleData);
+
+                const response = await request(app)
+                    .get(`/api/schedules`)
+                    .set("Cookie", sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("schedule");
+                expect(response.body.schedule[0]).to.have.property("id", createdSchedule.id);
+                expect(response.body.schedule[0]).to.have.property("start_time", createdSchedule.start_time);
+                expect(response.body.schedule[0]).to.have.property("doctor");
+            });
+            it("expect to get empty array for clinic, when schedule doesn't exists", async () => {
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testClinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
+                const response = await request(app)
+                    .get(`/api/schedules`)
+                    .set("Cookie", sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("schedule");
+                expect(response.body.schedule).to.be.an('array').that.is.empty;
+            });
+            it("expect to get schedule for doctor, when it exists", async () => {
+                const fakeUser = {
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "doctor",
+                };
+                const testUser = await db.Users.create(fakeUser);
+                await testUser.setDoctor(testDoctor.id);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+                const scheduleData = {
+                    doctor_id: testDoctor.id,
+                    clinic_id: testClinic.id,
+                    date: "2024-11-10",
+                    start_time: "09:00",
+                    end_time: "12:00",
+                    interval: 30,
+                };
+                const createdSchedule = await db.Schedules.create(scheduleData);
+
+                const response = await request(app)
+                    .get(`/api/schedules`)
+                    .set("Cookie", sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("schedule");
+                expect(response.body.schedule[0]).to.have.property("id", createdSchedule.id);
+                expect(response.body.schedule[0]).to.have.property("start_time", createdSchedule.start_time);
+            });
+            it("expect to get empty array for doctor, when schedule doesn't exists", async () => {
+                const fakeUser = {
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "doctor",
+                };
+                const testUser = await db.Users.create(fakeUser);
+                await testUser.setDoctor(testDoctor.id);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
+                const response = await request(app)
+                    .get(`/api/schedules`)
+                    .set("Cookie", sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("schedule");
+                expect(response.body.schedule).to.be.an('array').that.is.empty;
+            });
+        });
+        // describe("GET /schedules/available-slots", () => {
+        //     it("expect to get available slots for appointment, when it exists", async () => {
+        //         const scheduleData = {
+        //             doctor_id: testDoctor.id,
+        //             clinic_id: testClinic.id,
+        //             date: "2024-11-10",
+        //             start_time: "09:00",
+        //             end_time: "12:00",
+        //             interval: 30,
+        //         };
+        //         const createdSchedule = await db.Schedules.create(scheduleData);
+
+        //         const response = await request(app)
+        //             .get(`/api/schedules/available-slots`)
+        //             .set("Cookie", sessionCookies)
+        //             .expect(200);
+
+        //         expect(response.body).to.have.property("pages");
+        //         expect(response.body).to.have.property("schedule");
+        //         expect(response.body.schedule[0]).to.have.property("id", createdSchedule.id);
+        //         expect(response.body.schedule[0]).to.have.property("start_time", createdSchedule.start_time);
+        //         expect(response.body.schedule[0]).to.have.property("doctor");
+        //     });
+        // });
         describe("GET /schedules/:scheduleId", () => {
             it("expect to get schedule by id, when it exists", async () => {
                 const scheduleData = {
@@ -115,86 +279,23 @@ describe("ScheduleController API", () => {
                 const response = await request(app)
                     .get(`/api/schedules/${createdSchedule.id}`)
                     .expect(200);
-
-                expect(response.body.id).to.deep.equals(createdSchedule.id);
-                expect(response.body.doctor_id).to.deep.equals(createdSchedule.doctor_id);
+                console.log(response.body)
+                expect(response.body).to.have.property("id", createdSchedule.id);
+                expect(response.body).to.have.property("doctor");
+                expect(response.body).to.have.property("clinic");
             });
         });
-        describe("GET /doctors/:doctorId/schedules", () => {
-            it("expect to get schedule by doctorId, when it exists", async () => {
-                const scheduleData = {
-                    doctor_id: testDoctor.id,
-                    clinic_id: testClinic.id,
-                    date: "2024-11-10",
-                    start_time: "09:00",
-                    end_time: "12:00",
-                    interval: 30,
-                };
-                const createdSchedule = await db.Schedules.create(scheduleData);
-
-                const response = await request(app)
-                    .get(`/api/doctors/${testDoctor.id}/schedules/`)
-                    .expect(200);
-                console.log(response.body);
-
-                expect(response.body[0].id).to.equals(createdSchedule.id);
-                expect(response.body[0].doctor_id).to.deep.equals(createdSchedule.doctor_id);
-            });
-            it("expect empty array, when schedule doesn't exist", async () => {
-                const response = await request(app)
-                    .get(`/api/doctors/${testDoctor.id}/schedules/`)
-                    .expect(200);
-                console.log(response.body);
-
-                expect(response.body).to.be.an("array");
-            });
-        });
-        describe("GET /clinics/:doctorId/schedules", () => {
-            it("expect to get schedule by clinicId, when it exists", async () => {
-                const scheduleData = {
-                    doctor_id: testDoctor.id,
-                    clinic_id: testClinic.id,
-                    date: "2024-11-10",
-                    start_time: "09:00",
-                    end_time: "12:00",
-                    interval: 30,
-                };
-                const createdSchedule = await db.Schedules.create(scheduleData);
-
-                const response = await request(app)
-                    .get(`/api/clinics/${testClinic.id}/schedules/`)
-                    .expect(200);
-                console.log(response.body);
-
-                expect(response.body[0].id).to.equals(createdSchedule.id);
-                expect(response.body[0].clinic_id).to.deep.equals(createdSchedule.clinic_id);
-            });
-            it("expect empty array, when schedule doesn't exist", async () => {
-                const response = await request(app)
-                    .get(`/api/clinics/${testClinic.id}/schedules/`)
-                    .expect(200);
-                console.log(response.body);
-
-                expect(response.body).to.be.an("array");
-            });
-        });
-        describe("PUT /schedules/:id", () => {
-            let sessionCookies;
-
-            beforeEach(async () => {
-                const response = await request(app)
+        describe("PUT /schedules/:scheduleId", () => {
+            it("expect to update schedule, when it exists", async () => {
+                const res = await request(app)
                     .post('/login')
                     .send({
                         loginParam: testClinic.email,
                         password: "123456789"
                     })
                     .expect(200);
-
-                expect(response.body).to.have.property("user");
-
-                sessionCookies = response.headers['set-cookie'];
-            });
-            it("expect to update schedule, when it exists", async () => {
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
                 const scheduleData = {
                     doctor_id: testDoctor.id,
                     clinic_id: testClinic.id,
@@ -221,8 +322,17 @@ describe("ScheduleController API", () => {
                 expect(response.body.interval).to.equal(updateData.interval);
             });
         });
-        describe("DELETE /schedules/:id", () => {
+        describe("DELETE /schedules/:scheduleId", () => {
             it("expect to delete schedule, when it exists", async () => {
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testClinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
                 const scheduleData = {
                     doctor_id: testDoctor.id,
                     clinic_id: testClinic.id,
@@ -234,31 +344,17 @@ describe("ScheduleController API", () => {
 
                 const response = await request(app)
                     .delete(`/api/schedules/${createdSchedule.id}`)
+                    .set("Cookie", sessionCookies)
                     .expect(200);
 
-                expect(response.body).to.have.property("message", "Successful delete");
+                expect(response.body).to.have.property("message", "Schedule deleted successfully");
                 const schedule = await db.Schedules.findByPk(createdSchedule.id)
                 expect(schedule).to.not.exist;
             });
         });
     });
     describe("Negative tests", () => {
-        describe("POST /clinics/:clinicId/schedules/", () => {
-            let sessionCookies;
-
-            beforeEach(async () => {
-                const response = await request(app)
-                    .post('/login')
-                    .send({
-                        loginParam: testClinic.email,
-                        password: "123456789"
-                    })
-                    .expect(200);
-
-                expect(response.body).to.have.property("user");
-
-                sessionCookies = response.headers['set-cookie'];
-            });
+        describe("POST /clinics/schedules", () => {
             it("expect AppError('Unauthorized user'), when user don't unauthorize", async () => {
                 const testDoctor2 = await db.Doctors.create(fakeDoctor);
 
@@ -271,24 +367,28 @@ describe("ScheduleController API", () => {
                 };
 
                 const response = await request(app)
-                    .post(`/api/clinics/${testClinic.id}/schedules/`)
+                    .post(`/api/clinics/schedules`)
                     .send(scheduleData)
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
             });
-            it("expect AppError('Clinic authorized error'), when doctor doesn't exist", async () => {
-                const id = testClinic.id + 1;
-
-                const response = await request(app)
-                    .post(`/api/clinics/${id}/schedules/`)
-                    .send("test")
-                    .set("Cookie", sessionCookies)
-                    .expect(401);
-
-                expect(response.body).to.have.property("message", "Clinic authorized error");
-            });
-            it("expect AppError('One or more doctors not found'), when doctor doesn't exist", async () => {
+            it("expect AppError('Access denied'), when user role isn't 'clinic'", async () => {
+                const fakeUser = {
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "admin",
+                };
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
                 const scheduleData = {
                     doctorsIds: [1],
                     interval: 30,
@@ -298,7 +398,33 @@ describe("ScheduleController API", () => {
                 };
 
                 const response = await request(app)
-                    .post(`/api/clinics/${testClinic.id}/schedules/`)
+                    .post(`/api/clinics/schedules/`)
+                    .send(scheduleData)
+                    .set("Cookie", sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property("message", "Access denied");
+            });
+            it("expect AppError('One or more doctors not found'), when doctor doesn't exist", async () => {
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testClinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+                const scheduleData = {
+                    doctorsIds: [1],
+                    interval: 30,
+                    dates: ["2024-11-10"],
+                    start_time: "09:00",
+                    end_time: "12:00",
+                };
+
+                const response = await request(app)
+                    .post(`/api/clinics/schedules/`)
                     .send(scheduleData)
                     .set("Cookie", sessionCookies)
                     .expect(404);
@@ -306,6 +432,15 @@ describe("ScheduleController API", () => {
                 expect(response.body).to.have.property("message", "One or more doctors not found");
             });
             it("expect AppError('One or more schedules already exist'), when schedule exists", async () => {
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testClinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
                 const scheduleData = {
                     doctorsIds: [testDoctor.id],
                     interval: 30,
@@ -313,14 +448,10 @@ describe("ScheduleController API", () => {
                     start_time: "09:00",
                     end_time: "12:00",
                 };
-                await request(app)
-                    .post(`/api/clinics/${testClinic.id}/schedules/`)
-                    .send(scheduleData)
-                    .set("Cookie", sessionCookies)
-                    .expect(201);
+                await db.Schedules.create({ doctor_id: testDoctor.id, clinic_id: testClinic.id, interval: 30, date: "2024-11-10", start_time: "09:00", end_time: "12:00" });
 
                 const response = await request(app)
-                    .post(`/api/clinics/${testClinic.id}/schedules/`)
+                    .post(`/api/clinics/schedules/`)
                     .send(scheduleData)
                     .set("Cookie", sessionCookies)
                     .expect(400);
@@ -328,7 +459,40 @@ describe("ScheduleController API", () => {
                 expect(response.body).to.have.property("message", "One or more schedules already exist");
             });
         });
-        describe("GET /schedules/:id", () => {
+        describe("GET /schedules", () => {
+            it("expect AppError('Unauthorized user'), when user don't unauthorize", async () => {
+                const response = await request(app)
+                    .get(`/api/schedules`)
+                    .expect(401);
+
+                expect(response.body).to.have.property("message", "Unauthorized user");
+            });
+            it("expect AppError('Access denied'), when user role isn't 'clinic'", async () => {
+                const fakeUser = {
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "admin",
+                };
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
+                const response = await request(app)
+                    .get(`/api/schedules`)
+                    .set("Cookie", sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property("message", "Access denied");
+            });
+        });
+        describe("GET /schedules/:scheduleId", () => {
             it("expect AppError('Schedule not found'), when schedule doesn't exist", async () => {
                 const response = await request(app)
                     .get("/api/schedules/1")
@@ -337,44 +501,103 @@ describe("ScheduleController API", () => {
                 expect(response.body).to.have.property("message", "Schedule not found");
             });
         });
-        describe("PUT /schedules/:id", () => {
-            let sessionCookies;
-
-            beforeEach(async () => {
+        describe("PUT /schedules/:scheduleId", () => {
+            it("expect AppError('Unauthorized user'), when user don't unauthorize", async () => {
                 const response = await request(app)
+                    .put("/api/schedules/1")
+                    .expect(401);
+
+                expect(response.body).to.have.property("message", "Unauthorized user");
+            });
+            it("expect AppError('Access denied'), when user role isn't 'clinic'", async () => {
+                const fakeUser = {
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "admin",
+                };
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
+                const response = await request(app)
+                    .put("/api/schedules/1")
+                    .set("Cookie", sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property("message", "Access denied");
+            });
+            it("expect AppError('Schedule not found'), when schedule doesn't exist", async () => {
+                const res = await request(app)
                     .post('/login')
                     .send({
                         loginParam: testClinic.email,
                         password: "123456789"
                     })
                     .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
 
-                expect(response.body).to.have.property("user");
-
-                sessionCookies = response.headers['set-cookie'];
-            });
-            it("expect AppError('Schedule not found'), when schedule doesn't exist", async () => {
                 const response = await request(app)
                     .put("/api/schedules/1")
-                    .send()
                     .set("Cookie", sessionCookies)
                     .expect(404);
 
                 expect(response.body).to.have.property("message", "Schedule not found");
             });
-            it("expect AppError('Unauthorized user'), when schedule doesn't exist", async () => {
+        });
+        describe("DELETE /schedules/:scheduleId", () => {
+            it("expect AppError('Unauthorized user'), when user don't unauthorize", async () => {
                 const response = await request(app)
-                    .put("/api/schedules/1")
-                    .send()
+                    .delete("/api/schedules/1")
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
             });
-        });
-        describe("DELETE /schedules/:id", () => {
-            it("expect AppError('Schedule not found'), when schedule doesn't exist", async () => {
+            it("expect AppError('Access denied'), when user role isn't 'clinic'", async () => {
+                const fakeUser = {
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "admin",
+                };
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
                 const response = await request(app)
                     .delete("/api/schedules/1")
+                    .set("Cookie", sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property("message", "Access denied");
+            });
+            it("expect AppError('Schedule not found'), when schedule doesn't exist", async () => {
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testClinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
+                const response = await request(app)
+                    .delete("/api/schedules/1")
+                    .set("Cookie", sessionCookies)
                     .expect(404);
 
                 expect(response.body).to.have.property("message", "Schedule not found");

@@ -51,16 +51,26 @@ const ScheduleService = {
             throw err;
         }
     },
-    getScheduleById: async (id) => {
-        const schedule = await db.Schedules.findByPk(id, {
+    getScheduleById: async (scheduleId) => {
+        const schedule = await db.Schedules.findByPk(scheduleId, {
+            attributes: ["id", "interval", "start_time", "end_time", "date"],
             include: [
                 {
                     model: db.Doctors,
-                    as: "doctor"
+                    as: "doctor",
+                    attributes: ["id"],
+                    include: [
+                        {
+                            model: db.Users,
+                            as: "user",
+                            attributes: ["first_name", "last_name", "photo"]
+                        }
+                    ],
                 },
                 {
                     model: db.Clinics,
-                    as: "clinic"
+                    as: "clinic",
+                    attributes: ["name"]
                 }
             ]
         });
@@ -71,19 +81,18 @@ const ScheduleService = {
 
         return schedule;
     },
-    updateSchedule: async (id, data) => {
-        let schedule = await db.Schedules.findByPk(id);
+    updateSchedule: async (clinicId, scheduleId, data) => {
+        let schedule = await db.Schedules.findOne({ where: { clinic_id: clinicId, id: scheduleId } });
 
         if (!schedule) {
             throw new AppError("Schedule not found", 404);
         }
 
         schedule = await schedule.update(data);
-
-        return schedule;
+        return { id: schedule.id, available_slots: schedule.available_slots, interval: schedule.interval, date: schedule.date, start_time: schedule.start_time, end_time: schedule.end_time };
     },
-    deleteSchedule: async (id) => {
-        let schedule = await db.Schedules.findByPk(id);
+    deleteSchedule: async (clinicId, scheduleId) => {
+        let schedule = await db.Schedules.findOne({ where: { clinic_id: clinicId, id: scheduleId } });
 
         if (!schedule) {
             throw new AppError("Schedule not found", 404);
@@ -97,8 +106,8 @@ const ScheduleService = {
         const { rows, count } = await db.Schedules.findAndCountAll({
             limit: parsedLimit,
             offset: offset,
-            attributes: { exclude: ["createdAt", "updatedAt", "clinic_id", "available_slots"] },
-            where: { doctor_id: doctorId }
+            where: { doctor_id: doctorId },
+            attributes: { exclude: ["createdAt", "updatedAt", "clinic_id", "available_slots", "doctor_id"] },
         });
 
         const totalPages = getTotalPages(count, parsedLimit, page);
@@ -111,8 +120,8 @@ const ScheduleService = {
         const { rows, count } = await db.Schedules.findAndCountAll({
             limit: parsedLimit,
             offset: offset,
-            attributes: { exclude: ["createdAt", "updatedAt", "doctor_id", "available_slots"] },
             where: { clinic_id: clinicId },
+            attributes: { exclude: ["createdAt", "updatedAt", "doctor_id", "available_slots", "clinic_id"] },
             include: [
                 {
                     model: db.Doctors,

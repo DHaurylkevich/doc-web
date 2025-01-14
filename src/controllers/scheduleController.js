@@ -27,9 +27,10 @@ const ScheduleController = {
     updateSchedule: async (req, res, next) => {
         const { scheduleId } = req.params;
         const updateData = req.body;
+        const clinicId = req.user.id;
 
         try {
-            const updatedSchedule = await ScheduleService.updateSchedule(scheduleId, updateData);
+            const updatedSchedule = await ScheduleService.updateSchedule(clinicId, scheduleId, updateData);
             return res.status(200).json(updatedSchedule);
         } catch (err) {
             next(err);
@@ -37,10 +38,11 @@ const ScheduleController = {
     },
     deleteSchedule: async (req, res, next) => {
         const { scheduleId } = req.params;
+        const clinicId = req.user.id;
 
         try {
-            await ScheduleService.deleteSchedule(scheduleId);
-            res.status(200).json({ message: "Successful delete" });
+            await ScheduleService.deleteSchedule(clinicId, scheduleId);
+            res.status(200).json({ message: "Schedule deleted successfully" });
         } catch (err) {
             next(err);
         }
