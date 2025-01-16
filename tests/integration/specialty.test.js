@@ -21,6 +21,11 @@ describe("Specialty routes", () => {
         await db.Services.destroy({ where: {} });
         await db.Clinics.destroy({ where: {} });
     });
+    after(async () => {
+        await db.sequelize.close();
+        app.close();
+    });
+
     describe("Positive tests", () => {
         describe("POST /api/specialties", () => {
             let sessionCookies;

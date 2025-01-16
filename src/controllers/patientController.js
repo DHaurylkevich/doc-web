@@ -23,11 +23,11 @@ const PatientController = {
         }
     },
     getPatientsFilter: async (req, res, next) => {
-        const { sort, limit, page, doctorId, clinicId } = req.query;
+        const { sort, limit, page } = req.query;
         const user = req.user;
 
         try {
-            const patients = await PatientService.getPatientsByParam({ sort, limit, page, doctorId, clinicId, user });
+            const patients = await PatientService.getPatientsByParam({ sort, limit, page, user });
             res.status(200).json(patients)
         } catch (err) {
             next(err);

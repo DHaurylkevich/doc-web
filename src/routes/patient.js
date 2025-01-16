@@ -2,8 +2,13 @@ const express = require("express");
 const router = express.Router();
 const patientController = require("../controllers/patientController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
-// const { dataExistValidation } = require('../utils/validation/userValidation');
-// const { validateRequest } = require('../middleware/errorHandler');
+
+//  *       - name: doctorId
+//  *         in: query
+//  *         required: false
+//  *         schema:
+//  *           type: integer
+//  *         description: ID доктора может вписывать клиника, чтобы узнать пациентов соего врача
 
 /**
  * @swagger
@@ -19,8 +24,8 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *         required: false
  *         schema:
  *           type: string
- *           enum: [ASC, DESC]
- *           example: "ASC"
+ *           enum: [asc, desc]
+ *           example: "asc"
  *         description: Сортировка по дате создания
  *       - name: limit
  *         in: query
@@ -36,18 +41,6 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *         schema:
  *           type: integer
  *           default: 1
- *       - name: doctorId
- *         in: query
- *         required: false
- *         schema:
- *           type: integer
- *         description: ID доктора
- *       - name: clinicId
- *         in: query
- *         required: false
- *         schema:
- *           type: integer
- *         description: ID клиники
  *     responses:
  *       200:
  *         description: Успешное получение списка пациентов
@@ -70,7 +63,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *                       last_name:
  *                         type: string
  */
-router.get("/patients", isAuthenticated, hasRole(["doctor", "admin", "clinic"]), patientController.getPatientsFilter);
+router.get("/patients", isAuthenticated, hasRole(["doctor", "clinic"]), patientController.getPatientsFilter);
 /**
  * @swagger
  * /patients/{patientId}:

@@ -46,11 +46,11 @@ const PatientService = {
         }
     },
     getPatientById: async (patientId, user) => {
-        const appointmentWhere = user.role === "clinic" ? { clinic_id: user.id } : {}
+        // const appointmentWhere = user.role === "clinic" ? { clinic_id: user.id } : {}
         const doctorServiceWhere = user.role === "doctor" ? { doctor_id: user.roleId } : {}
 
         const patient = await db.Appointments.findOne({
-            where: appointmentWhere,
+            // where: appointmentWhere,
             attributes: [],
             include: [
                 {
@@ -87,19 +87,20 @@ const PatientService = {
         }
         return patient;
     },
-    getPatientsByParam: async ({ sort, limit, page, doctorId, clinicId, user }) => {
+    getPatientsByParam: async ({ sort, limit, page, user }) => {
+        let clinicId, doctorId;
         if (user.role === "doctor") {
             doctorId = user.roleId;
             clinicId = null;
         } else if (user.role === "clinic") {
-            clinicId = user.roleId;
+            clinicId = user.id;
         }
 
         if (!doctorId && !clinicId) {
             throw new AppError("Either doctorId or clinicId is required", 400);
         }
 
-        const sortOptions = [{ model: db.Patients, as: "patient" }, { model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"];
+        const sortOptions = [{ model: db.Patients, as: "patient" }, { model: db.Users, as: "user" }, "first_name", sort === "asc" ? "ASC" : "DESC"];
         const appointmentWhere = clinicId ? { clinic_id: clinicId } : {};
         const doctorServiceWhere = doctorId ? { doctor_id: doctorId } : {};
 
@@ -142,10 +143,6 @@ const PatientService = {
         });
 
         const totalPages = getTotalPages(count, parsedLimit, page);
-
-        if (!rows.length) {
-            return { pages: 0, patients: [] };
-        }
 
         return { pages: totalPages, patients: rows };
     },

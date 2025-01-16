@@ -21,6 +21,10 @@ describe("Service routes", () => {
         await db.Clinics.destroy({ where: {} });
         await db.Services.destroy({ where: {} });
     });
+    after(async () => {
+        await db.sequelize.close();
+        app.close();
+    });
 
     describe("Positive tests", () => {
         describe("POST /api/clinics/services", () => {

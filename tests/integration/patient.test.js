@@ -6,8 +6,8 @@ const { faker } = require('@faker-js/faker');
 const app = require("../../index");
 const db = require("../../src/models");
 
-describe("PatientController API", () => {
-    let fakeUser, createdUser, patient, fakeAddress;
+describe("Patient routes", () => {
+    let fakeUser;
 
     beforeEach(async () => {
         fakeUser = {
@@ -15,43 +15,25 @@ describe("PatientController API", () => {
             last_name: faker.person.lastName(),
             email: faker.internet.email(),
             password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-            role: "patient",
+            role: "doctor",
             birthday: faker.date.past(30)
         };
-        fakeAddress = { city: faker.location.city(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode(), province: faker.location.state() };
-
-        createdUser = await db.Users.create(fakeUser);
-        patient = await createdUser.createPatient();
-        await createdUser.createAddress(fakeAddress);
-        userId = createdUser.id;
-
-        const res = await request(app)
-            .post('/login')
-            .send({
-                loginParam: fakeUser.email,
-                password: "123456789"
-            })
-            .expect(200);
-
-        expect(res.body).to.have.property("user");
-
-        sessionCookies = res.headers['set-cookie'];
     });
     afterEach(async () => {
         await db.Patients.destroy({ where: {} });
         await db.Users.destroy({ where: {} });
-        await db.Addresses.destroy({ where: {} });
-        await db.DoctorService.destroy({ where: {} });
-        await db.Services.destroy({ where: {} });
-        await db.Doctors.destroy({ where: {} });
+        await db.Appointments.destroy({ where: {} });
+    });
+    after(async () => {
+        await db.sequelize.close();
+        app.close();
     });
 
     describe("Positive tests", () => {
         describe("GET /api/patients", () => {
-            let doctor, clinic, appointment, doctorService;
-
+            let testClinic, testService, testPatient, createdUser;
             beforeEach(async () => {
-                const fakeUser2 = {
+                const fakeUser = {
                     first_name: faker.person.firstName(),
                     last_name: faker.person.lastName(),
                     email: faker.internet.email(),
@@ -59,116 +41,129 @@ describe("PatientController API", () => {
                     pesel: 12345678981,
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
                     role: "patient",
-                    birthday: faker.date.past(30)
                 };
-                const fakeAddress2 = { city: faker.location.city(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode(), province: faker.location.state() };
-
-                const createdUser2 = await db.Users.create(fakeUser2);
-                patient = await createdUser2.createPatient();
-                await createdUser2.createAddress(fakeAddress2);
-                userId = createdUser2.id;
-
-                doctor = await db.Doctors.create({
-                    description: faker.lorem.sentence()
-                });
-                clinic = await db.Clinics.create({
+                createdUser = await db.Users.create(fakeUser);
+                testPatient = await createdUser.createPatient();
+                const fakeClinic = {
                     name: faker.company.name(),
-                    password: faker.internet.password(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
                     nip: faker.number.int({ min: 1000000000, max: 9999999999 }),
                     nr_license: faker.vehicle.vin(),
                     email: faker.internet.email(),
                     phone: faker.phone.number({ style: 'international' }),
-                });
-
-                service = await db.Services.create({
+                };
+                testClinic = await db.Clinics.create(fakeClinic);
+                testService = await db.Services.create({
                     name: 'Test Service',
                     description: 'Test Service Description',
                     price: 100
                 });
-
-                doctorService = await db.DoctorService.create({
-                    doctor_id: doctor.id,
-                    service_id: service.id
-                });
-
-                appointment = await db.Appointments.create({
-                    time_slot: "10:00",
-                    patient_id: patient.id,
-                    doctor_service_id: doctorService.id,
-                    clinic_id: clinic.id,
-                    appointment_date: new Date()
-                });
             });
             afterEach(async () => {
-                await db.Appointments.destroy({ where: {} });
+                await db.DoctorService.destroy({ where: {} });
+                await db.Services.destroy({ where: {} });
+                await db.Doctors.destroy({ where: {} });
+            });
+            it("expect to return patients by doctor, when they exist", async () => {
+                const testUser = await db.Users.create(fakeUser);
+                const testDoctor = await testUser.createDoctor();
+                const testDoctorService = await db.DoctorService.create({ doctor_id: testDoctor.id, service_id: testService.id });
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+                await db.Appointments.create({
+                    time_slot: "10:00",
+                    patient_id: testPatient.id,
+                    doctor_service_id: testDoctorService.id,
+                    clinic_id: testClinic.id,
+                    appointment_date: new Date()
+                });
+
+                const response = await request(app)
+                    .get("/api/patients")
+                    .query({
+                        sort: 'asc',
+                        limit: 10,
+                        pages: 0,
+                    })
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("patients").to.be.an("array");
+                expect(response.body.patients[0].patient.user).to.have.property("first_name", createdUser.first_name);
+            });
+            it("expect to return patients by clinic, when they exist", async () => {
+                const testUser = await db.Users.create(fakeUser);
+                const testDoctor = await testUser.createDoctor();
+                const testDoctorService = await db.DoctorService.create({ doctor_id: testDoctor.id, service_id: testService.id });
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testClinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+                await db.Appointments.create({
+                    time_slot: "10:00",
+                    patient_id: testPatient.id,
+                    doctor_service_id: testDoctorService.id,
+                    clinic_id: testClinic.id,
+                    appointment_date: new Date()
+                });
+
+                const response = await request(app)
+                    .get("/api/patients")
+                    .query({
+                        sort: 'asc',
+                        limit: 10,
+                        pages: 0,
+                    })
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("patients").to.be.an("array");
+                expect(response.body.patients[0].patient.user).to.have.property("first_name", createdUser.first_name);
                 await db.Clinics.destroy({ where: {} });
             });
-
-            it("should return patients filtered by doctorId", async () => {
-                await db.Appointments.create({
-                    time_slot: "10:00",
-                    patient_id: patient.id,
-                    doctor_service_id: doctorService.id,
-                    clinic_id: clinic.id,
-                    appointment_date: new Date()
-                });
-
-                const response = await request(app)
-                    .get("/api/patients")
-                    .query({
-                        sort: 'asc',
-                        limit: 10,
-                        pages: 0,
-                        doctorId: doctor.id
-                    })
-                    .set('Cookie', sessionCookies)
-                    .expect(200);
-
-                expect(response.body).to.be.an('array');
-                expect(response.body).to.have.lengthOf(2);
-                expect(response.body[0].patient.user.id).to.equal(userId);
-            });
-            it("should return patients filtered by clinicId", async () => {
-                const doctor2 = await db.Doctors.create({
-                    description: faker.lorem.sentence()
-                });
-                const doctorService2 = await db.DoctorService.create({
-                    doctor_id: doctor2.id,
-                    service_id: service.id
-                });
-                await db.Appointments.create({
-                    time_slot: "10:00",
-                    patient_id: patient.id,
-                    doctor_service_id: doctorService2.id,
-                    clinic_id: clinic.id,
-                    appointment_date: new Date()
-                });
-
-                const response = await request(app)
-                    .get("/api/patients")
-                    .query({
-                        sort: 'asc',
-                        limit: 10,
-                        pages: 0,
-                        clinicId: clinic.id
-                    })
-                    .set('Cookie', sessionCookies)
-                    .expect(200);
-
-                expect(response.body).to.be.an('array');
-                expect(response.body).to.have.lengthOf(2);
-                expect(response.body[0].patient.user.id).to.equal(userId);
-            });
             it("should return patients sorted in descending order", async () => {
-                fakeUser.first_name = "ZZZ";
+                const testUser = await db.Users.create(fakeUser);
+                const testDoctor = await testUser.createDoctor();
+                const testDoctorService = await db.DoctorService.create({ doctor_id: testDoctor.id, service_id: testService.id });
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testClinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+                await db.Appointments.create({
+                    time_slot: "10:00",
+                    patient_id: testPatient.id,
+                    doctor_service_id: testDoctorService.id,
+                    clinic_id: testClinic.id,
+                    appointment_date: new Date()
+                });
+                fakeUser.first_name = "Z";
                 fakeUser.email = "test@gmail.com";
                 const anotherUser = await db.Users.create(fakeUser);
                 const anotherPatient = await anotherUser.createPatient();
                 await db.Appointments.create({
-                    time_slot: "11:00",
+                    time_slot: "10:00",
                     patient_id: anotherPatient.id,
-                    doctor_service_id: appointment.doctor_service_id,
-                    clinic_id: clinic.id,
+                    doctor_service_id: testDoctorService.id,
+                    clinic_id: testClinic.id,
                     appointment_date: new Date()
                 });
 
@@ -178,41 +173,183 @@ describe("PatientController API", () => {
                         sort: 'desc',
                         limit: 10,
                         pages: 0,
-                        clinicId: clinic.id
+                    })
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+                console.log(response.body.patients[0].patient.user);
+                console.log(response.body.patients[1].patient.user);
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("patients").to.be.an("array");
+                expect(response.body.patients[0].patient.user).to.have.property("first_name", anotherUser.first_name);
+                await db.Clinics.destroy({ where: {} });
+            });
+        });
+        describe("GET /api/patients/:patientId", () => {
+            let createdUser, testPatient, testService;
+            beforeEach(async () => {
+                const fakeUser = {
+                    first_name: faker.person.firstName(),
+                    last_name: faker.person.lastName(),
+                    email: faker.internet.email(),
+                    phone: faker.phone.number({ style: 'international' }),
+                    pesel: 12345678981,
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "patient",
+                    birthday: faker.date.past(30)
+                };
+                createdUser = await db.Users.create(fakeUser);
+                testPatient = await createdUser.createPatient();
+                testService = await db.Services.create({
+                    name: 'Test Service',
+                    description: 'Test Service Description',
+                    price: 100
+                });
+            });
+            it("expect patient by patientId for doctor, when it exists", async () => {
+                const testUser = await db.Users.create(fakeUser);
+                const testDoctor = await testUser.createDoctor();
+                const testDoctorService = await db.DoctorService.create({ doctor_id: testDoctor.id, service_id: testService.id });
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+                await db.Appointments.create({
+                    time_slot: "10:00",
+                    patient_id: testPatient.id,
+                    doctor_service_id: testDoctorService.id,
+                    clinic_id: null,
+                    appointment_date: new Date()
+                });
+
+                const response = await request(app)
+                    .get(`/api/patients/${testPatient.id}`)
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+                expect(response.body.patient).to.have.property("id", testPatient.id);
+                expect(response.body.patient.user).to.have.property("first_name", createdUser.first_name);
+                await db.DoctorService.destroy({ where: {} });
+                await db.Services.destroy({ where: {} });
+                await db.Doctors.destroy({ where: {} });
+            });
+            it("expect patient by patientId for admin, when it exists", async () => {
+                fakeUser.role = "admin";
+                await db.Users.create(fakeUser);
+                const testDoctor = await db.Doctors.create();
+                const testDoctorService = await db.DoctorService.create({ doctor_id: testDoctor.id, service_id: testService.id });
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+                await db.Appointments.create({
+                    time_slot: "10:00",
+                    patient_id: testPatient.id,
+                    doctor_service_id: testDoctorService.id,
+                    clinic_id: null,
+                    appointment_date: new Date()
+                });
+
+                const response = await request(app)
+                    .get(`/api/patients/${testPatient.id}`)
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body.patient).to.have.property("id", testPatient.id);
+                expect(response.body.patient.user).to.have.property("first_name", createdUser.first_name);
+                await db.DoctorService.destroy({ where: {} });
+                await db.Services.destroy({ where: {} });
+                await db.Doctors.destroy({ where: {} });
+            });
+        });
+        describe("GET /api/admins/patients", () => {
+            let sessionCookies, testPatient, createdUser, fakeMaleUser, fakeFemaleUser;
+            beforeEach(async () => {
+                fakeUser.role = "admin";
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                sessionCookies = res.headers['set-cookie'];
+                fakeMaleUser = {
+                    first_name: faker.person.firstName(),
+                    email: faker.internet.email(),
+                    pesel: 12345678981,
+                    gender: "male",
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "patient",
+                };
+                createdUser = await db.Users.create(fakeMaleUser);
+                testPatient = await createdUser.createPatient();
+                fakeFemaleUser = {
+                    first_name: faker.person.firstName(),
+                    email: faker.internet.email(),
+                    pesel: 12345678982,
+                    gender: "female",
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "patient",
+                };
+                createdUser = await db.Users.create(fakeFemaleUser);
+                testPatient = await createdUser.createPatient();
+            });
+            it("expect to return patients for admin, when they exist", async () => {
+                const response = await request(app)
+                    .get("/api/admins/patients")
+                    .query({
+                        sort: 'asc',
+                        limit: 10,
+                        pages: 0,
+                    })
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("patients").to.be.an("array").is.length(2);
+            });
+            it("expect to return patients for admin with 'male' filter, when they exist", async () => {
+                const response = await request(app)
+                    .get("/api/admins/patients")
+                    .query({
+                        sort: 'asc',
+                        limit: 10,
+                        pages: 0,
+                        gender: "male"
                     })
                     .set('Cookie', sessionCookies)
                     .expect(200);
                 console.log(response.body);
-                expect(response.body).to.be.an('array');
-                expect(response.body).to.have.lengthOf(2);
-                expect(response.body[1].patient.user.first_name).to.equal('ZZZ');
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("patients").to.be.an("array").is.length(1);
+                expect(response.body.patients[0].user).to.have.property("first_name", fakeMaleUser.first_name);
             });
-        });
-        describe("GET /api/patients/:userId", () => {
-            it("expect user by id, when it exists", async () => {
+            it("expect to return patients for admin with 'female' filter, when they exist", async () => {
                 const response = await request(app)
-                    .get(`/api/patients/${userId}`)
+                    .get("/api/admins/patients")
+                    .query({
+                        sort: 'asc',
+                        limit: 10,
+                        pages: 0,
+                        gender: "female"
+                    })
                     .set('Cookie', sessionCookies)
                     .expect(200);
-
-                expect(response.body.user).to.have.property("id", userId);
-                expect(response.body.user).to.have.property("first_name", fakeUser.first_name);
-            });
-        });
-        describe("PUT /api/patients/:id", () => {
-            it("expect to update patient, when data valid and it exists", async () => {
-                const userData = { first_name: "Scarlett" };
-                const addressData = { city: "East Mavisville" };
-
-                const response = await request(app)
-                    .put(`/api/users/${userId}/patients`)
-                    .set('Content-Type', 'application/json')
-                    .send({ userData, addressData })
-                    .set('Cookie', sessionCookies)
-                    .expect(200);
-
-                expect(response.body.user.first_name).to.deep.equals(userData.first_name);
-                expect(response.body.address.city).to.deep.equals(addressData.city);
+                console.log(response.body);
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("patients").to.be.an("array").is.length(1);
+                expect(response.body.patients[0].user).to.have.property("first_name", fakeFemaleUser.first_name);
             });
         });
     });
@@ -225,23 +362,103 @@ describe("PatientController API", () => {
 
                 expect(response.body).to.have.property('message', 'Unauthorized user');
             });
+            it("expect return 403 'Access denied', when user is not a doctor or clinic", async () => {
+                fakeUser.role = "admin";
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
+                const response = await request(app)
+                    .get("/api/patients")
+                    .set('Cookie', sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property('message', 'Access denied');
+            });
         });
-        describe("GET /api/patient/:userId", () => {
-            it("expect return 401 'Unauthorized user'when authentication is missing", async () => {
+        describe("GET /api/patient/:patientId", () => {
+            it("expect AppError('Unauthorized user'),when authentication is missing", async () => {
                 const response = await request(app)
                     .get("/api/patients/1")
                     .expect(401);
 
                 expect(response.body).to.have.property('message', 'Unauthorized user');
             });
-        });
-        describe("PUT /api/patient/:id", () => {
-            it("expect return 401 'Unauthorized user'when authentication is missing", async () => {
+            it("expect AppError('Access denied'), when user is not a doctor or admin", async () => {
+                fakeUser.role = "patient";
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
                 const response = await request(app)
                     .get("/api/patients/1")
+                    .set('Cookie', sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property('message', 'Access denied');
+            });
+            it("expect AppError('Patient not found'), when patient by id doesn't exist", async () => {
+                fakeUser.role = "admin";
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
+                const response = await request(app)
+                    .get("/api/patients/1")
+                    .set('Cookie', sessionCookies)
+                    .expect(404);
+
+                expect(response.body).to.have.property('message', 'Patient not found');
+            });
+        });
+        describe("GET /api/admins/patients", () => {
+            it("expect return 401 'Unauthorized user' when authentication is missing", async () => {
+                const response = await request(app)
+                    .get("/api/admins/patients")
                     .expect(401);
 
                 expect(response.body).to.have.property('message', 'Unauthorized user');
+            });
+            it("expect return 403 'Access denied', when user is not admin", async () => {
+                fakeUser.role = "patient";
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+
+                const response = await request(app)
+                    .get("/api/admins/patients")
+                    .set('Cookie', sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property('message', 'Access denied');
             });
         });
     });

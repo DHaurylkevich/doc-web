@@ -23,6 +23,10 @@ describe("Post routes", () => {
         await db.Categories.destroy({ where: {} });
         await db.Posts.destroy({ where: {} });
     });
+    after(async () => {
+        await db.sequelize.close();
+        app.close();
+    });
 
     describe("Positive tests", () => {
         describe("POST /api/posts/categories/:categoryId", () => {

@@ -32,6 +32,10 @@ describe("ReviewController API", () => {
         await db.Doctors.destroy({ where: {} });
         await db.Patients.destroy({ where: {} });
     });
+    after(async () => {
+        await db.sequelize.close();
+        app.close();
+    });
 
     describe("Positive tests", () => {
         describe("POST /api/reviews", () => {
@@ -85,7 +89,7 @@ describe("ReviewController API", () => {
         describe("GET /api/clinics/:clinicId/reviews", () => {
             let testClinicId;
             beforeEach(async () => {
-                const testClinic = await db.Clinics.create({ name: faker.company.buzzAdjective(), password: faker.internet.password(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence()});
+                const testClinic = await db.Clinics.create({ name: faker.company.buzzAdjective(), password: faker.internet.password(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence() });
                 await testClinic.addDoctor(testDoctor);
                 const existingReviews = [
                     { patient_id: testPatient.id, doctor_id: testDoctor.id, rating: 4, comment: "Good doctor" },
@@ -130,7 +134,7 @@ describe("ReviewController API", () => {
         describe("GET /api/doctors/:doctorId/reviews", () => {
             let testDoctorId;
             beforeEach(async () => {
-                const testClinic = await db.Clinics.create({ name: faker.company.buzzAdjective(), password: faker.internet.password(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence()});
+                const testClinic = await db.Clinics.create({ name: faker.company.buzzAdjective(), password: faker.internet.password(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence() });
                 await testClinic.addDoctor(testDoctor);
                 const existingReviews = [
                     { patient_id: testPatient.id, doctor_id: testDoctor.id, rating: 4, comment: "Good doctor", tag_id: testTag.id },

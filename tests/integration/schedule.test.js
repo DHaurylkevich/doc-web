@@ -6,7 +6,7 @@ const { faker } = require("@faker-js/faker");
 const app = require("../../index");
 const db = require("../../src/models");
 
-describe("ScheduleController API", () => {
+describe("Schedule routes", () => {
     let testDoctor, testClinic, fakeDoctor;
 
     beforeEach(async () => {
@@ -33,6 +33,11 @@ describe("ScheduleController API", () => {
         await db.Doctors.destroy({ where: {} });
         await db.Clinics.destroy({ where: {} });
     });
+    after(async () => {
+        await db.sequelize.close();
+        app.close();
+    });
+
     describe("Positive tests", () => {
         describe("POST /clinics/schedules/", () => {
             let sessionCookies;
