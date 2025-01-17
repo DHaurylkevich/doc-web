@@ -12,8 +12,6 @@ const { Op } = require("sequelize");
 const ClinicService = {
     createClinic: async (clinicData, addressData) => {
         const t = await sequelize.transaction();
-        clinicData.password = await hashingPassword(clinicData.password);
-
         try {
             let clinic = await db.Clinics.findAll({
                 where: {
@@ -33,13 +31,15 @@ const ClinicService = {
                 throw new AppError("Clinic already exist", 400);
             }
 
+            clinicData.password = await hashingPassword(clinicData.password);
+
             clinic = await db.Clinics.create(clinicData, { transaction: t });
             await clinic.createAddress(addressData, { transaction: t });
             await TimetableService.createTimetable(clinicData.id, t);
 
             const resetToken = createJWT(clinic.id, clinic.role);
             await clinic.update({ resetToken }, { transaction: t });
-            setPasswordMail(clinic.email, resetToken);
+            await setPasswordMail(clinic.email, resetToken);
 
             await t.commit();
         } catch (err) {
@@ -159,11 +159,11 @@ const ClinicService = {
             ],
         });
 
-        const totalPages = getTotalPages(count, parsedLimit, page);
-
         if (!rows.length) {
             return { pages: 0, clinics: [] };
         }
+
+        const totalPages = getTotalPages(count, parsedLimit, page);
 
         return {
             pages: totalPages,
@@ -180,7 +180,7 @@ const ClinicService = {
         const { rows, count } = await db.Clinics.findAndCountAll({
             limit: parsedLimit,
             offset: offset,
-            order: ["name", sort === "ASC" ? "ASC" : "DESC"],
+            order: [["name", sort === "ASC" ? "ASC" : "DESC"]],
             attributes: {
                 exclude: ["password", "resetToken", "updatedAt", "role", "description", "feedbackRating"],
                 include: [
@@ -257,8 +257,11 @@ const ClinicService = {
         });
     },
     getAllCities: async () => {
-        const cities = await db.Clinics.findAll({
-            attributes: [[sequelize.col("address.city"), "city"]],
+        return await db.Clinics.findAll({
+            attributes: [
+                [sequelize.fn('DISTINCT', sequelize.col("address.city")), "city"],
+                [sequelize.col("address.province"), "province"]
+            ],
             include: [
                 {
                     model: db.Addresses,
@@ -273,7 +276,6 @@ const ClinicService = {
             ],
             raw: true,
         });
-        return cities.map(city => city.city);
     }
 };
 

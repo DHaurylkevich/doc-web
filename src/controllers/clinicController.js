@@ -52,7 +52,7 @@ const ClinicController = {
         }
     },
     updateClinicById: async (req, res, next) => {
-        const { clinicId } = req.params;
+        const clinicId = req.user.id;
         const { clinicData, addressData } = req.body;
 
         try {

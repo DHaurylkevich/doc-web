@@ -10,8 +10,7 @@ const ClinicController = require("../controllers/clinicController");
  *     post:
  *       summary: Создать клинику (только для администратора)
  *       description: Создает новую клинику с привязкой к адресу. Линк приходит кривой потому что нужен правильный адрес страницы для сброса пароля
- *       tags:
- *         - Clinics
+ *       tags: [Clinics]
  *       requestBody:
  *         description: Данные для создания клиники и адреса.
  *         required: true
@@ -151,8 +150,7 @@ router.post("/clinics", isAuthenticated, hasRole("admin"), ClinicController.crea
  *   get:
  *     summary: Получить все клиники с параметрами фильтрации
  *     description: Возвращает список всех клиник с возможностью фильтрации по имени, провинции, специальности и городу.
- *     tags:
- *       - Clinics
+ *     tags: [Clinics]
  *     parameters:
  *       - name: name
  *         in: query
@@ -207,8 +205,7 @@ router.get("/clinics", ClinicController.getAllClinicByParams);
  *   get:
  *     summary: Получить все киники для админа (НЕПОНЯТНО ЗАЧЕМ ТАКАЯ ИНФА АДМИНУ)
  *     description: Возвращает допустимые данные о клинике для админа.
- *     tags:
- *       - Clinics
+ *     tags: [Clinics]
  *     parameters:
  *       - name: sort
  *         in: query
@@ -242,9 +239,7 @@ router.get("/admins/clinics", isAuthenticated, hasRole("admin"), ClinicControlle
  * /clinics/cities:
  *   get:
  *     summary: Получить список всех городов, где есть клиники
- *     description: Возвращает уникальный список городов, в которых есть клиники
- *     tags:
- *       - Clinics
+ *     tags: [Clinics]
  *     responses:
  *       200:
  *         description: Успешное получение списка городов
@@ -253,10 +248,14 @@ router.get("/admins/clinics", isAuthenticated, hasRole("admin"), ClinicControlle
  *             schema:
  *               type: array
  *               items:
- *                 type: string
- *               example: ["Warsaw", "Poznań", "Gdansk"]
- *       500:
- *         description: Внутренняя ошибка сервера
+ *                 type: object
+ *                 properties:
+ *                   city:
+ *                      type: string
+ *                      exemple: "Warszawa"
+ *                   province:
+ *                      type: string
+ *                      exemple: "Mazowieckie"
  */
 router.get("/clinics/cities", ClinicController.getAllCities);
 /**
@@ -265,8 +264,7 @@ router.get("/clinics/cities", ClinicController.getAllCities);
  *   get:
  *     summary: Получить полную информацию о клинике
  *     description: Возвращает подробные данные о клинике, включая адрес и связанные сервисы.
- *     tags:
- *       - Clinics
+ *     tags: [Clinics]
  *     parameters:
  *       - name: clinicId
  *         in: path
@@ -334,26 +332,15 @@ router.get("/clinics/cities", ClinicController.getAllCities);
  *                     post_index:
  *                       type: string
  *                       example: "123456"
- *       404:
- *         description: Клиника не найдена
  */
 router.get("/clinics/:clinicId", ClinicController.getFullClinic);
 /**
  * @swagger
- * /clinics/{clinicId}:
+ * /clinics:
  *   put:
  *     summary: Обновить клинику
  *     description: Обновляет существующую клинику по ее ID.
- *     tags:
- *       - Clinics
- *     parameters:
- *       - name: clinicId
- *         in: path
- *         required: true
- *         description: ID клиники
- *         schema:
- *           type: integer
- *           example: 3
+ *     tags: [Clinics]
  *     requestBody:
  *       description: Обновленные данные клиники
  *       required: true
@@ -417,37 +404,6 @@ router.get("/clinics/:clinicId", ClinicController.getFullClinic);
  *       200:
  *         description: Клиника успешно обновлена
  */
-router.put("/clinics/:clinicId", ClinicController.updateClinicById);
-
-module.exports = router;
-// /**
-//  * @swagger
-//  * /clinics/{clinicId}:
-//  *   delete:
-//  *     summary: Удалить клинику
-//  *     description: Удаляет клинику по заданному ID.
-//  *     tags:
-//  *       - Clinics
-//  *     parameters:
-//  *       - name: clinicId
-//  *         in: path
-//  *         required: true
-//  *         description: ID клиники для удаления
-//  *         schema:
-//  *           type: integer
-//  *           example: 1
-//  *     responses:
-//  *       200:
-//  *         description: Successful
-//  *         content:
-//  *           application/json:
-//  *             schema:
-//  *               type: object
-//  *               properties:
-//  *                 message:
-//  *                   type: string
-//  *                   example: "Successful delete"
-//  */
-// router.delete("/clinics/:clinicId", ClinicController.deleteClinic);
+router.put("/clinics", isAuthenticated, hasRole("clinic"), ClinicController.updateClinicById);
 
 module.exports = router;

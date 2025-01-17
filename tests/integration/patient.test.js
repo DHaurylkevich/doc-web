@@ -11,12 +11,10 @@ describe("Patient routes", () => {
 
     beforeEach(async () => {
         fakeUser = {
-            first_name: faker.person.firstName(),
             last_name: faker.person.lastName(),
             email: faker.internet.email(),
             password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
             role: "doctor",
-            birthday: faker.date.past(30)
         };
     });
     afterEach(async () => {
@@ -176,8 +174,7 @@ describe("Patient routes", () => {
                     })
                     .set('Cookie', sessionCookies)
                     .expect(200);
-                console.log(response.body.patients[0].patient.user);
-                console.log(response.body.patients[1].patient.user);
+
                 expect(response.body).to.have.property("pages");
                 expect(response.body).to.have.property("patients").to.be.an("array");
                 expect(response.body.patients[0].patient.user).to.have.property("first_name", anotherUser.first_name);

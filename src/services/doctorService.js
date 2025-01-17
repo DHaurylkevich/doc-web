@@ -137,6 +137,10 @@ const DoctorService = {
         return { pages: totalPages, doctors: rows };
     },
     updateDoctorById: async ({ doctorId, userData, addressData, doctorData, servicesIds, clinicId }) => {
+        if ("password" in userData) {
+            delete userData.password;
+        }
+
         const doctor = await db.Doctors.findOne({
             where: {
                 id: doctorId,

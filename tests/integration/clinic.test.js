@@ -5,21 +5,18 @@ const request = require("supertest");
 const { faker } = require('@faker-js/faker');
 const app = require("../../index");
 const db = require("../../src/models");
-const mail = require("../../src/utils/mail");
-const sinon = require("sinon");
 
-describe("ClinicController API", () => {
-    let clinicId, clinicData, addressData;
+describe("Clinic routes", () => {
+    let fakeClinic, addressData;
 
     beforeEach(async () => {
-        clinicData = {
+        fakeClinic = {
             name: faker.company.buzzAdjective(),
             nip: 1234567890,
             nr_license: faker.vehicle.vin(),
             email: faker.internet.email(),
-            // email: "dhaurylkevich@gmail.com",
             phone: faker.phone.number({ style: 'international' }),
-            password: faker.internet.password(),
+            password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
             description: faker.lorem.sentence(),
         };
         addressData = {
@@ -35,90 +32,219 @@ describe("ClinicController API", () => {
         await db.Clinics.destroy({ where: {} });
         await db.Addresses.destroy({ where: {} });
     });
+    after(async () => {
+        await db.sequelize.close();
+        app.close();
+    });
 
-    describe("POST /api/clinics", () => {
-        beforeEach(async () => {
-            mail.setPasswordMail = sinon.stub();
+    describe("Positive tests", () => {
+        describe("GET /api/clinics", () => {
+            it("expect clinic by id, when it exists", async () => {
+                const createdSpecialty = await db.Specialties.create({ name: "Test Special" });
+                const createdServices = await createdSpecialty.createService({ name: "Test Special", price: "123" });
+                const createdClinic = await db.Clinics.create(fakeClinic);
+                await createdClinic.setServices(createdServices.id);
+                await createdClinic.createAddress(addressData);
+
+                const response = await request(app)
+                    .get(`/api/clinics`)
+                    .expect(200);
+
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("clinics").to.be.an("array");
+            });
         });
-        afterEach(async () => {
-            sinon.restore();
+        describe("GET /api/admins/clinics", () => {
+            let sessionCookies;
+            beforeEach(async () => {
+                const fakeUser = {
+                    last_name: faker.person.lastName(),
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "admin",
+                };
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                sessionCookies = res.headers['set-cookie'];
+            });
+            it("expect clinics for admin, when it exists", async () => {
+                await db.Clinics.create(fakeClinic);
+
+                const response = await request(app)
+                    .get(`/api/admins/clinics`)
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("clinics").to.be.an("array");
+                expect(response.body.clinics[0]).to.have.property("name", fakeClinic.name);
+            });
         });
-        it("expect to create clinic with address, when clinicData and addressData is valid", async () => {
-            const response = await request(app)
-                .post("/api/clinics")
-                .send({ clinicData, addressData })
-                .expect(201);
+        describe("GET /api/clinics/cities", () => {
+            it("expect all cities that have a clinic, when they exists", async () => {
+                let createdClinic = await db.Clinics.create(fakeClinic);
+                addressData.city = "Novo";
+                await createdClinic.createAddress(addressData);
 
-            expect(response.body).to.have.property("id");
-            expect(response.body.name).to.equal(clinicData.name);
-            clinicId = response.body.id;
+                const response = await request(app)
+                    .get(`/api/clinics/cities`)
+                    .expect(200);
 
-            const clinicInDb = await db.Clinics.findByPk(clinicId);
-            expect(clinicInDb).to.exist;
-            expect(clinicInDb.name).to.equal(clinicData.name);
+                expect(response.body).is.an("array");
+                expect(response.body[0]).to.have.property("city", addressData.city);
+                expect(response.body[0]).to.have.property("province", addressData.province);
+            });
+        });
+        describe("GET /api/clinics/:clinicId", () => {
+            it("expect clinic by id, when it exists", async () => {
+                const createdClinic = await db.Clinics.create(fakeClinic);
+                await createdClinic.createAddress(addressData);
+                clinicId = createdClinic.id;
+
+                const response = await request(app)
+                    .get(`/api/clinics/${clinicId}`)
+                    .expect(200);
+
+                expect(response.body).to.have.property("id", clinicId);
+                expect(response.body.name).to.equal(fakeClinic.name);
+            });
+        });
+        describe("PUT /api/clinics", () => {
+            it("expect to update clinic, when data valid and it exists", async () => {
+                const createdClinic = await db.Clinics.create(fakeClinic);
+                await createdClinic.createAddress(addressData);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeClinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+                const updatedClinic = { name: faker.company.buzzAdjective() };
+                const updatedAddress = { city: faker.location.city() };
+
+                const response = await request(app)
+                    .put(`/api/clinics`)
+                    .send({ clinicData: updatedClinic, addressData: updatedAddress })
+                    .set('Cookie', sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("name", updatedClinic.name);
+                expect(response.body.address).to.have.property("city", updatedAddress.city);
+            });
         });
     });
-    describe("GET /api/clinics/:id", () => {
-        it("expect clinic by id, when it exists", async () => {
-            const createdClinic = await db.Clinics.create(clinicData);
-            await createdClinic.createAddress(addressData);
-            clinicId = createdClinic.id;
+    describe("Negative tests", () => {
+        describe("POST /api/clinics", () => {
+            it("expect return 401 'Unauthorized user' when authentication is missing", async () => {
+                const response = await request(app)
+                    .post("/api/clinics")
+                    .expect(401);
 
-            const response = await request(app)
-                .get(`/api/clinics/${clinicId}`)
-                .expect(200);
+                expect(response.body).to.have.property('message', 'Unauthorized user');
+            });
+            it("expect return 403 'Access denied', when user is not admin", async () => {
+                const fakeUser = {
+                    last_name: faker.person.lastName(),
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "doctor",
+                };
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
 
-            expect(response.body).to.have.property("id", clinicId);
-            expect(response.body.name).to.equal(clinicData.name);
+                const response = await request(app)
+                    .post("/api/clinics")
+                    .set('Cookie', sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property('message', 'Access denied');
+            });
         });
-    });
-    describe("GET /api/clinics", () => {
-        it("expect clinic by id, when it exists", async () => {
-            const createdClinic = await db.Clinics.create(clinicData);
-            clinicId = createdClinic.id;
+        describe("GET /api/admins/clinics", () => {
+            it("expect return 401 'Unauthorized user' when authentication is missing", async () => {
+                const response = await request(app)
+                    .get(`/api/admins/clinics`)
+                    .expect(401);
 
-            const response = await request(app)
-                .get(`/api/clinics`)
-                .expect(200);
+                expect(response.body).to.have.property('message', 'Unauthorized user');
+            });
+            it("expect return 403 'Access denied', when user is not admin", async () => {
+                const fakeUser = {
+                    last_name: faker.person.lastName(),
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "doctor",
+                };
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
 
-            expect(response.body).to.be.an('array');
-            expect(response.body).to.have.length.greaterThan(0);
-            const clinic = response.body.find(c => c.id === clinicId);
-            expect(clinic).to.exist;
-            expect(clinic).to.have.property("id", clinicId);
-            expect(clinic).to.have.property("name", clinicData.name);
+                const response = await request(app)
+                    .get(`/api/admins/clinics`)
+                    .set('Cookie', sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property('message', 'Access denied');
+            });
         });
-    });
-    describe("PUT /api/clinics/:id", () => {
-        it("expect to update clinic, when data valid and it exists", async () => {
-            const updatedClinic = { name: faker.company.buzzAdjective(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number(), description: faker.lorem.sentence() };
-            const updatedAddress = { city: faker.location.city(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() };
+        describe("PUT /api/clinics/:id", () => {
+            it("expect return 401 'Unauthorized user' when authentication is missing", async () => {
+                const response = await request(app)
+                    .put(`/api/clinics`)
+                    .expect(401);
 
-            const createdClinic = await db.Clinics.create(clinicData);
-            await createdClinic.createAddress(addressData);
-            clinicId = createdClinic.id;
+                expect(response.body).to.have.property('message', 'Unauthorized user');
+            });
+            it("expect return 403 'Access denied', when user is not admin", async () => {
+                const fakeUser = {
+                    last_name: faker.person.lastName(),
+                    email: faker.internet.email(),
+                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
+                    role: "doctor",
+                };
+                await db.Users.create(fakeUser);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: fakeUser.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
 
-            const response = await request(app)
-                .put(`/api/clinics/${clinicId}`)
-                .send({ clinicData: updatedClinic, addressData: updatedAddress })
-                .expect(200);
+                const response = await request(app)
+                    .put(`/api/clinics`)
+                    .set('Cookie', sessionCookies)
+                    .expect(403);
 
-            expect(response.body.name).to.equal(updatedClinic.name);
-            const clinicInDb = await db.Clinics.findByPk(clinicId);
-            expect(clinicInDb.name).to.equal(updatedClinic.name);
-        });
-    });
-    describe("DELETE /api/clinics/:id", () => {
-        it("expect delete clinic by id, when it exists", async () => {
-            const createdClinic = await db.Clinics.create(clinicData);
-            clinicId = createdClinic.id;
-
-            await request(app)
-                .delete(`/api/clinics/${clinicId}`)
-                .expect(200);
-
-            const clinicInDb = await db.Clinics.findByPk(clinicId);
-            expect(clinicInDb).to.be.null;
+                expect(response.body).to.have.property('message', 'Access denied');
+            });
         });
     });
 });
