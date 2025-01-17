@@ -116,7 +116,7 @@ router.get("/patients/:patientId", isAuthenticated, hasRole(["doctor", "admin"])
  *         required: false
  *         schema:
  *           type: string
- *           enum: [male, female, other]
+ *           enum: [male, female]
  *           example: "male"
  *         description: Пол пациента
  *       - name: sort

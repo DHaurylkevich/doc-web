@@ -41,7 +41,6 @@ describe("Schedule routes", () => {
     describe("Positive tests", () => {
         describe("POST /clinics/schedules/", () => {
             let sessionCookies;
-
             beforeEach(async () => {
                 const response = await request(app)
                     .post('/login')

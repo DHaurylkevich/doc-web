@@ -134,10 +134,6 @@ const DoctorService = {
 
         const totalPages = getTotalPages(count, parsedLimit, page);
 
-        if (!rows.length) {
-            return { pages: 0, doctors: [] };
-        }
-
         return { pages: totalPages, doctors: rows };
     },
     updateDoctorById: async ({ doctorId, userData, addressData, doctorData, servicesIds, clinicId }) => {
@@ -148,7 +144,7 @@ const DoctorService = {
             }
         })
         if (!doctor) {
-            throw new AppError("Access denied", 403);
+            throw new AppError("Doctor not found", 404);
         }
 
         const t = await sequelize.transaction();
@@ -192,8 +188,7 @@ const DoctorService = {
                         { model: db.Addresses, as: "address" }
                     ]
                 }
-            ],
-            raw: true
+            ]
         });
         if (!doctor) {
             throw new AppError("Doctor not found", 404);
@@ -231,10 +226,6 @@ const DoctorService = {
             order: sortOptions,
         })
         const totalPages = getTotalPages(count, parsedLimit, page);
-
-        if (!rows.length) {
-            return { pages: 0, doctors: [] };
-        }
 
         return { pages: totalPages, doctors: rows };
     },

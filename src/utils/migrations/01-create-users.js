@@ -30,7 +30,7 @@ module.exports = {
         }
       },
       gender: {
-        type: Sequelize.ENUM('male', 'female', 'other'),
+        type: Sequelize.ENUM('male', 'female'),
         allowNull: true
       },
       pesel: {

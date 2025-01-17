@@ -286,24 +286,18 @@ describe("Patient routes", () => {
                 sessionCookies = res.headers['set-cookie'];
                 fakeMaleUser = {
                     first_name: faker.person.firstName(),
-                    email: faker.internet.email(),
-                    pesel: 12345678981,
                     gender: "male",
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
                 };
                 createdUser = await db.Users.create(fakeMaleUser);
-                testPatient = await createdUser.createPatient();
+                await createdUser.createPatient();
                 fakeFemaleUser = {
                     first_name: faker.person.firstName(),
-                    email: faker.internet.email(),
-                    pesel: 12345678982,
                     gender: "female",
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "patient",
                 };
                 createdUser = await db.Users.create(fakeFemaleUser);
-                testPatient = await createdUser.createPatient();
+                await createdUser.createPatient();
             });
             it("expect to return patients for admin, when they exist", async () => {
                 const response = await request(app)
@@ -330,7 +324,7 @@ describe("Patient routes", () => {
                     })
                     .set('Cookie', sessionCookies)
                     .expect(200);
-                console.log(response.body);
+
                 expect(response.body).to.have.property("pages");
                 expect(response.body).to.have.property("patients").to.be.an("array").is.length(1);
                 expect(response.body.patients[0].user).to.have.property("first_name", fakeMaleUser.first_name);
@@ -346,7 +340,7 @@ describe("Patient routes", () => {
                     })
                     .set('Cookie', sessionCookies)
                     .expect(200);
-                console.log(response.body);
+
                 expect(response.body).to.have.property("pages");
                 expect(response.body).to.have.property("patients").to.be.an("array").is.length(1);
                 expect(response.body.patients[0].user).to.have.property("first_name", fakeFemaleUser.first_name);

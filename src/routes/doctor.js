@@ -9,9 +9,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *   /clinics/doctors:
  *     post:
  *       summary: Создание нового доктора
- *       operationId: createDoctor
- *       tags:
- *         - Doctors
+ *       tags: [Doctors]
  *       requestBody:
  *         required: true
  *         content:
@@ -38,7 +36,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *                         gender:
  *                           type: string
  *                           description: Пол пользователя
- *                           enum: ["male", "female", "other"]
+ *                           enum: ["male", "female"]
  *                           example: "male"
  *                         pesel:
  *                           type: string
@@ -101,18 +99,22 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *       responses:
  *         200:
  *           description: Успешное создание
- *         404:
- *           description: Пользователь не найден
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: "Doctor created successful"
  */
-router.post("/clinics/doctors/", doctorController.createDoctor);
+router.post("/clinics/doctors/", isAuthenticated, hasRole("clinic"), doctorController.createDoctor);
 /**
  * @swagger
  * /doctors/{doctorId}/short:
  *   get:
  *     summary: Получить краткую информацию о враче
- *     description: Возвращает краткие данные о враче, такие как имя, фамилия и специальность, по указанному ID врача.
- *     tags:
- *       - Doctors
+ *     tags: [Doctors]
  *     parameters:
  *       - name: doctorId
  *         in: path
@@ -158,10 +160,6 @@ router.post("/clinics/doctors/", doctorController.createDoctor);
  *                     name:
  *                       type: string
  *                       example: "Special Name"
- *       404:
- *         description: Врач не найден
- *       500:
- *         description: Внутренняя ошибка сервера
  */
 router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
 /**
@@ -169,9 +167,7 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
  * /doctors/{doctorId}:
  *   get:
  *     summary: Получить полную информацию о враче
- *     description: Возвращает полные данные о враче по указанному ID доктора, включая адрес и специальность.
- *     tags:
- *       - Doctors
+ *     tags: [Doctors]
  *     parameters:
  *       - name: doctorId
  *         in: path
@@ -252,27 +248,21 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
  *                     name:
  *                       type: string
  *                       example: "Larson - Schmidt"
- *       404:
- *         description: Врач не найден
- *       500:
- *         description: Внутренняя ошибка сервера
  */
 router.get("/doctors/:doctorId", doctorController.getDoctorById);
 /**
  * @swagger
  * /admins/doctors:
  *   get:
- *     summary: Получить всех враче для админа (НЕПОНЯТНО ЗАЧЕМ ТАКАЯ ИНФА АДМИНУ)
- *     description: Возвращает допустимые данные о врачах для пдмина.
- *     tags:
- *       - Doctors
+ *     summary: Получить все допустимые данные о врачах для админа
+ *     tags: [Doctors]
  *     parameters:
  *       - name: gender
  *         in: query
  *         required: false
  *         schema:
  *           type: string
- *           enum: [male, female, other]
+ *           enum: [male, female]
  *           example: "male"
  *         description: Пол доктора
  *       - name: sort
@@ -370,20 +360,14 @@ router.get("/doctors/:doctorId", doctorController.getDoctorById);
  *                     name:
  *                       type: string
  *                       example: "Larson - Schmidt"
- *       404:
- *         description: Врач не найден
- *       500:
- *         description: Внутренняя ошибка сервера
  */
 router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorController.getAllDoctorsForAdmin);
 /**
  * @swagger
  * /clinics/doctors/{doctorId}:
  *   put:
- *     summary: Обновить информацию о докторе (CLINIC)
- *     description: Обновляет данные доктора по указанному ID пользователя.
- *     tags:
- *       - Doctors
+ *     summary: Клиника может обновить информацию о своем докторе  
+ *     tags: [Doctors]
  *     parameters:
  *       - name: doctorId
  *         in: path
@@ -461,17 +445,15 @@ router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorControlle
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Данные доктора успешно обновлены"
+ *                   example: "Doctor update successfully"
  */
 router.put("/clinics/doctors/:doctorId", isAuthenticated, hasRole("clinic"), doctorController.updateDoctorById);
 /**
  * @swagger
  * /clinics/{clinicId}/doctors:
  *   get:
- *     summary: Получить всех докторов с фильтрацией
- *     description: Возвращает докторов связанные с одной клинникой, можно использовать фильтры.
- *     tags:
- *       - Doctors
+ *     summary: Получить всех докторов связанные с одной клинникой с фильтрацией
+ *     tags: [Doctors]
  *     parameters:
  *       - name: clinicId
  *         in: path
@@ -485,7 +467,7 @@ router.put("/clinics/doctors/:doctorId", isAuthenticated, hasRole("clinic"), doc
  *         required: false
  *         schema:
  *           type: string
- *           enum: [male, female, other]
+ *           enum: [male, female]
  *           example: "male"
  *         description: Пол доктора
  *       - name: sort
