@@ -103,6 +103,20 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'Users',
     tableName: 'users',
     timestamps: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ['email']
+      },
+      {
+        unique: true,
+        fields: ['pesel']
+      },
+      {
+        unique: true,
+        fields: ['phone']
+      },
+    ]
   });
   return Users;
 };
