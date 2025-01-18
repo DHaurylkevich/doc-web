@@ -37,7 +37,7 @@ const ServiceService = {
                     {
                         model: db.Services,
                         as: "service",
-                        attributes: ["name", "price"]
+                        attributes: ["id", "name", "price"]
                     }
                 ]
             }
