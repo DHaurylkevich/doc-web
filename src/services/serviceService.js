@@ -29,7 +29,7 @@ const ServiceService = {
         );
     },
     getAllServicesByDoctorId: async (doctorId) => {
-        return await db.DoctorServices.findAll(
+        return await db.DoctorService.findAll(
             {
                 where: { doctor_id: doctorId },
                 include: [
