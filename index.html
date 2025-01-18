@@ -106,9 +106,8 @@
 </head>
 
 <body>
-
     <div id="userForm">
-        <button id="disconnectButton">Отключиться</button>
+        <button id="disconnectButton">Connect</button>
     </div>
     <button id="getNameButton">Получить Имя</button>
     <p id="userName"></p>
@@ -118,7 +117,7 @@
 
         getNameButton.addEventListener('click', async () => {
             try {
-                const response = await fetch('https://doc-web-rose.vercel.app/api/get-username', {
+                const response = await fetch('http://localhost:3000/api/get-username', {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -149,7 +148,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io({
-            url: "https://doc-web-rose.vercel.app",
+            url: "http://localhost:3000",
             auth: {},
             reconnection: true,
             reconnectionAttempts: 5,

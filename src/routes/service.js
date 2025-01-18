@@ -86,7 +86,7 @@ router.post("/clinics/services", serviceCreateValidation, validateRequest, isAut
  *                     type: string
  *                     example: "10.10"
  */
-router.get("/clinics/:clinicId/services", serviceController.getAllServicesByClinicId);
+router.get("/clinics/:clinicId/services", serviceController.getServicesByClinic);
 /**
  * @swagger
  * /services/{serviceId}:
@@ -121,6 +121,40 @@ router.get("/clinics/:clinicId/services", serviceController.getAllServicesByClin
  *                   example: "10.10"
  */
 router.get("/services/:serviceId", serviceController.getServiceById);
+/**
+ * @swagger
+ * /doctors/{doctorId}/services:
+ *   get:
+ *     summary: Получить услугу по doctorId
+ *     tags:
+ *       - Services
+ *     parameters:
+ *       - name: doctorId
+ *         in: path
+ *         required: true
+ *         description: ID доктора
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         description: Услуги по заданному doctorId
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 name:
+ *                   type: string
+ *                   example: "Название услуги"
+ *                 price:
+ *                   type: string
+ *                   example: "10.10"
+ */
+router.get("/doctors/:doctorId/services", serviceController.getServicesByDoctor);
 /**
  * @swagger
  * /services/{serviceId}:

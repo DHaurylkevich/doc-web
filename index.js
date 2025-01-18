@@ -19,8 +19,6 @@ app.use(cors({
   origin: [
     'https://localhost:3000',
     'http://localhost:3000',
-    'http://localhost:5173',
-    'https://localhost:5173',
     "https://doc-web-rose.vercel.app",
     "https://mojlekarz.netlify.app",
     "https://stellar-proximal-handspring.glitch.me",
@@ -42,72 +40,72 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 swaggerDocs(app);
 
-// app.get('/auth/login', (req, res) => {
-//   res.send(`
-//     <form id="login-form">
-//   <div>
-//     <label>Email:</label>
-//     <input type="email" name="loginParam" value="admin@gmail.com" required>
-//   </div>
-//   <div>
-//     <label>Пароль:</label>
-//     <input type="password" name="password" value="123456789" required>      
-//   </div>
-//   <button type="submit">Войти</button>
-// </form>
-// <script>
-//   document.getElementById('login-form').addEventListener('submit', async (e) => {
-//     e.preventDefault(); // Остановить стандартное поведение формы
-//     const formData = new FormData(e.target);
-//     try {
-//       const response = await fetch('https://doc-web-rose.vercel.app/login', {
-//         method: 'POST',
-//         credentials: 'include',
-//         headers: {
-//           'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({
-//           loginParam: formData.get('loginParam'),
-//           password: formData.get('password')
-//         })
-//       });
-//       if (response.ok) {
-//         const data = await response.json();
-//         console.log('Успешный вход:', data.message);
-//         console.log('Информация о пользователе:', data.user);
-//         // Вы можете использовать данные пользователя, например:
-//         // window.location.href = '/chat';
-//       } else {
-//         alert('Ошибка аутентификации');
-//       }
-//     } catch (error) {
-//       console.error('Ошибка:', error);
-//     }
-//   });
-// </script>
-//   `);
-// });
+app.get('/auth/login', (req, res) => {
+  res.send(`
+    <form id="login-form">
+  <div>
+    <label>Email:</label>
+    <input type="email" name="loginParam" value="admin@gmail.com" required>
+  </div>
+  <div>
+    <label>Пароль:</label>
+    <input type="password" name="password" value="123456789" required>      
+  </div>
+  <button type="submit">Войти</button>
+</form>
+<script>
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault(); // Остановить стандартное поведение формы
+    const formData = new FormData(e.target);
+    try {
+      const response = await fetch('http://localhost:3000/auth/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          loginParam: formData.get('loginParam'),
+          password: formData.get('password')
+        })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Успешный вход:', data.message);
+        console.log('Информация о пользователе:', data.user);
+        // Вы можете использовать данные пользователя, например:
+        // window.location.href = '/chat';
+      } else {
+        alert('Ошибка аутентификации');
+      }
+    } catch (error) {
+      console.error('Ошибка:', error);
+    }
+  });
+</script>
+  `);
+});
 
-// app.post('/auth/login', (req, res, next) => {
-//   passport.authenticate("local", (err, user, info) => {
-//     if (err) {
-//       return next(err);
-//     }
-//     if (!user) {
-//       return next(new AppError(info.message || "Неверные учетные данные", 404));
-//     }
-//     req.logIn(user, (err) => {
-//       if (err) {
-//         return next(err);
-//       }
-//       res.redirect('/chat');
-//     });
-//   })(req, res, next);
-// });
+app.post('/auth/login', (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return next(new AppError(info.message || "Неверные учетные данные", 404));
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      res.redirect('/chat');
+    });
+  })(req, res, next);
+});
 
-// app.get('/chat', (req, res) => {
-//   res.sendFile(__dirname + '/index.html');
-// });
+app.get('/chat', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 
 app.get("/", (req, res) => { res.send("Hello"); })
 app.use("/", require("./src/routes"));

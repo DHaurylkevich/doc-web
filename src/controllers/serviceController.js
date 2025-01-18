@@ -22,7 +22,17 @@ const ServiceController = {
             next(err);
         }
     },
-    getAllServicesByClinicId: async (req, res, next) => {
+    getServicesByDoctor: async (req, res, next) => {
+        const { doctorId } = req.params;
+
+        try {
+            const services = await ServiceService.getAllServicesByDoctorId(doctorId);
+            res.status(200).json(services)
+        } catch (err) {
+            next(err);
+        }
+    },
+    getServicesByClinic: async (req, res, next) => {
         const { clinicId } = req.params;
 
         try {

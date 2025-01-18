@@ -28,6 +28,19 @@ const ServiceService = {
             }
         );
     },
+    getAllServicesByDoctorId: async (doctorId) => {
+        return await db.DoctorServices.findAll(
+            {
+                where: { doctor_id: doctorId },
+                include: [
+                    {
+                        model: db.Services,
+                        attributes: { exclude: ["createdAt", "updatedAt", "clinic_id"] }
+                    }
+                ]
+            }
+        );
+    },
     getServiceById: async (serviceId) => {
         const service = await db.Services.findByPk(serviceId);
         if (!service) {
