@@ -13,7 +13,7 @@ describe("Service routes", () => {
     beforeEach(async () => {
         fakeService = {
             name: faker.lorem.sentence(),
-            price: 10.10,
+            price: 10.1,
         };
     });
     afterEach(async () => {
@@ -87,6 +87,23 @@ describe("Service routes", () => {
 
                 expect(response.body[0]).to.have.property("id", serviceId);
                 expect(response.body[0]).have.property("name", fakeService.name);
+            });
+        });
+        describe("GET /api/doctors/:doctorId/services", () => {
+            let testDoctor;
+            beforeEach(async () => {
+                testDoctor = await db.Doctors.create();
+                const createdService = await db.Services.create(fakeService);
+                await db.DoctorService.create({ doctor_id: testDoctor.id, service_id: createdService.id });
+            });
+            it("expect services, when they exists", async () => {
+                const response = await request(app)
+                    .get(`/api/doctors/${testDoctor.id}/services/`)
+                    .expect(200);
+
+                expect(response.body).to.is.an("array");
+                expect(response.body[0].service).have.property("name", fakeService.name);
+                expect(Number(response.body[0].service.price)).to.equal(Number(fakeService.price));
             });
         });
         describe("GET /api/services/:id", () => {
