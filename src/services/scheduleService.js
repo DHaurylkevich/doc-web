@@ -176,7 +176,7 @@ const ScheduleService = {
                 {
                     model: db.Users,
                     as: "user",
-                    attributes: ["first_name", "last_name", "photo"],
+                    attributes: ["first_name", "last_name", "photo", "phone"],
                 },
                 {
                     model: db.Specialties,

@@ -19,6 +19,8 @@ app.use(cors({
   origin: [
     'https://localhost:3000',
     'http://localhost:3000',
+    'http://localhost:5173',
+    'https://localhost:5173',
     "https://doc-web-rose.vercel.app",
     "https://mojlekarz.netlify.app",
     "https://stellar-proximal-handspring.glitch.me",
