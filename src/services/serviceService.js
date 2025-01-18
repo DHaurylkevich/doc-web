@@ -35,6 +35,7 @@ const ServiceService = {
                 include: [
                     {
                         model: db.Services,
+                        as: "service",
                         attributes: { exclude: ["createdAt", "updatedAt", "clinic_id"] }
                     }
                 ]
