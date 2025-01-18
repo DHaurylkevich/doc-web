@@ -142,17 +142,19 @@ router.get("/services/:serviceId", serviceController.getServiceById);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                   example: 1
- *                 name:
- *                   type: string
- *                   example: "Название услуги"
- *                 price:
- *                   type: string
- *                   example: "10.10"
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   service:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                         example: "Название услуги"
+ *                       price:
+ *                         type: integer
+ *                         example: 16.23
  */
 router.get("/doctors/:doctorId/services", serviceController.getServicesByDoctor);
 /**
