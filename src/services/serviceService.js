@@ -32,6 +32,7 @@ const ServiceService = {
         return await db.DoctorService.findAll(
             {
                 where: { doctor_id: doctorId },
+                attributes: [],
                 include: [
                     {
                         model: db.Services,
