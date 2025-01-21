@@ -313,7 +313,14 @@ const AppointmentService = {
                         },
                         {
                             model: db.Services, as: "service",
-                            attributes: ["name", "price"]
+                            attributes: ["name", "price"],
+                            include: [
+                                {
+                                    model: db.Specialties,
+                                    as: "specialty",
+                                    attributes: ["name"],
+                                }
+                            ]
                         }
                     ]
                 },
@@ -322,6 +329,18 @@ const AppointmentService = {
                     where: scheduleWhere,
                     attributes: ["date", "interval"],
                     order: [["date", "DESC"]]
+                },
+                {
+                    model: db.Clinics,
+                    as: "clinic",
+                    attributes: ["name", "phone"],
+                    include: [
+                        {
+                            model: db.Addresses,
+                            as: "address",
+                            attributes: ["city", "home", "street", "flat"],
+                        }
+                    ]
                 }
             ]
         });
@@ -344,6 +363,7 @@ const AppointmentService = {
                 visit_type: appointment.visit_type,
                 status: appointment.status,
                 doctor: appointment.doctorService.doctor.user,
+                clinic: appointment.clinic,
             }
         });
 

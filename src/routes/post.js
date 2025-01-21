@@ -68,34 +68,58 @@ router.post("/posts/categories/:categoryId", isAuthenticated, hasRole("admin"), 
  *     summary: Получить все посты
  *     description: Возвращает список всех постов.
  *     tags: [Posts]
+ *     parameters:
+ *       - name: limit
+ *         in: query
+ *         required: false
+ *         description: Лимит на количество результатов
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - name: page
+ *         in: query
+ *         required: false
+ *         description: Номер страницы
+ *         schema:
+ *           type: integer
+ *           default: 1
  *     responses:
  *       200:
- *         description: Массив всех постов
+ *         description: Массив постов, сгруппированных по категориям с информацией о количестве страниц
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 1
- *                   photo:
- *                     type: string
- *                     example: "Фото поста"
- *                   title:
- *                     type: string
- *                     example: "Название поста"
- *                   content:
- *                     type: string
- *                     example: "Текст поста"
- *                   category:
- *                     type: object
- *                     properties:
- *                       name:
- *                         type: string
- *                         example: "Computers"
+ *               type: object
+ *               properties:
+ *                 pages:
+ *                   type: integer
+ *                   example: 10
+ *                 posts:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           example: "801"
+ *                         photo:
+ *                           type: string
+ *                           format: uri
+ *                           example: "https://loremflickr.com/3493/3098?lock=693477065326085"
+ *                         title:
+ *                           type: string
+ *                           example: "Ipsum."
+ *                         content:
+ *                           type: string
+ *                           example: "Facilis voluptas similique possimus.\nDolorum veritatis nemo iste odio dignissimos quam.\nIste architecto occaecati debitis distinctio.\nRem modi architecto numquam porro officia ipsam exercitationem commodi.\nAliquid perferendis molestias."
+ *                         category:
+ *                           type: object
+ *                           properties:
+ *                             name:
+ *                               type: string
+ *                               example: "Games"
  */
 router.get("/posts", PostController.getAllPosts);
 /**

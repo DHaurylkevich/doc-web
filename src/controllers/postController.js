@@ -14,8 +14,10 @@ const PostController = {
         }
     },
     getAllPosts: async (req, res, next) => {
+        const { limit, page } = req.query;
+
         try {
-            const post = await PostService.getAllPosts();
+            const post = await PostService.getAllPosts(limit, page);
             res.status(200).json(post)
         } catch (err) {
             next(err);

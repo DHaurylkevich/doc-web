@@ -137,7 +137,7 @@ const SearchService = {
 
         const { rows, count } = await db.Patients.findAndCountAll({
             include: includeArray,
-            attributes: [],
+            attributes: ["id"],
             offset: offset,
             limit: parsedLimit,
             distinct: true,

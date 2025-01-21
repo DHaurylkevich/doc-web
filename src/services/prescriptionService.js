@@ -57,7 +57,6 @@ const prescriptionService = {
                         }
                     ]
                 };
-                excludePrescriptions.push("code");
                 break;
             case "doctor":
                 wherePrescriptions = { doctor_id: roleId };
@@ -72,6 +71,7 @@ const prescriptionService = {
                         }
                     ]
                 };
+                excludePrescriptions.push("code");
                 break;
         }
 

@@ -69,15 +69,19 @@ describe("Post routes", () => {
         });
         describe("GET /api/posts", () => {
             it("expect posts, when they exists", async () => {
-                const testPost = await db.Posts.create(fakePost);
+                const testCategory = await db.Categories.create(fakeCategory);
+                const testPost = await db.Posts.create({ ...fakePost, category_id: testCategory.id });
 
                 const response = await request(app)
                     .get(`/api/posts/`)
                     .expect(200);
 
-                expect(response.body).to.be.an("array");
-                expect(response.body[0]).to.have.property("id", testPost.id);
-                expect(response.body[0]).to.include({ title: testPost.title });
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("posts");
+                expect(response.body.posts).to.have.property(testCategory.name);
+                expect(response.body.posts[testCategory.name]).to.be.an("array");
+                expect(response.body.posts[testCategory.name][0]).to.have.property("id", testPost.id);
+                expect(response.body.posts[testCategory.name][0]).to.include({ title: testPost.title });
             });
         });
         describe("GET /api/posts/category/:categoryId", () => {

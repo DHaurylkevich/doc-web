@@ -1,5 +1,6 @@
 const db = require("../models");
 const AppError = require("../utils/appError");
+const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 
 const PostService = {
     createPost: async (categoryId, postData) => {
@@ -11,18 +12,37 @@ const PostService = {
         const post = await db.Posts.create({ ...postData, category_id: categoryId });
         return { id: post.id, photo: post.photo, title: post.title, content: post.content };
     },
-    getAllPosts: async () => {
-        return await db.Posts.findAll(
-            {
-                attributes: { exclude: ["createdAt", "updatedAt", "category_id"] },
-                include: [
-                    {
-                        model: db.Categories,
-                        as: "category",
-                        attributes: ["name"],
-                    }
-                ],
-            });
+    getAllPosts: async (limit, page) => {
+        const { parsedLimit, offset } = getPaginationParams(limit, page);
+
+        const { rows, count } = await db.Posts.findAndCountAll({
+            limit: parsedLimit,
+            offset: offset,
+            attributes: { exclude: ["createdAt", "updatedAt", "category_id"] },
+            include: [
+                {
+                    model: db.Categories,
+                    as: "category",
+                    attributes: ["name"],
+                }
+            ],
+        });
+        if (!rows.length) {
+            return { pages: 0, posts: [] };
+        }
+
+        const totalPages = getTotalPages(count, parsedLimit, page);
+
+        const groupedPosts = rows.reduce((accumulator, post) => {
+            const categoryName = post.category.name;
+            if (!accumulator[categoryName]) {
+                accumulator[categoryName] = [];
+            }
+            accumulator[categoryName].push(post);
+            return accumulator;
+        }, {});
+
+        return { pages: totalPages, posts: groupedPosts };
     },
     getPostsByCategory: async (categoryId) => {
         return await db.Posts.findAll({
