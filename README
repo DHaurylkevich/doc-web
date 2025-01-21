@@ -41,7 +41,7 @@
 
 ## Установка и настройка 
 ### Запуск миграций базы данных
-npx sequelize-cli db:migration:all
+npx sequelize-cli db:migrate
 
 ### Заполение базы данных
 npx sequelize-cli db:seed:all

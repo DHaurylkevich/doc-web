@@ -87,13 +87,23 @@ describe("User routes", () => {
         describe("PUT /api/users", () => {
             it("expect to update user data and return 'User update successfully', when data valid and it exists", async () => {
                 const updateData = {
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.firstName(),
-                    email: faker.internet.email(),
-                    gender: "male",
-                    pesel: 12345678900,
-                    phone: faker.phone.number(),
-                    birthday: faker.date.birthdate(),
+                    userData: {
+                        first_name: faker.person.firstName(),
+                        last_name: faker.person.firstName(),
+                        email: faker.internet.email(),
+                        gender: "male",
+                        pesel: 12345678900,
+                        phone: faker.phone.number(),
+                        birthday: faker.date.birthdate(),
+                    },
+                    addressData: {
+                        city: faker.location.city(),
+                        province: faker.location.state(),
+                        street: faker.location.street(),
+                        home: faker.location.buildingNumber(),
+                        flat: faker.location.secondaryAddress(),
+                        post_index: faker.location.zipCode(),
+                    }
                 };
                 const addressData = {
                     city: faker.location.city(),
@@ -104,6 +114,7 @@ describe("User routes", () => {
                     post_index: faker.location.zipCode(),
                 };
                 const testUser = await db.Users.create(fakeUserData);
+                await testUser.createAddress(addressData);
                 const res = await request(app)
                     .post('/login')
                     .send({
@@ -116,26 +127,26 @@ describe("User routes", () => {
 
                 const response = await request(app)
                     .put(`/api/users`)
-                    .send({ userData: updateData, addressData })
+                    .send(updateData)
                     .set('Cookie', sessionCookies)
                     .expect(200);
 
                 expect(response.body).to.deep.equals({ message: "User update successfully" });
                 const userInDb = await db.Users.findByPk(testUser.id);
-                expect(userInDb).to.have.property("first_name", updateData.first_name);
-                expect(userInDb).to.have.property("last_name", updateData.last_name);
-                expect(userInDb).to.have.property("email", updateData.email);
-                expect(userInDb).to.have.property("gender", updateData.gender);
-                expect(userInDb).to.have.property("pesel", updateData.pesel.toString());
-                expect(userInDb).to.have.property("phone", updateData.phone);
-                expect(userInDb.birthday).to.deep.equal(updateData.birthday);
+                expect(userInDb).to.have.property("first_name", updateData.userData.first_name);
+                expect(userInDb).to.have.property("last_name", updateData.userData.last_name);
+                expect(userInDb).to.have.property("email", updateData.userData.email);
+                expect(userInDb).to.have.property("gender", updateData.userData.gender);
+                expect(userInDb).to.have.property("pesel", updateData.userData.pesel.toString());
+                expect(userInDb).to.have.property("phone", updateData.userData.phone);
+                expect(userInDb.birthday).to.deep.equal(updateData.userData.birthday);
                 const addressInDb = await userInDb.getAddress();
-                expect(addressInDb).to.have.property("city", addressData.city);
-                expect(addressInDb).to.have.property("province", addressData.province);
-                expect(addressInDb).to.have.property("street", addressData.street);
-                expect(addressInDb).to.have.property("home", addressData.home);
-                expect(addressInDb).to.have.property("flat", addressData.flat);
-                expect(addressInDb).to.have.property("post_index", addressData.post_index);
+                expect(addressInDb).to.have.property("city", updateData.addressData.city);
+                expect(addressInDb).to.have.property("province", updateData.addressData.province);
+                expect(addressInDb).to.have.property("street", updateData.addressData.street);
+                expect(addressInDb).to.have.property("home", updateData.addressData.home);
+                expect(addressInDb).to.have.property("flat", updateData.addressData.flat);
+                expect(addressInDb).to.have.property("post_index", updateData.addressData.post_index);
                 await db.Addresses.destroy({ where: {} });
             });
         });

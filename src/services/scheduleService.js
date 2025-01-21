@@ -223,7 +223,7 @@ const ScheduleService = {
                 rating: doctor.rating,
                 user: doctor.user,
                 specialty: doctor.specialty.name,
-                clinic: doctor.clinic.name,
+                clinic: doctor.clinic,
                 address: doctor.clinic.address,
                 service: doctor.services,
                 available_slots: freeSlots,

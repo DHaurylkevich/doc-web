@@ -75,7 +75,12 @@ const UserService = {
             const user = await db.Users.findByPk(userId);
             await user.update(userData, { transaction: t });
 
-            await db.Addresses.upsert({ ...addressData, user_id: user.id }, { transaction: t });
+            const address = await user.getAddress();
+            if (address) {
+                await address.update({ ...addressData, user_id: user.id }, { transaction: t });
+            } else {
+                await user.createAddress(addressData, { transaction: t });
+            }
 
             await t.commit();
 
