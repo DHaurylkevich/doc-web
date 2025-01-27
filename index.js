@@ -87,7 +87,7 @@ app.get('/auth/login', (req, res) => {
 </script>
   `);
 });
-
+console.log(new Date());
 app.post('/auth/login', (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
@@ -117,12 +117,11 @@ app.use(errorHandler);
 
 if (process.env.NODE_ENV === 'test') {
   module.exports = server;
-} else {
-  const port = process.env.PORT || 5000;
-  const link = process.env.LINK || "http://localhost";
-
-  server.listen(port, () => {
-    logger.info(`The server start at: ${link}:${port}`)
-    logger.info(`The documentation is available at: ${link}:${port}/api-docs`);
-  });
 }
+const port = process.env.PORT || 5000;
+const link = process.env.LINK || "http://localhost";
+
+server.listen(port, () => {
+  logger.info(`The server start at: ${link}:${port}`)
+  logger.info(`The documentation is available at: ${link}:${port}/api-docs`);
+});
