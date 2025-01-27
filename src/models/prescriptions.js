@@ -44,11 +44,31 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true,
         },
+        status: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'active',
+        },
     }, {
         sequelize,
         modelName: 'Prescriptions',
         tableName: 'prescriptions',
         timestamps: true,
+        hooks: {
+            beforeFind: async (prescriptions) => {
+                if (!prescriptions) return;
+
+                const now = new Date();
+                const expiredPrescriptions = prescriptions.filter(p => p.expiration_date < now);
+
+                if (expiredPrescriptions.length > 0) {
+                    await Prescriptions.update(
+                        { status: 'inactive', code: null },
+                        { where: { id: expiredPrescriptions.map(p => p.id) } }
+                    );
+                }
+            }
+        }
     });
     return Prescriptions;
 };
