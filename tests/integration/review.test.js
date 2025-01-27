@@ -115,6 +115,53 @@ describe("Review routers", () => {
                 expect(response.body.reviews[0]).to.have.property("tags");
             });
         });
+        describe("GET /api/clinics/:clinicId/reviews", () => {
+            let testClinicId;
+            beforeEach(async () => {
+                const testClinic = await db.Clinics.create({ name: faker.company.buzzAdjective(), password: faker.internet.password(), nip: 1234567890, nr_license: faker.vehicle.vin(), email: faker.internet.email(), phone: faker.phone.number({ style: 'international' }), description: faker.lorem.sentence() });
+                await testDoctor.update({ clinic_id: testClinic.id });
+                const existingReviews = [
+                    { patient_id: testPatient.id, status: 'approved', doctor_id: testDoctor.id, rating: 4, comment: "Good doctor" },
+                    { patient_id: testPatient.id, status: 'approved', doctor_id: testDoctor.id, rating: 5, comment: "Excellent service" },
+                    { patient_id: testPatient.id, status: 'approved', doctor_id: testDoctor.id, rating: 3, comment: "Average experience" }
+                ];
+                const testReviews = await db.Reviews.bulkCreate(existingReviews);
+                for (const review of testReviews) {
+                    await review.addTags(testTag);
+                }
+                testClinicId = testClinic.id;
+            });
+            it("expect return reviews sorted by rating in descending order for a given clinicId, when the query has sortRating = 'DESC'", async () => {
+                const response = await request(app)
+                    .get(`/api/clinics/${testClinicId}/reviews`)
+                    .query({ sortDate: 'ASC', sortRating: 'DESC', limit: 10, pages: 0 })
+                    .expect(200);
+                console.log(response.body.reviews);
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("reviews").that.is.not.empty;
+                expect(response.body.reviews[0]).to.have.property("rating");
+                expect(response.body.reviews[0]).to.have.property("doctor");
+                expect(response.body.reviews[0].rating).to.be.greaterThan(response.body.reviews[1].rating);
+                expect(response.body.reviews[0].doctor).to.have.property("user");
+                expect(response.body.reviews[0].patient).to.have.property("user");
+                expect(response.body.reviews[0]).to.have.property("tags");
+            });
+            it("expect return reviews sorted by rating in ascending order for a given clinicId, when the query has not sortRating", async () => {
+                const response = await request(app)
+                    .get(`/api/clinics/${testClinicId}/reviews`)
+                    .query({ sortDate: 'ASC', limit: 10, pages: 0 })
+                    .expect(200);
+
+                expect(response.body).to.have.property("pages");
+                expect(response.body).to.have.property("reviews").that.is.not.empty;
+                expect(response.body.reviews[0]).to.have.property("rating");
+                expect(response.body.reviews[0]).to.have.property("doctor");
+                expect(response.body.reviews[0].rating).to.be.lessThan(response.body.reviews[1].rating);
+                expect(response.body.reviews[0].doctor).to.have.property("user");
+                expect(response.body.reviews[0].patient).to.have.property("user");
+                expect(response.body.reviews[0]).to.have.property("tags");
+            });
+        });
         describe("GET /api/reviews", () => {
             let sessionCookies, patientId;
             beforeEach(async () => {

@@ -101,7 +101,7 @@ const ReviewService = {
                 ['rating', sortRating === 'DESC' ? 'DESC' : 'ASC'],
                 ['createdAt', sortDate === 'DESC' ? 'DESC' : 'ASC']
             ],
-            attributes: ["id", "comment", "rating"],
+            attributes: ["id", "comment", "rating", "createdAt"],
             where: { status: 'approved' },
             include: [
                 {

@@ -3,7 +3,6 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
     class Reviews extends Model {
-        //maybe привязать к Записи, чтобы была конкретика 0_O
         static associate(models) {
             Reviews.belongsTo(models.Patients, {
                 foreignKey: 'patient_id',
