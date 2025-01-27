@@ -24,6 +24,7 @@ const ClinicController = {
     },
     getAllClinicByParams: async (req, res, next) => {
         const { name, province, specialty, city, limit, page } = req.query;
+
         try {
             const clinicData = await ClinicService.getAllClinicsFullData({ name, province, specialty, city, limit, page });
 
@@ -62,18 +63,7 @@ const ClinicController = {
         } catch (err) {
             next(err);
         }
-    },
-    // deleteClinic: async (req, res, next) => {
-    //     const { clinicId } = req.params;
-
-    //     try {
-    //         await ClinicService.deleteClinicById(clinicId);
-
-    //         res.status(200).json({ message: "Successful delete" })
-    //     } catch (err) {
-    //         next(err);
-    //     }
-    // }
+    }
 };
 
 module.exports = ClinicController;

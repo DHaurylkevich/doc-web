@@ -9,7 +9,15 @@ const db = require("../../src/models");
 const bcrypt = require("bcrypt");
 
 describe("User routes", () => {
-    let fakeUserData;
+    let fakeUserData, server;
+
+    before(async () => {
+        server = app.listen(0);
+        await db.sequelize.sync({ force: true });
+    });
+    after(async () => {
+        await server.close();
+    });
 
     beforeEach(() => {
         fakeUserData = {
@@ -22,10 +30,6 @@ describe("User routes", () => {
     });
     afterEach(async () => {
         await db.Users.destroy({ where: {} });
-    });
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
     });
 
     describe("Positive tests", () => {

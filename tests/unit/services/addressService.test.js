@@ -15,37 +15,38 @@ describe("Address Service", () => {
         sinon.restore();
     });
     describe("Positive tests", () => {
-        describe("addressCreate() => Create:", () => {
-            let createAddressStub;
-
+        describe("addressCreate:", () => {
+            let createAddressStub, transactionStub;
             beforeEach(async () => {
+                transactionStub = {
+                    commit: sinon.stub(),
+                    rollback: sinon.stub(),
+                };
+                sinon.stub(sequelize, "transaction").resolves(transactionStub);
                 createAddressStub = sinon.stub(db.Addresses, "create");
             });
-
             it("expect address to be created with transaction and return", async () => {
                 const newAddress = { city: "foo", street: "foo", home: 1, flat: 1, post_index: "123-1234" };
                 createAddressStub.resolves({ ...newAddress, id: 1 });
 
-                const result = await AddressService.createAddress(newAddress);
+                const result = await AddressService.createAddress(newAddress, transactionStub);
 
-                expect(createAddressStub.calledOnceWith(newAddress)).to.be.true;
+                expect(createAddressStub.calledOnceWith(newAddress, { transaction: transactionStub })).to.be.true;
                 expect(result).to.deep.equals({ ...newAddress, id: 1 });
             });
         });
         describe("updateAddress => Update:", () => {
             let updateAddressStub
-
             beforeEach(async () => {
                 transactionStub = sinon.stub(sequelize, "transaction").resolves();
                 updateAddressStub = sinon.stub(db.Addresses, "update")
             });
-
             it("expend address to be updated, when valid data and transaction are ", async () => {
                 const id = 1;
                 const newAddress = { city: "foo", street: "foo", home: 1, flat: 1, post_index: "123-1234" };
                 updateAddressStub.resolves({ ...newAddress, home: 2 });
 
-                const result = await AddressService.updateAddress({update: updateAddressStub}, newAddress, transactionStub);
+                const result = await AddressService.updateAddress({ update: updateAddressStub }, newAddress, transactionStub);
 
                 expect(updateAddressStub.calledOnceWith(newAddress, { transaction: transactionStub })).to.be.true;
                 expect(result).to.deep.include({ ...newAddress, home: 2 });
@@ -53,7 +54,7 @@ describe("Address Service", () => {
         });
     });
     describe("Negative tests", () => {
-        describe("addressCreate() => Create:", () => {
+        describe("addressCreate:", () => {
             let createAddressStub;
 
             beforeEach(async () => {
@@ -69,7 +70,7 @@ describe("Address Service", () => {
                 expect(createAddressStub.calledOnceWith(newAddress)).to.be.true;
             });
         });
-        describe("updateAddress => Update:", () => {
+        describe("updateAddress", () => {
             let updateAddressStub, transactionStub;
 
             beforeEach(async () => {
@@ -81,9 +82,9 @@ describe("Address Service", () => {
                 const newAddress = { city: "foo", street: "foo", home: 1, flat: 1, post_index: "123-1234" };
                 updateAddressStub.rejects(new Error("Address error"));
 
-                await expect(AddressService.updateAddress({update: updateAddressStub}, newAddress, transactionStub)).to.be.rejectedWith(Error, "Address error");
+                await expect(AddressService.updateAddress({ update: updateAddressStub }, newAddress, transactionStub)).to.be.rejectedWith(Error, "Address error");
 
-                expect(updateAddressStub.calledOnceWith(newAddress, {transaction: transactionStub})).to.be.true;
+                expect(updateAddressStub.calledOnceWith(newAddress, { transaction: transactionStub })).to.be.true;
             })
         });
     });

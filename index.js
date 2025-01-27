@@ -115,14 +115,14 @@ app.use("/", require("./src/routes"));
 app.use((req, res, next) => { next(new AppError("Not Found", 404)); });
 app.use(errorHandler);
 
-const port = process.env.PORT || 5000;
-const link = process.env.LINK || "http://localhost";
-
-server.listen(port, () => {
-  logger.info(`The server start at: ${link}:${port}`)
-  logger.info(`The documentation is available at: ${link}:${port}/api-docs`);
-});
-
 if (process.env.NODE_ENV === 'test') {
   module.exports = server;
+} else {
+  const port = process.env.PORT || 5000;
+  const link = process.env.LINK || "http://localhost";
+
+  server.listen(port, () => {
+    logger.info(`The server start at: ${link}:${port}`)
+    logger.info(`The documentation is available at: ${link}:${port}/api-docs`);
+  });
 }

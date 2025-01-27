@@ -7,7 +7,15 @@ const app = require("../../index");
 const db = require("../../src/models");
 
 describe("Notion routes", () => {
-    let fakeNotion;
+    let fakeNotion, server;
+
+    before(async () => {
+        server = app.listen(0);
+        await db.sequelize.sync({ force: true });
+    });
+    after(async () => {
+        await server.close();
+    });
 
     beforeEach(async () => {
         fakeNotion = {
@@ -17,10 +25,6 @@ describe("Notion routes", () => {
     afterEach(async () => {
         await db.Notions.destroy({ where: {} });
         await db.Users.destroy({ where: {} });
-    });
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
     });
 
     describe("Positive tests", () => {

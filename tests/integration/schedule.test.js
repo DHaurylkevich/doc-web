@@ -7,7 +7,15 @@ const app = require("../../index");
 const db = require("../../src/models");
 
 describe("Schedule routes", () => {
-    let testDoctor, testClinic, fakeDoctor;
+    let testDoctor, testClinic, fakeDoctor, server;
+
+    before(async () => {
+        server = app.listen(0);
+        await db.sequelize.sync({ force: true });
+    });
+    after(async () => {
+        await server.close();
+    });
 
     beforeEach(async () => {
         testClinic = await db.Clinics.create({
@@ -32,10 +40,6 @@ describe("Schedule routes", () => {
         await db.Schedules.destroy({ where: {} });
         await db.Doctors.destroy({ where: {} });
         await db.Clinics.destroy({ where: {} });
-    });
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
     });
 
     describe("Positive tests", () => {
@@ -93,7 +97,6 @@ describe("Schedule routes", () => {
                     .send(scheduleData)
                     .set("Cookie", sessionCookies)
                     .expect(201);
-                console.log(response.body);
                 expect(response.body.length).to.equal(scheduleData.doctorsIds.length);
                 expect(response.body[0].available_slots).to.length(3);
                 expect(response.body[0]).to.have.property("doctor_id", scheduleData.doctorsIds[0]);
@@ -283,7 +286,6 @@ describe("Schedule routes", () => {
                 const response = await request(app)
                     .get(`/api/schedules/${createdSchedule.id}`)
                     .expect(200);
-                console.log(response.body)
                 expect(response.body).to.have.property("id", createdSchedule.id);
                 expect(response.body).to.have.property("doctor");
                 expect(response.body).to.have.property("clinic");

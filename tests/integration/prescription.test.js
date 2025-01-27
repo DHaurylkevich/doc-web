@@ -7,7 +7,15 @@ const app = require("../../index");
 const db = require("../../src/models");
 
 describe("Prescription routes", () => {
-    let testMedication;
+    let testMedication, server;
+
+    before(async () => {
+        server = app.listen(0);
+        await db.sequelize.sync({ force: true });
+    });
+    after(async () => {
+        await server.close();
+    });
 
     beforeEach(async () => {
         fakePrescription = {
@@ -21,10 +29,6 @@ describe("Prescription routes", () => {
         await db.Patients.destroy({ where: {} });
         await db.Doctors.destroy({ where: {} });
         await db.Users.destroy({ where: {} });
-    });
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
     });
 
     describe("Positive tests", () => {
@@ -239,7 +243,7 @@ describe("Prescription routes", () => {
         });
     });
     describe("Negative tests", () => {
-        describe("POST /api/Prescriptions", () => {
+        describe("POST /api/prescriptions", () => {
             it("expect to AppError('expirationDate is required'), when 'expirationDate' is not provided", async () => {
                 const response = await request(app)
                     .post("/api/prescriptions/")
@@ -299,7 +303,7 @@ describe("Prescription routes", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .post("/api/Prescriptions/")
+                    .post("/api/prescriptions/")
                     .send({ expirationDate: new Date() })
                     .set("Cookie", sessionCookies)
                     .expect(400);
@@ -324,7 +328,7 @@ describe("Prescription routes", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .post("/api/Prescriptions/")
+                    .post("/api/prescriptions")
                     .send({ expirationDate: faker.date.future(), patientId: 1, medicationsIds: [testMedication.id] })
                     .set("Cookie", sessionCookies)
                     .expect(404);
@@ -350,7 +354,7 @@ describe("Prescription routes", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .post("/api/Prescriptions/")
+                    .post("/api/prescriptions/")
                     .send({ expirationDate: faker.date.future(), patientId: testPatient.id, medicationsIds: [testMedication.id + 1] })
                     .set("Cookie", sessionCookies)
                     .expect(404);

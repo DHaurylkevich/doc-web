@@ -57,11 +57,11 @@ const AppointmentController = {
         }
     },
     deleteAppointment: async (req, res, next) => {
-        const { id } = req.params;
+        const { appointmentId } = req.params;
 
         try {
-            await AppointmentService.deleteAppointment(id);
-            res.status(200).json({ message: "Successful delete" });
+            await AppointmentService.deleteAppointment(appointmentId);
+            res.status(200).json({ message: "Appointment deleted successfully" });
         } catch (err) {
             next(err);
         }

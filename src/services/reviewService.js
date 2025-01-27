@@ -65,7 +65,7 @@ const ReviewService = {
                 {
                     model: db.Patients,
                     as: "patient",
-                    attributes: [],
+                    attributes: ["id"],
                     include: [
                         {
                             model: db.Users,

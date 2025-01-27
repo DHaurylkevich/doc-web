@@ -3,7 +3,7 @@ const AppError = require("../utils/appError");
 
 const AddressService = {
     createAddress: async (addressData, t) => {
-        return await db.Address.create(addressData, { transaction: t });
+        return await db.Addresses.create(addressData, { transaction: t });
     },
     updateAddress: async (address, addressData, t) => {
         if (!address) {

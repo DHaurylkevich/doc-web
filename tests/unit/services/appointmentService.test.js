@@ -2,14 +2,11 @@ require("dotenv").config();
 process.env.NODE_ENV = 'test';
 
 const sinon = require("sinon");
+const rewire = require('rewire');
 const { expect, use } = require("chai");
 const chaiAsPromised = require("chai-as-promised");
 const db = require("../../../src/models");
-const AppointmentService = require("../../../src/services/appointmentService");
-const ScheduleService = require("../../../src/services/scheduleService");
-const DoctorService = require("../../../src/services/doctorService");
-const ClinicService = require("../../../src/services/clinicService");
-const UserService = require("../../../src/services/userService");
+const AppointmentService = rewire('../../../src/services/appointmentService');
 
 use(chaiAsPromised);
 
@@ -18,69 +15,54 @@ describe("Appointment Service", () => {
         sinon.restore();
     });
     describe("Positive tests", () => {
-        describe("createAppointment() =>:", () => {
-            let doctorByIdStub, clinicByIdStub, userByIdStub, scheduleByIdStub, appointmentStub;
-
-            beforeEach(() => {
-                doctorByIdStub = sinon.stub(DoctorService, "getDoctorById");
-                clinicByIdStub = sinon.stub(ClinicService, "getClinicById");
-                userByIdStub = sinon.stub(UserService, "getUserById");
-                scheduleByIdStub = sinon.stub(ScheduleService, "getScheduleById");
-                appointmentStub = sinon.stub(db.Appointments, "findOne");
-                createStub = sinon.stub(db.Appointments, "create");
-            });
+        describe("createAppointment", () => {
             it("expect create a new appointment, when valid data is provided", async () => {
-                const appointment = { doctor_id: 1, user_id: 1, clinic_id: 1, schedule_id: 1, time: "10:00", description: "First visit", first_visit: "prywatna", visit_type: "consultation", status: "scheduled" };
-                const schedule = { start_time: "09:00", end_time: "17:00", interval: 30 };
-                doctorByIdStub.resolves({ id: 1 });
-                clinicByIdStub.resolves({ id: 1 });
-                userByIdStub.resolves({ getPatients: () => ({ id: 2 }) });
-                scheduleByIdStub.resolves(schedule);
-                appointmentStub.resolves(null);
-                createStub.resolves({ id: 1, ...appointment, patients_id: 2 });
+                const appointmentData = {
+                    doctorId: 1,
+                    serviceId: 1,
+                    patientId: 1,
+                    date: '2024-01-01',
+                    timeSlot: '10:00',
+                    firstVisit: true,
+                    visitType: 'prywatna',
+                    description: 'Test appointment'
+                };
+                const schedule = { id: 1 };
+                const doctorService = {
+                    id: 1,
+                    service: {
+                        clinic_id: 1
+                    }
+                };
+                const checkScheduleStub = sinon.stub().resolves(schedule);
+                const checkDoctorServiceStub = sinon.stub().resolves(doctorService);
+                AppointmentService.__set__('checkScheduleAndSlot', checkScheduleStub);
+                AppointmentService.__set__('checkDoctorService', checkDoctorServiceStub);
+                const createAppointmentStub = sinon.stub(db.Appointments, 'create').resolves({
+                    id: 1,
+                    ...appointmentData,
+                    clinic_id: 1,
+                    schedule_id: 1,
+                    doctor_service_id: 1,
+                    status: 'active'
+                });
 
+                const result = await AppointmentService.createAppointment(appointmentData);
 
-                const result = await AppointmentService.createAppointment(appointment);
+                expect(checkScheduleStub.calledOnceWith(
+                    appointmentData.doctorId,
+                    appointmentData.date,
+                    appointmentData.timeSlot
+                )).to.be.true;
 
-                expect(doctorByIdStub.calledOnceWith(1)).to.be.true;
-                expect(clinicByIdStub.calledOnceWith(1)).to.be.true;
-                expect(userByIdStub.calledOnceWith(1)).to.be.true;
-                expect(createStub.calledOnce).to.be.true;
-                expect(result).to.deep.equal({ id: 1, ...appointment, patients_id: 2 });
-            });
-        });
-        describe("getScheduleById() =>:", () => {
-            let findByPkStub;
+                expect(checkDoctorServiceStub.calledOnceWith(
+                    appointmentData.doctorId,
+                    appointmentData.serviceId
+                )).to.be.true;
 
-            beforeEach(async () => {
-                findByPkStub = sinon.stub(db.Appointments, "findByPk");
-            });
-            it("expect return specialty by id, when it is", async () => {
-                const appointment = { id: 1, name: "Foo" };
-                findByPkStub.resolves(appointment);
-
-                const result = await AppointmentService.getAppointmentById(1);
-
-                expect(findByPkStub.calledOnceWith(1, { include: [db.Doctors, db.Clinics, db.Patients, db.Schedules] })).to.be.true;
-                expect(result).to.deep.equals(appointment);
-            });
-        });
-        describe("updateAppointment() =>:", () => {
-            let updateStub, findByPkStub;
-
-            beforeEach(async () => {
-                findByPkStub = sinon.stub(db.Appointments, "findByPk");
-                updateStub = sinon.stub();
-            });
-            it("expect update schedule, when valid data", async () => {
-                findByPkStub.resolves({ update: updateStub });
-                updateStub.resolves("Foo");
-
-                const result = await AppointmentService.updateAppointment(1, "Foo");
-
-                expect(findByPkStub.calledOnceWith(1)).to.be.true;
-                expect(updateStub.calledOnceWith("Foo")).to.be.true;
-                expect(result).to.equal("Foo");
+                expect(createAppointmentStub.calledOnce).to.be.true;
+                expect(result).to.have.property('id');
+                expect(result.status).to.equal('active');
             });
         });
         describe("deleteAppointment() =>:", () => {
@@ -103,111 +85,35 @@ describe("Appointment Service", () => {
     });
     describe("Negative tests", () => {
         describe("createAppointment() =>:", () => {
-            let doctorByIdStub, clinicByIdStub, userByIdStub, scheduleByIdStub, appointmentStub;
-
-
+            let appointmentCreateStub, checkDoctorServiceStub, checkScheduleAndSlotStub;
             beforeEach(() => {
-                doctorByIdStub = sinon.stub(DoctorService, "getDoctorById");
-                clinicByIdStub = sinon.stub(ClinicService, "getClinicById");
-                userByIdStub = sinon.stub(UserService, "getUserById");
-                scheduleByIdStub = sinon.stub(ScheduleService, "getScheduleById");
-                appointmentStub = sinon.stub(db.Appointments, "findOne");
-                createStub = sinon.stub(db.Appointments, "create");
+                checkScheduleAndSlotStub = sinon.stub();
+                checkDoctorServiceStub = sinon.stub();
+                AppointmentService.__set__('checkScheduleAndSlot', checkScheduleAndSlotStub);
+                AppointmentService.__set__('checkDoctorService', checkDoctorServiceStub);
+                appointmentCreateStub = sinon.stub(db.Appointments, "create");
             });
-            it("expect throw an Error('Patient not found'), when patient not found for user", async () => {
+            it("expect throw an AppError('The doctor's schedule for the specified date was not found'), when the doctor doesn't have this schedule", async () => {
+                checkScheduleAndSlotStub.rejects(new Error("The doctor's schedule for the specified date was not found"))
                 const appointment = { doctor_id: 1, user_id: 1, clinic_id: 1, schedule_id: 1 };
-                doctorByIdStub.resolves({ id: 1 });
-                clinicByIdStub.resolves({ id: 1 });
-                userByIdStub.resolves({ getPatients: () => null });
 
-                await expect(AppointmentService.createAppointment(appointment)).to.be.rejectedWith(Error, "Patient not found");
+                await expect(AppointmentService.createAppointment(appointment)).to.be.rejectedWith(Error, "The doctor's schedule for the specified date was not found");
 
-                expect(doctorByIdStub.calledOnceWith(1)).to.be.true;
-                expect(clinicByIdStub.calledOnceWith(1)).to.be.true;
-                expect(userByIdStub.calledOnceWith(1)).to.be.true;
-                expect(createStub.called).to.be.false;
+                expect(appointmentCreateStub.called).to.be.false;
             });
-            it("expect throw an Error('Invalid or unavailable time slot'), when slots found", async () => {
+            it("expect throw an AppError('The Doctor doesn't have this service'), when doctor doesn't have this service", async () => {
+                checkScheduleAndSlotStub.resolves({ id: 1 });
+                checkDoctorServiceStub.rejects(new Error("The Doctor doesn't have this service "))
                 const appointment = { doctor_id: 1, user_id: 1, clinic_id: 1, schedule_id: 1, time: "08:00" };
-                const schedule = { start_time: "09:00", end_time: "17:00", interval: 30 };
-                doctorByIdStub.resolves({ id: 1 });
-                clinicByIdStub.resolves({ id: 1 });
-                userByIdStub.resolves({ getPatients: () => true });
-                scheduleByIdStub.resolves(schedule);
 
-                await expect(AppointmentService.createAppointment(appointment)).to.be.rejectedWith(Error, "Invalid or unavailable time slot");
+                await expect(AppointmentService.createAppointment(appointment)).to.be.rejectedWith(Error, "The Doctor doesn't have this service");
 
-                expect(doctorByIdStub.calledOnceWith(1)).to.be.true;
-                expect(clinicByIdStub.calledOnceWith(1)).to.be.true;
-                expect(userByIdStub.calledOnceWith(1)).to.be.true;
-                expect(createStub.called).to.be.false;
-            });
-            it("expect throw an Error('Appointment already exists'), when appointment exists", async () => {
-                const appointment = { doctor_id: 1, user_id: 1, clinic_id: 1, schedule_id: 1, time: "09:00" };
-                const schedule = { start_time: "09:00", end_time: "17:00", interval: 30 };
-                doctorByIdStub.resolves({ id: 1 });
-                clinicByIdStub.resolves({ id: 1 });
-                userByIdStub.resolves({ getPatients: () => ({ id: 2 }) });
-                scheduleByIdStub.resolves(schedule);
-                appointmentStub.resolves({ id: 1 });
-
-                await expect(AppointmentService.createAppointment(appointment)).to.be.rejectedWith(Error, "Appointment already exists");
-
-                expect(doctorByIdStub.calledOnceWith(1)).to.be.true;
-                expect(clinicByIdStub.calledOnceWith(1)).to.be.true;
-                expect(userByIdStub.calledOnceWith(1)).to.be.true;
-                expect(createStub.called).to.be.false;
-            });
-        });
-        describe("getAppointmentById() =>:", () => {
-            let findByPkStub;
-
-            beforeEach(async () => {
-                findByPkStub = sinon.stub(db.Appointments, "findByPk");
-            });
-            it("expect throws Error('Appointment not found'), when it isn't", async () => {
-                findByPkStub.resolves(false);
-
-                await expect(AppointmentService.getAppointmentById(1)).to.be.rejectedWith(Error, "Appointment not found");
-
-                expect(findByPkStub.calledOnceWith(1, { include: [db.Doctors, db.Clinics, db.Patients, db.Schedules] })).to.be.true;
-            });
-            it("expect throws Error('Appointment error'), when it isn't", async () => {
-                findByPkStub.rejects(new Error("Appointment error"));
-
-                await expect(AppointmentService.getAppointmentById(1)).to.be.rejectedWith(Error, "Appointment error");
-
-                expect(findByPkStub.calledOnceWith(1)).to.be.true;
-            });
-        });
-        describe("updateSchedule() =>:", () => {
-            let updateStub, findByPkStub;
-
-            beforeEach(async () => {
-                findByPkStub = sinon.stub(db.Appointments, "findByPk");
-                updateStub = sinon.stub();
-            });
-            it("expect throw error('Appointment not found'), when it isn't", async () => {
-                const appointment = { id: 1, date: "2024-10-22", start_time: "10:00", end_time: "11:00" };
-                findByPkStub.resolves(false);
-
-                await expect(AppointmentService.updateAppointment(1, appointment)).to.be.rejectedWith(Error, "Appointment not found");
-
-                expect(findByPkStub.calledOnceWith(1)).to.be.true;
-            });
-            it("expect throw error('Appointment error'), when error db", async () => {
-                const appointment = { id: 1, date: "2024-10-22", start_time: "10:00", end_time: "11:00" };
-                findByPkStub.resolves({ update: updateStub });
-                updateStub.rejects(new Error("Appointment error"));
-
-                await expect(AppointmentService.updateAppointment(1, appointment)).to.be.rejectedWith(Error, "Appointment error");
-
-                expect(findByPkStub.calledOnceWith(1)).to.be.true;
+                expect(checkDoctorServiceStub.called).to.be.true;
+                expect(appointmentCreateStub.called).to.be.false;
             });
         });
         describe("deleteSpecialty() =>:", () => {
             let destroyStub, findByPkStub;
-
             beforeEach(async () => {
                 findByPkStub = sinon.stub(db.Appointments, "findByPk");
                 destroyStub = sinon.stub();

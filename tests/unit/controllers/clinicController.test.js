@@ -31,31 +31,33 @@ describe("Clinic Controller", () => {
                 expect(res.json.calledOnceWith({ id: 1, ...req.body })).to.be.true;
             });
         });
-        describe("updateClinicById() =>:", () => {
+        describe("createClinic", () => {
+            it("expect to created new clinic, when data is valid", async () => {
+                const req = { body: { clinicData: "clinic", addressData: "address" } };
+                const clinicData = "FOO";
+                const createClinicServiceStub = sinon.stub(ClinicService, "createClinic").resolves(clinicData);
+
+                await ClinicController.createClinic(req, res, next);
+
+                expect(createClinicServiceStub.calledOnceWith("clinic", "address")).to.be.true;
+                expect(next.calledOnce).to.be.false;
+                expect(res.status.calledOnceWith(201)).to.be.true;
+                expect(res.json.calledOnceWith(clinicData)).to.be.true;
+            });
+        });
+        describe("updateClinicById", () => {
             it("expect to update a clinic associated with the clinic, when data is valid", async () => {
-                const req = { params: { clinicId: 1 }, body: { clinicData: "clinic", addressData: "address" } };
+                const req = { user: { id: 1 }, body: { clinicData: "clinic", addressData: "address" } };
                 const updateClinicServiceStub = sinon.stub(ClinicService, "updateClinic").resolves({ id: 1, clinicData: "clinicNew", addressData: "addressNew" });
 
                 await ClinicController.updateClinicById(req, res, next);
 
-                expect(updateClinicServiceStub.calledOnceWith(req.params.clinicId, req.body.clinicData, req.body.addressData)).to.be.true;
+                expect(updateClinicServiceStub.calledOnceWith(req.user.id, req.body.clinicData, req.body.addressData)).to.be.true;
                 expect(res.status.calledOnceWith(200)).to.be.true;
                 expect(res.json.calledOnceWith({ id: 1, clinicData: "clinicNew", addressData: "addressNew" })).to.be.true;
             });
         });
-        describe("getClinic() =>:", () => {
-            it("expect to return a clinic, when it exists in the database", async () => {
-                const req = { params: { clinicId: 1 } };
-                const getClinicServiceStub = sinon.stub(ClinicService, "getClinicById").resolves({ id: 1, clinicData: "clinic" });
-
-                await ClinicController.getClinic(req, res, next);
-
-                expect(getClinicServiceStub.calledOnceWith(req.params.clinicId)).to.be.true;
-                expect(res.status.calledOnceWith(200)).to.be.true;
-                expect(res.json.calledOnceWith({ id: 1, clinicData: "clinic" })).to.be.true;
-            });
-        });
-        describe("getFullClinic() =>:", () => {
+        describe("getFullClinic", () => {
             it("expect to return a clinic with address, when it exists in the database", async () => {
                 const req = { params: { clinicId: 1 } };
                 const getFullClinicServiceStub = sinon.stub(ClinicService, "getFullClinicById").resolves({ id: 1, clinicData: "clinicNew", addressData: "addressNew" });
@@ -67,22 +69,24 @@ describe("Clinic Controller", () => {
                 expect(res.json.calledOnceWith({ id: 1, clinicData: "clinicNew", addressData: "addressNew" })).to.be.true;
             });
         });
-        describe("deleteClinic() =>:", () => {
-            it("expect to delete a clinic, when it exists, and return a message, when clinic is deleted", async () => {
-                const req = { params: { clinicId: 1 } };
-                const deleteClinicServiceStub = sinon.stub(ClinicService, "deleteClinicById").resolves(true);
+        describe("getAllClinicByParams", () => {
+            it("expect clinic data, when it is exist", async () => {
+                const req = { query: { name: "Test Clinic", province: "Test Province", specialty: "Test Specialty", city: "Test City", limit: 10, page: 10 } };
+                const clinicData = "FOO";
+                const getAllClinicsFullDataStub = sinon.stub(ClinicService, "getAllClinicsFullData").resolves(clinicData);
 
-                await ClinicController.deleteClinic(req, res, next);
+                await ClinicController.getAllClinicByParams(req, res, next);
 
-                expect(deleteClinicServiceStub.calledOnceWith(req.params.clinicId)).to.be.true;
-                expect(res.status.calledOnceWith(200)).to.be.true;
-                expect(res.json.calledOnceWith({ message: "Successful delete" })).to.be.true;
+                expect(getAllClinicsFullDataStub.calledOnceWith(req.query)).to.be.true;
+                expect(next.calledOnce).to.be.false;
+                expect(res.status.calledWith(200)).to.be.true;
+                expect(res.json.calledWith(clinicData)).to.be.true;
             });
-        });
+        })
     });
     describe("Negative test", () => {
-        describe("createClinic() =>:", () => {
-            it("expect error('CreateError'), when clinicService throws error", async () => {
+        describe("createClinic", () => {
+            it("expect error, when service throws error", async () => {
                 const req = { body: { clinicData: "clinic", addressData: "address" } };
                 const createClinicServiceStub = sinon.stub(ClinicService, "createClinic").rejects(new Error("CreateError"));
 
@@ -94,34 +98,21 @@ describe("Clinic Controller", () => {
                 expect(res.json.calledOnce).to.be.false;
             });
         });
-        describe("updateClinicById() =>:", () => {
-            it("expect error('UpdateError'), when clinicService throws error", async () => {
-                const req = { params: { clinicId: 1 }, body: { clinicData: "clinic", addressData: "address" } };
+        describe("updateClinicById", () => {
+            it("expect error, when service throws error", async () => {
+                const req = { user: { id: 1 }, body: { clinicData: "clinic", addressData: "address" } };
                 const updateDoctorServiceStub = sinon.stub(ClinicService, "updateClinic").rejects(new Error("CreateError"));
 
                 await ClinicController.updateClinicById(req, res, next);
 
-                expect(updateDoctorServiceStub.calledOnceWith(req.params.clinicId, req.body.clinicData, req.body.addressData)).to.be.true;
+                expect(updateDoctorServiceStub.calledOnceWith(req.user.id, req.body.clinicData, req.body.addressData)).to.be.true;
                 expect(next.calledOnceWith(new Error('UpdateError')));
                 expect(res.status.calledOnce).to.be.false;
                 expect(res.json.calledOnce).to.be.false;
             });
         });
-        describe("getClinic() =>:", () => {
-            it("expect error('GetError'), when clinicService throws error", async () => {
-                const req = { params: { clinicId: 1 } };
-                const getClinicServiceStub = sinon.stub(ClinicService, "getClinicById").rejects(new Error("GetError"));
-
-                await ClinicController.getClinic(req, res, next);
-
-                expect(getClinicServiceStub.calledOnceWith(req.params.clinicId)).to.be.true;
-                expect(next.calledOnceWith(new Error('GetError')));
-                expect(res.status.calledOnceWith(200)).to.be.false;
-                expect(res.json.calledOnceWith({ id: 1 })).to.be.false;
-            });
-        });
-        describe("getFullClinic() =>:", () => {
-            it("expect error('GetError'), when clinicService throws error", async () => {
+        describe("getFullClinic", () => {
+            it("expect error, when service throws error", async () => {
                 const req = { params: { clinicId: 1 } };
                 const getFullClinicServiceStub = sinon.stub(ClinicService, "getFullClinicById").rejects(new Error("GetError"));
 
@@ -133,9 +124,9 @@ describe("Clinic Controller", () => {
                 expect(res.json.calledOnceWith({ id: 1 })).to.be.false;
             });
         });
-        describe("getAllClinicByParams() =>:", () => {
-            it("expect error('Database error'), when clinicService throws error", async () => {
-                const req = { query: { name: "Test Clinic", province: "Test Province", specialty: "Test Specialty", city: "Test City" } };
+        describe("getAllClinicByParams", () => {
+            it("expect error, when service throws error", async () => {
+                const req = { query: { name: "Test Clinic", province: "Test Province", specialty: "Test Specialty", city: "Test City", limit: 10, page: 10 } };
                 const error = new Error("Database error");
                 const getAllClinicsFullDataStub = sinon.stub(ClinicService, "getAllClinicsFullData").rejects(error);
 
@@ -147,18 +138,5 @@ describe("Clinic Controller", () => {
                 expect(res.json.called).to.be.false;
             });
         })
-        describe("deleteClinic() =>:", () => {
-            it("expect Error('Clinic Error'), when clinicService throws error", async () => {
-                const req = { params: { clinicId: 1 } };
-                const deleteClinicServiceStub = sinon.stub(ClinicService, "deleteClinicById").rejects(new Error("Clinic Error"));
-
-                await ClinicController.deleteClinic(req, res, next);
-
-                expect(deleteClinicServiceStub.calledOnceWith(req.params.clinicId)).to.be.true;
-                expect(next.calledOnceWith(new Error("Clinic Error")));
-                expect(res.status.calledOnceWith(200)).to.be.false;
-                expect(res.json.calledOnceWith({ message: "Successful delete" })).to.be.false;
-            });
-        });
     });
 });

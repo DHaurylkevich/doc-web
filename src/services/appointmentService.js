@@ -13,7 +13,7 @@ const AppointmentService = {
             checkDoctorService(doctorId, serviceId)
         ]);
 
-        await db.Appointments.create({
+        return await db.Appointments.create({
             clinic_id: doctorService.service.clinic_id,
             schedule_id: schedule.id,
             patient_id: patientId,

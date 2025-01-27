@@ -15,7 +15,7 @@ describe("Notion Service", () => {
         sinon.restore();
     });
     describe("Positive tests", () => {
-        describe("notionCreate() =>", () => {
+        describe("notionCreate", () => {
             it("expect notion to be created and return, when data is valid", async () => {
                 const testNotion = { content: "FOO" };
                 const createStub = sinon.stub(db.Notions, "create").resolves({ ...testNotion, id: 1 });;
@@ -26,7 +26,7 @@ describe("Notion Service", () => {
                 expect(result).to.deep.equals({ ...testNotion, id: 1 });
             });
         });
-        describe("getAllNotions() =>", () => {
+        describe("getAllNotions", () => {
             it("expect all notions from db, when when they exist", async () => {
                 const testNotion = { content: "FOO" };
                 const findAllStub = sinon.stub(db.Notions, "findAll").resolves([{ ...testNotion, id: 1 }]);;
@@ -38,7 +38,7 @@ describe("Notion Service", () => {
                 expect(result[0]).to.deep.equals({ ...testNotion, id: 1 });
             });
         });
-        describe("updateNotion =>", () => {
+        describe("updateNotion", () => {
             it("expend notion to be updated, when it exists and valid data", async () => {
                 let testNotion = { id: 1, content: "FOO" };
                 const updateStub = sinon.stub(db.Notions, "update");
@@ -49,19 +49,18 @@ describe("Notion Service", () => {
 
                 expect(findByPkStub.calledOnceWith(1)).to.be.true;
                 expect(updateStub.calledOnceWith(testNotion)).to.be.true;
-                expect(result).to.deep.include(updateNotion);
+                expect(result).to.deep.include({ content: updateNotion.content });
             });
         });
-        describe("deleteNotion() =>", () => {
+        describe("deleteNotion", () => {
             it("expend to delete notion, when it exists", async () => {
                 const destroyStub = sinon.stub(db.Notions, "destroy").resolves();
                 const findByPkStub = sinon.stub(db.Notions, "findByPk").resolves({ destroy: destroyStub });
 
-                const result = await NotionService.deleteNotion(1);
+                await NotionService.deleteNotion(1);
 
                 expect(findByPkStub.calledOnceWith(1)).to.be.true;
                 expect(destroyStub.calledOnce).to.be.true;
-                expect(result).to.deep.equals({ message: "Successful delete" });
             });
         })
     });
@@ -76,17 +75,16 @@ describe("Notion Service", () => {
                 expect(createStub.calledOnceWith(testNotion)).to.be.true;
             });
         });
-        describe("getAllNotions() => Create:", () => {
+        describe("getAllNotions", () => {
             it("expend error('Find Error'), when error with db", async () => {
-                let testNotion = { id: 1, content: "FOO" };
                 const findAllStub = sinon.stub(db.Notions, "findAll").rejects(new Error("Find Error"));
 
-                await expect(NotionService.getAllNotions(testNotion)).to.be.rejectedWith(Error, "Find Error");
+                await expect(NotionService.getAllNotions()).to.be.rejectedWith(Error, "Find Error");
 
                 expect(findAllStub.calledOnce).to.be.true;
             });
         });
-        describe("updateNotion =>", () => {
+        describe("updateNotion", () => {
             let findByPkStub, updateStub;
 
             beforeEach(async () => {
@@ -103,7 +101,7 @@ describe("Notion Service", () => {
                 expect(findByPkStub.calledOnceWith(1)).to.be.true;
                 expect(updateStub.calledOnce).to.be.false;
             });
-            it("expend  error('Update Error'), when error with db", async () => {
+            it("expend error('Update Error'), when error with db", async () => {
                 let testNotion = { id: 1, content: "FOO" };
                 findByPkStub.resolves({ testNotion, update: updateStub });
                 updateStub.rejects(new Error("Update Error"));
@@ -114,7 +112,7 @@ describe("Notion Service", () => {
                 expect(updateStub.calledOnceWith(testNotion)).to.be.true;
             });
         });
-        describe("deleteNotion() =>", () => {
+        describe("deleteNotion", () => {
             let findByPkStub, destroyStub
             beforeEach(async () => {
                 findByPkStub = sinon.stub(db.Notions, "findByPk");

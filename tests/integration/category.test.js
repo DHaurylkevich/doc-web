@@ -7,7 +7,15 @@ const app = require("../../index");
 const db = require("../../src/models");
 
 describe("Category routes", () => {
-    let fakeCategory;
+    let fakeCategory, server;
+
+    before(async () => {
+        server = app.listen(0);
+        await db.sequelize.sync({ force: true });
+    });
+    after(async () => {
+        await server.close();
+    });
 
     beforeEach(async () => {
         fakeCategory = {
@@ -17,10 +25,6 @@ describe("Category routes", () => {
     afterEach(async () => {
         await db.Categories.destroy({ where: {} });
         await db.Users.destroy({ where: {} });
-    });
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
     });
 
     describe("Positive tests", () => {

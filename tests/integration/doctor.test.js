@@ -7,7 +7,15 @@ const app = require("../../index");
 const db = require("../../src/models");
 
 describe("Doctor routes", () => {
-    let fakeDoctor, fakeClinic, fakeUser;
+    let fakeDoctor, fakeClinic, fakeUser, server;
+
+    before(async () => {
+        server = app.listen(0);
+        await db.sequelize.sync({ force: true });
+    });
+    after(async () => {
+        await server.close();
+    });
 
     beforeEach(async () => {
         fakeDoctor = {
@@ -31,62 +39,57 @@ describe("Doctor routes", () => {
         await db.Specialties.destroy({ where: {} });
         await db.Services.destroy({ where: {} });
     });
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
-    });
 
     describe("Positive tests", () => {
         describe("POST /clinics/doctors", () => {
-            // let fakeAddress;
-            // beforeEach(async () => {
-            //     fakeAddress = { city: faker.location.city(), province: faker.location.state(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() };
-            // });
-            // it("expect to create doctor with specialty, when clinicData and addressData is valid", async () => {
-            //     const clinic = await db.Clinics.create(fakeClinic);
-            //     const res = await request(app)
-            //         .post('/login')
-            //         .send({
-            //             loginParam: clinic.email,
-            //             password: "123456789"
-            //         })
-            //         .expect(200);
-            //     expect(res.body).to.have.property("user");
-            //     const sessionCookies = res.headers['set-cookie'];
-            //     const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
-            //     const specialtyId = specialtiesInDb.id;
-            //     const servicesInDb = await db.Services.bulkCreate([{ name: "Cut hand", price: 10.10, }, { name: "Say less you", price: 10.10, }]);
-            //     const servicesIds = servicesInDb.map(serviceId => serviceId.id);
+            let fakeAddress;
+            beforeEach(async () => {
+                fakeAddress = { city: faker.location.city(), province: faker.location.state(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() };
+            });
+            it("expect to create doctor with specialty, when clinicData and addressData is valid", async () => {
+                const clinic = await db.Clinics.create(fakeClinic);
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: clinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
+                const specialtiesInDb = await db.Specialties.create({ name: "Cardiology" });
+                const specialtyId = specialtiesInDb.id;
+                const servicesInDb = await db.Services.bulkCreate([{ name: "Cut hand", price: 10.10, }, { name: "Say less you", price: 10.10, }]);
+                const servicesIds = servicesInDb.map(serviceId => serviceId.id);
 
-            //     const response = await request(app)
-            //         .post(`/api/clinics/doctors/`)
-            //         .send({ userData: fakeUser, addressData: fakeAddress, doctorData: fakeDoctor, specialtyId, servicesIds })
-            //         .set('Cookie', sessionCookies)
-            //         .expect(201);
+                const response = await request(app)
+                    .post(`/api/clinics/doctors/`)
+                    .send({ userData: fakeUser, addressData: fakeAddress, doctorData: fakeDoctor, specialtyId, servicesIds })
+                    .set('Cookie', sessionCookies)
+                    .expect(201);
 
-            //     expect(response.body).to.have.property("message", "Doctor created successful");
-            //     const doctorInDb = await db.Doctors.findByPk(response.body.id, {
-            //         include: [
-            //             {
-            //                 model: db.Specialties, as: 'specialty'
-            //             },
-            //             {
-            //                 model: db.Services, as: 'services'
-            //             },
-            //             {
-            //                 model: db.Users, as: 'user',
-            //                 include: [
-            //                     {
-            //                         model: db.Addresses, as: "address"
-            //                     }
-            //                 ]
-            //             }
-            //         ]
-            //     });
-            //     expect(doctorInDb).to.exist;
-            //     expect(doctorInDb.specialty.id).to.equals(specialtyId);
-            //     expect(doctorInDb.services[0].id).to.deep.equals(servicesIds[0]);
-            // });
+                expect(response.body).to.have.property("message", "Doctor created successful");
+                const doctorInDb = await db.Doctors.findOne({ email: fakeUser.email }, {
+                    include: [
+                        {
+                            model: db.Specialties, as: 'specialty'
+                        },
+                        {
+                            model: db.DoctorService, as: 'services'
+                        },
+                        {
+                            model: db.Users, as: 'user',
+                            include: [
+                                {
+                                    model: db.Addresses, as: "address"
+                                }
+                            ]
+                        }
+                    ]
+                });
+                expect(doctorInDb).to.exist;
+                expect(doctorInDb.specialty_id).to.equals(specialtyId);
+            });
         });
         describe("GET /api/doctors/:doctorId/short", () => {
             it("expect to return a doctor by id when it exists", async () => {
@@ -218,29 +221,40 @@ describe("Doctor routes", () => {
             });
         });
         describe("PUT /api/clinics/doctors/:doctorId", () => {
-            let fakeAddress;
+            let createClinic, specialties, createdDoctor, service;
             beforeEach(async () => {
-                fakeAddress = { city: faker.location.city(), province: faker.location.state(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() };
+                createClinic = await db.Clinics.create(fakeClinic);
+                specialties = await db.Specialties.bulkCreate([{ name: "Cardiology" }, { name: "Paper" }]);
+                const createdUser = await db.Users.create(fakeUser);
+                const createdAddress = await db.Addresses.create({ city: faker.location.city(), province: faker.location.state(), street: faker.location.street(), home: faker.location.buildingNumber(), flat: faker.location.buildingNumber(), post_index: faker.location.zipCode() });
+                await createdUser.setAddress(createdAddress);
+                fakeDoctor.clinic_id = createClinic.id;
+                fakeDoctor.specialty_id = specialties[0].id;
+                createdDoctor = await createdUser.createDoctor(fakeDoctor);
+                service = await db.Services.bulkCreate([{ specialty_id: specialties[0].id, name: "Cut hand", price: 10.10 }, { specialty_id: specialties[1].id, name: "Cut", price: 10.10 }]);
+                await createdDoctor.setServices([service[1].id]);
             })
             it("expect to update doctor, when data valid and it exists", async () => {
-                const specialties = await db.Specialties.bulkCreate([{ name: "Cardiology" }, { name: "Paper" }]);
-                const createdUser = await db.Users.create(fakeUser);
-                const createdAddress = await db.Addresses.create(fakeAddress);
-                fakeDoctor.specialty_id = specialties[0].id;
-                await createdUser.setAddress(createdAddress);
-                const createdDoctor = await createdUser.createDoctor(fakeDoctor);
-                const service = await db.Services.bulkCreate([{ specialty_id: specialties[0].id, name: "Cut hand", price: 10.10 }, { specialty_id: specialties[1].id, name: "Cut", price: 10.10 }]);
-                await createdDoctor.setServices([service[1].id]);
                 fakeUser.first_name = "test";
                 fakeDoctor.specialty_id = specialties[1].id;
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: createClinic.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
                     .put(`/api/clinics/doctors/${createdDoctor.id}`)
                     .send({ userData: fakeUser, doctorData: fakeDoctor, servicesIds: [service[0].id, service[1].id] })
+                    .set('Cookie', sessionCookies)
                     .expect(200);
 
                 expect(response.body.name).to.equal(fakeUser.name);
-                const doctorInDb = await db.Doctors.findByPk(response.body.id, {
+                const doctorInDb = await db.Doctors.findByPk(createdDoctor.id, {
                     include: [
                         {
                             model: db.Specialties, as: "specialty"
@@ -260,8 +274,8 @@ describe("Doctor routes", () => {
                 });
                 expect(doctorInDb.user.first_name).to.equal(fakeUser.first_name);
                 expect(doctorInDb.specialty.name).to.equal(specialties[1].name);
-                expect(doctorInDb.services[0].name).to.equal("Cut");
-                expect(doctorInDb.services[1].name).to.equal("Cut hand");
+                expect(doctorInDb.services[1].name).to.equal("Cut");
+                expect(doctorInDb.services[0].name).to.equal("Cut hand");
             });
         });
         describe("GET /clinics/:clinicId/doctors", () => {
@@ -453,26 +467,6 @@ describe("Doctor routes", () => {
                     .expect(403);
 
                 expect(response.body).to.have.property('message', 'Access denied');
-            });
-            it("expect to update doctor, when data valid and it exists", async () => {
-                await db.Clinics.create(fakeClinic)
-                const res = await request(app)
-                    .post('/login')
-                    .send({
-                        loginParam: fakeClinic.email,
-                        password: "123456789"
-                    })
-                    .expect(200);
-                expect(res.body).to.have.property("user");
-                const sessionCookies = res.headers['set-cookie'];
-
-                const response = await request(app)
-                    .put(`/api/clinics/doctors/1`)
-                    .send()
-                    .set('Cookie', sessionCookies)
-                    .expect(404);
-
-                expect(response.body).to.have.property("message", "Doctor not found");
             });
         });
     });

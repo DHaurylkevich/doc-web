@@ -7,7 +7,15 @@ const app = require("../../index");
 const db = require("../../src/models");
 
 describe("Patient routes", () => {
-    let fakeUser;
+    let fakeUser, server;
+
+    before(async () => {
+        server = app.listen(0);
+        await db.sequelize.sync({ force: true });
+    });
+    after(async () => {
+        await server.close();
+    });
 
     beforeEach(async () => {
         fakeUser = {
@@ -21,10 +29,6 @@ describe("Patient routes", () => {
         await db.Patients.destroy({ where: {} });
         await db.Users.destroy({ where: {} });
         await db.Appointments.destroy({ where: {} });
-    });
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
     });
 
     describe("Positive tests", () => {

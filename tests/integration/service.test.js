@@ -8,7 +8,15 @@ const app = require("../../index");
 const db = require("../../src/models");
 
 describe("Service routes", () => {
-    let fakeService;
+    let fakeService, server;
+
+    before(async () => {
+        server = app.listen(0);
+        await db.sequelize.sync({ force: true });
+    });
+    after(async () => {
+        await server.close();
+    });
 
     beforeEach(async () => {
         fakeService = {
@@ -20,10 +28,6 @@ describe("Service routes", () => {
         await db.Specialties.destroy({ where: {} });
         await db.Clinics.destroy({ where: {} });
         await db.Services.destroy({ where: {} });
-    });
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
     });
 
     describe("Positive tests", () => {
@@ -116,7 +120,6 @@ describe("Service routes", () => {
                 const response = await request(app)
                     .get(`/api/services/${serviceId}`)
                     .expect(200);
-                console.log(response.body)
                 expect(response.body).to.have.property("id", serviceId);
                 expect(response.body).have.property("name", fakeService.name);
             });

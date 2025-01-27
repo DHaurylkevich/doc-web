@@ -49,6 +49,8 @@ npx sequelize-cli db:seed:all
 
 ###Документация 
     - http://localhost:3000/api-docs/#/
+    Запуск создание html документации тестов
+    npx mocha testfile.js --reporter mochawesome
 
 ## Структура проекта
 

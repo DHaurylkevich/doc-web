@@ -12,6 +12,7 @@ use(chaiAsPromised);
 
 describe("Doctor Controller", () => {
     let next, res;
+
     beforeEach(async () => {
         next = sinon.stub();
         res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
@@ -20,7 +21,7 @@ describe("Doctor Controller", () => {
         sinon.restore();
     });
     describe("Positive test", () => {
-        describe("createDoctor() =>:", () => {
+        describe("createDoctor", () => {
             it("expect to create a doctor associated with the clinic.", async () => {
                 const req = {
                     body: {
@@ -30,26 +31,18 @@ describe("Doctor Controller", () => {
                         specialtyId: 1,
                         servicesIds: [1, 2]
                     },
-                    params: { clinicId: 1 }
+                    user: { id: 1 },
                 };
-                const createDoctorServiceStub = sinon.stub(DoctorService, "createDoctor").resolves({ id: 1, ...req.body });
+                const createDoctorServiceStub = sinon.stub(DoctorService, "createDoctor");
 
                 await DoctorController.createDoctor(req, res, next);
 
-                expect(createDoctorServiceStub.calledOnce).to.be.true;
-                expect(createDoctorServiceStub.firstCall.args[0]).to.deep.include({
-                    userData: req.body.userData,
-                    addressData: req.body.addressData,
-                    doctorData: req.body.doctorData,
-                    specialtyId: req.body.specialtyId,
-                    clinicId: req.params.clinicId,
-                    servicesIds: req.body.servicesIds
-                });
+                expect(createDoctorServiceStub.calledOnceWith({ ...req.body, clinicId: 1 })).to.be.true;
                 expect(res.status.calledOnceWith(201)).to.be.true;
-                expect(res.json.calledOnceWith({ id: 1, ...req.body })).to.be.true;
+                expect(res.json.calledOnceWith({ message: "Doctor created successful" })).to.be.true;
             });
         });
-        describe("getDoctorById() =>:", () => {
+        describe("getDoctorById", () => {
             it("expect to get a doctor, when doctor exists.", async () => {
                 const req = { params: { doctorId: 1 } };
                 const doctor = { id: 1, name: "doctor " }
@@ -62,21 +55,19 @@ describe("Doctor Controller", () => {
                 expect(res.json.calledOnceWith(doctor)).to.be.true;
             });
         });
-        describe("updateDoctorById()", () => {
+        describe("updateDoctorById", () => {
             it("expect update patient data and return", async () => {
-                const doctorData = { userData: "foo", addressData: "address", doctorData: "foo", servicesIds: [1] };
-                const req = { params: { userId: 1 }, body: doctorData };
-                const updateData = { userData: "New", doctorData: "New" };
-                const updateDoctorServiceStub = sinon.stub(DoctorService, "updateDoctorById").resolves(updateData);
+                const req = { user: { id: 1 }, params: { doctorId: 1 }, body: { userData: "foo", addressData: "address", doctorData: "foo", servicesIds: [1] } };
+                const updateDoctorServiceStub = sinon.stub(DoctorService, "updateDoctorById");
 
                 await DoctorController.updateDoctorById(req, res, next);
 
-                expect(updateDoctorServiceStub.calledOnceWith({ userId: req.params.userId, ...req.body })).to.be.true;
+                expect(updateDoctorServiceStub.calledOnceWith({ doctorId: req.params.doctorId, ...req.body, clinicId: req.user.id })).to.be.true;
                 expect(res.status.calledOnceWith(200)).to.be.true;
-                expect(res.json.calledOnceWith(updateData)).to.be.true;
+                expect(res.json.calledOnceWith({ message: "Doctor update successfully" })).to.be.true;
             });
         });
-        describe("getShortDoctorById() =>:", () => {
+        describe("getShortDoctorById", () => {
             it("expect to get a doctor, when doctor exists.", async () => {
                 const req = { params: { doctorId: 1 } };
                 const doctor = { id: 1, name: "doctor " }
@@ -89,15 +80,15 @@ describe("Doctor Controller", () => {
                 expect(res.json.calledOnceWith(doctor)).to.be.true;
             });
         });
-        describe("getDoctorsByClinicWithSorting() =>:", () => {
+        describe("getDoctorsByClinicWithSorting", () => {
             it("expect to get a doctor, when doctor exists.", async () => {
-                const req = { params: { clinicId: 1 }, query: { gender: "male", sort: "abc" } };
+                const req = { params: { clinicId: 1 }, query: { gender: "male", sort: "abc", limit: 1, page: 1 } };
                 const doctor = { id: 1, name: "doctor " }
                 const getDoctorsByClinicWithSortingStub = sinon.stub(DoctorService, "getDoctorsByClinicWithSorting").resolves(doctor);
 
                 await DoctorController.getDoctorsByClinicWithSorting(req, res, next);
 
-                expect(getDoctorsByClinicWithSortingStub.calledOnceWith(req.params.clinicId, req.query)).to.be.true;
+                expect(getDoctorsByClinicWithSortingStub.calledOnceWith({ clinicId: req.params.clinicId, ...req.query })).to.be.true;
                 expect(res.status.calledOnceWith(200)).to.be.true;
                 expect(res.json.calledOnceWith(doctor)).to.be.true;
             });
@@ -114,7 +105,7 @@ describe("Doctor Controller", () => {
                         specialtyId: 1,
                         servicesIds: [1, 2]
                     },
-                    params: { clinicId: 1 }
+                    user: { id: 1 }
                 };
                 const createDoctorServiceStub = sinon.stub(DoctorService, "createDoctor").rejects(new AppError('CreateError'));
 
@@ -141,13 +132,13 @@ describe("Doctor Controller", () => {
         });
         describe("updateDoctorById()", () => {
             it("expect error('UpdateError'), when error in service", async () => {
-                const doctorData = { userData: "foo", addressData: "address", doctorData: "foo", servicesIds: [1] };
-                const req = { params: { userId: 1 }, body: doctorData };
+                const updateData = { userData: "foo", addressData: "address", doctorData: "foo", servicesIds: [1] };
+                const req = { user: { id: 1 }, params: { doctorId: 1 }, body: updateData };
                 const updateDoctorServiceStub = sinon.stub(DoctorService, "updateDoctorById").rejects(new AppError('UpdateError'));
 
                 await DoctorController.updateDoctorById(req, res, next);
 
-                expect(updateDoctorServiceStub.calledOnceWith({ userId: req.params.userId, ...req.body })).to.be.true;
+                expect(updateDoctorServiceStub.calledOnceWith({ doctorId: req.params.doctorId, ...req.body, clinicId: req.user.id })).to.be.true;
                 expect(next.calledOnceWith(new AppError('UpdateError')));
                 expect(res.status.calledOnce).to.be.false;
                 expect(res.json.calledOnce).to.be.false;
@@ -168,12 +159,12 @@ describe("Doctor Controller", () => {
         });
         describe("getDoctorsByClinicWithSorting() =>:", () => {
             it("expect error('GetError'), when error in service", async () => {
-                const req = { params: { clinicId: 1 }, query: { gender: "male", sort: "abc" } };
+                const req = { params: { clinicId: 1 }, query: { gender: "male", sort: "abc", limit: 1, page: 1 } };
                 const getDoctorsByClinicWithSortingStub = sinon.stub(DoctorService, "getDoctorsByClinicWithSorting").rejects(new AppError('GetError'));
 
                 await DoctorController.getDoctorsByClinicWithSorting(req, res, next);
 
-                expect(getDoctorsByClinicWithSortingStub.calledOnceWith(req.params.clinicId, req.query)).to.be.true;
+                expect(getDoctorsByClinicWithSortingStub.calledOnceWith({ clinicId: req.params.clinicId, ...req.query })).to.be.true;
                 expect(next.calledOnceWith(new AppError('GetError')));
                 expect(res.status.calledOnce).to.be.false;
                 expect(res.json.calledOnce).to.be.false;

@@ -9,7 +9,7 @@ const DoctorServiceService = {
         });
 
         if (!doctorService || !doctorService.service.clinic_id) {
-            throw new AppError("Данная услуга не привязана к врачу.", 404);
+            throw new AppError("The Doctor doesn't have this service", 404);
         }
 
         return doctorService;

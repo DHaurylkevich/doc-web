@@ -8,7 +8,15 @@ const app = require("../../index");
 const db = require("../../src/models");
 
 describe("Tag routes", () => {
-    let fakeTag;
+    let fakeTag, server;
+
+    before(async () => {
+        server = app.listen(0);
+        await db.sequelize.sync({ force: true });
+    });
+    after(async () => {
+        await server.close();
+    });
 
     beforeEach(async () => {
         fakeTag = { name: faker.lorem.paragraph(), positive: false };
@@ -16,10 +24,6 @@ describe("Tag routes", () => {
     afterEach(async () => {
         await db.Tags.destroy({ where: {} });
         await db.Users.destroy({ where: {} });
-    });
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
     });
 
     describe("Positive tests", () => {
@@ -50,7 +54,6 @@ describe("Tag routes", () => {
                     .send(fakeTag)
                     .set("Cookie", sessionCookies)
                     .expect(201);
-                console.log(response.body)
 
                 expect(response.body).that.is.a("object");
                 expect(response.body.name).to.equal(fakeTag.name);

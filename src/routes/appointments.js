@@ -95,15 +95,12 @@ const { validateParam } = require('../utils/validation');
 router.post("/appointments", isAuthenticated, hasRole("patient"), validation.createDataExist, validateRequest, AppointmentController.createAppointment);
 /**
  * @swagger
- *    /appointments/{id}:
+ *    /appointments/{appointmentId}:
  *     delete:
  *       summary: Удаляет запись
  *       description: Удаляет запись по указанному ID.
- *       operationId: deleteAppointment
- *       tags:
- *         - Appointment
- *       security:
- *         - CookieAuth: []
+ *       tags: [Appointment]
+ *       security: [CookieAuth: []]
  *       parameters:
  *         - name: id
  *           in: path
@@ -115,12 +112,8 @@ router.post("/appointments", isAuthenticated, hasRole("patient"), validation.cre
  *       responses:
  *         200:
  *           description: Запись успешно удалена
- *         404:
- *           description: Запись не найдена
- *         500:
- *           description: Внутренняя ошибка сервера
  */
-router.delete("/appointments/:id", isAuthenticated, validateParam("id"), validateRequest, AppointmentController.deleteAppointment);
+router.delete("/appointments/:appointmentId", isAuthenticated, validateParam("id"), validateRequest, AppointmentController.deleteAppointment);
 /**
  * @swagger
  * paths:

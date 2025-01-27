@@ -7,7 +7,15 @@ const app = require("../../index");
 const db = require("../../src/models");
 
 describe("Medication routes", () => {
-    let fakeMedication;
+    let fakeMedication, server;
+
+    before(async () => {
+        server = app.listen(0);
+        await db.sequelize.sync({ force: true });
+    });
+    after(async () => {
+        await server.close();
+    });
 
     beforeEach(async () => {
         fakeMedication = {
@@ -17,10 +25,6 @@ describe("Medication routes", () => {
     afterEach(async () => {
         await db.Medications.destroy({ where: {} });
         await db.Users.destroy({ where: {} });
-    });
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
     });
 
     describe("Positive tests", () => {
@@ -62,6 +66,7 @@ describe("Medication routes", () => {
 
                 const response = await request(app)
                     .get(`/api/medications`)
+                    .set("Cookie", sessionCookies)
                     .expect(200);
 
                 expect(response.body).to.be.an("array");

@@ -7,7 +7,15 @@ const app = require("../../index");
 const db = require("../../src/models");
 
 describe("Post routes", () => {
-    let fakePost;
+    let fakePost, server;
+
+    before(async () => {
+        server = app.listen(0);
+        await db.sequelize.sync({ force: true });
+    });
+    after(async () => {
+        await server.close();
+    });
 
     beforeEach(async () => {
         fakePost = {
@@ -22,10 +30,6 @@ describe("Post routes", () => {
     afterEach(async () => {
         await db.Categories.destroy({ where: {} });
         await db.Posts.destroy({ where: {} });
-    });
-    after(async () => {
-        await db.sequelize.close();
-        app.close();
     });
 
     describe("Positive tests", () => {

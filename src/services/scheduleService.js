@@ -244,13 +244,13 @@ const ScheduleService = {
                 },
             ],
         });
-
+        // console.log(schedule);
         if (!schedule) {
-            throw new AppError("Расписание врача на указанную дату не найдено.", 404);
+            throw new AppError("The doctor's schedule for the specified date was not found", 404);
         }
 
         if (!schedule.available_slots.includes(timeSlot)) {
-            throw new AppError(`Временной слот ${timeSlot} недоступен.`, 400);
+            throw new AppError(`Time slot ${timeSlot} is not available`, 400);
         }
 
         return schedule;
