@@ -73,7 +73,28 @@ const ClinicService = {
     getFullClinicById: async (clinicId) => {
         const clinic = await db.Clinics.findOne({
             where: { id: clinicId },
-            attributes: { exclude: ["password", "resetToken", "createdAt", "updatedAt", "feedbackRating"] },
+            attributes: {
+                exclude: ["password", "resetToken", "createdAt", "updatedAt", "feedbackRating"],
+                include: [
+                    [
+                        sequelize.literal(`(
+                                SELECT COALESCE(ROUND(CAST(AVG(d.rating) AS NUMERIC), 1), 0)
+                                FROM "doctors" d
+                                WHERE d.clinic_id = "Clinics".id
+                            )`),
+                        'averageRating'
+                    ],
+                    [
+                        sequelize.literal(`(
+                                SELECT COUNT(d.rating)
+                                FROM "doctors" d
+                                WHERE d.clinic_id = "Clinics".id
+                                AND d.rating IS NOT NULL
+                            )`),
+                        'totalRatings'
+                    ]
+                ]
+            },
             include: [
                 {
                     model: db.Addresses,
