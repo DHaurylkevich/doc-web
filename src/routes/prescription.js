@@ -83,52 +83,110 @@ router.post("/prescriptions", validateBody("expirationDate"), validateRequest, i
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 1
- *                   code:
- *                     type: string
- *                     example: "4f7b3d92d6"
- *                   expiration_date:
- *                     type: string
- *                     format: date
- *                     example: "2024-12-31"
- *                   patient_id:
- *                     type: integer
- *                     example: 5
- *                   patient:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: number
- *                         example: 1
- *                       user:
+ *               type: object
+ *               properties:
+ *                 pages:
+ *                   type: integer
+ *                   example: 3
+ *                 prescriptions:
+ *                   type: object
+ *                   properties:
+ *                     active:
+ *                       type: array
+ *                       items:
  *                         type: object
  *                         properties:
  *                           id:
- *                             type: number
- *                             example: 1
- *                           first_name:
+ *                             type: integer
+ *                             example: 11
+ *                           expiration_date:
  *                             type: string
- *                             example: "Zora"
- *                           last_name:
+ *                             format: date-time
+ *                             example: "2026-01-07T10:50:01.587Z"
+ *                           status:
  *                             type: string
- *                             example: "Lemke"
- *                           photo:
+ *                             example: "active"
+ *                           createdAt:
  *                             type: string
- *                             example: "https://example.com"
- *                   medications:
- *                     type: object
- *                     properties:
- *                       name:
- *                         type: string
- *                         example: "Luxurious Metal Ball"
- *       400:
- *         description: Ошибка получения рецептов
+ *                             format: date-time
+ *                             example: "2025-01-27T17:29:25.487Z"
+ *                           patient:
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: integer
+ *                                 example: 12
+ *                               user:
+ *                                 type: object
+ *                                 properties:
+ *                                   id:
+ *                                     type: integer
+ *                                     example: 32
+ *                                   first_name:
+ *                                     type: string
+ *                                     example: "Gertruda"
+ *                                   last_name:
+ *                                     type: string
+ *                                     example: "Puchalski"
+ *                                   photo:
+ *                                     type: string
+ *                                     example: "https://avatars.githubusercontent.com/u/28493244"
+ *                           medications:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 name:
+ *                                   type: string
+ *                                   example: "Practical Plastic Gloves"
+ *                     inactive:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             example: 2
+ *                           expiration_date:
+ *                             type: string
+ *                             format: date-time
+ *                             example: null
+ *                           status:
+ *                             type: string
+ *                             example: "inactive"
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-01-27T17:29:25.486Z"
+ *                           patient:
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: integer
+ *                                 example: 2
+ *                               user:
+ *                                 type: object
+ *                                 properties:
+ *                                   id:
+ *                                     type: integer
+ *                                     example: 12
+ *                                   first_name:
+ *                                     type: string
+ *                                     example: "Kleopatra"
+ *                                   last_name:
+ *                                     type: string
+ *                                     example: "Majcher"
+ *                                   photo:
+ *                                     type: string
+ *                                     example: "https://avatars.githubusercontent.com/u/58501218"
+ *                           medications:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 name:
+ *                                   type: string
+ *                                   example: "Bespoke Steel Fish"
  */
 router.get("/prescriptions", isAuthenticated, hasRole(["doctor", "patient"]), prescriptionController.getPrescriptions);
 

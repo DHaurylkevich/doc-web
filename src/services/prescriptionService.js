@@ -89,16 +89,16 @@ const prescriptionService = {
 
         const totalPages = getTotalPages(count, parsedLimit, page);
 
-        const { activePrescriptions, inactivePrescriptions } = rows.reduce((acc, prescription) => {
+        const { active, inactive } = rows.reduce((acc, prescription) => {
             if (prescription.status === 'active') {
                 acc.activePrescriptions.push(prescription);
             } else {
                 acc.inactivePrescriptions.push(prescription);
             }
             return acc;
-        }, { activePrescriptions: [], inactivePrescriptions: [] });
+        }, { active: [], inactive: [] });
 
-        return { pages: totalPages, prescriptions: { activePrescriptions, inactivePrescriptions } };
+        return { pages: totalPages, prescriptions: { active, inactive } };
     }
 };
 
