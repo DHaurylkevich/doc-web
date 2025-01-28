@@ -82,16 +82,7 @@ const ClinicService = {
                                 FROM "doctors" d
                                 WHERE d.clinic_id = "Clinics".id
                             )`),
-                        'averageRating'
-                    ],
-                    [
-                        sequelize.literal(`(
-                                SELECT COUNT(d.rating)
-                                FROM "doctors" d
-                                WHERE d.clinic_id = "Clinics".id
-                                AND d.rating IS NOT NULL
-                            )`),
-                        'totalRatings'
+                        'rating'
                     ]
                 ]
             },
@@ -111,6 +102,7 @@ const ClinicService = {
         if (!clinic) {
             throw new AppError("Clinic not found", 404);
         }
+
         return clinic;
     },
     getAllClinicsFullData: async ({ name, province, specialty, city, limit, page }) => {
@@ -138,16 +130,7 @@ const ClinicService = {
                                 FROM "doctors" d
                                 WHERE d.clinic_id = "Clinics".id
                             )`),
-                        'averageRating'
-                    ],
-                    [
-                        sequelize.literal(`(
-                                SELECT COUNT(d.rating)
-                                FROM "doctors" d
-                                WHERE d.clinic_id = "Clinics".id
-                                AND d.rating IS NOT NULL
-                            )`),
-                        'totalRatings'
+                        'rating'
                     ]
                 ]
             },
@@ -190,8 +173,7 @@ const ClinicService = {
             pages: totalPages,
             clinics: rows.map(clinic => ({
                 ...clinic,
-                averageRating: parseFloat(clinic.averageRating),
-                totalRatings: clinic.totalRatings
+                rating: clinic.rating,
             }))
         };
     },
