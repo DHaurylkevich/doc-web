@@ -163,7 +163,7 @@ router.get("/admins/statistics", isAuthenticated, hasRole("admin"), StatisticCon
 router.get("/admins/statistics/details", isAuthenticated, hasRole("admin"), StatisticController.getAdminStatisticDetails);
 /**
  * @swagger
- * /statistics/province:
+ * /statistics:
  *   get:
  *     summary: Получение количества клиник по областям
  *     tags: [Statistics]
@@ -191,6 +191,6 @@ router.get("/admins/statistics/details", isAuthenticated, hasRole("admin"), Stat
  *                   description: Сообщение об ошибке
  *                   example: "Внутренняя ошибка сервера"
  */
-router.get("/statistics/province", StatisticController.clinicProvinceStatistics);
+router.get("/statistics", StatisticController.mainPageStatistics);
 
 module.exports = router;

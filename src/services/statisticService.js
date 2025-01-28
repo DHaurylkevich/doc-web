@@ -313,25 +313,33 @@ const StatisticsService = {
 
         return { doctorRatings, cityRating, clinicsFeedback, patientsFeedback };
     },
-    clinicProvinceStatistics: async () => {
-        const results = await db.Addresses.findAll({
-            attributes: [
-                [sequelize.col('province'), 'province'],
-                [sequelize.fn('COUNT', sequelize.col('clinic.id')), 'clinicCount']
-            ],
-            include: [
-                {
-                    model: db.Clinics,
-                    required: true,
-                    as: 'clinic',
-                    attributes: []
-                }
-            ],
-            group: ['Addresses.province'],
-            order: [[sequelize.fn('COUNT', sequelize.col('clinic.id')), 'DESC']],
-            raw: true
-        });
-        return results;
+    mainPageStatistics: async () => {
+        const [province, countCity, countDoctor, countSpecialties] = await Promise.all([
+            db.Addresses.findAll({
+                attributes: [
+                    [sequelize.col('province'), 'province'],
+                    [sequelize.fn('COUNT', sequelize.col('clinic.id')), 'clinicCount']
+                ],
+                include: [
+                    {
+                        model: db.Clinics,
+                        required: true,
+                        as: 'clinic',
+                        attributes: []
+                    }
+                ],
+                group: ['Addresses.province'],
+                order: [[sequelize.fn('COUNT', sequelize.col('clinic.id')), 'DESC']],
+                raw: true
+            }),
+            db.Addresses.count({
+                distinct: true,
+                col: 'city'
+            }),
+            db.Doctors.count(),
+            db.Specialties.count(),
+        ]);
+        return { province, countCity, countDoctor, countSpecialties };
     }
 };
 

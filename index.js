@@ -87,7 +87,7 @@ app.get('/auth/login', (req, res) => {
 </script>
   `);
 });
-console.log(new Date());
+
 app.post('/auth/login', (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {

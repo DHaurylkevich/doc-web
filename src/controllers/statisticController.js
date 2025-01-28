@@ -44,9 +44,9 @@ const StatisticController = {
             next(error);
         }
     },
-    clinicProvinceStatistics: async (req, res, next) => {
+    mainPageStatistics: async (req, res, next) => {
         try {
-            const count = await StatisticsService.clinicProvinceStatistics();
+            const count = await StatisticsService.mainPageStatistics();
             res.status(200).json(count);
         } catch (error) {
             next(error);
