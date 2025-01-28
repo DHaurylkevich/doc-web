@@ -91,9 +91,9 @@ const prescriptionService = {
 
         const { active, inactive } = rows.reduce((acc, prescription) => {
             if (prescription.status === 'active') {
-                acc.activePrescriptions.push(prescription);
+                acc.active.push(prescription);
             } else {
-                acc.inactivePrescriptions.push(prescription);
+                acc.inactive.push(prescription);
             }
             return acc;
         }, { active: [], inactive: [] });

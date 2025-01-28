@@ -116,8 +116,8 @@ const ClinicService = {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         const { rows, count } = await db.Clinics.findAndCountAll({
-            raw: true,
-            nest: true,
+            // raw: true,
+            // nest: true,
             limit: parsedLimit,
             offset: offset,
             where: queryClinic,
@@ -171,10 +171,7 @@ const ClinicService = {
 
         return {
             pages: totalPages,
-            clinics: rows.map(clinic => ({
-                ...clinic,
-                rating: clinic.rating,
-            }))
+            clinics: rows
         };
     },
     getAllClinicsForAdmin: async ({ sort, limit, page }) => {
