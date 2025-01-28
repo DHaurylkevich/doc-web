@@ -63,20 +63,6 @@ router.post("/prescriptions", validateBody("expirationDate"), validateRequest, i
  *           type: string
  *           enum: [ASC, DESC]
  *           default: ASC
- *       - name: limit
- *         in: query
- *         required: false
- *         description: Лимит на количество результатов
- *         schema:
- *           type: integer
- *           default: 10
- *       - name: page
- *         in: query
- *         required: false
- *         description: Номер страницы
- *         schema:
- *           type: integer
- *           default: 1
  *     responses:
  *       200:
  *         description: Список рецептов, назначенных доктором

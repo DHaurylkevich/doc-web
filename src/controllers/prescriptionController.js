@@ -15,9 +15,9 @@ const prescriptionController = {
     getPrescriptions: async (req, res, next) => {
         try {
             const user = req.user;
-            const { sort = 'ASC', limit, page } = req.query;
+            const { sort = 'ASC' } = req.query;
 
-            const prescriptions = await prescriptionService.getPrescriptionsByPatient(user.role, { roleId: user.roleId, sort, limit, page });
+            const prescriptions = await prescriptionService.getPrescriptionsByPatient(user.role, { roleId: user.roleId, sort });
             return res.status(200).json(prescriptions);
         } catch (err) {
             next(err);

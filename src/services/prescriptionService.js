@@ -1,7 +1,6 @@
 const AppError = require("../utils/appError");
 const db = require("../models");
 const moment = require("moment");
-const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 
 const prescriptionService = {
     createPrescription: async (patientId, doctorId, medicationsIds, expirationDate) => {
@@ -37,8 +36,7 @@ const prescriptionService = {
             throw error;
         }
     },
-    getPrescriptionsByPatient: async (userRole, { roleId, sort, limit, page }) => {
-        const { parsedLimit, offset } = getPaginationParams(limit, page);
+    getPrescriptionsByPatient: async (userRole, { roleId, sort }) => {
 
         let wherePrescriptions = {};
         let includeModel = {};
@@ -75,9 +73,7 @@ const prescriptionService = {
                 break;
         }
 
-        const { rows, count } = await db.Prescriptions.findAndCountAll({
-            limit: parsedLimit,
-            offset: offset,
+        const prescriptions = await db.Prescriptions.findAll({
             where: wherePrescriptions,
             order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
             attributes: { exclude: excludePrescriptions },
@@ -87,9 +83,7 @@ const prescriptionService = {
             ],
         });
 
-        const totalPages = getTotalPages(count, parsedLimit, page);
-
-        const { active, inactive } = rows.reduce((acc, prescription) => {
+        const { active, inactive } = prescriptions.reduce((acc, prescription) => {
             if (prescription.status === 'active') {
                 acc.active.push(prescription);
             } else {
@@ -98,7 +92,7 @@ const prescriptionService = {
             return acc;
         }, { active: [], inactive: [] });
 
-        return { pages: totalPages, prescriptions: { active, inactive } };
+        return { active, inactive };
     }
 };
 
