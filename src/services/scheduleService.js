@@ -143,8 +143,8 @@ const ScheduleService = {
         return { pages: totalPages, schedule: rows };
     },
     getAvailableSlotsWithFilter: async ({ city, specialty, date, limit, page }) => {
-        const clinicWhere = city ? { city: city } : {};
-        const specialtyWhere = specialty ? { name: specialty } : {};
+        const clinicWhere = city ? { city: { [Op.iLike]: `%${city}%` } } : {};
+        const specialtyWhere = specialty ? { name: { [Op.iLike]: `%${specialty}%` } } : {};
         const scheduleWhere = date
             ? { where: { date: date } }
             : {
@@ -211,7 +211,6 @@ const ScheduleService = {
 
         const totalPages = getTotalPages(count, parsedLimit, page);
 
-        // return rows
         const availableSlots = rows.map(doctor => {
             const freeSlots = doctor.Schedules.map(schedule => {
                 return { date: schedule.date, slots: schedule.available_slots };
@@ -224,7 +223,6 @@ const ScheduleService = {
                 user: doctor.user,
                 specialty: doctor.specialty.name,
                 clinic: doctor.clinic,
-                address: doctor.clinic.address,
                 service: doctor.services,
                 available_slots: freeSlots,
             };

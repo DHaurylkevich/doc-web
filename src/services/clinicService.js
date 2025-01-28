@@ -106,18 +106,16 @@ const ClinicService = {
         return clinic;
     },
     getAllClinicsFullData: async ({ name, province, specialty, city, limit, page }) => {
-        const queryClinic = name ? { name } : {};
-        const querySpecialty = specialty ? { name: specialty } : {};
+        const queryClinic = name ? { name: { [Op.iLike]: `%${name}%` } } : {};
+        const querySpecialty = specialty ? { name: { [Op.iLike]: `%${specialty}%` } } : {};
 
         const queryAddress = {};
-        if (city) queryAddress.city = city;
-        if (province) queryAddress.province = province;
+        if (city) queryAddress.city = { [Op.iLike]: `%${city}%` };
+        if (province) queryAddress.province = { [Op.iLike]: `%${province}%` };
 
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         const { rows, count } = await db.Clinics.findAndCountAll({
-            // raw: true,
-            // nest: true,
             limit: parsedLimit,
             offset: offset,
             where: queryClinic,
@@ -138,25 +136,19 @@ const ClinicService = {
                 {
                     model: db.Addresses,
                     as: "address",
-                    attributes: {
-                        exclude: ["id", "user_id", "clinic_id", "createdAt", "updatedAt"],
-                    },
+                    attributes: { exclude: ["id", "user_id", "clinic_id", "createdAt", "updatedAt"] },
                     where: queryAddress,
                 },
                 {
                     model: db.Services,
                     as: "services",
-                    attributes: {
-                        exclude: ["id", "specialty_id", "clinic_id", "createdAt", "updatedAt"],
-                    },
+                    attributes: { exclude: ["id", "specialty_id", "clinic_id", "createdAt", "updatedAt"] },
                     include: [
                         {
                             model: db.Specialties,
                             as: "specialty",
-                            attributes: {
-                                exclude: ["id", "createdAt", "updatedAt"],
-                            },
-                            where: querySpecialty
+                            attributes: { exclude: ["id", "createdAt", "updatedAt"] },
+                            where: querySpecialty,
                         }
                     ]
                 },

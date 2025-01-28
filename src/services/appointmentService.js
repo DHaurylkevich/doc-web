@@ -107,7 +107,7 @@ const AppointmentService = {
         }
 
         const doctorServiceWhere = doctorId ? { doctor_id: doctorId } : {};
-        const specialtyWhere = specialty ? { name: specialty } : {};
+        const specialtyWhere = specialty ? { name: { [Op.iLike]: `%${specialty}%` } } : {};
         const scheduleWhere = date ? { date: date } : {};
 
         const { parsedLimit, offset } = getPaginationParams(limit, page);
@@ -127,29 +127,34 @@ const AppointmentService = {
                     as: "doctorService",
                     where: doctorServiceWhere,
                     attributes: ["doctor_id", "service_id", "id"],
+                    required: true,
                     include: [
                         {
                             model: db.Doctors,
                             as: "doctor",
                             attributes: ["specialty_id", "user_id"],
+                            required: true,
                             include: [
                                 {
                                     model: db.Specialties,
                                     as: "specialty",
                                     attributes: ["name"],
-                                    where: specialtyWhere
+                                    where: specialtyWhere,
+                                    required: true
                                 },
                                 {
                                     model: db.Users,
                                     as: "user",
                                     attributes: ["first_name", "last_name", "photo"],
+                                    required: true
                                 },
                             ]
                         },
                         {
                             model: db.Services,
                             as: "service",
-                            attributes: ["name", "price"]
+                            attributes: ["name", "price"],
+                            required: true
                         }
                     ]
                 },
@@ -157,25 +162,26 @@ const AppointmentService = {
                     model: db.Patients,
                     as: "patient",
                     attributes: ["user_id"],
+                    required: true,
                     include: [
                         {
                             model: db.Users,
                             as: "user",
                             attributes: ["first_name", "last_name", "photo"],
+                            required: true,
                         },
                     ]
                 },
                 {
                     model: db.Schedules,
                     attributes: ["id", "date", "interval"],
-                    // order: [["date", "DESC"]],
                     where: scheduleWhere,
+                    required: true
                 },
             ]
         });
 
         const totalPages = getTotalPages(count, parsedLimit, page);
-
         const appointments = rows.map(appointment => {
             const end_time = timeToMinutes(appointment.time_slot.slice(0, -3))
             return {
