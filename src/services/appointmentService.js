@@ -354,7 +354,7 @@ const AppointmentService = {
         const appointments = rows.map(appointment => {
             const end_time = timeToMinutes(appointment.time_slot.slice(0, -3))
             return {
-                id: appointment.id, 
+                id: appointment.id,
                 date: appointment.Schedule.date,
                 start_time: appointment.time_slot.slice(0, -3),
                 end_time: minutesToTime(end_time + appointment.Schedule.interval),

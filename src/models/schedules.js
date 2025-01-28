@@ -51,12 +51,12 @@ module.exports = (sequelize, DataTypes) => {
 
         while (currentTime < endTimeDate) {
           slots.push(currentTime.toISOString().split('T')[1].slice(0, 5));
-          // console.log(currentTime.toISOString().split('T')[1].slice(0, 5));
+          console.log(currentTime.toISOString().split('T')[1].slice(0, 5));
           currentTime = new Date(currentTime.getTime() + interval * 60000);
         }
 
         const occupiedSlots = appointments.map(a => a.time_slot.slice(0, -3));
-        // console.log(occupiedSlots);
+        console.log(occupiedSlots);
         return slots.filter(slot => !occupiedSlots.includes(slot));
       },
     },

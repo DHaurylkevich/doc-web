@@ -235,7 +235,7 @@ const ScheduleService = {
     checkScheduleAndSlot: async (doctorId, date, timeSlot) => {
         const schedule = await db.Schedules.findOne({
             where: { doctor_id: doctorId, date: date },
-            attributes: ["id", "available_slots"],
+            attributes: ["id", "start_time", "end_time", "interval", "available_slots"],
             include: [
                 {
                     model: db.Appointments,
@@ -244,7 +244,7 @@ const ScheduleService = {
                 },
             ],
         });
-        // console.log(schedule);
+        console.log(schedule.available_slots);
         if (!schedule) {
             throw new AppError("The doctor's schedule for the specified date was not found", 404);
         }
