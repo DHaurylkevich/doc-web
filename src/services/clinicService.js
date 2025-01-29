@@ -39,7 +39,9 @@ const ClinicService = {
 
             const resetToken = createJWT(clinic.id, clinic.role);
             await clinic.update({ resetToken }, { transaction: t });
-            await setPasswordMail(clinic.email, resetToken);
+            if (process.env.EMAIL !== undefined || process.env.EMAIL_PASS !== undefined) {
+                await setPasswordMail(clinic.email, resetToken);
+            }
 
             await t.commit();
         } catch (err) {

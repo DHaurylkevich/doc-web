@@ -58,9 +58,10 @@ const AppointmentController = {
     },
     deleteAppointment: async (req, res, next) => {
         const { appointmentId } = req.params;
+        const patientId = req.user.roleId;
 
         try {
-            await AppointmentService.deleteAppointment(appointmentId);
+            await AppointmentService.deleteAppointment(appointmentId, patientId);
             res.status(200).json({ message: "Appointment deleted successfully" });
         } catch (err) {
             next(err);

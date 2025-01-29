@@ -132,7 +132,7 @@ const ReviewService = {
                 {
                     model: db.Tags,
                     as: "tags",
-                    attributes: ["id", "name"],
+                    attributes: ["id", "name", "positive"],
                     through: { attributes: [] }
                 }
             ],

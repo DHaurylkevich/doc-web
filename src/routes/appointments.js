@@ -95,7 +95,7 @@ const { validateParam } = require('../utils/validation');
 router.post("/appointments", isAuthenticated, hasRole("patient"), validation.createDataExist, validateRequest, AppointmentController.createAppointment);
 /**
  * @swagger
- *    /appointments/{appointmentId}:
+ *    /patients/appointments/{appointmentId}:
  *     delete:
  *       summary: Удаляет запись
  *       description: Удаляет запись по указанному ID.
@@ -113,7 +113,7 @@ router.post("/appointments", isAuthenticated, hasRole("patient"), validation.cre
  *         200:
  *           description: Запись успешно удалена
  */
-router.delete("/appointments/:appointmentId", isAuthenticated, validateParam("id"), validateRequest, AppointmentController.deleteAppointment);
+router.delete("/patients/appointments/:appointmentId", isAuthenticated, hasRole("patient"), validateParam("appointmentId"), validateRequest, AppointmentController.deleteAppointment);
 /**
  * @swagger
  * paths:

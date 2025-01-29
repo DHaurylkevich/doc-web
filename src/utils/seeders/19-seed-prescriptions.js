@@ -34,7 +34,8 @@ module.exports = {
                     patient_id: patients[faker.number.int({ min: 0, max: patients.length - 1 })].id,
                     doctor_id: doctors[faker.number.int({ min: 0, max: doctors.length - 1 })].id,
                     code: generateUniqueCode(),
-                    expiration_date: faker.date.future(),
+                    expiration_date: j % 2 == 0 ? faker.date.future() : faker.date.past(),
+                    status: j % 2 == 0 ? "active" : "inactive",
                     createdAt: new Date(),
                     updatedAt: new Date()
                 });

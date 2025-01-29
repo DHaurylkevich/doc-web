@@ -247,6 +247,40 @@ describe("Appointment routes", () => {
                 expect(response.body).to.have.property("appointments").that.is.empty;
             });
         });
+        describe("DELETE /api/patients/appointments/", () => {
+            let sessionCookies;
+            beforeEach(async () => {
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testUserPatient.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                sessionCookies = res.headers['set-cookie']
+            });
+            it("expect to delete appointments, when it exist and user is a patient", async () => {
+                const testAppointment = await db.Appointments.create({
+                    clinic_id: testClinic.id,
+                    schedule_id: testSchedule.id,
+                    patient_id: testPatient.id,
+                    doctor_service_id: testDoctorService.id,
+                    time_slot: "09:30:00",
+                    description: "Help me, pls",
+                    first_visit: true,
+                    visit_type: "NFZ",
+                    status: "active"
+                });
+
+                const response = await request(app)
+                    .delete(`/api/patients/appointments/${testAppointment.id}`)
+                    .set("Cookie", sessionCookies)
+                    .expect(200);
+
+                expect(response.body).to.have.property("message", "Appointment deleted successfully");
+            });
+        });
     });
     describe("Negative tests", () => {
         describe("POST /api/appointments", () => {
@@ -288,6 +322,51 @@ describe("Appointment routes", () => {
                     .expect(403);
 
                 expect(response.body).to.have.property("message", "Access denied");
+            });
+        });
+        describe("DELETE /api/patients/appointments/", () => {
+            it("expect AppError('Unauthorized user'), when user don't authenticated", async () => {
+                const response = await request(app)
+                    .delete(`/api/patients/appointments/1`)
+                    .expect(401);
+
+                expect(response.body).to.have.property("message", "Unauthorized user");
+            });
+            it("expect AppError('Access denied'), when user isn't a patient", async () => {
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testUserDoctor.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie']
+
+                const response = await request(app)
+                    .delete(`/api/patients/appointments/1`)
+                    .set("Cookie", sessionCookies)
+                    .expect(403);
+
+                expect(response.body).to.have.property("message", "Access denied");
+            });
+            it("expect AppError('Appointment not found'), when appointment with this id and patient_id don't exist", async () => {
+                const res = await request(app)
+                    .post('/login')
+                    .send({
+                        loginParam: testUserPatient.email,
+                        password: "123456789"
+                    })
+                    .expect(200);
+                expect(res.body).to.have.property("user");
+                const sessionCookies = res.headers['set-cookie']
+
+                const response = await request(app)
+                    .delete(`/api/patients/appointments/1`)
+                    .set("Cookie", sessionCookies)
+                    .expect(404);
+
+                expect(response.body).to.have.property("message", "Appointment not found");
             });
         });
     });

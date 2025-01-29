@@ -90,9 +90,8 @@ const AppointmentService = {
 
         return { pages: totalPages, appointments };
     },
-    //TODO: ВОЗМОЖНО УДАЛИТЬ, НИГДЕ НЕ ИСПОЛЬЗУЕТСЯ
-    deleteAppointment: async (id) => {
-        const appointment = await db.Appointments.findByPk(id);
+    deleteAppointment: async (appointmentId, patientId) => {
+        const appointment = await db.Appointments.findOne({ where: { id: appointmentId, patient_id: patientId } });
 
         if (!appointment) {
             throw new AppError("Appointment not found", 404);

@@ -7,6 +7,9 @@ const ClinicController = {
         try {
             const createdClinic = await ClinicService.createClinic(clinicData, addressData);
 
+            if (process.env.EMAIL === undefined || process.env.EMAIL_PASS === undefined) {
+                res.status(200).json({ message: "Write to Dima to include his email in the function" });
+            }
             res.status(201).json(createdClinic);
         } catch (err) {
             next(err);
