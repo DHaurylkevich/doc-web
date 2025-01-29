@@ -24,7 +24,8 @@ app.use(cors({
     "https://doc-web-rose.vercel.app",
     "https://mojlekarz.netlify.app",
     "https://stellar-proximal-handspring.glitch.me",
-    "https://nimble-manatee-0b5260.netlify.app"
+    "https://nimble-manatee-0b5260.netlify.app",
+    "https://accounts.google.com/o/oauth2/v2/auth"
   ],
   credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
