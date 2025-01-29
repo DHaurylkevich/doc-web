@@ -112,6 +112,22 @@ app.get('/chat', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/check_google_auth', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>Google Auth Check</title>
+      </head>
+      <body>
+        <h1>Google Auth Check</h1>
+        <form action="/auth/google" method="get">
+          <button type="submit">Login with Google</button>
+        </form>
+      </body>
+    </html>
+  `);
+});
+
 app.get("/", (req, res) => { res.send("Hello"); })
 app.use("/", require("./src/routes"));
 
