@@ -125,7 +125,8 @@ router.get("/auth/google", passport.authenticate("google", { scope: ["profile", 
  *       401:
  *         description: Ошибка аутентификации
  */
-router.get("/auth/google/callback", passport.authenticate("google", { failWithError: true, failureMessage: true, }), AuthController.login);
+router.get("/auth/google/callback",
+    passport.authenticate("google", { failWithError: true, failureMessage: true, failureRedirect: '/' }), AuthController.googleCallback);
 /**
  * @swagger
  * paths:
