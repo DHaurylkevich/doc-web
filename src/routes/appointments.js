@@ -102,7 +102,7 @@ router.post("/appointments", isAuthenticated, hasRole("patient"), validation.cre
  *       tags: [Appointment]
  *       security: [CookieAuth: []]
  *       parameters:
- *         - name: id
+ *         - name: appointmentId
  *           in: path
  *           required: true
  *           description: ID записи
