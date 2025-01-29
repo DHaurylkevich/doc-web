@@ -47,21 +47,10 @@ const AuthController = {
     googleCallback: (req, res, next) => {
         try {
             if (!req.user) {
-                throw new AppError("User is not authorized", 401);
+                res.redirect("https://mojlekarz.netlify.app/login")
+                // throw new AppError("User is not authorized", 401);
             }
-
-            const userResponse = {
-                id: req.user.id,
-                email: req.user.email,
-                role: req.user.role,
-                first_name: req.user.first_name,
-                last_name: req.user.last_name
-            };
-
-            res.status(200).json({
-                message: "Успешный вход",
-                user: userResponse
-            });
+            res.redirect("https://mojlekarz.netlify.app/")
         } catch (err) {
             next(err);
         }
