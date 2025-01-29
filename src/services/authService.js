@@ -32,6 +32,7 @@ const AuthService = {
     },
     setPassword: async (token, newPassword) => {
         const t = await sequelize.transaction();
+
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const role = decoded.role;
@@ -39,9 +40,9 @@ const AuthService = {
 
             let user;
             if (role === "user") {
-                user = await db.Users.findOne({ where: { id: id, transaction: t }, attributes: ["id", "resetToken"] });
+                user = await db.Users.findOne({ where: { id: id }, attributes: ["id", "resetToken"] }, { transaction: t });
             } else {
-                user = await db.Clinics.findOne({ where: { id: id, transaction: t }, attributes: ["id", "resetToken"] });
+                user = await db.Clinics.findOne({ where: { id: id }, attributes: ["id", "resetToken"] }, { transaction: t });
             }
 
             if (!user || user.resetToken !== token) {
