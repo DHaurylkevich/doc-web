@@ -43,7 +43,6 @@ const AuthController = {
             res.json({ message: "Logout successful" });
         });
     },
-
     googleCallback: (req, res, next) => {
         try {
             if (!req.user) {

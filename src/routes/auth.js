@@ -126,7 +126,7 @@ router.get("/auth/google", passport.authenticate("google", { scope: ["profile", 
  *         description: Ошибка аутентификации
  */
 router.get("/auth/google/callback",
-    passport.authenticate("google", { failWithError: true, failureMessage: true, failureRedirect: '/' }), AuthController.googleCallback);
+    passport.authenticate("google", { failWithError: true, failureMessage: true, failureRedirect: 'https://mojlekarz.netlify.app/login' }), AuthController.googleCallback);
 /**
  * @swagger
  * paths:
