@@ -50,29 +50,46 @@
 
 ## Установка
 
-1. Клонируйте репозиторий:
+### 1. Клонируйте репозиторий:
     git clone https://github.com/yourusername/mylekarz-api.git
     cd mylekarz-api
 
-### Запуск миграций базы данных
-npx sequelize-cli db:migrate
+### 2. Установите зависимости:
+    npm install
 
-### Заполение базы данных
-npx sequelize-cli db:seed:all
-## Использование 
+### 3. Создайте файл .env и добавьте необходимые переменные окружения:
+    DATABASE_URL=mysql://user:password@localhost:3306/mylekarz
+    JWT_SECRET=your_jwt_secret
+    CLOUDINARY_CLOUD_NAME=your_cloud_name
+    CLOUDINARY_API_KEY=your_api_key
+    CLOUDINARY_API_SECRET=your_api_secret
+    SESSION_SECRET=your_session_secret
 
-###Документация 
-    - http://localhost:3000/api-docs/#/
-    Запуск создание html документации тестов
+### 4. Запуск миграций базы данных:
+    npx sequelize-cli db:migrate
+
+### 5. Заполение базы данных:
+    npx sequelize-cli db:seed:all
+
+### 6. Запустить сервер
+    npm start
+
+## Тестирование
+    Для запуска тестов используйте команду:
+    npm test
+
+## Документация
+    ### Документация для API
+    http://localhost:3000/api-docs/
+    
+    ### Документация для тестов
     npx mocha testfile.js --reporter mochawesome
+    Открыть файл mochawesome.html
 
 ## Структура проекта
-
 - `modules/` - модели базы данных
     -`users` - структура модели Users
 - `services` - сервисы для реализации бизнес логики
     - `userService` - бизнес логика для таблицы users
 -  `controllers` - контроллеры для получения запросов от пользователя и возаимодействия с сервисом
     - `userController`
-
-## Тесты
