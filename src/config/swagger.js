@@ -1,50 +1,53 @@
-const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+
 const path = require('path');
+const YAML = require('yaml');
 
-const swaggerOptions = {
-    definition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'MyLekarz API',
-            version: '1.0.0',
-            description: 'API Documentation for MyLekarz',
-        },
-        servers: [
-            {
-                url: process.env.NODE_ENV !== "production"
-                    ? "http://localhost:3000/api"
-                    : "https://doc-web-rose.vercel.app/api",
-                description: "Development server"
-            },
-            {
-                url: "https://doc-web-rose.vercel.app/api",
-                description: "Production server"
-            }
-        ],
-        components: {
-            securitySchemes: {
-                CookieAuth: {
-                    type: "apiKey",
-                    in: "cookie",
-                    name: "token"
-                }
-            }
-        },
-    },
-    apis: [path.resolve(__dirname, '../routes/docs/*.yaml')],
-};
+// const swaggerOptions = {
+//     definition: {
+//         openapi: '3.0.0',
+//         info: {
+//             title: 'MyLekarz API',
+//             version: '1.0.0',
+//             description: 'API Documentation for MyLekarz',
+//         },
+//         servers: [
+//             {
+//                 url: process.env.NODE_ENV !== "production"
+//                     ? "http://localhost:3000/api"
+//                     : "https://doc-web-rose.vercel.app/api",
+//                 description: "Development server"
+//             },
+//             {
+//                 url: "https://doc-web-rose.vercel.app/api",
+//                 description: "Production server"
+//             }
+//         ],
+//         components: {
+//             securitySchemes: {
+//                 CookieAuth: {
+//                     type: "apiKey",
+//                     in: "cookie",
+//                     name: "token"
+//                 }
+//             }
+//         },
+//     },
+//     apis: [path.resolve(__dirname, '../routes/docs/*.yaml')],
+// };
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
+// const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
-console.log('Swagger YAML files path:', path.resolve(__dirname, '../routes/docs/*.yaml'));
+// console.log('Swagger YAML files path:', path.resolve(__dirname, '../utils/docs/*.yaml'));
 
 const swaggerSetupOptions = {
     customCssUrl: 'https://unpkg.com/swagger-ui-dist@5/swagger-ui.css',
 };
 
+const swaggerDocument = YAML.load(path.resolve(__dirname, '../utils/docs/swagger.yaml'));
+
 module.exports = (app) => {
-    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs, swaggerSetupOptions));
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerSetupOptions));
 
     // Явное указание маршрутов для статики Swagger UI
     app.get('/swagger-ui-bundle.js', (req, res) => {
