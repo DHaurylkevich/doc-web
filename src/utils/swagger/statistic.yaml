@@ -10,9 +10,24 @@ paths:
               schema:
                 type: object
                 properties:
-                  count:
-                    type: integer
-                    example: 100
+                  averageRating:
+                    type: object
+                    properties: 
+                      percentageChange: 
+                        type: number 
+                        example: 0 
+                      currentRating: 
+                        type: number 
+                        example: 1
+                  countPatients:
+                    type: object
+                    properties: 
+                      percentageChange: 
+                        type: number 
+                        example: 0 
+                      totalCount: 
+                        type: number 
+                        example: 1
   /doctors/statistics:
     get:
       summary: Get total number of patients, visits and percent change
@@ -40,30 +55,117 @@ paths:
               schema:
                 type: object
                 properties:
-                  count:
-                    type: integer
-                    example: 100
+                  countPatients:
+                    type: object
+                    properties: 
+                      percentageChange: 
+                        type: number 
+                        example: 0 
+                      totalCount: 
+                        type: number 
+                        example: 1
+                  countAppointments:
+                    type: object
+                    properties: 
+                      percentageChange: 
+                        type: number 
+                        example: 0 
+                      totalCount: 
+                        type: number 
+                        example: 1
+                      totalCountToday: 
+                        type: number 
+                        example: 1
   /admins/statistics:
     get:
-      summary: Получение общего количества пациентов, среднего рейтинга и процента изменения
-      description: Возвращает общее количество пациентов и процента изменения
+      summary: Retrieve statistics for patients, clinics, doctors, and appointments
+      description: Returns the total number and percentage change of patients, clinics, doctors, and appointments, as well as detailed information about new and all patients and clinics.
       tags: [Statistics]
       responses:
         200:
-          description: Успешное получение количества пациентов
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  count:
-                    type: integer
-                    description: Общее количество пациентов
-                    example: 100
+                  countUser:
+                    type: object
+                    properties: 
+                      totalPatient: 
+                        type: number 
+                        example: 0 
+                      percentagePatient: 
+                        type: number 
+                        example: 1
+                      totalClinic: 
+                        type: number 
+                        example: 1
+                      percentageClinics: 
+                        type: number 
+                        example: 1
+                      totalDoctor: 
+                        type: number 
+                        example: 1
+                      percentageDoctors: 
+                        type: number 
+                        example: 1
+                      totalAppointment: 
+                        type: number 
+                        example: 1
+                      percentageAppointments: 
+                        type: number 
+                        example: 1
+                  statisticUser:
+                    type: object
+                    properties: 
+                      newPatients: 
+                        type: array 
+                        items:
+                          type: object
+                          properties:
+                            createdAt:
+                              type: string
+                              format: date
+                            id:
+                              type: string
+                              format: date
+                            user:
+                              type: object
+                              properties:
+                                first_name:
+                                  type: string
+                                last_name:
+                                  type: string
+                      allPatients:
+                        type: array
+                        items: 
+                          type: object
+                          properties:
+                            createdAt: 
+                              type: string 
+                              format: date
+                      newClinics:
+                        type: array
+                        items: 
+                          type: object
+                          properties:
+                            createdAt: 
+                              type: string 
+                              format: date
+                            name: 
+                              type: string 
+                      allClinics:
+                        type: array
+                        items: 
+                          type: object
+                          properties:
+                            createdAt: 
+                              type: string 
+                              format: date
   /admins/statistics/details:
     get:
-      summary: Получение общего количества пациентов, среднего рейтинга и процента изменения
-      description: ЕСЛИ НЕ ВПИСЫВАТЬ даты, то прийдет актуальная статистика. Также даже если ты введешь даты, прийдет актуальные оценки сервиса от клиники и пациента. Возвращает общее количество пациентов и процента изменения
+      summary: Get statistics on patients, clinics, doctors and reviews
+      description: Get the total number of patients, clinics, doctors and appointments, as well as the average ratings of doctors, clinics and reviews.If no dates are given, the current statistics are returned.
       tags: [Statistics]
       parameters:
         - in: query
@@ -72,14 +174,14 @@ paths:
             type: string
             format: date
             example: "2024-12-16"
-          description: НЕОБЯЗАТЕЛЬНАЯ Начальная дата для фильтрации статистики
+          description: Start date for filtering statistics (optional)
         - in: query
           name: end_date
           schema:
             type: string
             format: date
             example: "2024-12-16"
-          description: НЕОБЯЗАТЕЛЬНАЯ Конечная дата для фильтрации статистики
+          description: End date for filtering statistics (optional)
       responses:
         200:
           content:
@@ -87,9 +189,81 @@ paths:
               schema:
                 type: object
                 properties:
+                  countUser:
+                    type: object
+                    properties:
+                      totalPatient:
+                        type: integer
+                        example: 23
+                      percentagePatient:
+                        type: number
+                        example: 0
+                      totalClinic:
+                        type: integer
+                        example: 12
+                      percentageClinics:
+                        type: number
+                        example: 0
+                      totalDoctor:
+                        type: integer
+                        example: 21
+                      percentageDoctors:
+                        type: number
+                        example: 0
+                      totalAppointment:
+                        type: integer
+                        example: 46
+                      percentageAppointments:
+                        type: number
+                        example: 0
                   count:
-                    type: integer
-                    example: 100
+                    type: object
+                    properties:
+                      doctorRatings:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            rating:
+                              type: number
+                              example: 4.803776759236096
+                      cityRating:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            city:
+                              type: string
+                              example: "Trzebiatów"
+                            averageRating:
+                              type: string
+                              example: "4.8"
+                            address.city:
+                              type: string
+                              example: "Trzebiatów"
+                      clinicsFeedback:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            feedbackRating:
+                              type: integer
+                              example: 1
+                              description: Рейтинг отзыва
+                            count:
+                              type: string
+                              example: "3"
+                      patientsFeedback:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            feedbackRating:
+                              type: integer
+                              example: 0
+                            count:
+                              type: string
+                              example: "5"
   /statistics:
     get:
       summary: Get the number of clinics by region and list province, number of doctor and specialties
@@ -101,6 +275,21 @@ paths:
               schema:
                 type: object
                 properties:
-                  count:
-                    type: integer
-                    example: 100
+                  provinces:
+                    type: object
+                    properties: 
+                      province: 
+                        type: string 
+                        example: "Special"
+                      clinicCount: 
+                        type: number 
+                        example: 1
+                  countCity:
+                    type: number
+                    example: "Special"
+                  countDoctor: 
+                    type: number 
+                    example: 1
+                  countSpecialties: 
+                    type: number 
+                    example: 1

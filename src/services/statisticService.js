@@ -313,7 +313,7 @@ const StatisticsService = {
         return { doctorRatings, cityRating, clinicsFeedback, patientsFeedback };
     },
     mainPageStatistics: async () => {
-        const [province, countCity, countDoctor, countSpecialties] = await Promise.all([
+        const [provinces, countCity, countDoctor, countSpecialties] = await Promise.all([
             db.Addresses.findAll({
                 attributes: [
                     [sequelize.col('province'), 'province'],
@@ -338,7 +338,7 @@ const StatisticsService = {
             db.Doctors.count(),
             db.Specialties.count(),
         ]);
-        return { province, countCity, countDoctor, countSpecialties };
+        return { provinces, countCity, countDoctor, countSpecialties };
     }
 };
 
