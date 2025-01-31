@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require("express");
-const http = require('http');
+// const http = require('http');
 const app = express();
-const server = http.createServer(app);
+// const server = http.createServer(app);
 const passport = require('passport');
 const sessionConfig = require('./src/config/session');
 const { errorHandler } = require("./src/middleware/errorHandler");
@@ -11,7 +11,7 @@ const logger = require("./src/utils/logger");
 const swaggerDocs = require("./src/config/swagger");
 const morgan = require("morgan");
 const cors = require("cors");
-const io = require("./src/controllers/websocketController");
+// const io = require("./src/controllers/websocketController");
 
 require("./src/config/db");
 
@@ -36,7 +36,7 @@ app.set('trust proxy', 1);
 app.use(sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
-io(server, sessionConfig, passport);
+// io(server, sessionConfig, passport);
 require('./src/config/passport');
 
 app.use(express.json());
@@ -119,12 +119,12 @@ app.use((req, res, next) => { next(new AppError("Not Found", 404)); });
 app.use(errorHandler);
 
 if (process.env.NODE_ENV === 'test') {
-  module.exports = server;
+  module.exports = app;
 }
 const port = process.env.PORT || 5000;
 const link = process.env.LINK || "http://localhost";
 
-server.listen(port, () => {
+app.listen(port, () => {
   logger.info(`The server start at: ${link}:${port}`)
   logger.info(`The documentation is available at: ${link}:${port}/api-docs`);
 });
