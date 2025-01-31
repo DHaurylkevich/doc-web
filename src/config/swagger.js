@@ -4,20 +4,22 @@ const path = require('path');
 
 const swaggerOptions = {
     definition: {
-        openapi: "3.0.0",
+        openapi: '3.0.0',
         info: {
-            title: "MyLekarz",
+            title: 'MyLekarz API',
+            version: '1.0.0',
+            description: 'API Documentation for MyLekarz',
         },
         servers: [
             {
                 url: process.env.NODE_ENV !== "production"
                     ? "http://localhost:3000/api"
                     : "https://doc-web-rose.vercel.app/api",
-                description: "Сюда запросы"
+                description: "Development server"
             },
             {
                 url: "https://doc-web-rose.vercel.app/api",
-                description: "Основной сервер"
+                description: "Production server"
             }
         ],
         components: {
@@ -30,8 +32,7 @@ const swaggerOptions = {
             }
         },
     },
-    // apis: [path.resolve(__dirname, '../utils/swagger/*.yaml')],
-    apis: [path.resolve(__dirname, "../docs/*.yaml")],
+    apis: [path.resolve(__dirname, '../docs/*.yaml')],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -52,7 +53,7 @@ module.exports = (app) => {
         res.sendFile(require.resolve('swagger-ui-dist/swagger-ui-standalone-preset.js'));
     });
 
-    app.get('/swagger.json', (req, res) => {
-        res.json(swaggerDocs);
+    app.get('/swagger-ui.css', (req, res) => {
+        res.sendFile(require.resolve('swagger-ui-dist/swagger-ui.css'));
     });
 };
