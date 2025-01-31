@@ -32,10 +32,12 @@ const swaggerOptions = {
             }
         },
     },
-    apis: [path.resolve(__dirname, '../routes/*.js')],
+    apis: [path.resolve(__dirname, '../routes/docs/*.yaml')],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
+console.log('Swagger YAML files path:', path.resolve(__dirname, '../routes/docs/*.yaml'));
 
 const swaggerSetupOptions = {
     customCssUrl: 'https://unpkg.com/swagger-ui-dist@5/swagger-ui.css',
