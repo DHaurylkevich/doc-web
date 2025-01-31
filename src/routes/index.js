@@ -47,6 +47,26 @@ router.use("/api", chatRouter);
 router.use("/api", messageRouter);
 router.use("/api", timetableRouter);
 
+/**
+ * @swagger
+ * /api/user/role:
+ *   post:
+ *     summary: checks user role
+ *     tags: [Utils]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 example: admin
+ *     responses:
+ *       201:
+ *         description: successfully
+ */
 router.post("/api/user/role", (req, res, next) => {
     const role = req.body.role;
     hasRole(role)(req, res, next);
@@ -64,6 +84,23 @@ router.post("/api/upload/file", upload.single("file"), (req, res) => {
     res.json({ message: "File uploaded successfully", fileUrl: req.file.path });
 });
 
+/**
+ * @swagger
+ * /api/protected:
+ *   get:
+ *     summary: To verify that the token is working 
+ *     tags: [Utils]
+ *     responses:
+ *       200:
+ *         content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 example: "You have accessed a protected route"
+ */
 router.get("/api/protected", isAuthenticated, (req, res) => {
     res.status(200).json({ message: `You have accessed a protected route.` });
 });
