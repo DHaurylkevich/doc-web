@@ -1,0 +1,106 @@
+paths:
+  /clinics/statistics:
+    get:
+      summary: Get the total number of patients, average rating and percent of change
+      tags: [Statistics]
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 100
+  /doctors/statistics:
+    get:
+      summary: Get total number of patients, visits and percent change
+      description: Returns the total number of patients and percentage of change in the system. Without a date, this month's information will be returned
+      tags: [Statistics]
+      parameters:
+        - in: query
+          name: startOfMonth
+          schema:
+            type: string
+            format: date
+            example: "2024-12-01"
+          description: Optional start date for filtering statistics
+        - in: query
+          name: endOfMonth
+          schema:
+            type: string
+            format: date
+            example: "2024-12-31"
+          description: Optional end date for filtering statistics
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 100
+  /admins/statistics:
+    get:
+      summary: Получение общего количества пациентов, среднего рейтинга и процента изменения
+      description: Возвращает общее количество пациентов и процента изменения
+      tags: [Statistics]
+      responses:
+        200:
+          description: Успешное получение количества пациентов
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    description: Общее количество пациентов
+                    example: 100
+  /admins/statistics/details:
+    get:
+      summary: Получение общего количества пациентов, среднего рейтинга и процента изменения
+      description: ЕСЛИ НЕ ВПИСЫВАТЬ даты, то прийдет актуальная статистика. Также даже если ты введешь даты, прийдет актуальные оценки сервиса от клиники и пациента. Возвращает общее количество пациентов и процента изменения
+      tags: [Statistics]
+      parameters:
+        - in: query
+          name: start_date
+          schema:
+            type: string
+            format: date
+            example: "2024-12-16"
+          description: НЕОБЯЗАТЕЛЬНАЯ Начальная дата для фильтрации статистики
+        - in: query
+          name: end_date
+          schema:
+            type: string
+            format: date
+            example: "2024-12-16"
+          description: НЕОБЯЗАТЕЛЬНАЯ Конечная дата для фильтрации статистики
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 100
+  /statistics:
+    get:
+      summary: Get the number of clinics by region and list province, number of doctor and specialties
+      tags: [Statistics]
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 100
