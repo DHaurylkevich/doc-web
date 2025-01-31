@@ -33,9 +33,7 @@ const swaggerOptions = {
         },
     },
     apis: [
-        path.resolve(__dirname, '../routes/*.js'), // Аннотации в файлах JavaScript
-        path.resolve(__dirname, '../**/*.js'), // Аннотации в файлах JavaScript
-        // path.resolve(__dirname, '../utils/docs/*.yaml') // Документация в файлах YAML
+        path.resolve(__dirname, '../routes/*.js'),
     ],
 };
 
