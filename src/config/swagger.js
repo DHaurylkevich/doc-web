@@ -31,7 +31,7 @@ const swaggerOptions = {
         },
     },
     // apis: [path.resolve(__dirname, '../utils/swagger/*.yaml')],
-    apis: [path.resolve('src/**/*.yaml')],
+    apis: [path.resolve(__dirname, "../utils/swagger/*.yaml")],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
