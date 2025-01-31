@@ -136,7 +136,7 @@ describe("Review routers", () => {
                     .get(`/api/clinics/${testClinicId}/reviews`)
                     .query({ sortDate: 'ASC', sortRating: 'DESC', limit: 10, pages: 0 })
                     .expect(200);
-                console.log(response.body.reviews);
+
                 expect(response.body).to.have.property("pages");
                 expect(response.body).to.have.property("reviews").that.is.not.empty;
                 expect(response.body.reviews[0]).to.have.property("rating");

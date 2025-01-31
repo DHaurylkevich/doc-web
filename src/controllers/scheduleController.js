@@ -58,14 +58,15 @@ const ScheduleController = {
         }
     },
     getScheduleByRole: async (req, res, next) => {
+        const { year, month } = req.query;
         const user = req.user;
 
         try {
             let schedules;
             if (user.role === "doctor") {
-                schedules = await ScheduleService.getScheduleByDoctor(user.roleId);
+                schedules = await ScheduleService.getScheduleByDoctor({ doctorId: user.roleId, year, month });
             } else {
-                schedules = await ScheduleService.getScheduleByClinic(user.id);
+                schedules = await ScheduleService.getScheduleByClinic({ clinicId: user.id, year, month });
             }
             return res.status(200).json(schedules);
         } catch (err) {

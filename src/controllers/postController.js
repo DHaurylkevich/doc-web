@@ -9,7 +9,6 @@ const PostController = {
             const post = await PostService.createPost(categoryId, postData);
             res.status(201).json(post);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },

@@ -8,6 +8,8 @@ module.exports = {
             { type: Sequelize.QueryTypes.SELECT }
         );
 
+        const startDate = new Date('2025-01-29');
+        const endDate = new Date('2024-02-28');
         const schedules = [];
         doctors.forEach(doctor => {
             for (let index = 0; index < 3; index++) {
@@ -18,7 +20,7 @@ module.exports = {
                     doctor_id: doctor.id,
                     clinic_id: doctor.clinic_id,
                     interval: fakerPL.number.int({ min: 10, max: 60 }),
-                    date: fakerPL.date.future().toISOString().split('T')[0],
+                    date: fakerPL.date.between({ from: startDate, to: endDate }).toISOString().split('T')[0],
                     start_time: `${startHour}:00`,
                     end_time: `${endHour}:00`,
                     createdAt: new Date(),

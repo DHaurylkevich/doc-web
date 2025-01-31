@@ -5,12 +5,12 @@ const ClinicController = {
         const { clinicData, addressData } = req.body;
 
         try {
-            const createdClinic = await ClinicService.createClinic(clinicData, addressData);
+            await ClinicService.createClinic(clinicData, addressData);
 
             if (process.env.EMAIL === undefined || process.env.EMAIL_PASS === undefined) {
                 res.status(200).json({ message: "Write to Dima to include his email in the function" });
             }
-            res.status(201).json(createdClinic);
+            res.status(201).json("The link for password configuration has been sent to mail");
         } catch (err) {
             next(err);
         }
@@ -60,9 +60,9 @@ const ClinicController = {
         const { clinicData, addressData } = req.body;
 
         try {
-            const updatedClinic = await ClinicService.updateClinic(clinicId, clinicData, addressData);
+            await ClinicService.updateClinic(clinicId, clinicData, addressData);
 
-            res.status(200).json(updatedClinic);
+            res.status(200).json({ message: "Clinic updated successfully"});
         } catch (err) {
             next(err);
         }

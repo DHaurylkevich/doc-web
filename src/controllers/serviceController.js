@@ -45,12 +45,12 @@ const ServiceController = {
     updateService: async (req, res, next) => {
         const clinicId = req.user.id;
         const { serviceId } = req.params;
-        const { serviceData } = req.body;
+        const serviceData = req.body;
 
         try {
-            const updateService = await ServiceService.updateService(clinicId, serviceId, serviceData);
+            await ServiceService.updateService(clinicId, serviceId, serviceData);
 
-            res.status(200).json(updateService);
+            res.status(200).json({ message: "Service updated successfully" });
         } catch (err) {
             next(err);
         }

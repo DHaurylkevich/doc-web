@@ -29,7 +29,6 @@ const StatisticsService = {
         const [countBeforeToday, totalCount] = await Promise.all([
             db.Patients.count({
                 raw: true,
-                attributes: [],
                 distinct: true,
                 include: [
                     {

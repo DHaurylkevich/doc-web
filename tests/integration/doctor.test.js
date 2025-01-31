@@ -68,7 +68,7 @@ describe("Doctor routes", () => {
                     .set('Cookie', sessionCookies)
                     .expect(201);
 
-                expect(response.body).to.have.property("message", "Doctor created successful");
+                expect(response.body).to.have.property("message", "The link for password configuration has been sent to mail");
                 const doctorInDb = await db.Doctors.findOne({ email: fakeUser.email }, {
                     include: [
                         {

@@ -37,10 +37,17 @@ const AuthController = {
             next(err);
         }
     },
-    logout: (req, res) => {
+    logout: (req, res, next) => {
         req.logout((err) => {
             if (err) throw new AppError("Error during logout", 500);
-            res.json({ message: "Logout successful" });
+
+            req.session.destroy((err) => {
+                if (err) {
+                    return next(new AppError("Error destroying session", 500));
+                }
+                res.clearCookie('connect.sid');
+                res.json({ message: "Logout successful" });
+            });
         });
     },
     googleCallback: (req, res, next) => {

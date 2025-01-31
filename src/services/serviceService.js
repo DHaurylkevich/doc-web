@@ -24,7 +24,7 @@ const ServiceService = {
         return await db.Services.findAll(
             {
                 where: { clinic_id: clinicId },
-                attributes: { exclude: ["createdAt", "updatedAt", "clinic_id"] }
+                attributes: { exclude: ["createdAt", "updatedAt", "clinic_id", "specialty_id"] }
             }
         );
     },
@@ -56,10 +56,7 @@ const ServiceService = {
         if (!service) {
             throw new AppError("Service not found", 404);
         }
-
-        service = await service.update(data);
-
-        return { id: service.id, name: service.name, price: service.price };
+        await service.update(data);
     },
     deleteService: async (clinicId, serviceId) => {
         const service = await db.Services.findOne({ where: { id: serviceId, clinic_id: clinicId } });

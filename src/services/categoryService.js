@@ -17,7 +17,7 @@ const CategoryService = {
 
         category = await category.update(data);
 
-        return category.name;
+        return { name: category.name };
     },
     deleteCategory: async (categoryId) => {
         const category = await db.Categories.findByPk(categoryId);

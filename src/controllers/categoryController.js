@@ -7,7 +7,6 @@ const CategoryController = {
             const category = await CategoryService.createCategory(categoryData);
             res.status(201).json(category);
         } catch (err) {
-            console.log(err);
             next(err);
         }
     },

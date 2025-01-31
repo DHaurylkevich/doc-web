@@ -1,7 +1,6 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
 
-
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
@@ -16,11 +15,6 @@ export default [
   },
   {
     ignores: ["**/node_modules/**", "**/seeders/**", "**/migrations/**", "**/*.test.js"],
-    // languageOptions: {
-    //   globals: {
-    //     ...globals.mocha,
-    //   },
-    // }
   },
   pluginJs.configs.recommended,
 ];

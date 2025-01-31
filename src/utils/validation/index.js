@@ -34,8 +34,14 @@ const serviceCreateValidation = [
         .trim()
 ];
 
+const countCheck = (number, min, max) => [
+    body(number)
+        .isInt({ min, max }).withMessage(`The ${number} must be between ${min} and ${max} characters`)
+];
+
 module.exports = {
     validateParam,
     validateBody,
     serviceCreateValidation,
+    countCheck,
 };

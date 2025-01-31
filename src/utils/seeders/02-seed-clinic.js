@@ -7,7 +7,7 @@ module.exports = {
 
         clinics.push({
             photo: faker.image.url(),
-            name: fakerPL.company.name(),
+            name: fakerPL.company.name() ,
             nip: faker.number.int({ min: 1000000000, max: 9999999999 }).toString(),
             nr_license: faker.vehicle.vin(),
             email: "clinic@gmail.com",

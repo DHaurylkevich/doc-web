@@ -26,7 +26,6 @@ const SpecialtyController = {
             const specialties = await SpecialtyService.getAllSpecialties();
             res.status(200).json(specialties);
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },
@@ -37,7 +36,6 @@ const SpecialtyController = {
             const specialties = await SpecialtyService.getAllSpecialtiesByClinic(clinicId);
             res.status(200).json(specialties);
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },
@@ -46,9 +44,9 @@ const SpecialtyController = {
         const specialtyData = req.body;
 
         try {
-            const updateSpecialty = await SpecialtyService.updateSpecialty(specialtyId, specialtyData);
-            console.log(updateSpecialty);
-            res.status(200).json(updateSpecialty);
+            await SpecialtyService.updateSpecialty(specialtyId, specialtyData);
+
+            res.status(200).json({ message: "Specialty updated successfully" });
         } catch (err) {
             next(err);
         }

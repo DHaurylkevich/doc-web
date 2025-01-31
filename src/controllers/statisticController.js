@@ -17,9 +17,9 @@ const StatisticController = {
         const clinic = req.user;
 
         try {
-            // const countPatients = await StatisticsService.countPatients(clinic);
+            const countPatients = await StatisticsService.countPatients(clinic);
             const averageRating = await StatisticsService.averageScore(clinic.id);
-            res.status(200).json({ averageRating });
+            res.status(200).json({ averageRating, countPatients });
         } catch (error) {
             next(error);
         }

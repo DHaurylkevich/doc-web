@@ -100,27 +100,42 @@ const ScheduleService = {
 
         await schedule.destroy();
     },
-    getScheduleByDoctor: async (doctorId, limit, page) => {
-        const { parsedLimit, offset } = getPaginationParams(limit, page);
+    getScheduleByDoctor: async ({ doctorId, year, month }) => {
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0);
 
-        const { rows, count } = await db.Schedules.findAndCountAll({
-            limit: parsedLimit,
-            offset: offset,
-            where: { doctor_id: doctorId },
+        const schedules = await db.Schedules.findAll({
+            where: {
+                doctor_id: doctorId,
+                date: {
+                    [Op.between]: [startDate, endDate]
+                }
+            },
             attributes: { exclude: ["createdAt", "updatedAt", "clinic_id", "available_slots", "doctor_id"] },
+            order: [['date', 'ASC']]
         });
 
-        const totalPages = getTotalPages(count, parsedLimit, page);
+        const totalHours = schedules.reduce((sum, schedule) => {
+            const startTime = new Date(`1970-01-01T${schedule.start_time}Z`);
+            const endTime = new Date(`1970-01-01T${schedule.end_time}Z`);
 
-        return { pages: totalPages, schedule: rows };
+            const hours = (endTime - startTime) / (1000 * 60 * 60);
+            return sum + hours;
+        }, 0);
+
+        return { totalHours, schedules };
     },
-    getScheduleByClinic: async (clinicId, limit, page) => {
-        const { parsedLimit, offset } = getPaginationParams(limit, page);
+    getScheduleByClinic: async ({ clinicId, year, month }) => {
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0);
 
-        const { rows, count } = await db.Schedules.findAndCountAll({
-            limit: parsedLimit,
-            offset: offset,
-            where: { clinic_id: clinicId },
+        const schedules = await db.Schedules.findAll({
+            where: {
+                clinic_id: clinicId,
+                date: {
+                    [Op.between]: [startDate, endDate]
+                }
+            },
             attributes: { exclude: ["createdAt", "updatedAt", "doctor_id", "available_slots", "clinic_id"] },
             include: [
                 {
@@ -136,31 +151,36 @@ const ScheduleService = {
                     ]
                 }
             ],
+            order: [['date', 'ASC']]
         });
 
-        const totalPages = getTotalPages(count, parsedLimit, page);
+        const totalHours = schedules.reduce((sum, schedule) => {
+            const startTime = new Date(`1970-01-01T${schedule.start_time}Z`);
+            const endTime = new Date(`1970-01-01T${schedule.end_time}Z`);
 
-        return { pages: totalPages, schedule: rows };
+            const hours = (endTime - startTime) / (1000 * 60 * 60);
+            return sum + hours;
+        }, 0);
+
+        return { totalHours, schedules };
     },
     getAvailableSlotsWithFilter: async ({ city, specialty, date, limit, page }) => {
         const clinicWhere = city ? { city: { [Op.iLike]: `%${city}%` } } : {};
         const specialtyWhere = specialty ? { name: { [Op.iLike]: `%${specialty}%` } } : {};
-        const scheduleWhere = date
-            ? { where: { date: date } }
-            : {
-                limit: 2,
-                where: {
-                    date: {
-                        [Op.gte]: new Date()
-                    },
+        const scheduleWhere = {
+            where: date
+                ? { date: date }
+                : {
+                    date: { [Op.gte]: new Date() },
                     available_slots: { [Op.not]: [] }
                 },
-                required: false,
-            };
+            required: true,
+            order: [["date", "ASC"]]
+        }
 
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
-        const { rows, count } = await db.Doctors.findAndCountAll({
+        let { rows, count } = await db.Doctors.findAndCountAll({
             limit: parsedLimit,
             offset: offset,
             attributes: ["id", "description", "rating"],
@@ -170,8 +190,6 @@ const ScheduleService = {
                     model: db.Schedules,
                     attributes: ["id", "date", "interval", "end_time", "start_time", "available_slots"],
                     ...scheduleWhere,
-                    order: [["date", "ASC"]],
-                    include: [{ model: db.Appointments, as: "appointments", attributes: ["time_slot"] }],
                 },
                 {
                     model: db.Users,
@@ -212,9 +230,11 @@ const ScheduleService = {
         const totalPages = getTotalPages(count, parsedLimit, page);
 
         const availableSlots = rows.map(doctor => {
-            const freeSlots = doctor.Schedules.map(schedule => {
-                return { date: schedule.date, slots: schedule.available_slots };
-            });
+            const freeSlots = doctor.Schedules
+                .slice(0, 2)
+                .map(schedule => ({
+                    date: schedule.date, slots: schedule.available_slots
+                }));
 
             return {
                 doctor_id: doctor.id,
@@ -242,7 +262,7 @@ const ScheduleService = {
                 },
             ],
         });
-        console.log(schedule.available_slots);
+
         if (!schedule) {
             throw new AppError("The doctor's schedule for the specified date was not found", 404);
         }

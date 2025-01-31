@@ -11,7 +11,6 @@ const sessionConfig = session({
         sameSite: process.env.NODE_ENV === 'production' ? 'None' : "Lax",
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
-        // domain: process.env.NODE_ENV === "production" ? "doc-web-rose.vercel.app" : "localhost",
     }
 });
 

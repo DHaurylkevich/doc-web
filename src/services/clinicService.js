@@ -218,6 +218,9 @@ const ClinicService = {
         if ("password" in clinicData) {
             delete clinicData.password;
         }
+        if ("photo" in clinicData) {
+            delete clinicData.photo;
+        }
 
         const t = await sequelize.transaction();
 
@@ -229,17 +232,6 @@ const ClinicService = {
             await AddressService.updateAddress(address, addressData, t);
 
             await t.commit();
-
-            const plainClinic = await clinic.reload({
-                include: [{
-                    model: db.Addresses,
-                    as: "address",
-                    attributes: { exclude: ["createdAt", "updatedAt", "clinic_id", "user_id"] }
-                }],
-                attributes: { exclude: ["schedule", "resetToken", "createdAt", "updatedAt", "password"] }
-            });
-
-            return plainClinic;
         } catch (err) {
             await t.rollback();
             throw err;

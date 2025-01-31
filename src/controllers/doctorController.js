@@ -8,7 +8,7 @@ const DoctorController = {
         try {
             await DoctorService.createDoctor({ userData, addressData, doctorData, specialtyId, clinicId, servicesIds });
 
-            res.status(201).json({ message: "Doctor created successful" });
+            res.status(201).json({ message: "The link for password configuration has been sent to mail" });
         } catch (err) {
             next(err);
         }

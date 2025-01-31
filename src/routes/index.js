@@ -47,29 +47,6 @@ router.use("/api", chatRouter);
 router.use("/api", messageRouter);
 router.use("/api", timetableRouter);
 
-/**
- * @swagger
- * /api/user/role:
- *   post:
- *     summary: Проверяет роль пользователя
- *     description: Проверяет роль пользователя
- *     tags: [Utils]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               role:
- *                 type: string
- *                 example: admin
- *     responses:
- *       201:
- *         description: Успешно
- *       403:
- *         description: Доступ запрещен
- */
 router.post("/api/user/role", (req, res, next) => {
     const role = req.body.role;
     hasRole(role)(req, res, next);
@@ -84,24 +61,9 @@ router.get("/api/get-username", isAuthenticated, (req, res) => {
 
 //TODO: удалить при завершении
 router.post("/api/upload/file", upload.single("file"), (req, res) => {
-    console.log(req.file);
     res.json({ message: "File uploaded successfully", fileUrl: req.file.path });
 });
 
-/**
- * @swagger
- * /api/protected:
- *   get:
- *     summary: Чтобы проверить работу токена 
- *     description: Возвращает сообщение message You have accessed a protected route
- *     operationId: getUserAccount
- *     security:
- *      - CookieAuth: []
- *     tags: [Utils]
- *     responses:
- *       200:
- *          description: Успешно
-*/
 router.get("/api/protected", isAuthenticated, (req, res) => {
     res.status(200).json({ message: `You have accessed a protected route.` });
 });

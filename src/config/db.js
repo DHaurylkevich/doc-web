@@ -18,7 +18,7 @@ const config = {
     },
     logging: (msg) => {
         if (msg.includes('ERROR')) {
-            console.error(msg);
+            logger.error(msg);
         }
     }
 };
@@ -31,7 +31,7 @@ if (config.url) {
         ...config,
         logging: (msg) => {
             if (msg.includes('ERROR')) {
-                console.error(msg);
+                logger.error(msg);
             }
         },
     });

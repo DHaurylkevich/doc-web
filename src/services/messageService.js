@@ -21,8 +21,7 @@ const messageService = {
 
             return messages;
         } catch (err) {
-            console.log(err);
-            throw new AppError("Messages not found", 404);
+            throw new AppError(err, 404);
         }
     },
     getMessageById: async (messageId) => {

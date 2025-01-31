@@ -8,7 +8,6 @@ const TagController = {
             const tag = await TagService.createTag(tagData);
             res.status(201).json(tag);
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },
@@ -17,7 +16,6 @@ const TagController = {
             const tags = await TagService.getAllTags()
             res.status(200).json(tags);
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },
@@ -29,7 +27,6 @@ const TagController = {
             const updateTag = await TagService.updateTag(tagId, tagData);
             res.status(200).json(updateTag);
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },
@@ -40,7 +37,6 @@ const TagController = {
             await TagService.deleteTag(tagId);
             res.status(200).json({ message: "Successful delete" });
         } catch (err) {
-            console.log(err)
             next(err);
         }
     },

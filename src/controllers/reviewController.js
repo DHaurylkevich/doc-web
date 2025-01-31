@@ -52,7 +52,7 @@ const ReviewController = {
 
         try {
             await ReviewService.moderateReview(reviewId, status, moderationComment);
-            res.status(200).json({ message: "Review update successfully" });
+            res.status(200).json({ message: "Review moderated successfully" });
         } catch (err) {
             next(err);
         }
@@ -69,12 +69,12 @@ const ReviewController = {
     },
     leaveFeedback: async (req, res, next) => {
         const user = req.user;
-        const { reviewData } = req.body;
+        const { rating } = req.body;
 
         try {
-            await ReviewService.leaveFeedback(user, reviewData);
+            await ReviewService.leaveFeedback(user, rating);
 
-            res.status(201).json({ message: "Successfully" });
+            res.status(201).json({ message: "Successful" });
         } catch (err) {
             next(err);
         }
