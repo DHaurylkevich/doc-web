@@ -32,7 +32,7 @@ const swaggerOptions = {
             }
         },
     },
-    apis: [path.resolve(__dirname, '../routes/docs/*.yaml')],
+    apis: [path.resolve(__dirname, '../routes/*.js')],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
