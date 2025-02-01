@@ -83,7 +83,7 @@ describe("Category routes", () => {
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
-                expect(response.body).to.include("TEST");
+                expect(response.body).to.have.property("name", "TEST");
             });
         });
         describe("DELETE /api/categories/:categoryId", () => {

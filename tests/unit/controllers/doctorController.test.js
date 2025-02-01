@@ -39,7 +39,7 @@ describe("Doctor Controller", () => {
 
                 expect(createDoctorServiceStub.calledOnceWith({ ...req.body, clinicId: 1 })).to.be.true;
                 expect(res.status.calledOnceWith(201)).to.be.true;
-                expect(res.json.calledOnceWith({ message: "Doctor created successful" })).to.be.true;
+                expect(res.json.calledOnceWith({ message: "The link for password configuration has been sent to mail" })).to.be.true;
             });
         });
         describe("getDoctorById", () => {

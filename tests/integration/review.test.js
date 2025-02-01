@@ -162,7 +162,7 @@ describe("Review routers", () => {
                 expect(response.body.reviews[0]).to.have.property("tags");
             });
         });
-        describe("GET /api/reviews", () => {
+        describe("GET /api/admins/reviews", () => {
             let sessionCookies, patientId;
             beforeEach(async () => {
                 const fakeUser = {
@@ -197,7 +197,7 @@ describe("Review routers", () => {
                 }
 
                 const response = await request(app)
-                    .get("/api/reviews")
+                    .get("/api/admins/reviews")
                     .set('Cookie', sessionCookies)
                     .expect(200);
 
@@ -209,7 +209,7 @@ describe("Review routers", () => {
                 expect(response.body.reviews[0]).to.have.property("tags");
             });
         });
-        describe("DELETE /api/reviews/:id", () => {
+        describe("DELETE /api/admins/reviews/:id", () => {
             let sessionCookies, patientId;
             beforeEach(async () => {
                 const fakeUser = {
@@ -242,7 +242,7 @@ describe("Review routers", () => {
                 });
 
                 await request(app)
-                    .delete(`/api/reviews/${testReview.id}`)
+                    .delete(`/api/admins/reviews/${testReview.id}`)
                     .set('Cookie', sessionCookies)
                     .expect(200);
 
@@ -306,6 +306,7 @@ describe("Review routers", () => {
                 const reviewData = {
                     patientId: testPatient.id,
                     doctorId: testDoctor.id + 1,
+                    rating: 2
                 };
 
                 const response = await request(app)
@@ -317,10 +318,10 @@ describe("Review routers", () => {
                 expect(response.body).to.have.property("message", "Doctor not found");
             });
         });
-        describe("GET /api/reviews", () => {
+        describe("GET /api/admins/reviews", () => {
             it("expect AppError('Unauthorized user'), when user is unauthorized", async () => {
                 const response = await request(app)
-                    .get("/api/reviews")
+                    .get("/api/admins/reviews")
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
@@ -345,17 +346,17 @@ describe("Review routers", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .get("/api/reviews")
+                    .get("/api/admins/reviews")
                     .set('Cookie', sessionCookies)
                     .expect(403);
 
                 expect(response.body).to.have.property("message", "Access denied");
             });
         });
-        describe("DELETE /api/reviews/:id", () => {
+        describe("DELETE /api/admins/reviews/:id", () => {
             it("expect AppError('Unauthorized user'), when user is unauthorized", async () => {
                 const response = await request(app)
-                    .delete("/api/reviews/1")
+                    .delete("/api/admins/reviews/1")
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
@@ -380,7 +381,7 @@ describe("Review routers", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .delete("/api/reviews/1")
+                    .delete("/api/admins/reviews/1")
                     .set('Cookie', sessionCookies)
                     .expect(403);
 

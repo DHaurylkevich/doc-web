@@ -141,13 +141,14 @@ describe("Prescription routes", () => {
                         .expect(200);
 
                     expect(response.body).to.be.an("object");
-                    expect(response.body).to.have.property("pages");
-                    expect(response.body.prescriptions).to.be.an("array");
-                    expect(response.body.prescriptions[0]).to.include({
+                    expect(response.body).to.have.property("active");
+                    expect(response.body).to.have.property("inactive");
+                    expect(response.body.active).to.be.an("array");
+                    expect(response.body.active[0]).to.include({
                         id: testPrescription.id,
                     });
-                    expect(response.body.prescriptions[0]).not.to.have.property("code");
-                    expect(response.body.prescriptions[1]).to.include({
+                    expect(response.body.active[0]).not.to.have.property("code");
+                    expect(response.body.active[1]).to.include({
                         id: testPrescription2.id,
                     });
                 });
@@ -159,13 +160,14 @@ describe("Prescription routes", () => {
                         .expect(200);
 
                     expect(response.body).to.be.an("object");
-                    expect(response.body).to.have.property("pages");
-                    expect(response.body.prescriptions).to.be.an("array");
-                    expect(response.body.prescriptions[0]).to.include({
+                    expect(response.body).to.have.property("active");
+                    expect(response.body).to.have.property("inactive");
+                    expect(response.body.active).to.be.an("array");
+                    expect(response.body.active[0]).to.include({
                         id: testPrescription2.id,
                     });
-                    expect(response.body.prescriptions[0]).not.to.have.property("code");
-                    expect(response.body.prescriptions[1]).to.include({
+                    expect(response.body.active[0]).not.to.have.property("code");
+                    expect(response.body.active[1]).to.include({
                         id: testPrescription.id,
                     });
                 });
@@ -211,13 +213,14 @@ describe("Prescription routes", () => {
                         .expect(200);
 
                     expect(response.body).to.be.an("object");
-                    expect(response.body).to.have.property("pages");
-                    expect(response.body.prescriptions).to.be.an("array");
-                    expect(response.body.prescriptions[0]).to.include({
+                    expect(response.body).to.have.property("active");
+                    expect(response.body).to.have.property("inactive");
+                    expect(response.body.active).to.be.an("array");
+                    expect(response.body.active[0]).to.include({
                         id: testPrescription.id,
                     });
-                    expect(response.body.prescriptions[0]).to.have.property("code");
-                    expect(response.body.prescriptions[1]).to.include({
+                    expect(response.body.active[0]).to.have.property("code");
+                    expect(response.body.active[1]).to.include({
                         id: testPrescription2.id,
                     });
                 });
@@ -228,14 +231,14 @@ describe("Prescription routes", () => {
                         .query({ sort: "DESC", page: 1, limit: 10 })
                         .expect(200);
 
-                    expect(response.body).to.be.an("object");
-                    expect(response.body).to.have.property("pages");
-                    expect(response.body.prescriptions).to.be.an("array");
-                    expect(response.body.prescriptions[0]).to.include({
+                    expect(response.body).to.have.property("active");
+                    expect(response.body).to.have.property("inactive");
+                    expect(response.body.active).to.be.an("array");
+                    expect(response.body.active[0]).to.include({
                         id: testPrescription2.id,
                     });
-                    expect(response.body.prescriptions[0]).to.have.property("code");
-                    expect(response.body.prescriptions[1]).to.include({
+                    expect(response.body.active[0]).to.have.property("code");
+                    expect(response.body.active[1]).to.include({
                         id: testPrescription.id,
                     });
                 });

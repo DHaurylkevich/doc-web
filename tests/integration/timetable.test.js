@@ -73,7 +73,7 @@ describe("Timetable routes", () => {
 
                 const response = await request(app)
                     .put(`/api/clinics/timetable`)
-                    .send({ timetablesData: updatedData })
+                    .send(updatedData)
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
@@ -140,7 +140,7 @@ describe("Timetable routes", () => {
 
                 const response = await request(app)
                     .put(`/api/clinics/timetable`)
-                    .send({ timetablesData: [updatedData] })
+                    .send([updatedData])
                     .set("Cookie", sessionCookies)
                     .expect(400);
 
@@ -164,7 +164,7 @@ describe("Timetable routes", () => {
 
                 const response = await request(app)
                     .put(`/api/clinics/timetable`)
-                    .send({ timetablesData: [updatedData] })
+                    .send([updatedData])
                     .set("Cookie", sessionCookies)
                     .expect(400);
 
@@ -189,7 +189,7 @@ describe("Timetable routes", () => {
 
                 const response = await request(app)
                     .put(`/api/clinics/timetable`)
-                    .send({ timetablesData: [updatedData] })
+                    .send([updatedData])
                     .set("Cookie", sessionCookies)
                     .expect(400);
 
@@ -215,7 +215,7 @@ describe("Timetable routes", () => {
 
                 const response = await request(app)
                     .put(`/api/clinics/timetable`)
-                    .send({ timetablesData: [updatedData] })
+                    .send([updatedData])
                     .set("Cookie", sessionCookies)
                     .expect(400);
 
@@ -241,7 +241,7 @@ describe("Timetable routes", () => {
 
                 const response = await request(app)
                     .put(`/api/clinics/timetable`)
-                    .send({ timetablesData: [updatedData] })
+                    .send([updatedData])
                     .set("Cookie", sessionCookies)
                     .expect(400);
 

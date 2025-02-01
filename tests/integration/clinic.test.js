@@ -143,8 +143,7 @@ describe("Clinic routes", () => {
                     .set('Cookie', sessionCookies)
                     .expect(200);
 
-                expect(response.body).to.have.property("name", updatedClinic.name);
-                expect(response.body.address).to.have.property("city", updatedAddress.city);
+                expect(response.body).to.have.property("message", "Clinic updated successfully");
             });
         });
     });

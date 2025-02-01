@@ -113,7 +113,7 @@ describe("Service Controller", () => {
                     const req = {
                         user: { id: 1 },
                         params: { serviceId: 1 },
-                        body: { serviceData: { name: "Updated Service", price: 150 } }
+                        body: { name: "Updated Service", price: 150 }
                     };
                     const updatedService = { id: 1, name: "Updated Service", price: 150 };
                     updateServiceStub.resolves(updatedService);
@@ -122,7 +122,7 @@ describe("Service Controller", () => {
 
                     expect(updateServiceStub.calledOnceWith(1, 1, { name: "Updated Service", price: 150 })).to.be.true;
                     expect(res.status.calledOnceWith(200)).to.be.true;
-                    expect(res.json.calledOnceWith(updatedService)).to.be.true;
+                    expect(res.json.calledOnceWith({ message: "Service updated successfully" })).to.be.true;
                     expect(next.called).to.be.false;
                 });
             });
@@ -198,7 +198,7 @@ describe("Service Controller", () => {
                 const req = {
                     user: { id: 1 },
                     params: { serviceId: 999 },
-                    body: { serviceData: { name: "Non-existing Service" } }
+                    body: { name: "Non-existing Service" }
                 };
                 const error = new AppError("Service not found", 404);
                 updateServiceStub.rejects(error);
@@ -214,7 +214,7 @@ describe("Service Controller", () => {
                 const req = {
                     user: { id: 1 },
                     params: { serviceId: 1 },
-                    body: { serviceData: { name: "" } }
+                    body: { name: "" }
                 };
                 const error = new AppError("Invalid data provided", 400);
                 updateServiceStub.rejects(error);

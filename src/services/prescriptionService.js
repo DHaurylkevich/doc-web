@@ -37,7 +37,6 @@ const prescriptionService = {
         }
     },
     getPrescriptionsByPatient: async (userRole, { roleId, sort }) => {
-
         let wherePrescriptions = {};
         let includeModel = {};
         const excludePrescriptions = ["updatedAt", "doctor_id", "medication_id", "patient_id"];

@@ -154,7 +154,7 @@ describe("User routes", () => {
                 await db.Addresses.destroy({ where: {} });
             });
         });
-        describe("PUT /api/users/password", () => {
+        describe("PATCH /api/users/password", () => {
             it("expect to update user password and return 'Password changed successfully', when data valid and it exists", async () => {
                 const testUser = await db.Users.create(fakeUserData);
                 const res = await request(app)
@@ -169,7 +169,7 @@ describe("User routes", () => {
                 const newPassword = faker.internet.password();
 
                 const response = await request(app)
-                    .put(`/api/users/password`)
+                    .patch(`/api/users/password`)
                     .send({ oldPassword: "123456789", newPassword })
                     .set('Cookie', sessionCookies)
                     .expect(200);
@@ -199,7 +199,7 @@ describe("User routes", () => {
                 const newPassword = faker.internet.password();
 
                 const response = await request(app)
-                    .put(`/api/users/password`)
+                    .patch(`/api/users/password`)
                     .send({ oldPassword: "123456789", newPassword })
                     .set('Cookie', sessionCookies)
                     .expect(200);
@@ -273,10 +273,10 @@ describe("User routes", () => {
                 expect(response.body).to.have.property("message", "Unauthorized user");
             });
         });
-        describe("PUT /api/users/password", () => {
+        describe("PATCH /api/users/password", () => {
             it("expect to return message: 'Unauthorized user', when user don't unauthorized", async () => {
                 const response = await request(app)
-                    .put(`/api/users/password`)
+                    .patch(`/api/users/password`)
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
@@ -294,7 +294,7 @@ describe("User routes", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .put(`/api/users/password`)
+                    .patch(`/api/users/password`)
                     .send()
                     .set('Cookie', sessionCookies)
                     .expect(400);
@@ -314,7 +314,7 @@ describe("User routes", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .put(`/api/users/password`)
+                    .patch(`/api/users/password`)
                     .send({ oldPassword: "123456789" })
                     .set('Cookie', sessionCookies)
                     .expect(400);
@@ -335,7 +335,7 @@ describe("User routes", () => {
                 const newPassword = "123456789";
 
                 const response = await request(app)
-                    .put(`/api/users/password`)
+                    .patch(`/api/users/password`)
                     .send({ oldPassword: "12345678", newPassword })
                     .set('Cookie', sessionCookies)
                     .expect(400);

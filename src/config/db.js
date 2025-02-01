@@ -44,9 +44,7 @@ if (config.url) {
         if (process.env.DB_SYNC === "true") {
             logger.info("Добавление/Обноаление данных...");
             await sequelize.sync({ alter: true });
-            // await sequelize.truncate({ cascade: true }); 
 
-            // await sequelize.sync({ force: true });
             logger.info("Начальные данные добавлены/обновлены");
         }
     } catch (err) {

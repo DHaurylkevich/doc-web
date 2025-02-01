@@ -124,7 +124,7 @@ describe("Service routes", () => {
                 expect(response.body).have.property("name", fakeService.name);
             });
         });
-        describe("PUT /api/services/:serviceId", () => {
+        describe("PUT /api/clinics/services/:serviceId", () => {
             let serviceId, sessionCookies;
             beforeEach(async () => {
                 const fakeClinicData = {
@@ -152,7 +152,7 @@ describe("Service routes", () => {
             });
             it("expect to update service by id, when data valid and it exists", async () => {
                 await request(app)
-                    .put(`/api/services/${serviceId}`)
+                    .put(`/api/clinics/services/${serviceId}`)
                     .send({ serviceData: { name: "TEST" } })
                     .set('Cookie', sessionCookies)
                     .expect(200);
@@ -161,7 +161,7 @@ describe("Service routes", () => {
                 expect(serviceInDB.name).to.equals("TEST");
             });
         });
-        describe("DELETE /api/services/:serviceId", () => {
+        describe("DELETE /api/clinics/services/:serviceId", () => {
             let serviceId, sessionCookies;
             beforeEach(async () => {
                 const fakeClinicData = {
@@ -190,7 +190,7 @@ describe("Service routes", () => {
             });
             it("expect delete service by id, when it exists", async () => {
                 const response = await request(app)
-                    .delete(`/api/services/${serviceId}`)
+                    .delete(`/api/clinics/services/${serviceId}`)
                     .set('Cookie', sessionCookies)
                     .expect(200);
 
@@ -310,10 +310,10 @@ describe("Service routes", () => {
                 expect(response.body).to.have.property("message", "Service not found");
             });
         });
-        describe("PUT /api/services/:id", () => {
+        describe("PUT /api/clinics/services/:serviceId", () => {
             it("expect AppError('Unauthorized user') error when attempting to create a service without authentication", async () => {
                 const response = await request(app)
-                    .put("/api/services/1")
+                    .put("/api/clinics/services/1")
                     .expect(401);
 
                 expect(response.body).to.have.property("message", "Unauthorized user");
@@ -337,7 +337,7 @@ describe("Service routes", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .put("/api/services/1")
+                    .put("/api/clinics/services/1")
                     .set('Cookie', sessionCookies)
                     .expect(403);
 
@@ -367,7 +367,7 @@ describe("Service routes", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .put("/api/services/1")
+                    .put("/api/clinics/services/1")
                     .send({ name: "Updated Service Name", price: 20.20 })
                     .set('Cookie', sessionCookies)
                     .expect(404);
@@ -375,10 +375,10 @@ describe("Service routes", () => {
                 expect(response.body).to.have.property("message", "Service not found");
             });
         });
-        describe("DELETE /api/services/:serviceId", () => {
+        describe("DELETE /api/clinics/services/:serviceId", () => {
             it("expect AppError('Unauthorized user') error when attempting to create a service without authentication", async () => {
                 const response = await request(app)
-                    .delete(`/api/services/1`)
+                    .delete(`/api/clinics/services/1`)
                     .send({ name: "Updated Service Name", price: 20.20 })
                     .expect(401);
 
@@ -403,7 +403,7 @@ describe("Service routes", () => {
                 const sessionCookies = res.headers['set-cookie'];
 
                 const response = await request(app)
-                    .delete(`/api/services/1`)
+                    .delete(`/api/clinics/services/1`)
                     .set('Cookie', sessionCookies)
                     .expect(403);
 

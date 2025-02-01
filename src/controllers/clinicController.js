@@ -10,7 +10,7 @@ const ClinicController = {
             if (process.env.EMAIL === undefined || process.env.EMAIL_PASS === undefined) {
                 res.status(200).json({ message: "Write to Dima to include his email in the function" });
             }
-            res.status(201).json("The link for password configuration has been sent to mail");
+            res.status(201).json({ message: "The link for password configuration has been sent to mail" });
         } catch (err) {
             next(err);
         }
@@ -62,7 +62,7 @@ const ClinicController = {
         try {
             await ClinicService.updateClinic(clinicId, clinicData, addressData);
 
-            res.status(200).json({ message: "Clinic updated successfully"});
+            res.status(200).json({ message: "Clinic updated successfully" });
         } catch (err) {
             next(err);
         }

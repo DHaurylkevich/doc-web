@@ -144,7 +144,7 @@ describe("Schedule routes", () => {
                 const scheduleData = {
                     doctor_id: testDoctor.id,
                     clinic_id: testClinic.id,
-                    date: "2024-11-10",
+                    date: new Date,
                     start_time: "09:00",
                     end_time: "12:00",
                     interval: 30,
@@ -156,11 +156,11 @@ describe("Schedule routes", () => {
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
-                expect(response.body).to.have.property("pages");
-                expect(response.body).to.have.property("schedule");
-                expect(response.body.schedule[0]).to.have.property("id", createdSchedule.id);
-                expect(response.body.schedule[0]).to.have.property("start_time", createdSchedule.start_time);
-                expect(response.body.schedule[0]).to.have.property("doctor");
+                expect(response.body).to.have.property("totalHours");
+                expect(response.body).to.have.property("schedules");
+                expect(response.body.schedules[0]).to.have.property("id", createdSchedule.id);
+                expect(response.body.schedules[0]).to.have.property("start_time", createdSchedule.start_time);
+                expect(response.body.schedules[0]).to.have.property("doctor");
             });
             it("expect to get empty array for clinic, when schedule doesn't exists", async () => {
                 const res = await request(app)
@@ -178,9 +178,9 @@ describe("Schedule routes", () => {
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
-                expect(response.body).to.have.property("pages");
-                expect(response.body).to.have.property("schedule");
-                expect(response.body.schedule).to.be.an('array').that.is.empty;
+                expect(response.body).to.have.property("totalHours");
+                expect(response.body).to.have.property("schedules");
+                expect(response.body.schedules).to.be.an('array').that.is.empty;
             });
             it("expect to get schedule for doctor, when it exists", async () => {
                 const fakeUser = {
@@ -202,7 +202,7 @@ describe("Schedule routes", () => {
                 const scheduleData = {
                     doctor_id: testDoctor.id,
                     clinic_id: testClinic.id,
-                    date: "2024-11-10",
+                    date: new Date,
                     start_time: "09:00",
                     end_time: "12:00",
                     interval: 30,
@@ -214,10 +214,10 @@ describe("Schedule routes", () => {
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
-                expect(response.body).to.have.property("pages");
-                expect(response.body).to.have.property("schedule");
-                expect(response.body.schedule[0]).to.have.property("id", createdSchedule.id);
-                expect(response.body.schedule[0]).to.have.property("start_time", createdSchedule.start_time);
+                expect(response.body).to.have.property("totalHours");
+                expect(response.body).to.have.property("schedules");
+                expect(response.body.schedules[0]).to.have.property("id", createdSchedule.id);
+                expect(response.body.schedules[0]).to.have.property("start_time", createdSchedule.start_time);
             });
             it("expect to get empty array for doctor, when schedule doesn't exists", async () => {
                 const fakeUser = {
@@ -242,35 +242,11 @@ describe("Schedule routes", () => {
                     .set("Cookie", sessionCookies)
                     .expect(200);
 
-                expect(response.body).to.have.property("pages");
-                expect(response.body).to.have.property("schedule");
-                expect(response.body.schedule).to.be.an('array').that.is.empty;
+                expect(response.body).to.have.property("totalHours");
+                expect(response.body).to.have.property("schedules");
+                expect(response.body.schedules).to.be.an('array').that.is.empty;
             });
         });
-        // describe("GET /schedules/available-slots", () => {
-        //     it("expect to get available slots for appointment, when it exists", async () => {
-        //         const scheduleData = {
-        //             doctor_id: testDoctor.id,
-        //             clinic_id: testClinic.id,
-        //             date: "2024-11-10",
-        //             start_time: "09:00",
-        //             end_time: "12:00",
-        //             interval: 30,
-        //         };
-        //         const createdSchedule = await db.Schedules.create(scheduleData);
-
-        //         const response = await request(app)
-        //             .get(`/api/schedules/available-slots`)
-        //             .set("Cookie", sessionCookies)
-        //             .expect(200);
-
-        //         expect(response.body).to.have.property("pages");
-        //         expect(response.body).to.have.property("schedule");
-        //         expect(response.body.schedule[0]).to.have.property("id", createdSchedule.id);
-        //         expect(response.body.schedule[0]).to.have.property("start_time", createdSchedule.start_time);
-        //         expect(response.body.schedule[0]).to.have.property("doctor");
-        //     });
-        // });
         describe("GET /schedules/:scheduleId", () => {
             it("expect to get schedule by id, when it exists", async () => {
                 const scheduleData = {

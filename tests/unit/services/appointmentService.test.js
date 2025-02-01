@@ -66,19 +66,19 @@ describe("Appointment Service", () => {
             });
         });
         describe("deleteAppointment() =>:", () => {
-            let destroyStub;
+            let destroyStub, findOneStub;
 
             beforeEach(async () => {
-                findByPkStub = sinon.stub(db.Appointments, "findByPk");
+                findOneStub = sinon.stub(db.Appointments, "findOne");
                 destroyStub = sinon.stub();
             });
             it("expect delete appointment, when valid data", async () => {
-                findByPkStub.resolves({ destroy: destroyStub });
+                findOneStub.resolves({ destroy: destroyStub });
                 destroyStub.resolves();
 
-                await AppointmentService.deleteAppointment(1);
+                await AppointmentService.deleteAppointment(1, 2);
 
-                expect(findByPkStub.calledOnceWith(1)).to.be.true;
+                expect(findOneStub.calledOnceWith({ where: { id: 1, patient_id: 2 } })).to.be.true;
                 expect(destroyStub.calledOnce).to.be.true;
             });
         });
@@ -113,25 +113,25 @@ describe("Appointment Service", () => {
             });
         });
         describe("deleteSpecialty() =>:", () => {
-            let destroyStub, findByPkStub;
+            let destroyStub, findOneStub;
             beforeEach(async () => {
-                findByPkStub = sinon.stub(db.Appointments, "findByPk");
+                findOneStub = sinon.stub(db.Appointments, "findOne");
                 destroyStub = sinon.stub();
             });
             it("expect throw error('Appointments not found'), when it isn't", async () => {
-                findByPkStub.resolves(false);
+                findOneStub.resolves(false);
 
-                await expect(AppointmentService.deleteAppointment(1)).to.be.rejectedWith(Error, "Appointment not found");
+                await expect(AppointmentService.deleteAppointment(1, 2)).to.be.rejectedWith(Error, "Appointment not found");
 
-                expect(findByPkStub.calledOnceWith(1)).to.be.true;
+                expect(findOneStub.calledOnceWith({ where: { id: 1, patient_id: 2 } })).to.be.true;
             });
             it("expect throw error('Appointments error'), when error db", async () => {
-                findByPkStub.resolves({ destroy: destroyStub });
+                findOneStub.resolves({ destroy: destroyStub });
                 destroyStub.rejects(new Error("Appointments error"));
 
-                await expect(AppointmentService.deleteAppointment(1)).to.be.rejectedWith(Error, "Appointments error");
+                await expect(AppointmentService.deleteAppointment(1, 2)).to.be.rejectedWith(Error, "Appointments error");
 
-                expect(findByPkStub.calledOnceWith(1)).to.be.true;
+                expect(findOneStub.calledOnceWith({ where: { id: 1, patient_id: 2 } })).to.be.true;
             });
         });
     });

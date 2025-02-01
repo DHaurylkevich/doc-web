@@ -58,7 +58,7 @@ const ScheduleController = {
         }
     },
     getScheduleByRole: async (req, res, next) => {
-        const { year, month } = req.query;
+        const { month = new Date().getMonth() + 1, year = new Date().getFullYear() } = req.query;
         const user = req.user;
 
         try {

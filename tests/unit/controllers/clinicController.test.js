@@ -28,7 +28,7 @@ describe("Clinic Controller", () => {
 
                 expect(createClinicServiceStub.calledOnceWith("clinic", "address")).to.be.true;
                 expect(res.status.calledOnceWith(201)).to.be.true;
-                expect(res.json.calledOnceWith({ id: 1, ...req.body })).to.be.true;
+                expect(res.json.calledOnceWith({ message: "The link for password configuration has been sent to mail" })).to.be.true;
             });
         });
         describe("createClinic", () => {
@@ -42,7 +42,7 @@ describe("Clinic Controller", () => {
                 expect(createClinicServiceStub.calledOnceWith("clinic", "address")).to.be.true;
                 expect(next.calledOnce).to.be.false;
                 expect(res.status.calledOnceWith(201)).to.be.true;
-                expect(res.json.calledOnceWith(clinicData)).to.be.true;
+                expect(res.json.calledOnceWith({ message: "The link for password configuration has been sent to mail" })).to.be.true;
             });
         });
         describe("updateClinicById", () => {
@@ -54,7 +54,7 @@ describe("Clinic Controller", () => {
 
                 expect(updateClinicServiceStub.calledOnceWith(req.user.id, req.body.clinicData, req.body.addressData)).to.be.true;
                 expect(res.status.calledOnceWith(200)).to.be.true;
-                expect(res.json.calledOnceWith({ id: 1, clinicData: "clinicNew", addressData: "addressNew" })).to.be.true;
+                expect(res.json.calledOnceWith({ message: "Clinic updated successfully" })).to.be.true;
             });
         });
         describe("getFullClinic", () => {
