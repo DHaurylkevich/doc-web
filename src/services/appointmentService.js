@@ -99,10 +99,12 @@ const AppointmentService = {
 
         await appointment.destroy();
     },
-    getAppointmentsByClinic: async ({ clinicId, doctorId, patientId, date, specialty, limit, page }) => {
+    getAppointmentsByClinic: async ({ clinicId, active, doctorId, patientId, date, specialty, limit, page }) => {
         let appointmentWhere = { clinic_id: clinicId };
         if (patientId) {
             appointmentWhere.patient_id = patientId;
+        } else if (active) {
+            appointmentWhere.status = "active";
         }
 
         const doctorServiceWhere = doctorId ? { doctor_id: doctorId } : {};

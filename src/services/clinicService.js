@@ -174,7 +174,7 @@ const ClinicService = {
         const { rows, count } = await db.Clinics.findAndCountAll({
             limit: parsedLimit,
             offset: offset,
-            order: [["name", sort === "ASC" ? "ASC" : "DESC"]],
+            order: [["name", sort === "asc" ? "ASC" : "DESC"]],
             attributes: {
                 exclude: ["password", "resetToken", "updatedAt", "role", "description", "feedbackRating"],
                 include: [

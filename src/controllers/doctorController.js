@@ -24,7 +24,7 @@ const DoctorController = {
         }
     },
     getAllDoctorsForAdmin: async (req, res, next) => {
-        const { sort, gender, limit, page } = req.query;
+        const { sort = "asc", gender, limit, page } = req.query;
 
         try {
             const doctors = await DoctorService.getAllDoctorsForAdmin({ sort, gender, limit, page });
@@ -58,10 +58,10 @@ const DoctorController = {
     },
     getDoctorsByClinicWithSorting: async (req, res, next) => {
         const { clinicId } = req.params;
-        const { gender, sort, limit, page } = req.query;
+        const { gender, sort = "asc", ratingSort = "asc", limit, page } = req.query;
 
         try {
-            const doctors = await DoctorService.getDoctorsByClinicWithSorting({ clinicId, gender, sort, limit, page });
+            const doctors = await DoctorService.getDoctorsByClinicWithSorting({ clinicId, gender, sort, ratingSort, limit, page });
             res.status(200).json(doctors);
         } catch (err) {
             next(err);

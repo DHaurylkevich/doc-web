@@ -6,11 +6,13 @@ const sessionConfig = require('./src/config/session');
 const { errorHandler } = require("./src/middleware/errorHandler");
 const AppError = require("./src/utils/appError");
 const logger = require("./src/utils/logger");
+const { startCron, stopCron } = require("./src/utils/cron");
 const swaggerDocs = require("./src/config/swagger");
 const morgan = require("morgan");
 const cors = require("cors");
 
 require("./src/config/db");
+startCron();
 
 app.use(cors({
   origin: [
@@ -57,4 +59,14 @@ const link = process.env.LINK || "http://localhost";
 app.listen(port, () => {
   logger.info(`The server start at: ${link}:${port}`)
   logger.info(`The documentation is available at: ${link}:${port}/api-docs`);
+});
+
+process.on('SIGINT', () => {
+  stopCron();
+  process.exit();
+});
+
+process.on('SIGTERM', () => {
+  stopCron();
+  process.exit();
 });

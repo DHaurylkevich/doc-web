@@ -292,7 +292,7 @@ router.put("/clinics", isAuthenticated, hasRole("clinic"), ClinicController.upda
  *         required: false
  *         schema:
  *           type: string
- *           enum: [ASC, DESC]
+ *           enum: [asc, desc]
  *           example: "asc"
  *       - name: limit
  *         in: query

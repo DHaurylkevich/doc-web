@@ -87,7 +87,7 @@ const DoctorService = {
                     as: 'specialty',
                     attributes: ["name"],
                     include: [
-                        { model: db.Services, as: "services", attributes: ["id", "name"] }
+                        { model: db.Services, as: "services", attributes: ["id", "name", "price"] }
                     ]
                 },
                 {
@@ -107,7 +107,7 @@ const DoctorService = {
         const userWhere = gender ? { gender } : {};
 
         const sortOptions = [
-            [{ model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"],
+            [{ model: db.Users, as: "user" }, "first_name", sort === "asc" ? "ASC" : "DESC"],
         ];
 
         const { parsedLimit, offset } = getPaginationParams(limit, page);
@@ -200,26 +200,27 @@ const DoctorService = {
 
         return doctor;
     },
-    getDoctorsByClinicWithSorting: async ({ clinicId, gender, sort, limit, page }) => {
+    getDoctorsByClinicWithSorting: async ({ clinicId, gender, sort, ratingSort, limit, page }) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         const userWhere = gender ? { gender } : {};
 
         const sortOptions = [
-            [{ model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"],
+            ['rating', ratingSort === 'desc' ? "DESC" : "ASC"],
+            [{ model: db.Users, as: "user" }, "first_name", sort === "asc" ? "ASC" : "DESC"],
         ];
 
         const { rows, count } = await db.Doctors.findAndCountAll({
             limit: parsedLimit,
             offset: offset,
             where: { clinic_id: clinicId },
-            attributes: ["id"],
+            attributes: ["id", "rating"],
             include: [
                 {
                     model: db.Users,
                     as: "user",
                     where: userWhere,
-                    attributes: ["first_name", "last_name", "gender"],
+                    attributes: ["first_name", "last_name", "gender", "photo"],
                 },
                 {
                     model: db.Specialties,

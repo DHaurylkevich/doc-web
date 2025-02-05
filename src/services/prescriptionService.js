@@ -74,7 +74,7 @@ const prescriptionService = {
 
         const prescriptions = await db.Prescriptions.findAll({
             where: wherePrescriptions,
-            order: [['createdAt', sort === 'DESC' ? 'DESC' : 'ASC']],
+            order: [['createdAt', sort === 'desc' ? 'DESC' : 'ASC']],
             attributes: { exclude: excludePrescriptions },
             include: [
                 includeModel,

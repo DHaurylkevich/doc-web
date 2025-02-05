@@ -30,11 +30,9 @@ const PatientService = {
         }
     },
     getPatientById: async (patientId, user) => {
-        // const appointmentWhere = user.role === "clinic" ? { clinic_id: user.id } : {}
         const doctorServiceWhere = user.role === "doctor" ? { doctor_id: user.roleId } : {}
 
         const patient = await db.Appointments.findOne({
-            // where: appointmentWhere,
             attributes: [],
             include: [
                 {
@@ -105,7 +103,7 @@ const PatientService = {
                         {
                             model: db.Users,
                             as: "user",
-                            attributes: ["first_name", "last_name", "photo", "gender"],
+                            attributes: ["first_name", "last_name", "photo", "gender", "phone"],
                             order: [["first_name", sort === "ASC" ? "ASC" : "DESC"]],
                             include: [
                                 {
@@ -134,7 +132,7 @@ const PatientService = {
         const userWhere = gender ? { gender } : {};
 
         const sortOptions = [
-            [{ model: db.Users, as: "user" }, "first_name", sort === "ASC" ? "ASC" : "DESC"],
+            [{ model: db.Users, as: "user" }, "first_name", sort === "asc" ? "ASC" : "DESC"],
         ];
 
         const { parsedLimit, offset } = getPaginationParams(limit, page);

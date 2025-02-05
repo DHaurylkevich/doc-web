@@ -57,7 +57,7 @@ router.post("/prescriptions", validateBody("expirationDate"), validateRequest, i
  *         required: false
  *         schema:
  *           type: string
- *           enum: [ASC, DESC]
+ *           enum: [asc, desc]
  *           default: ASC
  *     responses:
  *       200:

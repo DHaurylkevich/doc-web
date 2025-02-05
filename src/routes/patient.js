@@ -64,6 +64,9 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *                               last_name:
  *                                 type: string
  *                                 example: "Socha"
+ *                               phone:
+ *                                 type: string
+ *                                 example: "48781562794"
  *                               photo:
  *                                 type: string
  *                                 format: uri

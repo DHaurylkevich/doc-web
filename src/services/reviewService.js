@@ -98,8 +98,8 @@ const ReviewService = {
             limit: parsedLimit,
             offset: offset,
             order: [
-                ['rating', sortRating === 'DESC' ? 'DESC' : 'ASC'],
-                ['createdAt', sortDate === 'DESC' ? 'DESC' : 'ASC']
+                ['rating', sortRating === 'desc' ? 'DESC' : 'ASC'],
+                ['createdAt', sortDate === 'desc' ? 'DESC' : 'ASC']
             ],
             attributes: ["id", "comment", "rating", "createdAt"],
             where: { status: 'approved' },

@@ -26,7 +26,7 @@ const ReviewController = {
     },
     getAllReviewsByClinic: async (req, res, next) => {
         const { clinicId } = req.params;
-        const { sortDate = 'ASC', sortRating = 'ASC', limit, page } = req.query;
+        const { sortDate = 'asc', sortRating = 'asc', limit, page } = req.query;
 
         try {
             const reviews = await ReviewService.getAllReviewsByClinic(clinicId, { sortDate, sortRating, limit, page });

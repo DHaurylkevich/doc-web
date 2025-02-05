@@ -230,6 +230,9 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
  *                           name:
  *                             type: string
  *                             example: "X-ray"
+ *                           price:
+ *                             type: number
+ *                             example: 1.21
  *                 clinic:
  *                   type: object
  *                   properties:
@@ -242,7 +245,7 @@ router.get("/doctors/:doctorId", doctorController.getDoctorById);
  * @swagger
  * /admins/doctors:
  *   get:
- *     summary: Получить все допустимые данные о врачах для админа
+ *     summary: Get all acceptable physician data for admin
  *     tags: [Doctors]
  *     parameters:
  *       - name: gender
@@ -252,32 +255,27 @@ router.get("/doctors/:doctorId", doctorController.getDoctorById);
  *           type: string
  *           enum: [male, female]
  *           example: "male"
- *         description: Пол доктора
  *       - name: sort
  *         in: query
  *         required: false
  *         schema:
  *           type: string
- *           enum: [ASC, DESC]
+ *           enum: [asc, desc]
  *           example: "asc"
- *         description: Сортировка по имени
  *       - name: limit
  *         in: query
  *         required: false
- *         description: Лимит на количество результатов
  *         schema:
  *           type: integer
  *           default: 10
  *       - name: page
  *         in: query
  *         required: false
- *         description: Номер страницы
  *         schema:
  *           type: integer
  *           default: 1
  *     responses:
  *       200:
- *         description: Успешно возвращены полные данные врача
  *         content:
  *           application/json:
  *             schema:
@@ -285,7 +283,6 @@ router.get("/doctors/:doctorId", doctorController.getDoctorById);
  *               properties:
  *                 id:
  *                   type: integer
- *                   description: Уникальный идентификатор врача
  *                   example: 18
  *                 description:
  *                   type: string
@@ -354,7 +351,7 @@ router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorControlle
  * @swagger
  * /clinics/doctors/{doctorId}:
  *   put:
- *     summary: Клиника может обновить информацию о своем докторе  
+ *     summary: A clinic can update their doctor's information 
  *     tags: [Doctors]
  *     parameters:
  *       - name: doctorId
@@ -362,9 +359,7 @@ router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorControlle
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID доктора
  *     requestBody:
- *       description: Данные для обновления доктора
  *       required: true
  *       content:
  *         application/json:
@@ -373,7 +368,6 @@ router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorControlle
  *             properties:
  *               userData:
  *                 type: object
- *                 description: Данные пользователя
  *                 properties:
  *                   email:
  *                     type: string
@@ -383,7 +377,6 @@ router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorControlle
  *                     example: "+1234567890"
  *               addressData:
  *                 type: object
- *                 description: Адрес доктора
  *                 properties:
  *                   city:
  *                     type: string
@@ -405,7 +398,6 @@ router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorControlle
  *                     example: "37428-7078"
  *               doctorData:
  *                 type: object
- *                 description: Данные доктора
  *                 properties:
  *                   hired_at:
  *                     type: string
@@ -419,13 +411,11 @@ router.get("/admins/doctors", isAuthenticated, hasRole("admin"), doctorControlle
  *                     example: 2
  *               servicesIds:
  *                 type: array
- *                 description: Массив ID услуг доктора
  *                 items:
  *                   type: integer
  *                 example: [2]
  *     responses:
  *       200:
- *         description: Данные доктора успешно обновлены
  *         content:
  *           application/json:
  *             schema:
@@ -440,13 +430,12 @@ router.put("/clinics/doctors/:doctorId", isAuthenticated, hasRole("clinic"), doc
  * @swagger
  * /clinics/{clinicId}/doctors:
  *   get:
- *     summary: Получить всех докторов связанные с одной клинникой с фильтрацией
+ *     summary: Get all doctors associated with one clinic with filtering
  *     tags: [Doctors]
  *     parameters:
  *       - name: clinicId
  *         in: path
  *         required: true
- *         description: ID клиники для поиска
  *         schema:
  *           type: integer
  *           example: 1
@@ -457,32 +446,36 @@ router.put("/clinics/doctors/:doctorId", isAuthenticated, hasRole("clinic"), doc
  *           type: string
  *           enum: [male, female]
  *           example: "male"
- *         description: Пол доктора
  *       - name: sort
  *         in: query
  *         required: false
  *         schema:
  *           type: string
- *           enum: [ASC, DESC]
- *           example: "ASC"
- *         description: Сортировка по имени
+ *           enum: [asc, desc]
+ *           example: "asc"
+ *         description: Sorting by name
+ *       - name: ratingSort
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           example: "asc"
+ *         description: Sorting by rating
  *       - name: limit
  *         in: query
  *         required: false
- *         description: Лимит на количество результатов
  *         schema:
  *           type: integer
  *           default: 10
  *       - name: page
  *         in: query
  *         required: false
- *         description: Номер страницы
  *         schema:
  *           type: integer
  *           default: 1
  *     responses:
  *       200:
- *         description: Массив всех докторов
  *         content:
  *           application/json:
  *             schema:
@@ -493,12 +486,18 @@ router.put("/clinics/doctors/:doctorId", isAuthenticated, hasRole("clinic"), doc
  *                   id:
  *                     type: integer
  *                     example: 18
+ *                   rating:
+ *                     type: number
+ *                     example: 1.231
  *                   user:
  *                     type: object
  *                     properties:
  *                       first_name:
  *                         type: string
  *                         example: "Janiya"
+ *                       photo:
+ *                         type: string
+ *                         example: "http://example.com"
  *                       last_name:
  *                         type: string
  *                         example: "Ward"

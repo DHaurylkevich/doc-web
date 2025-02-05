@@ -34,7 +34,7 @@ const PatientController = {
         }
     },
     getAllPatientsForAdmin: async (req, res, next) => {
-        const { sort, gender, limit, page } = req.query;
+        const { sort = "asc", gender, limit, page } = req.query;
 
         try {
             const patients = await PatientService.getAllPatientsForAdmin({ sort, gender, limit, page });

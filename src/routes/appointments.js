@@ -156,6 +156,13 @@ router.delete("/patients/appointments/:appointmentId", isAuthenticated, hasRole(
  *           type: string
  *           format: date
  *           example: "2024-11-05"
+ *       - name: active
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           description: Get actual appointments
+ *           example: true
  *       - name: specialty
  *         in: query
  *         required: false

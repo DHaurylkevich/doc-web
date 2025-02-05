@@ -207,15 +207,15 @@ router.patch("/admins/reviews/:reviewId/moderate", isAuthenticated, hasRole("adm
  *         required: false
  *         schema:
  *           type: string
- *           enum: [ASC, DESC]
- *           default: ASC
+ *           enum: [asc, desc]
+ *           default: asc
  *       - name: sortRating
  *         in: query
  *         required: false
  *         schema:
  *           type: string
- *           enum: [ASC, DESC]
- *           default: ASC
+ *           enum: [asc, desc]
+ *           default: asc
  *       - name: limit
  *         in: query
  *         required: false

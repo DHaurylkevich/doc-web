@@ -7,7 +7,7 @@ router.post("/chats/:chatId/messages", uploadFiles.single("file"), messageContro
  * @swagger
  * /chats/{chatId}/messages:
  *   get:
- *     summary: Получить сообщения чата
+ *     summary: get message by chatId
  *     tags: [Messages]
  *     parameters:
  *       - in: path
@@ -15,19 +15,16 @@ router.post("/chats/:chatId/messages", uploadFiles.single("file"), messageContro
  *         schema:
  *           type: string
  *         required: true
- *         description: ID чата
  *     responses:
  *       200:
- *         description: Список сообщений
- *       404:
- *         description: Чат не найден
+ *         description: Message's array
  */
 router.get("/users/chats/:chatId/messages", messageController.getMessages);
 /**
  * @swagger
  * /users/messages/{messageId}:
  *   delete:
- *     summary: Удалить сообщение
+ *     summary: delete message
  *     tags: [Messages]
  *     parameters:
  *       - in: path
@@ -35,12 +32,9 @@ router.get("/users/chats/:chatId/messages", messageController.getMessages);
  *         schema:
  *           type: string
  *         required: true
- *         description: ID сообщения
  *     responses:
  *       200:
- *         description: Сообщение успешно удалено
- *       404:
- *         description: Сообщение не найдено
+ *         description: Successful
  */
 router.delete("/users/messages/:messageId", messageController.deleteMessage);
 

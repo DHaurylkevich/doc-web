@@ -37,7 +37,7 @@ const ClinicController = {
         }
     },
     getAllClinicsForAdmin: async (req, res, next) => {
-        const { sort, limit, page } = req.query;
+        const { sort = "asc", limit, page } = req.query;
 
         try {
             const clinics = await ClinicService.getAllClinicsForAdmin({ sort, limit, page });

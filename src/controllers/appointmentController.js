@@ -14,10 +14,10 @@ const AppointmentController = {
     },
     getAppointmentsByClinic: async (req, res, next) => {
         const clinicId = req.user.id;
-        const { doctorId, patientId, date, specialty, limit, page } = req.query;
+        const { doctorId, active, patientId, date, specialty, limit, page } = req.query;
 
         try {
-            const appointments = await AppointmentService.getAppointmentsByClinic({ clinicId, doctorId, patientId, date, specialty, limit, page });
+            const appointments = await AppointmentService.getAppointmentsByClinic({ clinicId, active, doctorId, patientId, date, specialty, limit, page });
             res.status(200).json(appointments);
         } catch (err) {
             next(err);
