@@ -208,11 +208,12 @@ const DoctorService = {
 
         const userWhere = gender ? { gender } : {};
         const specialtyWhere = specialtyId ? { id: specialtyId } : {};
-
-        const sortOptions = [
-            ['rating', ratingSort === 'desc' ? "DESC" : "ASC"],
-            [{ model: db.Users, as: "user" }, "first_name", sort === "asc" ? "ASC" : "DESC"],
-        ];
+        console.log(ratingSort);
+        const sortOptions = []
+        if (ratingSort !== '') {
+            sortOptions.push(['rating', ratingSort === 'desc' ? "DESC" : "ASC"]);
+        }
+        sortOptions.push([{ model: db.Users, as: "user" }, "first_name", sort === "asc" ? "ASC" : "DESC"])
 
         const { rows, count } = await db.Doctors.findAndCountAll({
             limit: parsedLimit,
