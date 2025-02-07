@@ -4,12 +4,12 @@ const { faker } = require('@faker-js/faker');
 module.exports = {
     async up(queryInterface, Sequelize) {
         const doctors = await queryInterface.sequelize.query(
-            `SELECT id, clinic_id FROM doctors;`,
+            `SELECT id, clinic_id, specialty_id FROM doctors;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
         const createdServices = await queryInterface.sequelize.query(
-            `SELECT id, clinic_id FROM services;`,
+            `SELECT id, clinic_id, specialty_id FROM services;`,
             { type: Sequelize.QueryTypes.SELECT }
         );
 
@@ -17,7 +17,7 @@ module.exports = {
 
         for (const doctor of doctors) {
             const clinicServices = createdServices.filter(
-                service => service.clinic_id === doctor.clinic_id
+                service => service.clinic_id === doctor.clinic_id && service.specialty_id === doctor.specialty_id
             );
 
             if (clinicServices.length > 0) {

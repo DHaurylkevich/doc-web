@@ -58,10 +58,10 @@ const DoctorController = {
     },
     getDoctorsByClinicWithSorting: async (req, res, next) => {
         const { clinicId } = req.params;
-        const { gender, sort = "asc", ratingSort = "asc", limit, page } = req.query;
+        const { gender, sort = "asc", ratingSort = "asc", limit, page, specialtyId } = req.query;
 
         try {
-            const doctors = await DoctorService.getDoctorsByClinicWithSorting({ clinicId, gender, sort, ratingSort, limit, page });
+            const doctors = await DoctorService.getDoctorsByClinicWithSorting({ clinicId, gender, sort, ratingSort, limit, page, specialtyId });
             res.status(200).json(doctors);
         } catch (err) {
             next(err);

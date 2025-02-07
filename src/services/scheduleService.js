@@ -125,17 +125,27 @@ const ScheduleService = {
 
         return { totalHours, schedules };
     },
-    getScheduleByClinic: async ({ clinicId, year, month }) => {
+    getScheduleByClinic: async ({ clinicId, year, month }, doctorIds) => {
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0);
 
+        const whereClause = {
+            clinic_id: clinicId,
+            date: {
+                [Op.between]: [startDate, endDate]
+            }
+        };
+
+        if (doctorIds && !Array.isArray(doctorIds)) {
+            doctorIds = [doctorIds];
+        }
+
+        if (doctorIds && doctorIds.length > 0) {
+            whereClause.doctor_id = { [Op.in]: doctorIds };
+        }
+
         const schedules = await db.Schedules.findAll({
-            where: {
-                clinic_id: clinicId,
-                date: {
-                    [Op.between]: [startDate, endDate]
-                }
-            },
+            where: whereClause,
             attributes: { exclude: ["createdAt", "updatedAt", "doctor_id", "available_slots", "clinic_id"] },
             include: [
                 {

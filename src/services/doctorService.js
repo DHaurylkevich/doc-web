@@ -85,10 +85,13 @@ const DoctorService = {
                 {
                     model: db.Specialties,
                     as: 'specialty',
-                    attributes: ["name"],
-                    include: [
-                        { model: db.Services, as: "services", attributes: ["id", "name", "price"] }
-                    ]
+                    attributes: ["id", "name"],
+                },
+                {
+                    model: db.Services,
+                    through: { attributes: [] },
+                    as: "services",
+                    attributes: ["id", "name", "price"]
                 },
                 {
                     model: db.Clinics,
@@ -200,10 +203,11 @@ const DoctorService = {
 
         return doctor;
     },
-    getDoctorsByClinicWithSorting: async ({ clinicId, gender, sort, ratingSort, limit, page }) => {
+    getDoctorsByClinicWithSorting: async ({ clinicId, gender, sort, ratingSort, limit, page, specialtyId }) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
 
         const userWhere = gender ? { gender } : {};
+        const specialtyWhere = specialtyId ? { id: specialtyId } : {};
 
         const sortOptions = [
             ['rating', ratingSort === 'desc' ? "DESC" : "ASC"],
@@ -225,6 +229,7 @@ const DoctorService = {
                 {
                     model: db.Specialties,
                     as: "specialty",
+                    where: specialtyWhere,
                     attributes: ["name"],
                 }
             ],

@@ -58,7 +58,7 @@ const ScheduleController = {
         }
     },
     getScheduleByRole: async (req, res, next) => {
-        const { month = new Date().getMonth() + 1, year = new Date().getFullYear() } = req.query;
+        const { month = new Date().getMonth() + 1, year = new Date().getFullYear(), doctorIds } = req.query;
         const user = req.user;
 
         try {
@@ -66,7 +66,7 @@ const ScheduleController = {
             if (user.role === "doctor") {
                 schedules = await ScheduleService.getScheduleByDoctor({ doctorId: user.roleId, year, month });
             } else {
-                schedules = await ScheduleService.getScheduleByClinic({ clinicId: user.id, year, month });
+                schedules = await ScheduleService.getScheduleByClinic({ clinicId: user.id, year, month }, doctorIds);
             }
             return res.status(200).json(schedules);
         } catch (err) {

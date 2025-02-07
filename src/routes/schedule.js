@@ -108,6 +108,15 @@ router.post("/clinics/schedules", createSchedule, validateRequest, isAuthenticat
  *         schema:
  *           type: integer
  *           default: 1
+ *       - name: doctorIds
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: integer
+ *           description: Array of doctor IDs
+ *           example: [1, 2, 3]
  *     responses:
  *       200:
  *         content:

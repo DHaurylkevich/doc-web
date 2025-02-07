@@ -67,7 +67,7 @@ module.exports = {
                     description: faker.lorem.sentence(),
                     first_visit: faker.datatype.boolean(),
                     visit_type: faker.helpers.arrayElement(['prywatna', 'NFZ']),
-                    status: faker.helpers.arrayElement(['active', 'canceled', 'completed']),
+                    status: faker.helpers.arrayElement(['active', 'completed']),
                     createdAt: new Date(),
                     updatedAt: new Date()
                 });

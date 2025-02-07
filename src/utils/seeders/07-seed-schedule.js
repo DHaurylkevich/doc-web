@@ -8,8 +8,8 @@ module.exports = {
             { type: Sequelize.QueryTypes.SELECT }
         );
 
-        const startDate = new Date('2025-01-29');
-        const endDate = new Date('2024-02-28');
+        const startDate = new Date('2025-02-01');
+        const endDate = new Date('2025-02-30');
         const schedules = [];
         doctors.forEach(doctor => {
             for (let index = 0; index < 3; index++) {

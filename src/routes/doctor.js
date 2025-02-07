@@ -216,23 +216,26 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
  *                 specialty:
  *                   type: object
  *                   properties:
+ *                     id:
+ *                       type: number
+ *                       example: 1
  *                     name:
  *                       type: string
  *                       example: "Agent"
- *                     services:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: number
- *                             example: 1
- *                           name:
- *                             type: string
- *                             example: "X-ray"
- *                           price:
- *                             type: number
- *                             example: 1.21
+ *                 services:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: number
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "X-ray"
+ *                       price:
+ *                         type: number
+ *                         example: 1.21
  *                 clinic:
  *                   type: object
  *                   properties:
@@ -469,6 +472,12 @@ router.put("/clinics/doctors/:doctorId", isAuthenticated, hasRole("clinic"), doc
  *           type: integer
  *           default: 10
  *       - name: page
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - name: specialtyId
  *         in: query
  *         required: false
  *         schema:
