@@ -27,8 +27,9 @@ app.use(cors({
     "https://accounts.google.com/o/oauth2/v2/auth"
   ],
   credentials: true,
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  optionsSuccessStatus: 204
+  methods: ['GET,HEAD,PUT,PATCH,POST,DELETE'],
+  optionsSuccessStatus: 204,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.set('trust proxy', 1);
 
