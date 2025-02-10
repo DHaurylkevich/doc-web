@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const PostController = require("../controllers/postController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
+const upload = require("../middleware/upload").uploadImages;
 
 /**
  * @swagger
@@ -17,10 +18,12 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *         schema:
  *           type: integer
  *           example: 1
+ *     consumes:
+ *       - multipart/form-data
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -30,6 +33,9 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *                 type: string
  *               content:
  *                 type: string
+ *               image:
+ *                 type: string
+ *                 format: binary
  *             required:
  *               - photo
  *               - title
@@ -44,9 +50,6 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *                 id:
  *                   type: integer
  *                   example: 1
- *                 photo:
- *                   type: string
- *                   example: "https://example.com"
  *                 title:
  *                   type: string
  *                   example: "Health"
@@ -54,8 +57,7 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *                   type: string
  *                   example: "Good good"
  */
-router.post("/posts/categories/:categoryId", isAuthenticated, hasRole("admin"), PostController.createPost);
-
+router.post("/posts/categories/:categoryId", isAuthenticated, hasRole("admin"), upload.single("image"), PostController.createPost);
 /**
  * @swagger
  * /posts/categories/{categoryId}:
@@ -148,6 +150,9 @@ router.get("/posts/categories/:categoryId", PostController.getPostsByCategory);
  *                         content:
  *                           type: string
  *                           example: "Facilis voluptas similique possimus.\nDolorum veritatis nemo iste odio dignissimos quam.\nIste architecto occaecati debitis distinctio.\nRem modi architecto numquam porro officia ipsam exercitationem commodi.\nAliquid perferendis molestias."
+ *                         createdAt:
+ *                           type: data
+ *                           example: "20.01.2034"
  *                         category:
  *                           type: object
  *                           properties:
@@ -170,22 +175,24 @@ router.get("/posts", PostController.getAllPosts);
  *         schema:
  *           type: integer
  *           example: 1
+ *     consumes:
+ *       - multipart/form-data
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
- *               photo:
- *                 type: string
- *                 example: "https://example.com"
  *               title:
  *                 type: string
  *                 example: "Health"
  *               content:
  *                 type: string
  *                 example: "Good good"
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         content:
@@ -206,7 +213,7 @@ router.get("/posts", PostController.getAllPosts);
  *                   type: string
  *                   example: "Good good"
  */
-router.put("/posts/:postId", isAuthenticated, hasRole("admin"), PostController.updatePost);
+router.put("/posts/:postId", isAuthenticated, hasRole("admin"), upload.single("image"), PostController.updatePost);
 /**
  * @swagger
  * /posts/{postId}:

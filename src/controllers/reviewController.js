@@ -14,11 +14,21 @@ const ReviewController = {
             next(err);
         }
     },
+    getAllReviews: async (req, res, next) => {
+        const { limit, page } = req.query;
+
+        try {
+            const specialties = await ReviewService.getAllReviewsWithFilter({ page, limit }, false);
+            res.status(200).json(specialties);
+        } catch (err) {
+            next(err);
+        }
+    },
     getAllPendingReviews: async (req, res, next) => {
         const { limit, page } = req.query;
 
         try {
-            const specialties = await ReviewService.getAllPendingReviews({ page, limit });
+            const specialties = await ReviewService.getAllReviewsWithFilter({ page, limit }, true);
             res.status(200).json(specialties);
         } catch (err) {
             next(err);
@@ -48,7 +58,7 @@ const ReviewController = {
     },
     moderateReview: async (req, res, next) => {
         const { reviewId } = req.params;
-        const { status, moderationComment } = req.body;
+        const { status, moderationComment = null } = req.body;
 
         try {
             await ReviewService.moderateReview(reviewId, status, moderationComment);

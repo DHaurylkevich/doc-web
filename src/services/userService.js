@@ -91,18 +91,23 @@ const UserService = {
         }
     },
     updateImage: async (userId, image) => {
-        let user = await db.Users.findByPk(userId);
-        if (!user) {
-            user = await db.Clinics.findByPk(userId);
-        }
-        if (!user) {
-            throw new AppError("User not found", 404);
-        }
-        if (user.photo !== null) {
-            await cloudinary.deleteFromCloud(user.photo);
-        }
+        try {
+            let user = await db.Users.findByPk(userId);
+            if (!user) {
+                user = await db.Clinics.findByPk(userId);
+            }
+            if (!user) {
+                throw new AppError("User not found", 404);
+            }
+            if (user.photo !== null && image) {
+                await cloudinary.deleteFromCloud(user.photo);
+            }
 
-        await user.update({ photo: image }, { returning: true });
+            await user.update({ photo: image }, { returning: true });
+        } catch (err) {
+            if (image) await cloudinary.deleteFromCloud(image);
+            throw err;
+        }
     },
     updatePassword: async (user, oldPassword, newPassword) => {
         const userId = user.id;
@@ -125,9 +130,13 @@ const UserService = {
         return await entity.update({ password: newPassword });
     },
     deleteUserById: async (userId) => {
-        await db.Users.destroy({
-            where: { id: userId }
-        });
+        const user = await db.Users.findByPk(userId);
+
+        if (user.photo !== null) {
+            await cloudinary.deleteFromCloud(user.photo);
+        }
+
+        await user.destroy({ where: { id: userId } });
     }
 }
 

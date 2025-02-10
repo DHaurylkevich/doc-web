@@ -3,10 +3,11 @@ const PostService = require("../services/postService");
 const PostController = {
     createPost: async (req, res, next) => {
         const { categoryId } = req.params;
+        const image = req.file ? req.file.path : null;
         const postData = req.body;
 
         try {
-            const post = await PostService.createPost(categoryId, postData);
+            const post = await PostService.createPost(categoryId, postData, image);
             res.status(201).json(post);
         } catch (err) {
             next(err);
@@ -34,10 +35,11 @@ const PostController = {
     },
     updatePost: async (req, res, next) => {
         const { postId } = req.params;
+        const image = req.file ? req.file.path : null;
         const postData = req.body;
 
         try {
-            const updatedPost = await PostService.updatePost(postId, postData);
+            const updatedPost = await PostService.updatePost(postId, postData, image);
             res.status(200).json(updatedPost);
         } catch (err) {
             next(err);

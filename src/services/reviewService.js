@@ -40,13 +40,14 @@ const ReviewService = {
             throw err;
         }
     },
-    getAllPendingReviews: async ({ limit, page }) => {
+    getAllReviewsWithFilter: async ({ limit, page }, pending) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
+        const pendingWhere = pending ? { status: 'pending' } : {};
 
         const { rows, count } = await db.Reviews.findAndCountAll({
             limit: parsedLimit,
             offset: offset,
-            where: { status: 'pending' },
+            where: pendingWhere,
             order: [['createdAt', 'DESC']],
             attributes: ["id", "comment", "rating", "createdAt"],
             include: [

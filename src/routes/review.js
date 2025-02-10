@@ -3,7 +3,7 @@ const router = express.Router();
 const ReviewController = require("../controllers/reviewController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
 const { validateRequest } = require("../middleware/errorHandler");
-const { countCheck } = require("../utils/validation/index");
+const { countCheck, validateBody } = require("../utils/validation/index");
 
 /**
  * @swagger
@@ -50,6 +50,82 @@ router.post("/reviews/", isAuthenticated, hasRole("patient"), countCheck("rating
 /**
  * @swagger
  * /admins/reviews:
+ *   get:
+ *     summary: get all reviews for admin
+ *     tags: [Reviews]
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pages:
+ *                   type: number
+ *                   example: 2
+ *                 reviews:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: number
+ *                         example: 1
+ *                       comment:
+ *                         type: string
+ *                         example: "Alius speculum tener subiungo conscendo ter incidunt aeternus."
+ *                       rating:
+ *                         type: number
+ *                         example: 2
+ *                       createdAt:
+ *                         type: date
+ *                         example: "2025-01-30T19:01:31.210Z"
+ *                       doctor:
+ *                         type: object
+ *                         properties:
+ *                           rating:
+ *                             type: number
+ *                             example: 2.5
+ *                           user:
+ *                             type: object
+ *                             properties:
+ *                               first_name:
+ *                                 type: string
+ *                                 example: "Charlotte"
+ *                               last_name:
+ *                                 type: string
+ *                                 example: "Schumm"
+ *                       patient:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             example: 18
+ *                           user:
+ *                             type: object
+ *                             properties:
+ *                               first_name:
+ *                                 type: string
+ *                                 example: "Zora"
+ *                               last_name:
+ *                                 type: string
+ *                                 example: "Lemke"
+ *                               photo:
+ *                                 type: string
+ *                                 example: "https://avatars.githubusercontent.com/u/82634702"
+ *                       tags:
+ *                         type: array
+ *                         items: 
+ *                           type: object
+ *                           properties:
+ *                             name:
+ *                               type: string
+ *                               example: "Expensive prices"
+ */
+router.get("/admins/reviews", isAuthenticated, hasRole("admin"), ReviewController.getAllReviews);
+/**
+ * @swagger
+ * /admins/reviews/moderate:
  *   get:
  *     summary: get all reviews for admin moderated
  *     tags: [Reviews]
@@ -122,7 +198,7 @@ router.post("/reviews/", isAuthenticated, hasRole("patient"), countCheck("rating
  *                               type: string
  *                               example: "Expensive prices"
  */
-router.get("/admins/reviews", isAuthenticated, hasRole("admin"), ReviewController.getAllPendingReviews);
+router.get("/admins/reviews/moderate", isAuthenticated, hasRole("admin"), ReviewController.getAllPendingReviews);
 /**
  * @swagger
  * /admins/reviews/{reviewId}:
@@ -170,7 +246,7 @@ router.delete("/admins/reviews/:reviewId", isAuthenticated, hasRole("admin"), Re
  *             properties:
  *               status:
  *                 type: string
- *                 enum: [approved, rejected]
+ *                 enum: [approved, rejected, pending', ]
  *                 example: approved
  *               moderationComment:
  *                 type: string
@@ -188,7 +264,7 @@ router.delete("/admins/reviews/:reviewId", isAuthenticated, hasRole("admin"), Re
  *                   type: string
  *                   example: "Review moderated successfully"
  */
-router.patch("/admins/reviews/:reviewId/moderate", isAuthenticated, hasRole("admin"), ReviewController.moderateReview);
+router.patch("/admins/reviews/:reviewId/moderate", isAuthenticated, hasRole("admin"), validateBody("status"), validateRequest, ReviewController.moderateReview);
 /**
  * @swagger
  * /clinics/{clinicId}/reviews:

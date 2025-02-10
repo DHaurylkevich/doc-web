@@ -68,7 +68,6 @@ const prescriptionService = {
                         }
                     ]
                 };
-                excludePrescriptions.push("code");
                 break;
         }
 

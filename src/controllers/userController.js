@@ -63,7 +63,13 @@ const UserController = {
     },
     updateImage: async (req, res, next) => {
         const userId = req.user.id;
-        const image = req.file ? req.file.path : null;
+        let image;
+
+        if (req.file) {
+            image = req.file.path;
+        } else {
+            res.status(400).json("Please provide an image file in the request");
+        }
 
         try {
             await UserService.updateImage(userId, image);

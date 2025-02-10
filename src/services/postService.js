@@ -1,16 +1,22 @@
 const db = require("../models");
 const AppError = require("../utils/appError");
+const cloudinary = require("../middleware/upload");
 const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 
 const PostService = {
-    createPost: async (categoryId, postData) => {
-        const category = await db.Categories.findByPk(categoryId);
-        if (!category) {
-            throw new AppError("Category not found", 404);
-        }
+    createPost: async (categoryId, postData, photo) => {
+        try {
+            const category = await db.Categories.findByPk(categoryId);
+            if (!category) {
+                throw new AppError("Category not found", 404);
+            }
 
-        const post = await db.Posts.create({ ...postData, category_id: categoryId });
-        return { id: post.id, photo: post.photo, title: post.title, content: post.content };
+            const post = await db.Posts.create({ ...postData, photo, category_id: categoryId });
+            return { id: post.id, photo: post.photo, title: post.title, content: post.content };
+        } catch (err) {
+            if (photo) await cloudinary.deleteFromCloud(photo);
+            throw err;
+        }
     },
     getAllPosts: async (limit, page) => {
         const { parsedLimit, offset } = getPaginationParams(limit, page);
@@ -18,7 +24,7 @@ const PostService = {
         const { rows, count } = await db.Posts.findAndCountAll({
             limit: parsedLimit,
             offset: offset,
-            attributes: { exclude: ["createdAt", "updatedAt", "category_id"] },
+            attributes: { exclude: ["updatedAt", "category_id"] },
             include: [
                 {
                     model: db.Categories,
@@ -57,19 +63,33 @@ const PostService = {
             ],
         });
     },
-    updatePost: async (postId, postData) => {
-        let post = await db.Posts.findByPk(postId);
-        if (!post) {
-            throw new AppError("Post not found", 404);
-        }
+    updatePost: async (postId, postData, photo) => {
+        try {
+            let post = await db.Posts.findByPk(postId);
+            if (!post) {
+                throw new AppError("Post not found", 404);
+            }
 
-        post = await post.update(postData);
-        return { id: post.id, photo: post.photo, title: post.title, content: post.content }
+            if (photo) {
+                if (post.photo !== null) await cloudinary.deleteFromCloud(post.photo);
+                postData.photo = photo;
+            }
+
+            post = await post.update({ ...postData });
+            return { id: post.id, photo: post.photo, title: post.title, content: post.content }
+        } catch (err) {
+            if (photo) await cloudinary.deleteFromCloud(photo);
+            throw err;
+        }
     },
     deletePost: async (postId) => {
         const post = await db.Posts.findByPk(postId);
         if (!post) {
             throw new AppError("Post not found", 404);
+        }
+
+        if (post.photo !== null) {
+            await cloudinary.deleteFromCloud(post.photo);
         }
 
         await post.destroy();
