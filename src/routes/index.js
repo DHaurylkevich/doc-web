@@ -120,12 +120,6 @@ router.get("/api/check-login", (req, res) => {
 <body>
     <h1>Login</h1>
     <form id="loginForm">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br>
         <button type="submit">Login</button>
     </form>
 
@@ -133,16 +127,17 @@ router.get("/api/check-login", (req, res) => {
         document.getElementById('loginForm').addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            const response = await fetch('/api/login', {
+            const loginParam = "admin@gmail.com"
+            const password = "123456789";
+            
+            const response = await fetch('/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
+                    },
+                    body: JSON.stringify({ loginParam, password })
+                    });        
+            console.log(response);
 
             if (response.ok) {
                 const data = await response.json();
@@ -152,8 +147,22 @@ router.get("/api/check-login", (req, res) => {
                 alert('Login failed');
             }
         });
+
+        // Функция для получения и отображения куки
+        function getCookies() {
+            const cookies = document.cookie.split(';');
+            const cookieList = document.getElementById('cookieList');
+            cookies.forEach(cookie => {
+                const listItem = document.createElement('li');
+                listItem.textContent = cookie;
+                cookieList.appendChild(listItem);
+            });
+        }
+
+        // Вызов функции для отображения куки при загрузке страницы
+        window.onload = getCookies;
     </script>
-</body>
+    </body>
 </html>`);
 });
 
