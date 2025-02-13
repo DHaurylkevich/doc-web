@@ -55,8 +55,17 @@ const UserController = {
             } else {
                 await UserService.deleteUserById(user.id);
             }
+            req.logout((err) => {
+                if (err) throw new AppError("Error during logout", 500);
 
-            res.status(200).json({ message: "User deleted successfully" });
+                req.session.destroy((err) => {
+                    if (err) {
+                        return next(new AppError("Error destroying session", 500));
+                    }
+                    res.clearCookie('connect.sid');
+                    res.status(200).json({ message: "User deleted successfully" });
+                });
+            });
         } catch (err) {
             next(err);
         }

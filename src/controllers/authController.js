@@ -66,8 +66,9 @@ const AuthController = {
 
         try {
             if (process.env.EMAIL === undefined || process.env.EMAIL_PASS === undefined) {
-                res.status(200).json({ message: "Write to Dima to include his email in the function" });
+                res.status(200).json({ message: "Service mail error" });
             }
+
             await AuthService.requestPasswordReset(email);
             res.status(200).json({ message: "Password reset link has been sent to your email address" });
         } catch (err) {

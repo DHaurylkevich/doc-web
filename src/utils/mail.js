@@ -21,7 +21,7 @@ const resetMail = async (email, resetToken) => {
 
 
 const setPasswordMail = async (email, resetToken) => {
-    const resetUrl = `${process.env.CLIENT_URL}/set-password?token=${resetToken}`;
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
     const mailOptions = {
         from: process.env.EMAIL,
         to: email,

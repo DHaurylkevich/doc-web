@@ -14,32 +14,29 @@ const { isAuthenticated, hasRole } = require("../middleware/auth");
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               timetablesData:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
- *                     dayOfWeek:
- *                       type: integer
- *                       example: 1
- *                     startTime:
- *                       type: string
- *                       format: time
- *                       example: "09:00"
- *                     endTime:
- *                       type: string
- *                       format: time
- *                       example: "18:00"
- *                 required:
- *                   - id
- *                   - dayOfWeek
- *                   - startTime
- *                   - endTime
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 dayOfWeek:
+ *                   type: integer
+ *                   example: 1
+ *                 startTime:
+ *                   type: string
+ *                   format: time
+ *                   example: "09:00"
+ *                 endTime:
+ *                   type: string
+ *                   format: time
+ *                   example: "18:00"
+ *               required:
+ *                 - id
+ *                 - dayOfWeek
+ *                 - startTime
+ *                 - endTime
  *     responses:
  *       200:
  *         content:
