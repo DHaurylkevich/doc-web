@@ -29,6 +29,25 @@ const SpecialtyService = {
 
         return specialties;
     },
+    getAllSpecialtiesByClinicWithDoctor: async (clinicId) => {
+        const specialties = await db.Specialties.findAll({
+            attributes: ["id", "name"],
+            include: [
+                {
+                    model: db.Doctors, as: "doctors",
+                    where: { clinic_id: clinicId },
+                    attributes: ["id"],
+                    include: [{
+                        model: db.Users,
+                        as: "user",
+                        attributes: ["first_name", "last_name"],
+                    }]
+                }
+            ]
+        });
+
+        return specialties;
+    },
     getSpecialtyById: async (specialtyId) => {
         const specialty = await db.Specialties.findByPk(specialtyId);
         if (!specialty) {

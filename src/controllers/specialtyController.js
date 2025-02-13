@@ -39,6 +39,16 @@ const SpecialtyController = {
             next(err);
         }
     },
+    getAllSpecialtiesByClinicWithDoctor: async (req, res, next) => {
+        const { clinicId } = req.params;
+
+        try {
+            const specialties = await SpecialtyService.getAllSpecialtiesByClinicWithDoctor(clinicId);
+            res.status(200).json(specialties);
+        } catch (err) {
+            next(err);
+        }
+    },
     updateSpecialty: async (req, res, next) => {
         const { specialtyId } = req.params;
         const specialtyData = req.body;

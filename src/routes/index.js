@@ -79,7 +79,6 @@ router.get("/api/get-username", isAuthenticated, (req, res) => {
     res.status(200).json({ name: req.user.role });
 });
 
-//TODO: удалить при завершении
 router.post("/api/upload/file", upload.single("file"), (req, res) => {
     res.json({ message: "File uploaded successfully", fileUrl: req.file.path });
 });

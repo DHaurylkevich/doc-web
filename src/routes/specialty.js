@@ -102,6 +102,53 @@ router.get("/specialties", specialtyController.getAllSpecialties);
 router.get("/clinic/:clinicId/specialties", specialtyController.getAllSpecialtiesByClinic);
 /**
  * @swagger
+ * /clinic/{clinicId}/specialties/doctors:
+ *   get:
+ *     summary: Receive all specialties and doctors by clinic ID
+ *     tags: [Specialties]
+ *     parameters:
+ *       - name: clinicId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   name:
+ *                     type: string
+ *                     example: "Doctor"
+ *                   doctors:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           example: 1
+ *                         user:
+ *                           type: object
+ *                           properties:
+ *                              first_name:
+ *                                  type: string
+ *                                  example: "Dana"
+ *                              last_name:
+ *                                  type: string
+ *                                  example: "Hospilna"
+ */
+router.get("/clinic/:clinicId/specialties/doctors", specialtyController.getAllSpecialtiesByClinicWithDoctor);
+/**
+ * @swagger
  * /specialties/{specialtyId}:
  *   get:
  *     summary: get specialty by id

@@ -3,7 +3,6 @@ const { Op } = require("sequelize");
 const db = require("../models");
 const moment = require('moment');
 
-//10 minute
 const task = cron.schedule('*/10 * * * *', async () => {
     const now = moment();
     const appointments = await db.Appointments.findAll({
@@ -22,13 +21,11 @@ const task = cron.schedule('*/10 * * * *', async () => {
     scheduled: false
 });
 
-// Функция для включения cron-задачи
 const startCron = () => {
     task.start();
     console.log('Cron task started');
 };
 
-// Функция для выключения cron-задачи
 const stopCron = () => {
     task.stop();
     console.log('Cron task stopped');
