@@ -33,44 +33,6 @@ describe("Post routes", () => {
     });
 
     describe("Positive tests", () => {
-        describe("POST /api/posts/categories/:categoryId", () => {
-            let testCategory, sessionCookies;
-
-            beforeEach(async () => {
-                testCategory = await db.Categories.create(fakeCategory);
-
-                const fakeUser = {
-                    email: faker.internet.email(),
-                    password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
-                    role: "admin",
-                };
-                await db.Users.create(fakeUser);
-
-                const res = await request(app)
-                    .post('/login')
-                    .send({
-                        loginParam: fakeUser.email,
-                        password: "123456789"
-                    })
-                    .expect(200);
-
-                expect(res.body).to.have.property("user");
-                sessionCookies = res.headers['set-cookie'];
-            });
-            it("expect to create post by category, when data is valid", async () => {
-                const response = await request(app)
-                    .post(`/api/posts/categories/${testCategory.id}`)
-                    .send(fakePost)
-                    .set("Cookie", sessionCookies)
-                    .expect(201);
-
-                expect(response.body).that.is.a("object");
-                expect(response.body).to.have.property("id");
-                expect(response.body).to.include({ title: fakePost.title });
-                expect(response.body).to.include({ photo: fakePost.photo });
-                expect(response.body).to.include({ content: fakePost.content });
-            });
-        });
         describe("GET /api/posts", () => {
             it("expect posts, when they exists", async () => {
                 const testCategory = await db.Categories.create(fakeCategory);

@@ -1,4 +1,5 @@
 const StatisticsService = require("../services/statisticService");
+const pdfFile = require("../utils/pdfFile");
 
 const StatisticController = {
     getDoctorStatistics: async (req, res, next) => {
@@ -40,6 +41,18 @@ const StatisticController = {
             const countUser = await StatisticsService.mainStatist(start_date, end_date);
             const count = await StatisticsService.ratingsStatistics(start_date, end_date);
             res.status(200).json({ countUser, count });
+        } catch (error) {
+            next(error);
+        }
+    },
+    getAdminStatisticPDF: async (req, res, next) => {
+        const { start_date, end_date } = req.query;
+
+        try {
+            const countUser = await StatisticsService.mainStatist(start_date, end_date);
+            const count = await StatisticsService.ratingsStatistics(start_date, end_date);
+            pdfFile(res, { countUser, count });
+            // res.status(200).json({ countUser, count });
         } catch (error) {
             next(error);
         }

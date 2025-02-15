@@ -82,7 +82,7 @@ describe("Doctor Controller", () => {
         });
         describe("getDoctorsByClinicWithSorting", () => {
             it("expect to get a doctor, when doctor exists.", async () => {
-                const req = { params: { clinicId: 1 }, query: { gender: "male", sort: "abc", limit: 1, page: 1 } };
+                const req = { params: { clinicId: 1 }, query: { gender: "male", sort: "abc", ratingSort: "abc", limit: 1, page: 1, specialtyId: 1 } };
                 const doctor = { id: 1, name: "doctor " }
                 const getDoctorsByClinicWithSortingStub = sinon.stub(DoctorService, "getDoctorsByClinicWithSorting").resolves(doctor);
 
@@ -159,7 +159,7 @@ describe("Doctor Controller", () => {
         });
         describe("getDoctorsByClinicWithSorting() =>:", () => {
             it("expect error('GetError'), when error in service", async () => {
-                const req = { params: { clinicId: 1 }, query: { gender: "male", sort: "abc", limit: 1, page: 1 } };
+                const req = { params: { clinicId: 1 }, query: { gender: "male", sort: "abc", ratingSort: "", limit: 1, page: 1, specialtyId: 1 } };
                 const getDoctorsByClinicWithSortingStub = sinon.stub(DoctorService, "getDoctorsByClinicWithSorting").rejects(new AppError('GetError'));
 
                 await DoctorController.getDoctorsByClinicWithSorting(req, res, next);

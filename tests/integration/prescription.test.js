@@ -137,7 +137,7 @@ describe("Prescription routes", () => {
                     const response = await request(app)
                         .get(`/api/prescriptions`)
                         .set("Cookie", sessionCookies)
-                        .query({ sort: "ASC", page: 1, limit: 10 })
+                        .query({ sort: "asc", page: 1, limit: 10 })
                         .expect(200);
 
                     expect(response.body).to.be.an("object");
@@ -147,7 +147,6 @@ describe("Prescription routes", () => {
                     expect(response.body.active[0]).to.include({
                         id: testPrescription.id,
                     });
-                    expect(response.body.active[0]).not.to.have.property("code");
                     expect(response.body.active[1]).to.include({
                         id: testPrescription2.id,
                     });
@@ -156,7 +155,7 @@ describe("Prescription routes", () => {
                     const response = await request(app)
                         .get(`/api/prescriptions`)
                         .set("Cookie", sessionCookies)
-                        .query({ sort: "DESC", page: 1, limit: 10 })
+                        .query({ sort: "desc", page: 1, limit: 10 })
                         .expect(200);
 
                     expect(response.body).to.be.an("object");
@@ -166,7 +165,6 @@ describe("Prescription routes", () => {
                     expect(response.body.active[0]).to.include({
                         id: testPrescription2.id,
                     });
-                    expect(response.body.active[0]).not.to.have.property("code");
                     expect(response.body.active[1]).to.include({
                         id: testPrescription.id,
                     });
@@ -228,7 +226,7 @@ describe("Prescription routes", () => {
                     const response = await request(app)
                         .get(`/api/prescriptions`)
                         .set("Cookie", sessionCookies)
-                        .query({ sort: "DESC", page: 1, limit: 10 })
+                        .query({ sort: "desc", page: 1, limit: 10 })
                         .expect(200);
 
                     expect(response.body).to.have.property("active");

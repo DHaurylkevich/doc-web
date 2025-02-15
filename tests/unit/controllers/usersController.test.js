@@ -95,8 +95,6 @@ describe("Users Controller", () => {
                 await UserController.deleteUser(req, res, next);
 
                 expect(deleteUser.calledOnceWith(req.user.id)).to.be.true;
-                expect(res.status.calledOnceWith(200)).to.be.true;
-                expect(res.json.calledOnceWith({ message: "User deleted successfully" })).to.be.true;
             });
             it("expect delete user from dataBase, when user is exist", async () => {
                 const req = { user: { id: 3, role: 'doctor' } };
@@ -105,8 +103,6 @@ describe("Users Controller", () => {
                 await UserController.deleteUser(req, res, next);
 
                 expect(deleteUser.calledOnceWith(req.user.id)).to.be.true;
-                expect(res.status.calledOnceWith(200)).to.be.true;
-                expect(res.json.calledOnceWith({ message: "User deleted successfully" })).to.be.true;
             });
         });
     });

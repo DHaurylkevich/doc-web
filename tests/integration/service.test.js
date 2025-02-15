@@ -153,11 +153,12 @@ describe("Service routes", () => {
             it("expect to update service by id, when data valid and it exists", async () => {
                 await request(app)
                     .put(`/api/clinics/services/${serviceId}`)
-                    .send({ serviceData: { name: "TEST" } })
+                    .send({ name: "TEST" })
                     .set('Cookie', sessionCookies)
                     .expect(200);
 
                 const serviceInDB = await db.Services.findByPk(serviceId);
+
                 expect(serviceInDB.name).to.equals("TEST");
             });
         });

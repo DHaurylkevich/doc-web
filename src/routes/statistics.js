@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const StatisticController = require("../controllers/statisticController");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
+
 /**
  * @swagger
  * /doctors/statistics:
@@ -283,6 +284,112 @@ router.get("/admins/statistics", isAuthenticated, hasRole("admin"), StatisticCon
  *                             example: "5"
  */
 router.get("/admins/statistics/details", isAuthenticated, hasRole("admin"), StatisticController.getAdminStatisticDetails);
+/**
+ * @swagger
+ * /admins/statistics/details/file:
+ *   get:
+ *     summary: Get statistics on patients, clinics, doctors and reviews
+ *     description: Get the total number of patients, clinics, doctors and appointments, as well as the average ratings of doctors, clinics and reviews.If no dates are given, the current statistics are returned.
+ *     tags: [Statistics]
+ *     parameters:
+ *       - in: query
+ *         name: start_date
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: "2024-12-16"
+ *         description: Start date for filtering statistics (optional)
+ *       - in: query
+ *         name: end_date
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: "2024-12-16"
+ *         description: End date for filtering statistics (optional)
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 countUser:
+ *                   type: object
+ *                   properties:
+ *                     totalPatient:
+ *                       type: integer
+ *                       example: 23
+ *                     percentagePatient:
+ *                       type: number
+ *                       example: 0
+ *                     totalClinic:
+ *                       type: integer
+ *                       example: 12
+ *                     percentageClinics:
+ *                       type: number
+ *                       example: 0
+ *                     totalDoctor:
+ *                       type: integer
+ *                       example: 21
+ *                     percentageDoctors:
+ *                       type: number
+ *                       example: 0
+ *                     totalAppointment:
+ *                       type: integer
+ *                       example: 46
+ *                     percentageAppointments:
+ *                       type: number
+ *                       example: 0
+ *                 count:
+ *                   type: object
+ *                   properties:
+ *                     doctorRatings:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           rating:
+ *                             type: number
+ *                             example: 4.803776759236096
+ *                     cityRating:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           city:
+ *                             type: string
+ *                             example: "Trzebiatów"
+ *                           averageRating:
+ *                             type: string
+ *                             example: "4.8"
+ *                           address.city:
+ *                             type: string
+ *                             example: "Trzebiatów"
+ *                     clinicsFeedback:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           feedbackRating:
+ *                             type: integer
+ *                             example: 1
+ *                             description: Рейтинг отзыва
+ *                           count:
+ *                             type: string
+ *                             example: "3"
+ *                     patientsFeedback:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           feedbackRating:
+ *                             type: integer
+ *                             example: 0
+ *                           count:
+ *                             type: string
+ *                             example: "5"
+ */
+router.get("/admins/statistics/details/file", isAuthenticated, hasRole("admin"), StatisticController.getAdminStatisticPDF);
 /**
  * @swagger
  * /statistics:

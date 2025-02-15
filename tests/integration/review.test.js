@@ -134,7 +134,7 @@ describe("Review routers", () => {
             it("expect return reviews sorted by rating in descending order for a given clinicId, when the query has sortRating = 'DESC'", async () => {
                 const response = await request(app)
                     .get(`/api/clinics/${testClinicId}/reviews`)
-                    .query({ sortDate: 'ASC', sortRating: 'DESC', limit: 10, pages: 0 })
+                    .query({ sortDate: 'asc', sortRating: 'desc', limit: 10, pages: 0 })
                     .expect(200);
 
                 expect(response.body).to.have.property("pages");
