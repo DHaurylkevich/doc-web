@@ -36,8 +36,13 @@ const storageFiles = new CloudinaryStorage({
 
 exports.deleteFromCloud = async (url) => {
     try {
-        const publicId = extractPublicId(url);
-        return await cloudinary.uploader.destroy(publicId);
+        let publicId = extractPublicId(url);
+
+        if (publicId.includes("files")) {
+            await cloudinary.api.delete_resources([publicId], { type: 'upload', resource_type: 'raw' });
+        } else {
+            await cloudinary.uploader.destroy(publicId);
+        }
     } catch (err) {
         logger.error("cloudinary.deleteFromCloud Error")
         throw err;

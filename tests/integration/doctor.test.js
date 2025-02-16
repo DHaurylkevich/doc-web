@@ -279,8 +279,9 @@ describe("Doctor routes", () => {
             });
         });
         describe("GET /clinics/:clinicId/doctors", () => {
-            let createdClinic, fakeMaleUser, fakeFemaleUser;
+            let createdClinic, fakeMaleUser, fakeFemaleUser, specialties;
             beforeEach(async () => {
+                specialties = await db.Specialties.bulkCreate([{ name: "Cardiology" }, { name: "Paper" }]);
                 createdClinic = await db.Clinics.create(fakeClinic);
                 fakeMaleUser = {
                     first_name: faker.person.firstName(),
@@ -288,14 +289,14 @@ describe("Doctor routes", () => {
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
                 };
                 createdUser = await db.Users.create(fakeMaleUser);
-                await createdUser.createDoctor({ clinic_id: createdClinic.id });
+                await createdUser.createDoctor({ clinic_id: createdClinic.id, specialty_id: specialties[0].id });
                 fakeFemaleUser = {
                     first_name: faker.person.firstName(),
                     gender: "female",
                     password: "$2b$10$mKW8hzfNFClcabpB8AzTRun9uGdEuEpjMMSwdSgNjFaLykWFtIAda",
                 };
                 createdUser = await db.Users.create(fakeFemaleUser);
-                await createdUser.createDoctor({ clinic_id: createdClinic.id });
+                await createdUser.createDoctor({ clinic_id: createdClinic.id, specialty_id: specialties[0].id });
             });
             it("should return a doctors by clinicId, when it exists", async () => {
                 const response = await request(app)
@@ -306,7 +307,7 @@ describe("Doctor routes", () => {
                         pages: 0,
                     })
                     .expect(200);
-
+                console.log(response.body);
                 expect(response.body).to.have.property("pages");
                 expect(response.body).to.have.property("doctors").to.be.an("array").is.length(2);
             });

@@ -208,7 +208,7 @@ const DoctorService = {
 
         const userWhere = gender ? { gender } : {};
         const specialtyWhere = specialtyId ? { id: specialtyId } : {};
-        console.log(ratingSort);
+
         const sortOptions = []
         if (ratingSort !== '') {
             sortOptions.push(['rating', ratingSort === 'desc' ? "DESC" : "ASC"]);

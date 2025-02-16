@@ -72,19 +72,18 @@ const UserController = {
     },
     updateImage: async (req, res, next) => {
         const userId = req.user.id;
-        let image;
 
         if (req.file) {
-            image = req.file.path;
-        } else {
-            res.status(400).json("Please provide an image file in the request");
-        }
+            const image = req.file.path;
 
-        try {
-            await UserService.updateImage(userId, image);
-            res.status(200).json("Image uploaded successfully");
-        } catch (err) {
-            next(err);
+            try {
+                await UserService.updateImage(userId, image);
+                res.status(200).json({ message: "Image uploaded successfully" });
+            } catch (err) {
+                next(err);
+            }
+        } else {
+            res.status(400).json({ message: "Please provide an image file in the request" });
         }
     }
 }
