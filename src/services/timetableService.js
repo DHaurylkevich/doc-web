@@ -13,14 +13,16 @@ const TimetableService = {
     },
     updateTimetable: async (clinicId, timetablesData) => {
         const validatedData = timetablesData.map(data => {
-            if (!Number.isInteger(data.dayOfWeek) || data.dayOfWeek < 1 || data.dayOfWeek > 7) {
-                throw new AppError("Invalid day of week. Must be between 1 and 7", 400);
-            }
-            if (!data.startTime || !data.endTime || !isValidTimeFormat(data.startTime) || !isValidTimeFormat(data.endTime)) {
-                throw new AppError("Invalid time format or missing a variable", 400);
-            }
-            if (data.startTime >= data.endTime) {
-                throw new AppError("Start time must be before end time", 400);
+            if (data.endTime !== null && data.startTime !== null) {
+                if (!Number.isInteger(data.dayOfWeek) || data.dayOfWeek < 1 || data.dayOfWeek > 7) {
+                    throw new AppError("Invalid day of week. Must be between 1 and 7", 400);
+                }
+                if (data.endTime !== null && data.startTime !== null && !data.startTime || !data.endTime || !isValidTimeFormat(data.startTime) || !isValidTimeFormat(data.endTime)) {
+                    throw new AppError("Invalid time format or missing a variable", 400);
+                }
+                if (data.startTime >= data.endTime) {
+                    throw new AppError("Start time must be before end time", 400);
+                }
             }
 
             return {
