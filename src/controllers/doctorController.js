@@ -23,6 +23,17 @@ const DoctorController = {
             next(err);
         }
     },
+    deleteDoctor: async (req, res, next) => {
+        const clinicId = req.user.id;
+        const { doctorId } = req.params;
+
+        try {
+            await DoctorService.deleteDoctor(doctorId, clinicId);
+            res.status(200).json({ message: "Doctor deleted successfully" })
+        } catch (err) {
+            next(err)
+        }
+    },
     getAllDoctorsForAdmin: async (req, res, next) => {
         const { sort = "asc", gender, limit, page } = req.query;
 

@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Address.init({
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BIGINT,
       allowNull: false,
       autoIncrement: true,
       primaryKey: true

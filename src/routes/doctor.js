@@ -189,6 +189,9 @@ router.get("/doctors/:doctorId/short", doctorController.getShortDoctorById);
  *                     photo:
  *                       type: string
  *                       example: "https://example.com"
+ *                     phone:
+ *                       type: number
+ *                       example: 48358725878
  *                     email:
  *                       type: string
  *                       example: "doctor@gmail.com"
@@ -521,5 +524,30 @@ router.put("/clinics/doctors/:doctorId", isAuthenticated, hasRole("clinic"), doc
  *                         example: "Associate"
  */
 router.get("/clinics/:clinicId/doctors", doctorController.getDoctorsByClinicWithSorting);
+/**
+ * @swagger
+ * /clinics/doctors/{doctorId}:
+ *   delete:
+ *     summary: Delete doctor
+ *     tags: [Doctors]
+ *     parameters:
+ *       - name: doctorId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 messages:
+ *                   type: string
+ *                   example: "Doctor deleted successfully"
+ */
+router.delete("/clinics/doctors/:doctorId", doctorController.deleteDoctor);
 
 module.exports = router;

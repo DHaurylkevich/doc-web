@@ -36,8 +36,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   Users.init({
     id: {
+      type: DataTypes.BIGINT,
       autoIncrement: true,
-      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },

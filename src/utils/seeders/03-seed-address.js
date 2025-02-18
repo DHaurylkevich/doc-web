@@ -2,9 +2,35 @@
 
 const realAddresses = [
     { city: 'Warszawa', street: 'Marszałkowska', province: 'Mazowieckie', post_index: '00-001' },
+    { city: 'Warszawa', street: 'Aleje Jerozolimskie', province: 'Mazowieckie', post_index: '00-511' },
     { city: 'Kraków', street: 'Floriańska', province: 'Małopolskie', post_index: '30-001' },
+    { city: 'Kraków', street: 'Grodzka', province: 'Małopolskie', post_index: '31-006' },
     { city: 'Wrocław', street: 'Świdnicka', province: 'Dolnośląskie', post_index: '50-001' },
+    { city: 'Wrocław', street: 'Legnicka', province: 'Dolnośląskie', post_index: '54-203' },
     { city: 'Gdańsk', street: 'Długa', province: 'Pomorskie', post_index: '80-001' },
+    { city: 'Gdańsk', street: 'Grunwaldzka', province: 'Pomorskie', post_index: '80-241' },
+    { city: 'Łódź', street: 'Piotrkowska', province: 'Łódzkie', post_index: '90-001' },
+    { city: 'Łódź', street: 'Narutowicza', province: 'Łódzkie', post_index: '90-135' },
+    { city: 'Poznań', street: 'Święty Marcin', province: 'Wielkopolskie', post_index: '61-001' },
+    { city: 'Poznań', street: 'Garbary', province: 'Wielkopolskie', post_index: '61-868' },
+    { city: 'Szczecin', street: 'Wojska Polskiego', province: 'Zachodniopomorskie', post_index: '70-470' },
+    { city: 'Szczecin', street: 'Jagiellońska', province: 'Zachodniopomorskie', post_index: '70-364' },
+    { city: 'Bydgoszcz', street: 'Dworcowa', province: 'Kujawsko-Pomorskie', post_index: '85-010' },
+    { city: 'Bydgoszcz', street: 'Gdańska', province: 'Kujawsko-Pomorskie', post_index: '85-005' },
+    { city: 'Lublin', street: 'Krakowskie Przedmieście', province: 'Lubelskie', post_index: '20-002' },
+    { city: 'Lublin', street: 'Narutowicza', province: 'Lubelskie', post_index: '20-016' },
+    { city: 'Katowice', street: 'Mariacka', province: 'Śląskie', post_index: '40-014' },
+    { city: 'Katowice', street: 'Chorzowska', province: 'Śląskie', post_index: '40-101' },
+    { city: 'Białystok', street: 'Lipowa', province: 'Podlaskie', post_index: '15-424' },
+    { city: 'Białystok', street: 'Sienkiewicza', province: 'Podlaskie', post_index: '15-092' },
+    { city: 'Rzeszów', street: '3 Maja', province: 'Podkarpackie', post_index: '35-030' },
+    { city: 'Rzeszów', street: 'Piłsudskiego', province: 'Podkarpackie', post_index: '35-074' },
+    { city: 'Gdynia', street: 'Świętojańska', province: 'Pomorskie', post_index: '81-368' },
+    { city: 'Gdynia', street: '10 Lutego', province: 'Pomorskie', post_index: '81-366' },
+    { city: 'Toruń', street: 'Szeroka', province: 'Kujawsko-Pomorskie', post_index: '87-100' },
+    { city: 'Toruń', street: 'Chełmińska', province: 'Kujawsko-Pomorskie', post_index: '87-100' },
+    { city: 'Opole', street: 'Ozimska', province: 'Opolskie', post_index: '45-057' },
+    { city: 'Opole', street: 'Krakowska', province: 'Opolskie', post_index: '45-018' }
 ];
 
 function getRandomAddress() {

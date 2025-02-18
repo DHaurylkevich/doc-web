@@ -136,7 +136,7 @@ const UserService = {
             await cloudinary.deleteFromCloud(user.photo);
         }
 
-        await user.destroy({ where: { id: userId } });
+        await user.destroy({ force: true });
     }
 }
 

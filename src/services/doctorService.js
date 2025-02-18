@@ -4,6 +4,7 @@ const db = require("../models");
 const ClinicService = require("./clinicService");
 const { Op } = require("sequelize");
 const createJWT = require("../utils/createJWT");
+const UserService = require("./userService");
 const { setPasswordMail } = require("../utils/mail");
 const { getPaginationParams, getTotalPages } = require("../utils/pagination");
 
@@ -73,7 +74,7 @@ const DoctorService = {
                 {
                     model: db.Users,
                     as: "user",
-                    attributes: ["first_name", "last_name", "gender", "photo", "email"],
+                    attributes: ["first_name", "last_name", "gender", "photo", "email", "phone"],
                     include: [
                         {
                             model: db.Addresses,
@@ -240,6 +241,15 @@ const DoctorService = {
 
         return { pages: totalPages, doctors: rows };
     },
+    deleteDoctor: async (doctorId, clinicId) => {
+        const doctor = await db.Doctors.findOne({ where: { id: doctorId, clinic_id: clinicId } });
+
+        if (!doctor) {
+            throw new AppError("Doctor not found", 404);
+        }
+
+        await UserService.deleteUserById(doctor.user_id);
+    }
 };
 
 module.exports = DoctorService;

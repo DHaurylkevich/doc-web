@@ -5,6 +5,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Doctors.belongsTo(models.Users, {
         foreignKey: 'user_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         as: "user"
       });
       Doctors.belongsTo(models.Clinics, {

@@ -56,17 +56,19 @@ if (process.env.NODE_ENV === 'test') {
 const port = process.env.PORT || 5000;
 const link = process.env.LINK || "http://localhost";
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   logger.info(`The server start at: ${link}:${port}`)
   logger.info(`The documentation is available at: ${link}:${port}/api-docs`);
 });
 
 process.on('SIGINT', () => {
   stopCron();
+  server.close(() => process.exit(0));
   process.exit();
 });
 
 process.on('SIGTERM', () => {
   stopCron();
+  server.close(() => process.exit(0));
   process.exit();
 });

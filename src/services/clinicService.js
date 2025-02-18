@@ -7,6 +7,7 @@ const createJWT = require("../utils/createJWT");
 const { setPasswordMail } = require("../utils/mail");
 const TimetableService = require("./timetableService");
 const { getPaginationParams, getTotalPages } = require("../utils/pagination");
+const cloudinary = require("../middleware/upload");
 const { Op } = require("sequelize");
 
 const ClinicService = {
@@ -238,9 +239,13 @@ const ClinicService = {
         }
     },
     deleteClinicById: async (clinicId) => {
-        await db.Clinics.destroy({
-            where: { id: clinicId }
-        });
+        const clinic = db.Clinics.findOne({ where: { id: clinicId } });
+
+        if (clinic.photo !== null) {
+            await cloudinary.deleteFromCloud(clinic.photo);
+        }
+
+        await clinic.destroy();
     },
     getAllCities: async () => {
         return await db.Clinics.findAll({
