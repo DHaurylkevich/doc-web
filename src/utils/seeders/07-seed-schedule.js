@@ -9,17 +9,21 @@ module.exports = {
         );
 
         const startDate = new Date('2025-02-01');
-        const endDate = new Date('2025-02-30');
+        const endDate = new Date('2025-12-31');
         const schedules = [];
+
         doctors.forEach(doctor => {
-            for (let index = 0; index < 3; index++) {
-                const startHour = fakerPL.number.int({ min: 8, max: 10 });
-                const endHour = fakerPL.number.int({ min: 16, max: 18 });
+            const numSchedules = fakerPL.number.int({ min: 5, max: 7 });
+
+            for (let i = 0; i < numSchedules; i++) {
+                const isMorning = fakerPL.datatype.boolean();
+                const startHour = isMorning ? fakerPL.number.int({ min: 8, max: 10 }) : fakerPL.number.int({ min: 12, max: 14 });
+                const endHour = isMorning ? fakerPL.number.int({ min: 14, max: 16 }) : fakerPL.number.int({ min: 18, max: 20 });
 
                 schedules.push({
                     doctor_id: doctor.id,
                     clinic_id: doctor.clinic_id,
-                    interval: fakerPL.number.int({ min: 10, max: 60 }),
+                    interval: fakerPL.helpers.arrayElement([10, 15, 20, 30]),
                     date: fakerPL.date.between({ from: startDate, to: endDate }).toISOString().split('T')[0],
                     start_time: `${startHour}:00`,
                     end_time: `${endHour}:00`,

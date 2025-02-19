@@ -22,7 +22,7 @@ module.exports = {
             user_id: user.id,
             clinic_id: clinics[faker.number.int({ min: 0, max: clinics.length - 1 })].id,
             specialty_id: specialties[faker.number.int({ min: 0, max: specialties.length - 1 })].id,
-            rating: faker.number.int({ min: 0, max: 5 }),
+            rating: faker.number.int({ min: 3, max: 5 }),
             hired_at: faker.date.past(),
             description: fakerPL.lorem.sentence(),
             createdAt: new Date(),

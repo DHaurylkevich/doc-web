@@ -30,7 +30,23 @@ const realAddresses = [
     { city: 'Toruń', street: 'Szeroka', province: 'Kujawsko-Pomorskie', post_index: '87-100' },
     { city: 'Toruń', street: 'Chełmińska', province: 'Kujawsko-Pomorskie', post_index: '87-100' },
     { city: 'Opole', street: 'Ozimska', province: 'Opolskie', post_index: '45-057' },
-    { city: 'Opole', street: 'Krakowska', province: 'Opolskie', post_index: '45-018' }
+    { city: 'Opole', street: 'Krakowska', province: 'Opolskie', post_index: '45-018' },
+    { city: 'Sosnowiec', street: 'Modrzejowska', province: 'Śląskie', post_index: '41-200' },
+    { city: 'Sosnowiec', street: 'Warszawska', province: 'Śląskie', post_index: '41-219' },
+    { city: 'Kielce', street: 'Sienkiewicza', province: 'Świętokrzyskie', post_index: '25-002' },
+    { city: 'Kielce', street: 'Żelazna', province: 'Świętokrzyskie', post_index: '25-001' },
+    { city: 'Olsztyn', street: 'Staromiejska', province: 'Warmińsko-Mazurskie', post_index: '10-002' },
+    { city: 'Olsztyn', street: 'Piłsudskiego', province: 'Warmińsko-Mazurskie', post_index: '10-575' },
+    { city: 'Rybnik', street: 'Sobieskiego', province: 'Śląskie', post_index: '44-200' },
+    { city: 'Rybnik', street: 'Kościuszki', province: 'Śląskie', post_index: '44-200' },
+    { city: 'Zielona Góra', street: 'Bohaterów Westerplatte', province: 'Lubuskie', post_index: '65-001' },
+    { city: 'Zielona Góra', street: 'Stefana Batorego', province: 'Lubuskie', post_index: '65-002' },
+    { city: 'Dąbrowa Górnicza', street: 'Królowej Jadwigi', province: 'Śląskie', post_index: '41-300' },
+    { city: 'Dąbrowa Górnicza', street: '3 Maja', province: 'Śląskie', post_index: '41-300' },
+    { city: 'Płock', street: 'Tumska', province: 'Mazowieckie', post_index: '09-400' },
+    { city: 'Płock', street: 'Grodzka', province: 'Mazowieckie', post_index: '09-402' },
+    { city: 'Elbląg', street: 'Stary Rynek', province: 'Warmińsko-Mazurskie', post_index: '82-300' },
+    { city: 'Elbląg', street: 'Nowowiejska', province: 'Warmińsko-Mazurskie', post_index: '82-300' }
 ];
 
 function getRandomAddress() {

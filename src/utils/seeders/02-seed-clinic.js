@@ -19,7 +19,7 @@ module.exports = {
             updatedAt: new Date(),
         });
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 20; i++) {
             clinics.push({
                 photo: faker.image.url(),
                 name: fakerPL.company.name(),

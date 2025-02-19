@@ -22,7 +22,7 @@ module.exports = {
             });
         }
 
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 200; i++) {
             users.push({
                 photo: faker.image.avatar(),
                 first_name: fakerPL.person.firstName(),
@@ -37,6 +37,9 @@ module.exports = {
                 createdAt: new Date(),
                 updatedAt: new Date(),
             });
+        }
+
+        for (let i = 0; i < 1000; i++) {
             users.push({
                 photo: fakerPL.image.avatar(),
                 first_name: fakerPL.person.firstName(),

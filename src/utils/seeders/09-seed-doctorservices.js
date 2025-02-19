@@ -21,7 +21,7 @@ module.exports = {
             );
 
             if (clinicServices.length > 0) {
-                const numServices = faker.number.int({ min: 2, max: 4 });
+                const numServices = faker.number.int({ min: 2, max: clinicServices.length });
                 const selectedServices = faker.helpers.arrayElements(clinicServices, numServices);
 
                 selectedServices.forEach(service => {

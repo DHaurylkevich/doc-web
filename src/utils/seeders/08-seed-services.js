@@ -83,7 +83,7 @@ module.exports = {
         clinics.forEach(clinic => {
             specialties.forEach(specialty => {
 
-                const numServices = faker.number.int({ min: 1, max: 5 });
+                const numServices = faker.number.int({ min: 3, max: 7 });
                 const selectedServices = faker.helpers.arrayElements(serviceNames, numServices);
 
                 selectedServices.forEach(serviceName => {
