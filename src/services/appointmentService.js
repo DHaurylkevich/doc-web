@@ -370,7 +370,7 @@ const AppointmentService = {
                 first_visit: appointment.first_visit,
                 visit_type: appointment.visit_type,
                 status: appointment.status,
-                doctor: appointment.doctorService.doctor.user,
+                doctor: { id: appointment.doctorService.doctor.id, ...appointment.doctorService.doctor.user.dataValues },
                 clinic: appointment.clinic,
             }
         });
