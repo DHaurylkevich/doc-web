@@ -32,23 +32,25 @@ const PostService = {
                     attributes: ["name"],
                 }
             ],
+            order: [["createdAt", "DESC"]],
         });
+
         if (!rows.length) {
             return { pages: 0, posts: [] };
         }
 
         const totalPages = getTotalPages(count, parsedLimit, page);
 
-        // const groupedPosts = rows.reduce((accumulator, post) => {
-        //     const categoryName = post.category.name;
-        //     if (!accumulator[categoryName]) {
-        //         accumulator[categoryName] = [];
-        //     }
-        //     accumulator[categoryName].push(post);
-        //     return accumulator;
-        // }, {});
+        const groupedPosts = rows.reduce((accumulator, post) => {
+            const categoryName = post.category.name;
+            if (!accumulator[categoryName]) {
+                accumulator[categoryName] = [];
+            }
+            accumulator[categoryName].push(post);
+            return accumulator;
+        }, {});
 
-        return { pages: totalPages, posts: rows };
+        return { pages: totalPages, posts: groupedPosts };
     },
     getPostsByCategory: async (categoryId) => {
         return await db.Posts.findAll({
