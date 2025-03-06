@@ -1,10 +1,10 @@
 # MyLekarz API
 
-Этот проект представляет собой backend API для веб-приложения MyLekarz, позволяющего клиентам записываться на прием к врачу.
+This project is a backend API for MyLekarz web application that allows customers to book a doctor's appointment.
 
 ## Технологии:
 
-Проект использует следующие технологии и библиотеки:
+The project uses the following technologies and libraries:
 
 - **Backend**:
 
@@ -15,62 +15,62 @@
 
 - **Безопасность**:
 
-  - bcrypt (хеширование паролей)
-  - jsonwebtoken (JWT для аутентификации)
-  - helmet (защита HTTP заголовков)
-  - express-validator (валидация данных)
-  - express-jwt (middleware для JWT)
-  - express-session (управление сессиями)
-  - passport (аутентификация)
-  - passport-google-oauth20 (OAuth2 аутентификация через Google)
-  - passport-local (локальная аутентификация)
+  - bcrypt (password hashing)
+  - jsonwebtoken (JWT for authentication)
+  - helmet
+  - express-validator (data validation)
+  - express-jwt (middleware for JWT)
+  - express-session
+  - passport
+  - passport-google-oauth20 (OAuth2 authentication via Google)
+  - passport-local (local authentication)
 
-- **Файловое хранилище**:
+- **File Storage**:
 
-  - cloudinary (облачное хранилище для изображений)
-  - multer (middleware для обработки multipart/form-data)
-  - multer-storage-cloudinary (интеграция multer с Cloudinary)
+  - cloudinary (cloud storage for images)
+  - multer (middleware for multipart/form-data processing)
+  - multer-storage-cloudinary (multer integration with cloudinary)
 
-- **Логирование**:
+- **Logging**:
 
   - morgan
   - winston
 
-- **Документация API**:
+- **API Documentation**:
 
-  - swagger-jsdoc (генерация документации Swagger)
-  - swagger-ui-express (интерфейс Swagger UI)
+  - swagger-jsdoc (generation of Swagger documentation)
+  - swagger-ui-express (Swagger UI)
 
-- **Тестирование**:
+- **Testing**:
 
-  - mocha (тестовый фреймворк)
-  - chai (библиотека утверждений)
-  - chai-as-promised (утверждения для промисов)
-  - supertest (тестирование HTTP)
+  - mocha (test framework)
+  - chai (assertion library)
+  - chai-as-promised (assertions for promises)
+  - supertest
   - faker
   - mochawesome
 
-- **Другие**:
+- **Other**:
   - socket.io
   - express-socket.io-session
   - socket.io-client
 
-## Установка
+## Installation
 
-### 1. Клонируйте репозиторий:
+### 1. Clone the repository:
 
 ```bash
     git clone https://github.com/DHaurylkevich/doc-web.git
     cd doc-web
 ```
 
-### 2. Установите зависимости:
+### 2. Install dependencies:
 
 ```bash
     npm install
 ```
 
-### 3. Создайте файл .env и добавьте необходимые переменные окружения:
+### 3. Create an .env file and add the necessary environment variables:
 
 ```
     DATABASE_URL=mysql://user:password@localhost:3306/mylekarz
@@ -81,50 +81,50 @@
     SESSION_SECRET=your_session_secret
 ```
 
-При первом включении, для синхронизации базы данных и моделей:
+On first power on, to synchronise the database and models:
 
 ```
 DB_SYNC=true
 ```
 
-### 4. Запуск миграций базы данных:
+### 4. Start database migrations:
 
     npx sequelize-cli db:migrate
 
-### 5. Заполение базы данных:
+### 5. Filling the database:
 
     npx sequelize-cli db:seed:all
 
-### 6. Запустить сервер
+### 6. Start server
 
     npm start
 
-## Тестирование
+## Tests
 
-Для запуска тестов используйте команду:
+To run tests, use the command:
 
     npm test
 
-## Документация
+## Documentation
 
-    ### Документация для API
+    ### Documentation for API
     http://localhost:3000/api-docs/
 
-    ### Документация для тестов
+    ### Documentation for tests
     npx mocha testfile.js --reporter mochawesome
-    Открыть файл mochawesome.html
+    Open file mochawesome.html
 
 ## Структура проекта
 
     src/
-    ├── config/        # Конфигурация
-    ├── controllers/   # Контроллеры для обработки запросов
-    ├── middleware/    # Промежуточные обработчики
-    ├── models/        # Модели данных Sequelize
-    ├── routes/        # Маршрутизация API
-    ├── services/      # Бизнес-логика
-    ├── socketHandlers # Обработчики WebSocket
-    ├── utils/         # Вспомогательные утилиты
+    ├── config/        # Config
+    ├──── controllers/ # Controllers for request processing
+    ├──── middleware/ # Intermediate handlers
+    ├─── models/ # Sequelise data models
+    ├─── routes/ # API routing
+    ├──── services/ # Business logic
+    ├──── socketHandlers # WebSocket handlers
+    ├──── utils/ # Auxiliary utilities
     tests/
-    ├── integration/   # Интеграционные тесты
-    ├── unit/          # Модульные тесты
+    ├──── integration/ # Integration tests
+    ├─── unit/ # Unit tests

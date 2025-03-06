@@ -31,7 +31,7 @@ const sendMessage = async ({ io, socket, chatId, to, content, fileUrl = null }) 
 
         logger.info(`SEND MESSAGE ${to} ${socket.user.id}`);
     } catch (err) {
-        logger.error("Ошибка при отправке сообщения:", err);
+        logger.error("Error:", err);
         socket.emit("error", { message: "Error saving message" });
     }
 };

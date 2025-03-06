@@ -7,17 +7,17 @@ const startChatWithMessage = async ({ io, socket, to, content }) => {
 
         socket.emit("message:send", { chatId, to, content })
 
-        io.in(`user:${socket.user.id}`).socketsJoin(`chat:${chatId}`); // всех устройств с комнаты в чат 
-        socket.to(`user:${socket.user.id}`).emit("chat:start", { chatId }); // уведомление о начале чата
+        io.in(`user:${socket.user.id}`).socketsJoin(`chat:${chatId}`);
+        socket.to(`user:${socket.user.id}`).emit("chat:start", { chatId });
 
-        io.in(`user:${to}`).socketsJoin(`chat:${chatId}`); // всех устройств с комнаты в чат 
-        io.to(`user:${to}`).emit("chat:start", { chatId });// уведомление о начале чата
+        io.in(`user:${to}`).socketsJoin(`chat:${chatId}`);
+        io.to(`user:${to}`).emit("chat:start", { chatId });
 
         logger.info(`user ${socket.user.id} has joined channel ${chatId}`);
         logger.info(`user ${to.id} has joined channel ${chatId}`);
     } catch (err) {
         logger.error(err);
-        socket.emit("error", { message: "Ошибка при создании чата" });
+        socket.emit("error", { message: "Error" });
     }
 }
 const listChats = async ({ socket }) => {

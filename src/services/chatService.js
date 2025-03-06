@@ -33,7 +33,7 @@ const chatService = {
             );
             return newChat.id;
         } catch (err) {
-            throw new AppError("Ошибка при создании чата" + err.messages, 500);
+            throw new AppError("Error" + err.messages, 500);
         }
     },
     getChats: async (user) => {
@@ -102,7 +102,7 @@ const chatService = {
 
             return chats;
         } catch (err) {
-            throw new AppError("Ошибка при получении чата" + err.messages, 500);
+            throw new AppError("Error" + err.messages, 500);
         }
     },
     getOneChatByUsers: async (participants) => {
@@ -127,7 +127,7 @@ const chatService = {
             });
             return chat;
         } catch (err) {
-            throw new AppError("Ошибка при получении чата" + err.messages, 500);
+            throw new AppError("Error" + err.messages, 500);
         }
     },
     deleteChat: async (chatId) => {

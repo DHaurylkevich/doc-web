@@ -46,7 +46,6 @@ const swaggerSetupOptions = {
 module.exports = (app) => {
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs, swaggerSetupOptions));
 
-    // Явное указание маршрутов для статики Swagger UI
     app.get('/swagger-ui-bundle.js', (req, res) => {
         res.sendFile(require.resolve('swagger-ui-dist/swagger-ui-bundle.js'));
     });

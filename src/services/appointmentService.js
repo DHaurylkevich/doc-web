@@ -309,7 +309,7 @@ const AppointmentService = {
                     include: [
                         {
                             model: db.Doctors, as: "doctor",
-                            attributes: ["user_id"],
+                            attributes: ["id", "user_id"],
                             include: [
                                 {
                                     model: db.Users,

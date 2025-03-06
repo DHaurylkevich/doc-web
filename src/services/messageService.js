@@ -27,22 +27,6 @@ const messageService = {
     getMessageById: async (messageId) => {
         return await db.Messages.findByPk(messageId);
     },
-    // getMessagesRecoveredForChat: async (chatId, serverOffset, limit, offset) => {
-    //     const messages = await db.Messages.findAll({
-    //         where: {
-    //             id: {
-    //                 [Op.gt]: serverOffset
-    //             },
-    //             chat_id: chatId,
-    //         },
-    //         limit,
-    //         offset
-    //     });
-    //     if (!messages) {
-    //         throw new AppError("Messages not found", 404);
-    //     }
-    //     return messages;
-    // },
     updateMessageStatus: async (messageId, status) => {
         return await db.Messages.update({ status }, { where: { id: messageId } });
     },
