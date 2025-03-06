@@ -39,16 +39,16 @@ const PostService = {
 
         const totalPages = getTotalPages(count, parsedLimit, page);
 
-        const groupedPosts = rows.reduce((accumulator, post) => {
-            const categoryName = post.category.name;
-            if (!accumulator[categoryName]) {
-                accumulator[categoryName] = [];
-            }
-            accumulator[categoryName].push(post);
-            return accumulator;
-        }, {});
+        // const groupedPosts = rows.reduce((accumulator, post) => {
+        //     const categoryName = post.category.name;
+        //     if (!accumulator[categoryName]) {
+        //         accumulator[categoryName] = [];
+        //     }
+        //     accumulator[categoryName].push(post);
+        //     return accumulator;
+        // }, {});
 
-        return { pages: totalPages, posts: groupedPosts };
+        return { pages: totalPages, posts: rows };
     },
     getPostsByCategory: async (categoryId) => {
         return await db.Posts.findAll({
